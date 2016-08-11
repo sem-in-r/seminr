@@ -1,39 +1,32 @@
 # LIBRARIES
 library(semPLS)
 
-Construct <- function(construct.name, item.name, item.nums=NULL, item.prefix=NULL, item.mid=NULL, item.suffix=NULL) {
-  return(as.vector(rbind( rep(construct.name, length(items)),
-                          paste(item.prefix, item.name, item.mid, item.nums, item.suffix, sep=""))))
+# FUNCTIONS
+construct <- function(construct_name, item_name, item_numbers, item_prefix = NULL,
+                      item_mid = NULL, item_suffix = NULL) {
+  return(as.vector(rbind(rep(construct_name, length(item_numbers)),
+                         paste(item_prefix, item_name, item_mid, item_numbers, item_suffix, sep = ""))))
 }
 
+single_item <- function(construct_name, item_name) {
+  return(as.vector(rbind(construct_name, item_name)))
+}
 
-Paths <- function(from, to) {
+paths <- function(from, to) {
   return(as.vector(t(as.matrix(expand.grid(from, to)))))
 }
 
-MeasurementModel <-  function(...) {
-  return(matrix(c(...), ncol=2, byrow=TRUE, dimnames=list(NULL,c("source", "target"))))
+measure <- function(...) {
+  return(matrix(c(...), ncol = 2, byrow = TRUE,
+                dimnames = list(NULL, c("source", "target"))))
 }
 
-StructuralModel <- function(...) {
-  return(matrix(c(...), ncol=2, byrow=TRUE, dimnames=list(NULL,c("source", "target"))))
+structure <- function(...) {
+  return(matrix(c(...), ncol = 2, byrow = TRUE,
+                dimnames = list(NULL, c("source", "target"))))
 }
 
-PrintPaths <- function(modelEstimated) {
-  paths = modelEstimated$path_coefficients
-  paths[paths == 0] <- NA
-  paths <- round(paths, 2)
-  paths <- paths[, grep('^[mo]', colnames(paths))]
-  paths <- paths[grep('^[amx]', rownames(paths)), ]
-  print(paths)
+plot_scores <- function(fitted_model) {
+  plot(as.data.frame(fitted_model$factor_scores), pch = 16,
+       col = rgb(0.5, 0.5, 0.5, alpha = 0.6))
 }
-
-PlotScores <- function(modelEstimated, typePrefixes) {
-  regex = paste("^[", typePrefixes, "]", sep = "")
-  scores = modelEstimated$factor_scores
-  relevantScores = scores[, grep(regex, colnames(scores))]
-  plot(as.data.frame(relevantScores), pch=16, col=rgb(0.5, 0.5, 0.5, alpha=0.6))
-}
-
-# DATA
-survey = read.csv(file="RawData_0821.csv")

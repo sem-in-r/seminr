@@ -1,6 +1,6 @@
 Package: modelr
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Natural-feeling domain-specific language for building PLS structural equation models
 Version: 0.1
 Date: 2016-08-11
 Author: Who wrote it
