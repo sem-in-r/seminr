@@ -1,20 +1,24 @@
+# This example recreates the ECSI model on mobile users found at:
+#  https://cran.r-project.org/web/packages/semPLS/vignettes/semPLS-intro.pdf
+
 source("R/syntax.R")
 
 data("mobi")
 
 # modelr syntax for creating measurement model
 
-img <- construct("Image", "IMAG", 1:5)
-exp <- construct("Expectation", "CUEX", 1:3)
-qly <- construct("Quality", "PERQ", 1:7)
-val <- construct("Value", "PERV", 1:2)
-sat <- construct("Satisfaction", "CUSA", 1:3)
-com <- single_item("Complaints", "CUSCO")
-loy <- construct("Loyalty", "CUSL", 1:3)
-
-mobi_mm <- measure(img, exp, qly, val, sat, com, loy)
+mobi_mm <- measure(
+  reflect("Image", "IMAG", 1:5),
+  reflect("Expectation", "CUEX", 1:3),
+  reflect("Quality", "PERQ", 1:7),
+  reflect("Value", "PERV", 1:2),
+  reflect("Satisfaction", "CUSA", 1:3),
+  single_item("Complaints", "CUSCO"),
+  reflect("Loyalty", "CUSL", 1:3)
+)
 
 # modelr syntax for creating structural model
+# - note, three ways to represent the structure
 
 mobi_sm <- structure(
   paths(from = "Image", to = c("Expectation", "Satisfaction", "Loyalty")),
