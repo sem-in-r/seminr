@@ -8,25 +8,19 @@ measure <- function(...) {
                 dimnames = list(NULL, c("source", "target"))))
 }
 
-reflect <- function(construct_name, item_name, item_numbers, ...) {
-  construct <- .construct_items(construct_name, item_name, item_numbers, ...)
-  return(as.vector(rbind(construct$names, construct$items)))
+reflect <- function(construct_name, item_names) {
+  construct_names <- rep(construct_name, length(item_names))
+  return(c(rbind(construct_names, item_names)))
 }
 
-form <- function(construct_name, item_name, item_numbers, ...) {
-  construct <- .construct_items(construct_name, item_name, item_numbers, ...)
-  return(as.vector(rbind(construct$items, construct$names)))
+form <- function(construct_name, item_names) {
+  construct_names <- rep(construct_name, length(item_names))
+  return(c(rbind(item_names, construct_names)))
 }
 
-single_item <- function(construct_name, item_name) {
-  return(c(construct_name, item_name))
-}
-
-.construct_items <- function(construct_name, item_name, item_numbers, item_prefix = NULL,
-                             item_mid = NULL, item_suffix = NULL) {
-  items <- paste(item_prefix, item_name, item_mid, item_numbers, item_suffix, sep = "")
-  names <- rep(construct_name, length(items))
-  return(list(names=names, items=items))
+multi_items <- function(item_name, item_numbers,
+                       item_prefix = NULL, item_mid = NULL, item_suffix = NULL) {
+  paste(item_prefix, item_name, item_mid, item_numbers, item_suffix, sep = "")
 }
 
 # Structural functions
@@ -45,7 +39,7 @@ plot_scores <- function(fitted_model) {
 }
 
 
-# Interactions
+# Interaction Functions
 
 # Create new interaction data items by multipying all combination of factor items
 #
@@ -64,8 +58,6 @@ interaction_combo <- function(factor1, factor2) {
     iv1_items <- mm[mm[, "source"] == factor1, ][, "target"]
     iv2_items <- mm[mm[, "source"] == factor2, ][, "target"]
 
-    # interaction_mm <-
-
     iv1_data <- data[iv1_items]
     iv2_data <- data[iv2_items]
 
@@ -78,4 +70,25 @@ interaction_combo <- function(factor1, factor2) {
 
     return(list(name = interaction_name, data = interaction_data))
   }
+}
+
+# Model Assembly Functions
+modelr <- function(data, measurement_model, structural_model, interactions=NULL) {
+  if(!is.null(interactions)) {
+    # update data with new iteraction items
+    get_data <- function(intxn) { intxn$data }
+    interaction_data <- do.call("cbind", lapply(interactions, get_data))
+    data <- cbind(data, interaction_data)
+
+    # update measurement model with
+    create_interaction <- function(intxn) {
+      reflect(intxn$name, names(intxn$data))
+    }
+    interactions_mm <- measure(do.call("c", lapply(interactions, create_interaction)))
+    measurement_model <- rbind(measurement_model, interactions_mm)
+  }
+
+  return(list(
+    model = semPLS::plsm(data = data, strucmod = structural_model, measuremod = measurement_model),
+    data = data))
 }

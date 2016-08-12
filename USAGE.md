@@ -7,13 +7,25 @@ This document highlights the diffent types of `modelr` syntax for particular use
 
 ## Measurement
 
-### Measurement Mode
+### Measurement mode: reflective vs. formative
 
 You can specify formative or reflective factors:
 ``` r
 simple_mm <- measure(
-  formative("Quality", "PERQ", 1:7),
-  reflective("Expectation", "CUEX", 1:3)
+  reflect("Expectation", multi_items("CUEX", 1:3)),
+  form("Quality", multi_items("PERQ", 1:7))
+)
+```
+
+### Measurement items: multiple vs. single
+
+You may specify multiple items or a single item to measure a construct. `multi_items(...)` specifies multiple items, and a single item can simply be named.
+
+``` r
+simple_mm <- measure(
+  reflect("Quality", multi_items("PERQ", 1:7)),         # seven-item measure
+  reflect("Satisfaction", multi_items("CUSA", c(1,3))), # two-item measure
+  reflect("Expectation", "CUEX1")                       # single-item measure
 )
 ```
 
