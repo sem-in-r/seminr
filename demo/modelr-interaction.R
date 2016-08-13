@@ -1,7 +1,6 @@
 # Shows an example of adding interactions to a model
 
 source("R/syntax.R")
-data("mobi")
 
 # modelr syntax for creating measurement model
 mobi_mm <- measure(
@@ -12,8 +11,7 @@ mobi_mm <- measure(
 )
 
 # interaction factors must be created after the measurement model is defined
-mobi_intxns <- interact(
-  data = mobi, mm = mobi_mm,
+mobi_xm <- interact(
   interaction_combo("Image", "Expectation"),
   interaction_combo("Image", "Value")
 )
@@ -26,8 +24,9 @@ mobi_sm <- structure(
                  "Image.Expectation", "Image.Value"))
 )
 
-# Regular semPLS functions to create andestimate model, and report estimates
-mobi_pls <- modelr(mobi, mobi_mm, mobi_sm, mobi_intxns)
+# Load data, assemble model, and estimate using semPLS
+data("mobi")
+mobi_pls <- modelr(mobi, mobi_mm, mobi_xm, mobi_sm)
 mobi_pls_fitted <- sempls(model = mobi_pls$model, data = mobi_pls$data)
 pathCoeff(mobi_pls_fitted)
 rSquared(mobi_pls_fitted)

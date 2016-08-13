@@ -3,8 +3,6 @@
 
 source("R/syntax.R")
 
-data("mobi")
-
 # modelr syntax for creating measurement model
 
 mobi_mm <- measure(
@@ -30,8 +28,12 @@ mobi_sm <- structure(
 )
 
 # Regular semPLS functions to create andestimate model, and report estimates
-mobi_pls <- plsm(data = mobi, strucmod = mobi_sm, measuremod = mobi_mm)
-mobi_pls_fitted <- sempls(model = mobi_pls, data = mobi)
+data("mobi")
+mobi_pls <- modelr(data = mobi,
+                   measurement_model = mobi_mm,
+                   structural_model = mobi_sm)
+mobi_pls_fitted <- sempls(model = mobi_pls$model,
+                          data = mobi_pls$data)
 pathCoeff(mobi_pls_fitted)
 rSquared(mobi_pls_fitted)
 

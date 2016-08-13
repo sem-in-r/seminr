@@ -41,15 +41,21 @@ plot_scores <- function(fitted_model) {
 
 # Interaction Functions
 
-# Create new interaction data items by multipying all combination of factor items
+# Create interaction measurement items by multipying all combination of factor items
 #
-# e.g.> interaction_combo(mobi, mobi_mm, "Image", "Expectation")
+# e.g. create two new interactions: Image.Expectation and Image.Value
+#
+# interact( interaction_combo("Image", "Expectation"),
+#           interaction_combo("Image", "Value")
+# )
 #
 
-interact <- function(data, mm, ...) {
-  create_interaction <- function(intxn_function) { intxn_function(data, mm) }
-  interactions <- lapply(list(...), create_interaction)
-  return(interactions)
+interact <- function(...) {
+  function(data, mm, all_intxns=list(...)) {
+    create_interaction <- function(intxn_function) { intxn_function(data, mm) }
+    intxns_list <- lapply(all_intxns, create_interaction)
+    return(intxns_list)
+  }
 }
 
 interaction_combo <- function(factor1, factor2) {
@@ -73,19 +79,20 @@ interaction_combo <- function(factor1, factor2) {
 }
 
 # Model Assembly Functions
-modelr <- function(data, measurement_model, structural_model, interactions=NULL) {
+modelr <- function(data, measurement_model, interactions=NULL, structural_model) {
   if(!is.null(interactions)) {
     # update data with new iteraction items
+    intxns_list <- interactions(data, measurement_model)
     get_data <- function(intxn) { intxn$data }
-    interaction_data <- do.call("cbind", lapply(interactions, get_data))
+    interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
     data <- cbind(data, interaction_data)
 
     # update measurement model with
-    create_interaction <- function(intxn) {
+    measure_interaction <- function(intxn) {
       reflect(intxn$name, names(intxn$data))
     }
-    interactions_mm <- measure(do.call("c", lapply(interactions, create_interaction)))
-    measurement_model <- rbind(measurement_model, interactions_mm)
+    intxns_mm <- measure(do.call("c", lapply(intxns_list, measure_interaction)))
+    measurement_model <- rbind(measurement_model, intxns_mm)
   }
 
   return(list(
