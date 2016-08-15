@@ -1,10 +1,16 @@
 Package: modelr
 Type: Package
-Title: Natural-feeling domain-specific language for building PLS structural equation models
+Title: Natural, friendly, domain-specific language for building PLS structural equation models
 Version: 0.1
-Date: 2016-08-11
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Date: 2016-08-12
+Authors@R: c(person("Soumya", "Ray",
+              email = "soumya.ray@gmail.com", role = c("aut", "cre")),
+             person("Nicholas", "Danks",
+              email = "nicholas.danks@gmail.com", role = c("aut")))
+Description:
+  Modelr offers an easy to write and easy to change syntax for
+  specifying `plsm` models that are compatible with `semPLS`, `sem`,
+  and possibly other packages supporting structural equation models.
+Imports: semPLS
+License: GPL-3
 LazyData: TRUE
