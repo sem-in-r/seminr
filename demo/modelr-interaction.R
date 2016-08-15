@@ -4,9 +4,9 @@ source("R/syntax.R")
 
 # modelr syntax for creating measurement model
 mobi_mm <- measure(
-  reflect("Image", multi_items("IMAG", 1:5)),
-  reflect("Expectation", multi_items("CUEX", 1:3)),
-  reflect("Value", multi_items("PERV", 1:2)),
+  reflect("Image",        multi_items("IMAG", 1:5)),
+  reflect("Expectation",  multi_items("CUEX", 1:3)),
+  reflect("Value",        multi_items("PERV", 1:2)),
   reflect("Satisfaction", multi_items("CUSA", 1:3))
 )
 

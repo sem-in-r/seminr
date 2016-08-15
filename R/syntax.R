@@ -18,29 +18,28 @@ form <- function(construct_name, item_names) {
   return(c(rbind(item_names, construct_names)))
 }
 
-multi_items <- function(item_name, item_numbers,
-                       item_prefix = NULL, item_mid = NULL, item_suffix = NULL) {
-  paste(item_prefix, item_name, item_mid, item_numbers, item_suffix, sep = "")
+# Creates list of measurement items using root name, numbers, and affixes
+#
+# arguments:
+#   item_name: root name of all items
+#   item_numbers: vector of item numbers
+#   ...: optional affix arguments
+#     prefix: prefix before each item name
+#     mid: insert between item name and numbers
+#     suffix: suffix after each ite name
+#
+# e.g.> multi_items("item", 0:3, prefix="X_", mid=".", suffix="_")
+#
+multi_items <- function(item_name, item_numbers, ...) {
+  affix <- as.data.frame(list(...))
+  paste(affix$prefix, item_name, affix$mid, item_numbers, affix$suffix, sep = "")
 }
 
-# Structural functions
-paths <- function(from, to) {
-  return(as.vector(t(as.matrix(expand.grid(from, to)))))
+single_item <- function(item) {
+  return(item)
 }
-
-structure <- function(...) {
-  return(matrix(c(...), ncol = 2, byrow = TRUE,
-                dimnames = list(NULL, c("source", "target"))))
-}
-
-plot_scores <- function(fitted_model) {
-  plot(as.data.frame(fitted_model$factor_scores), pch = 16,
-       col = rgb(0.5, 0.5, 0.5, alpha = 0.6))
-}
-
 
 # Interaction Functions
-
 # Create interaction measurement items by multipying all combination of factor items
 #
 # e.g. create two new interactions: Image.Expectation and Image.Value
@@ -78,6 +77,16 @@ interaction_combo <- function(factor1, factor2) {
   }
 }
 
+# Structural functions
+paths <- function(from, to) {
+  return(as.vector(t(as.matrix(expand.grid(from, to)))))
+}
+
+structure <- function(...) {
+  return(matrix(c(...), ncol = 2, byrow = TRUE,
+                dimnames = list(NULL, c("source", "target"))))
+}
+
 # Model Assembly Functions
 modelr <- function(data, measurement_model, interactions=NULL, structural_model) {
   if(!is.null(interactions)) {
@@ -99,3 +108,12 @@ modelr <- function(data, measurement_model, interactions=NULL, structural_model)
     model = semPLS::plsm(data = data, strucmod = structural_model, measuremod = measurement_model),
     data = data))
 }
+
+
+# Report Functions
+
+plot_scores <- function(fitted_model) {
+  plot(as.data.frame(fitted_model$factor_scores), pch = 16,
+       col = rgb(0.5, 0.5, 0.5, alpha = 0.6))
+}
+
