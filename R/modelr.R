@@ -2,7 +2,7 @@
 library(semPLS)
 
 # Model Assembly Functions
-modelr <- function(data, measurement_model, interactions=NULL, structural_model) {
+modelr <- function(data, measurement_model, interactions=NULL, structural_model, ...) {
   if(!is.null(interactions)) {
     # update data with new iteraction items
     intxns_list <- interactions(data, measurement_model)
@@ -18,8 +18,7 @@ modelr <- function(data, measurement_model, interactions=NULL, structural_model)
     measurement_model <- rbind(measurement_model, intxns_mm)
   }
 
-  return(list(
-    model = semPLS::plsm(data = data, strucmod = structural_model, measuremod = measurement_model),
-    data = data))
+  model = semPLS::plsm(data = data, strucmod = structural_model, measuremod = measurement_model)
+  cat("Estimating model using semPLS::sempls...\n")
+  mobi_pls_fitted <- semPLS::sempls(model, data, ...)
 }
-

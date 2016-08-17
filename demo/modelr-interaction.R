@@ -26,5 +26,4 @@ mobi_sm <- structure(
 # Load data, assemble model, and estimate using semPLS
 data("mobi")
 mobi_pls <- modelr(mobi, mobi_mm, mobi_xm, mobi_sm)
-mobi_pls_fitted <- sempls(model = mobi_pls$model, data = mobi_pls$data)
-print_paths(mobi_pls_fitted)
+print_paths(mobi_pls)
