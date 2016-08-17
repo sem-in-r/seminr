@@ -3,7 +3,7 @@
 modelr
 ======
 
-The goal of modelr is to ...
+The `modelr` package provides a natural syntax for researchers to describe PLS structural equation models.
 
 Installation
 ------------

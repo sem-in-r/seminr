@@ -1,6 +1,5 @@
 # Shows an example of adding interactions to a model
-
-source("R/syntax.R")
+library(modelr)
 
 # modelr syntax for creating measurement model
 mobi_mm <- measure(
@@ -27,6 +26,4 @@ mobi_sm <- structure(
 # Load data, assemble model, and estimate using semPLS
 data("mobi")
 mobi_pls <- modelr(mobi, mobi_mm, mobi_xm, mobi_sm)
-mobi_pls_fitted <- sempls(model = mobi_pls$model, data = mobi_pls$data)
-pathCoeff(mobi_pls_fitted)
-rSquared(mobi_pls_fitted)
+print_paths(mobi_pls)
