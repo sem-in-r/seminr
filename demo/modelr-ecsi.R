@@ -1,7 +1,7 @@
 # This example recreates the ECSI model on mobile users found at:
 #  https://cran.r-project.org/web/packages/semPLS/vignettes/semPLS-intro.pdf
 
-source("R/syntax.R")
+library(modelr)
 
 # modelr syntax for creating measurement model
 mobi_mm <- measure(
@@ -17,23 +17,20 @@ mobi_mm <- measure(
 # modelr syntax for creating structural model
 # - note, three ways to represent the structure
 mobi_sm <- structure(
-  paths(from = "Image", to = c("Expectation", "Satisfaction", "Loyalty")),
-  paths(from = "Expectation", to = c("Quality", "Value", "Satisfaction")),
-  paths(from = "Quality", to = c("Value", "Satisfaction")),
-  paths(from = "Value", to = c("Satisfaction")),
+  paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+  paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
+  paths(from = "Quality",      to = c("Value", "Satisfaction")),
+  paths(from = "Value",        to = c("Satisfaction")),
   paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
-  paths(from = "Complaints", to = "Loyalty")
+  paths(from = "Complaints",   to = "Loyalty")
 )
 
 # Regular semPLS functions to create andestimate model, and report estimates
 data("mobi")
+
 mobi_pls <- modelr(data = mobi,
                    measurement_model = mobi_mm,
                    structural_model = mobi_sm)
-mobi_pls_fitted <- sempls(model = mobi_pls$model,
-                          data = mobi_pls$data)
-pathCoeff(mobi_pls_fitted)
-rSquared(mobi_pls_fitted)
 
-# modelr function to see scatterplot of scores
-plot_scores(mobi_pls_fitted)
+print_paths(mobi_pls)
+plot_scores(mobi_pls)

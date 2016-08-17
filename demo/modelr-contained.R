@@ -1,9 +1,9 @@
-# Shows an example of modular vs. classic model design
+# Shows an example of contained model style
+library(modelr)
 
-source("R/syntax.R")
+# Contained Style: all model specifications are put together
+
 data("mobi")
-# MODULAR style
-# modelr syntax for creating measurement model
 
 mobi_pls <- modelr(
   data = mobi,
@@ -27,6 +27,4 @@ mobi_pls <- modelr(
   )
 )
 
-mobi_pls_fitted <- sempls(model = mobi_pls$model, data = mobi_pls$data)
-pathCoeff(mobi_pls_fitted)
-rSquared(mobi_pls_fitted)
+print_paths(mobi_pls)
