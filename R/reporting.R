@@ -10,7 +10,7 @@ print_paths <- function(model_estimated, na.print=".", digits=2) {
   path_matrix[structure_spec == 1] <- model_estimated$path_coefficients[structure_spec == 1]
 
   # add R Squared row
-  r_sq <- t(rSquared(model_estimated))[1, ]
+  r_sq <- t(semPLS::rSquared(model_estimated))[1, ]
   path_matrix <- rbind(r_sq, path_matrix)
   rownames(path_matrix) <- c("R^2", latent)
 

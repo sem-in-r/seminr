@@ -1,6 +1,3 @@
-# LIBRARIES
-library(semPLS)
-
 # Model Assembly Functions
 modelr <- function(data, measurement_model, interactions=NULL, structural_model, ...) {
   if(!is.null(interactions)) {
