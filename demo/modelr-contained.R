@@ -1,9 +1,8 @@
 # Shows an example of contained model style
 library(modelr)
-
 # Contained Style: all model specifications are put together
 
-data("mobi")
+data("mobi", package = "semPLS")
 
 mobi_pls <- modelr(
   data = mobi,
