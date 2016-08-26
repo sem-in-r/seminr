@@ -4,7 +4,8 @@
 \alias{interact}
 \title{Interaction Functions}
 \usage{
-interact( interaction_combo("factor1", "factor2"),
+Create two new interactions: factor1.factor2 and factor1.factor3
+  interact( interaction_combo("factor1", "factor2"),
             interaction_combo("factor1", "factor3")
   )
 }
@@ -16,7 +17,6 @@ interact( interaction_combo("factor1", "factor2"),
 }
 \details{
 This function automatically generates interaction measurement items for a PLS SEM.
-create two new interactions: Image.Expectation and Image.Value
 }
 \examples{
   mobi_xm <- interact(
