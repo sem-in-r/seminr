@@ -24,6 +24,6 @@ mobi_sm <- structure(
 )
 
 # Load data, assemble model, and estimate using semPLS
-data("mobi")
+data("mobi", package = "semPLS")
 mobi_pls <- modelr(mobi, mobi_mm, mobi_xm, mobi_sm)
 print_paths(mobi_pls)
