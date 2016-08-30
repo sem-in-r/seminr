@@ -25,7 +25,7 @@ mobi_sm <- structure(
   paths(from = "Complaints",   to = "Loyalty")
 )
 
-# Regular semPLS functions to create andestimate model, and report estimates
+# Regular semPLS functions to create and estimate model, and report estimates
 data("mobi")
 
 mobi_pls <- modelr(data = mobi,

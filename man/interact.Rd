@@ -2,6 +2,7 @@
 % Please edit documentation in R/interactions.R
 \name{interact}
 \alias{interact}
+\alias{interaction_combo}
 \title{Interaction Functions}
 \usage{
 Create two new interactions: factor1.factor2 and factor1.factor3
@@ -19,12 +20,15 @@ Create two new interactions: factor1.factor2 and factor1.factor3
 This function automatically generates interaction measurement items for a PLS SEM.
 }
 \examples{
-  mobi_xm <- interact(
-    interaction_combo("Image", "Expectation"),
-    interaction_combo("Image", "Value")
-  )
-}
-\seealso{
-See \code{interaction_combo}
+data("mobi", package = "semPLS")
+
+mobi_xm <- interact(
+  interaction_combo("Image", "Expectation"),
+  interaction_combo("Image", "Value")
+)
+
+mobi_pls <- modelr(mobi, mobi_mm, mobi_xm, mobi_sm)
+print_paths(mobi_pls)
+
 }
 

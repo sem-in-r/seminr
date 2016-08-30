@@ -12,13 +12,19 @@
 #'             interaction_combo("factor1", "factor3")
 #'   )
 #'
-#' @seealso See \code{interaction_combo}
-#'
 #' @examples
-#'   mobi_xm <- interact(
-#'     interaction_combo("Image", "Expectation"),
-#'     interaction_combo("Image", "Value")
-#'   )
+#' data("mobi", package = "semPLS")
+#'
+#' mobi_xm <- interact(
+#'   interaction_combo("Image", "Expectation"),
+#'   interaction_combo("Image", "Value")
+#' )
+#'
+#' mobi_pls <- modelr(mobi, mobi_mm, mobi_xm, mobi_sm)
+#' print_paths(mobi_pls)
+#'
+#' @aliases interaction_combo
+#'
 interact <- function(...) {
   function(data, mm, all_intxns=list(...)) {
     create_interaction <- function(intxn_function) { intxn_function(data, mm) }
