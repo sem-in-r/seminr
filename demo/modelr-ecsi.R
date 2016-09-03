@@ -26,7 +26,7 @@ mobi_sm <- structure(
 )
 
 # Regular semPLS functions to create andestimate model, and report estimates
-data("mobi")
+data("mobi", package = "semPLS")
 
 mobi_pls <- modelr(data = mobi,
                    measurement_model = mobi_mm,
