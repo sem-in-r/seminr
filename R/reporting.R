@@ -9,8 +9,8 @@
 #'   and R2 values for endogenous constructs or a scatterplot matrix of factor
 #'   scores.
 #'
-#' @param fitted_model An object of class \code{modelr}. The estimated model
-#'   returned by the \code{modelr} function.
+#' @param fitted_model An object of class \code{seminr}. The estimated model
+#'   returned by the \code{seminr} function.
 #'
 #' @param na.print A \code{character} substituting values not to be printed.
 #'   If not specified, default = "."
@@ -23,14 +23,14 @@
 #'
 #' @usage
 #' print_paths(model, na.print=".", digits=2)
-#' ## S3 method for class 'modelr'
+#' ## S3 method for class 'seminr'
 #'
 #' plot_scores(fitted_model, factors=NULL)
-#' ## S3 method for class 'modelr'
+#' ## S3 method for class 'seminr'
 #'
 #' @examples
 #' data("mobi", package = "semPLS")
-#' mobi_pls <- modelr(data = mobi,
+#' mobi_pls <- seminr(data = mobi,
 #'                    measurement_model = mobi_mm,
 #'                    structural_model = mobi_sm)
 #' print_paths(mobi_pls)

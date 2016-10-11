@@ -7,14 +7,14 @@
 and for generating a scatterplot matrix of factor scores.}
 \usage{
 print_paths(model, na.print=".", digits=2)
-## S3 method for class 'modelr'
+## S3 method for class 'seminr'
 
 plot_scores(fitted_model, factors=NULL)
-## S3 method for class 'modelr'
+## S3 method for class 'seminr'
 }
 \arguments{
-\item{fitted_model}{An object of class \code{modelr}. The estimated model
-returned by the \code{modelr} function.}
+\item{fitted_model}{An object of class \code{seminr}. The estimated model
+returned by the \code{seminr} function.}
 
 \item{na.print}{A \code{character} substituting values not to be printed.
 If not specified, default = "."}
@@ -37,7 +37,7 @@ These functions generate an easy to read table reporting path coefficients
 }
 \examples{
 data("mobi", package = "semPLS")
-mobi_pls <- modelr(data = mobi,
+mobi_pls <- seminr(data = mobi,
                    measurement_model = mobi_mm,
                    structural_model = mobi_sm)
 print_paths(mobi_pls)

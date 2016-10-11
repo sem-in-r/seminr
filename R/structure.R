@@ -1,4 +1,4 @@
-#' Structural specification functions for modelr package
+#' Structural specification functions for seminr package
 #'
 #' \code{paths} creates the structural paths of a PLS SEM model and \code{structure} generates
 #' the matrix of paths for use by PLS modelling packages such as semPLS and simplePLS.
@@ -12,7 +12,7 @@
 #'
 #' @usage
 #' structure(...)
-#' ## S3 method for class modelr
+#' ## S3 method for class seminr
 #'
 #' paths(from = , to = )
 #' ## S4 method for method structure()

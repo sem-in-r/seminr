@@ -20,7 +20,7 @@
 #'   interaction_combo("Image", "Value")
 #' )
 #'
-#' mobi_pls <- modelr(mobi, mobi_mm, mobi_xm, mobi_sm)
+#' mobi_pls <- seminr(mobi, mobi_mm, mobi_xm, mobi_sm)
 #' print_paths(mobi_pls)
 #'
 #' @aliases interaction_combo

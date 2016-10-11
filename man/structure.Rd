@@ -3,10 +3,10 @@
 \name{structure}
 \alias{paths}
 \alias{structure}
-\title{Structural specification functions for modelr package}
+\title{Structural specification functions for seminr package}
 \usage{
 structure(...)
-## S3 method for class modelr
+## S3 method for class seminr
 
 paths(from = , to = )
 ## S4 method for method structure()
