@@ -38,6 +38,7 @@
 #'
 #' @aliases plot_scores
 #'
+#' @export
 print_paths <- function(fitted_model, na.print=".", digits=2) {
   endogenous <- unique(fitted_model$model$strucmod[,"target"])
   exogenous <- unique(fitted_model$model$strucmod[,"source"])

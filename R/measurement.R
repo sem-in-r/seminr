@@ -29,6 +29,7 @@
 #'    reflect("Complaints",   single_item("CUSCO")),
 #'    reflect("Loyalty",      multi_items("CUSL", 1:3))
 #'    )
+#' @export
 measure <- function(...) {
   return(matrix(c(...), ncol = 2, byrow = TRUE,
                 dimnames = list(NULL, c("source", "target"))))
