@@ -34,12 +34,12 @@ measure <- function(...) {
   return(matrix(c(...), ncol = 2, byrow = TRUE,
                 dimnames = list(NULL, c("source", "target"))))
 }
-
+#' @export
 reflect <- function(construct_name, item_names) {
   construct_names <- rep(construct_name, length(item_names))
   return(c(rbind(construct_names, item_names)))
 }
-
+#' @export
 form <- function(construct_name, item_names) {
   construct_names <- rep(construct_name, length(item_names))
   return(c(rbind(item_names, construct_names)))
@@ -57,11 +57,12 @@ form <- function(construct_name, item_names) {
 #
 # e.g.> multi_items("item", 0:3, prefix="X_", mid=".", suffix="_")
 #
+#' @export
 multi_items <- function(item_name, item_numbers, ...) {
   affix <- as.data.frame(list(...))
   paste(affix$prefix, item_name, affix$mid, item_numbers, affix$suffix, sep = "")
 }
-
+#' @export
 single_item <- function(item) {
   return(item)
 }
