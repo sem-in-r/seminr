@@ -1,4 +1,4 @@
-Package: SEMinR
+Package: seminr
 Type: Package
 Title: Natural, friendly, domain-specific language for building PLS structural
     equation models

@@ -1,9 +1,9 @@
 ---
-title: "Different Use Cases of Modelr Syntax"
+title: "Different Use Cases of Seminr Syntax"
 output: pdf_document
 ---
 
-This document highlights the diffent types of `modelr` syntax for particular use cases in measurement and structural definitions.
+This document highlights the diffent types of `seminr` syntax for particular use cases in measurement and structural definitions.
 
 ## Measurement
 
