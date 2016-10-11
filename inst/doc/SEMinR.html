@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Soumya Ray &amp; Nicholas Danks" />
+
+<meta name="date" content="2016-08-26" />
+
+<title>SEMinR</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">SEMinR</h1>
+<h4 class="author"><em>Soumya Ray &amp; Nicholas Danks</em></h4>
+<h4 class="date"><em>August 26, 2016</em></h4>
+
+
+
+<div id="seminr" class="section level1">
+<h1>SEMinR</h1>
+<p>There are now many packages available for R to build, estimate and make predictions on PLS SEM models. However, the syntax of these models is disparate and complicated and often discourages practitioners from use.</p>
+<p>The goal of SEMinR is to provide a natural syntax for researchers to describe PLS structural equation models and that provides functionality across many different PLS SEM estimation and prediction packages, such as semPLS, matrixPLS and simplePLS.</p>
+<p>The description of the model often takes longer and requires dozens of lines of code, however SEMinR seeks to automate this process and make modelling such features as interactions and mediations much simpler.</p>
+<p>There are 3 basic steps in the PLS SEM model description:</p>
+<ul>
+<li><p>Describe the structural (inner) model</p></li>
+<li><p>Describe the measurement (outer) model</p></li>
+<li><p>Describe interactions</p></li>
+</ul>
+<p>The SEMinR package makes these steps fast and easy:</p>
+<ul>
+<li><p>By providing easily readable and writable syntax, describing the model becomes simpler - and you can quickly change paths and structures allowing for multiple model comparisons.</p></li>
+<li><p>It provides simple “verbs”, functions that correspond to the most common data manipulation tasks, to help you translate those thoughts into code.</p></li>
+<li><p>It automates such tedious tasks as creating interaction terms which usually require multiple lines of code and can be difficult to read and follow.</p></li>
+</ul>
+<p>This document introduces you to SEMinR’s basic set of tools, and shows you how to apply them to your models. Other vignettes provide more details on specific topics:</p>
+<ul>
+<li><p>vignette#2: bla bla bla</p></li>
+<li><p>vignette#3: bla bla bla</p></li>
+</ul>
+<div id="data-mobi-from-sempls-package" class="section level2">
+<h2>Data: ‘mobi’ from semPLS package</h2>
+<p>To explore the basic syntax of SEMinR, we’ll start with the data bundled with the semPLS package - <code>mobi</code> data frame. The data set is used as measurement instrument for the european customer satisfaction index (ECSI) adapted to the mobile phone market, see Tenenhaus et al. (2005).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(<span class="st">&quot;mobi&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;semPLS&quot;</span>)
+<span class="kw">dim</span>(mobi)
+<span class="co">#&gt; [1] 250  24</span>
+<span class="kw">head</span>(mobi)
+<span class="co">#&gt;   CUEX1 CUEX2 CUEX3 CUSA1 CUSA2 CUSA3 CUSCO CUSL1 CUSL2 CUSL3 IMAG1 IMAG2</span>
+<span class="co">#&gt; 1     7     7     6     6     4     7     7     6     5     6     7     5</span>
+<span class="co">#&gt; 2    10    10     9    10    10     8    10    10     2    10    10     9</span>
+<span class="co">#&gt; 3     7     7     7     8     7     7     6     6     2     7     8     7</span>
+<span class="co">#&gt; 4     7    10     5    10    10    10     5    10     4    10    10    10</span>
+<span class="co">#&gt; 5     8     7    10    10     8     8     5    10     3     8    10    10</span>
+<span class="co">#&gt; 6    10     9     7     8     7     7     8    10     3    10     8     9</span>
+<span class="co">#&gt;   IMAG3 IMAG4 IMAG5 PERQ1 PERQ2 PERQ3 PERQ4 PERQ5 PERQ6 PERQ7 PERV1 PERV2</span>
+<span class="co">#&gt; 1     5     5     4     7     6     4     7     6     5     5     2     3</span>
+<span class="co">#&gt; 2    10    10     9    10     9    10    10     9    10    10    10    10</span>
+<span class="co">#&gt; 3     6     4     7     7     8     5     7     8     7     7     7     7</span>
+<span class="co">#&gt; 4     5     5    10     8    10    10     8     4     5     8     5     5</span>
+<span class="co">#&gt; 5     5     8     9    10     9     8    10     9     9     8     6     6</span>
+<span class="co">#&gt; 6    10     8     9     9    10     9    10     8     9     9    10    10</span></code></pre></div>
+<p>PLS SEM estimation and prediction packages generally take a source - target type matrix as parameters for each of the structural model and the measurement model. They require the practitioner to create any interaction terms by hand prior to model description. SEMinR makes use of simple and natural verbs to describe the model.</p>
+</div>
+<div id="measurement-model-description-verbs" class="section level2">
+<h2>Measurement model description verbs</h2>
+<p>SEMinR verbs for measurement model description:</p>
+<ul>
+<li><code>multi_items()</code></li>
+<li><code>reflect()</code> (or <code>form()</code>)</li>
+<li><code>measure()</code></li>
+</ul>
+<p>These verbs are highly intuitive and provide for human-readable code that allows a practitioner to understand a measurement model on first glance and easily make changes to compare different measurement models.</p>
+<div id="describe-multiple-measurement-items-manifest-variables-with-multi_items-or-single-item-measurement-items-with-single_item" class="section level3">
+<h3>Describe multiple measurement items (manifest variables) with <code>multi_items()</code> or single item measurement items with <code>single_item()</code></h3>
+<p><code>single_item()</code> provides a verb to describe a single measurement item, while <code>multi_items()</code> provides a verb to describe multiple measurement items in one simple line of human-readable code.</p>
+<p>For example, we can describe the manifest variables: IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span>:<span class="dv">5</span>)
+<span class="co">#&gt; [1] &quot;IMAG1&quot; &quot;IMAG2&quot; &quot;IMAG3&quot; &quot;IMAG4&quot; &quot;IMAG5&quot;</span></code></pre></div>
+<p>This is equivalent to the more verbose code in base R:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">c</span>(<span class="st">&quot;IMAG1&quot;</span>, <span class="st">&quot;IMAG2&quot;</span>, <span class="st">&quot;IMAG3&quot;</span>, <span class="st">&quot;IMAG4&quot;</span>, <span class="st">&quot;IMAG5&quot;</span>)</code></pre></div>
+<p><code>multi_items()</code> is used in conjunction with <code>reflect()</code> or <code>form()</code> to describe a factor.</p>
+</div>
+<div id="describe-a-factor-with-form-or-reflect" class="section level3">
+<h3>Describe a factor with <code>form()</code> or <code>reflect()</code></h3>
+<p><code>form()</code> and <code>reflect()</code> provide a verb to describe a factor in one simple line of human-readable code.</p>
+<p>For example, we can describe the reflective factor “Image” with manifest variables IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">reflect</span>(<span class="st">&quot;Image&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span>:<span class="dv">5</span>))
+<span class="co">#&gt;  [1] &quot;Image&quot; &quot;IMAG1&quot; &quot;Image&quot; &quot;IMAG2&quot; &quot;Image&quot; &quot;IMAG3&quot; &quot;Image&quot; &quot;IMAG4&quot;</span>
+<span class="co">#&gt;  [9] &quot;Image&quot; &quot;IMAG5&quot;</span></code></pre></div>
+<p>or</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">form</span>(<span class="st">&quot;Image&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span>:<span class="dv">5</span>))
+<span class="co">#&gt;  [1] &quot;IMAG1&quot; &quot;Image&quot; &quot;IMAG2&quot; &quot;Image&quot; &quot;IMAG3&quot; &quot;Image&quot; &quot;IMAG4&quot; &quot;Image&quot;</span>
+<span class="co">#&gt;  [9] &quot;IMAG5&quot; &quot;Image&quot;</span></code></pre></div>
+<p>This is equivalent to the more verbose code in base R:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">c</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;IMAG1&quot;</span>, <span class="st">&quot;Image&quot;</span>, <span class="st">&quot;IMAG2&quot;</span>, <span class="st">&quot;Image&quot;</span>, <span class="st">&quot;IMAG3&quot;</span>, <span class="st">&quot;Image&quot;</span>, <span class="st">&quot;IMAG4&quot;</span>, <span class="st">&quot;Image&quot;</span>, <span class="st">&quot;IMAG5&quot;</span>)</code></pre></div>
+<p>for reflective factors or:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">c</span>(<span class="st">&quot;IMAG1&quot;</span>, <span class="st">&quot;Image&quot;</span>, <span class="st">&quot;IMAG2&quot;</span>, <span class="st">&quot;Image&quot;</span>, <span class="st">&quot;IMAG3&quot;</span>, <span class="st">&quot;Image&quot;</span>, <span class="st">&quot;IMAG4&quot;</span>, <span class="st">&quot;Image&quot;</span>, <span class="st">&quot;IMAG5&quot;</span>, <span class="st">&quot;Image&quot;</span>)</code></pre></div>
+<p>for formative factors.</p>
+<p><code>multi_items()</code> is used in conjunction with <code>reflect()</code> or <code>form()</code> to describe a factor. <code>measure()</code> is used in conjunction with multiple factor descriptions to describe the entire measurement model.</p>
+</div>
+<div id="create-measurement-model-matrix-with-measure" class="section level3">
+<h3>Create measurement model matrix with <code>measure()</code></h3>
+<p><code>measure()</code> compiles the measurement model source-target matrix from the user specified factor descriptions described in the parameters.</p>
+<p>For example, we can create a source-target matrix measurement model for the <code>mobi</code> data:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_mm &lt;-<span class="st"> </span><span class="kw">measure</span>(
+  <span class="kw">reflect</span>(<span class="st">&quot;Image&quot;</span>,        <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span>:<span class="dv">5</span>)),
+  <span class="kw">reflect</span>(<span class="st">&quot;Expectation&quot;</span>,  <span class="kw">multi_items</span>(<span class="st">&quot;CUEX&quot;</span>, <span class="dv">1</span>:<span class="dv">3</span>)),
+  <span class="kw">reflect</span>(<span class="st">&quot;Quality&quot;</span>,      <span class="kw">multi_items</span>(<span class="st">&quot;PERQ&quot;</span>, <span class="dv">1</span>:<span class="dv">7</span>)),
+  <span class="kw">reflect</span>(<span class="st">&quot;Value&quot;</span>,        <span class="kw">multi_items</span>(<span class="st">&quot;PERV&quot;</span>, <span class="dv">1</span>:<span class="dv">2</span>)),
+  <span class="kw">form</span>(<span class="st">&quot;Satisfaction&quot;</span>,    <span class="kw">multi_items</span>(<span class="st">&quot;CUSA&quot;</span>, <span class="dv">1</span>:<span class="dv">3</span>)),
+  <span class="kw">form</span>(<span class="st">&quot;Complaints&quot;</span>,      <span class="kw">single_item</span>(<span class="st">&quot;CUSCO&quot;</span>)),
+  <span class="kw">form</span>(<span class="st">&quot;Loyalty&quot;</span>,         <span class="kw">multi_items</span>(<span class="st">&quot;CUSL&quot;</span>, <span class="dv">1</span>:<span class="dv">3</span>))
+)</code></pre></div>
+<p>The output of this code is:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_mm
+<span class="co">#&gt;       source        target        </span>
+<span class="co">#&gt;  [1,] &quot;Image&quot;       &quot;IMAG1&quot;       </span>
+<span class="co">#&gt;  [2,] &quot;Image&quot;       &quot;IMAG2&quot;       </span>
+<span class="co">#&gt;  [3,] &quot;Image&quot;       &quot;IMAG3&quot;       </span>
+<span class="co">#&gt;  [4,] &quot;Image&quot;       &quot;IMAG4&quot;       </span>
+<span class="co">#&gt;  [5,] &quot;Image&quot;       &quot;IMAG5&quot;       </span>
+<span class="co">#&gt;  [6,] &quot;Expectation&quot; &quot;CUEX1&quot;       </span>
+<span class="co">#&gt;  [7,] &quot;Expectation&quot; &quot;CUEX2&quot;       </span>
+<span class="co">#&gt;  [8,] &quot;Expectation&quot; &quot;CUEX3&quot;       </span>
+<span class="co">#&gt;  [9,] &quot;Quality&quot;     &quot;PERQ1&quot;       </span>
+<span class="co">#&gt; [10,] &quot;Quality&quot;     &quot;PERQ2&quot;       </span>
+<span class="co">#&gt; [11,] &quot;Quality&quot;     &quot;PERQ3&quot;       </span>
+<span class="co">#&gt; [12,] &quot;Quality&quot;     &quot;PERQ4&quot;       </span>
+<span class="co">#&gt; [13,] &quot;Quality&quot;     &quot;PERQ5&quot;       </span>
+<span class="co">#&gt; [14,] &quot;Quality&quot;     &quot;PERQ6&quot;       </span>
+<span class="co">#&gt; [15,] &quot;Quality&quot;     &quot;PERQ7&quot;       </span>
+<span class="co">#&gt; [16,] &quot;Value&quot;       &quot;PERV1&quot;       </span>
+<span class="co">#&gt; [17,] &quot;Value&quot;       &quot;PERV2&quot;       </span>
+<span class="co">#&gt; [18,] &quot;CUSA1&quot;       &quot;Satisfaction&quot;</span>
+<span class="co">#&gt; [19,] &quot;CUSA2&quot;       &quot;Satisfaction&quot;</span>
+<span class="co">#&gt; [20,] &quot;CUSA3&quot;       &quot;Satisfaction&quot;</span>
+<span class="co">#&gt; [21,] &quot;CUSCO&quot;       &quot;Complaints&quot;  </span>
+<span class="co">#&gt; [22,] &quot;CUSL1&quot;       &quot;Loyalty&quot;     </span>
+<span class="co">#&gt; [23,] &quot;CUSL2&quot;       &quot;Loyalty&quot;     </span>
+<span class="co">#&gt; [24,] &quot;CUSL3&quot;       &quot;Loyalty&quot;</span></code></pre></div>
+<p>This is equivalent to the more verbose code in base R:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_mm &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(<span class="st">&quot;Image&quot;</span>,<span class="st">&quot;IMAG1&quot;</span>,
+                    <span class="st">&quot;Image&quot;</span>,<span class="st">&quot;IMAG2&quot;</span>,
+                    <span class="st">&quot;Image&quot;</span>,<span class="st">&quot;IMAG3&quot;</span>,
+                    <span class="st">&quot;Image&quot;</span>,<span class="st">&quot;IMAG4&quot;</span>,
+                    <span class="st">&quot;Image&quot;</span>,<span class="st">&quot;IMAG5&quot;</span>,
+                    <span class="st">&quot;Expectation&quot;</span>,<span class="st">&quot;CUEX1&quot;</span>,
+                    <span class="st">&quot;Expectation&quot;</span>,<span class="st">&quot;CUEX2&quot;</span>,
+                    <span class="st">&quot;Expectation&quot;</span>,<span class="st">&quot;CUEX3&quot;</span>,
+                    <span class="st">&quot;Quality&quot;</span>, <span class="st">&quot;PERQ1&quot;</span>,
+                    <span class="st">&quot;Quality&quot;</span>, <span class="st">&quot;PERQ2&quot;</span>,
+                    <span class="st">&quot;Quality&quot;</span>, <span class="st">&quot;PERQ3&quot;</span>,
+                    <span class="st">&quot;Quality&quot;</span>, <span class="st">&quot;PERQ4&quot;</span>,
+                    <span class="st">&quot;Quality&quot;</span>, <span class="st">&quot;PERQ5&quot;</span>,
+                    <span class="st">&quot;Quality&quot;</span>, <span class="st">&quot;PERQ6&quot;</span>,
+                    <span class="st">&quot;Quality&quot;</span>, <span class="st">&quot;PERQ7&quot;</span>,
+                    <span class="st">&quot;Value&quot;</span>,<span class="st">&quot;PERV1&quot;</span>,
+                    <span class="st">&quot;Value&quot;</span>,<span class="st">&quot;PERV2&quot;</span>,
+                    <span class="st">&quot;CUSA1&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>,
+                    <span class="st">&quot;CUSA2&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>,
+                    <span class="st">&quot;CUSA3&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>,
+                    <span class="st">&quot;CUSCO&quot;</span>, <span class="st">&quot;Complaints&quot;</span>,
+                    <span class="st">&quot;CUSL1&quot;</span>, <span class="st">&quot;Loyalty&quot;</span>,
+                    <span class="st">&quot;CUSL2&quot;</span>, <span class="st">&quot;Loyalty&quot;</span>,
+                    <span class="st">&quot;CUSL3&quot;</span>, <span class="st">&quot;Loyalty&quot;</span>),<span class="dt">nrow=</span><span class="dv">24</span>,<span class="dt">ncol=</span><span class="dv">2</span>,<span class="dt">byrow =</span><span class="ot">TRUE</span>,
+                   <span class="dt">dimnames =</span> <span class="kw">list</span>(<span class="dv">1</span>:<span class="dv">24</span>,<span class="kw">c</span>(<span class="st">&quot;source&quot;</span>,<span class="st">&quot;target&quot;</span>)))</code></pre></div>
+<p>That was a mouthful of code! The <code>seminr()</code> syntax is far more human-readable and the use of the verbs really makes the meaning explicit. Modifications to the <code>seminr()</code> measurement model description are quick and easy and intuitive.</p>
+</div>
+</div>
+<div id="structural-model-description-verbs" class="section level2">
+<h2>Structural model description verbs</h2>
+<p>SEMinR verbs for structural model description:</p>
+<ul>
+<li><code>paths()</code></li>
+<li><code>structure()</code></li>
+</ul>
+<p>These verbs are highly intuitive and provide for human-readable code that allows a practitioner to understand the structural model on first glance and easily make changes to compare different structural models.</p>
+<div id="describe-structural-model-paths-with-paths" class="section level3">
+<h3>Describe structural model paths with <code>paths()</code></h3>
+<p><code>paths()</code> provides a verb to describe single or multiple structural paths.</p>
+<p>For example, we can describe the structural model paths:</p>
+<ul>
+<li>“Image” -&gt; “Expectation”</li>
+<li>“Image” -&gt; “Satisfaction”</li>
+<li>“Value” -&gt; “Satisfaction”</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Image&quot;</span>, <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Expectation&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>, <span class="st">&quot;Loyalty&quot;</span>))
+<span class="co">#&gt; [1] &quot;Image&quot;        &quot;Expectation&quot;  &quot;Image&quot;        &quot;Satisfaction&quot;</span>
+<span class="co">#&gt; [5] &quot;Image&quot;        &quot;Loyalty&quot;</span>
+<span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Value&quot;</span>, <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Satisfaction&quot;</span>))
+<span class="co">#&gt; [1] &quot;Value&quot;        &quot;Satisfaction&quot;</span></code></pre></div>
+<p>This is equivalent to the more verbose code in base R:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">c</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>, <span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>, <span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Loyalty&quot;</span>)
+<span class="kw">c</span>(<span class="st">&quot;Value&quot;</span>,<span class="st">&quot;Satisfaction&quot;</span>)</code></pre></div>
+<p><code>paths()</code> is used in conjunction with <code>structure()</code> to describe the full structural model.</p>
+</div>
+<div id="create-structural-model-matrix-with-structure" class="section level3">
+<h3>Create structural model matrix with <code>structure()</code></h3>
+<p><code>structure()</code> compiles the structural model source-target matrix from the user specified structural path descriptions described in the parameters.</p>
+<p>For example, we can create a source-target matrix structural model for the <code>mobi</code> data:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_sm &lt;-<span class="st"> </span><span class="kw">structure</span>(
+  <span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Image&quot;</span>,        <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Expectation&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>, <span class="st">&quot;Loyalty&quot;</span>)),
+  <span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Expectation&quot;</span>,  <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Quality&quot;</span>, <span class="st">&quot;Value&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>)),
+  <span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Quality&quot;</span>,      <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Value&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>)),
+  <span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Value&quot;</span>,        <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Satisfaction&quot;</span>)),
+  <span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Satisfaction&quot;</span>, <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Complaints&quot;</span>, <span class="st">&quot;Loyalty&quot;</span>)),
+  <span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Complaints&quot;</span>,   <span class="dt">to =</span> <span class="st">&quot;Loyalty&quot;</span>)
+)</code></pre></div>
+<p>The output of this code is:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_sm
+<span class="co">#&gt;       source         target        </span>
+<span class="co">#&gt;  [1,] &quot;Image&quot;        &quot;Expectation&quot; </span>
+<span class="co">#&gt;  [2,] &quot;Image&quot;        &quot;Satisfaction&quot;</span>
+<span class="co">#&gt;  [3,] &quot;Image&quot;        &quot;Loyalty&quot;     </span>
+<span class="co">#&gt;  [4,] &quot;Expectation&quot;  &quot;Quality&quot;     </span>
+<span class="co">#&gt;  [5,] &quot;Expectation&quot;  &quot;Value&quot;       </span>
+<span class="co">#&gt;  [6,] &quot;Expectation&quot;  &quot;Satisfaction&quot;</span>
+<span class="co">#&gt;  [7,] &quot;Quality&quot;      &quot;Value&quot;       </span>
+<span class="co">#&gt;  [8,] &quot;Quality&quot;      &quot;Satisfaction&quot;</span>
+<span class="co">#&gt;  [9,] &quot;Value&quot;        &quot;Satisfaction&quot;</span>
+<span class="co">#&gt; [10,] &quot;Satisfaction&quot; &quot;Complaints&quot;  </span>
+<span class="co">#&gt; [11,] &quot;Satisfaction&quot; &quot;Loyalty&quot;     </span>
+<span class="co">#&gt; [12,] &quot;Complaints&quot;   &quot;Loyalty&quot;</span></code></pre></div>
+<p>This is equivalent to the more verbose code in base R:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_sm &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">c</span>(<span class="st">&quot;Image&quot;</span>,<span class="st">&quot;Expectation&quot;</span>,
+                    <span class="st">&quot;Image&quot;</span>,<span class="st">&quot;Satisfaction&quot;</span>,
+                    <span class="st">&quot;Image&quot;</span>,<span class="st">&quot;Loyalty&quot;</span>,
+                    <span class="st">&quot;Expectation&quot;</span>,<span class="st">&quot;Quality&quot;</span>,
+                    <span class="st">&quot;Expectation&quot;</span>,<span class="st">&quot;Value&quot;</span>,
+                    <span class="st">&quot;Expectation&quot;</span>,<span class="st">&quot;Satisfaction&quot;</span>,
+                    <span class="st">&quot;Quality&quot;</span>,<span class="st">&quot;Value&quot;</span>,
+                    <span class="st">&quot;Quality&quot;</span>,<span class="st">&quot;Satisfaction&quot;</span>,
+                    <span class="st">&quot;Value&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>,
+                    <span class="st">&quot;Satisfaction&quot;</span>, <span class="st">&quot;Complaints&quot;</span>,
+                    <span class="st">&quot;Satisfaction&quot;</span>, <span class="st">&quot;Loyalty&quot;</span>,
+                    <span class="st">&quot;Complaints&quot;</span>, <span class="st">&quot;Loyalty&quot;</span>),<span class="dt">nrow=</span><span class="dv">12</span>,<span class="dt">ncol=</span><span class="dv">2</span>,<span class="dt">byrow =</span><span class="ot">TRUE</span>,
+                   <span class="dt">dimnames =</span> <span class="kw">list</span>(<span class="dv">1</span>:<span class="dv">12</span>,<span class="kw">c</span>(<span class="st">&quot;source&quot;</span>,<span class="st">&quot;target&quot;</span>)))</code></pre></div>
+<p>Used in conjunction with the measurement model verbs, the description and comparison of your models can really be more intuitive and readable.</p>
+</div>
+</div>
+<div id="interaction-term-description-verbs" class="section level2">
+<h2>Interaction term description verbs</h2>
+<p>SEMinR verbs for creating Interaction Terms:</p>
+<ul>
+<li><code>interact()</code></li>
+<li><code>interaction_combo()</code></li>
+</ul>
+<p>Most PLS SEM packages require practitioners to create interaction terms by hand which can be a time-consuming and arduous task - not to mention presenting an opporunity for errors to enter the model. These verbs are highly intuitive and provide for human-readable code that allows a practitioner to quickly describe and “read” interaction terms and make changes and comparisons on the fly.</p>
+<div id="describe-an-interaction-combo-with-interaction_combo" class="section level3">
+<h3>Describe an interaction combo with <code>interaction_combo()</code></h3>
+<p><code>interaction_combo()</code> provides a verb to describe single interaction item.</p>
+<p>For example, we can describe the following interaction items:</p>
+<ul>
+<li>“Image” + “Expectation”</li>
+<li>“Image” + “Value”</li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">interaction_combo</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>)
+<span class="kw">interaction_combo</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Value&quot;</span>)</code></pre></div>
+<p>These functions return functions themselves which are not resolved until passed as parameters to the <code>interact()</code> function.</p>
+</div>
+<div id="describe-all-model-interactions-with-interact" class="section level3">
+<h3>Describe all model interactions with <code>interact()</code></h3>
+<p><code>interact()</code> provides a verb to describe all interactions in a specific model. The function itself returns a function which is not resolved until passed as a parameter to the <code>seminr()</code> function.</p>
+<p>For example, we can describe the following interaction items in a model:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_xm &lt;-<span class="st"> </span><span class="kw">interact</span>(
+  <span class="kw">interaction_combo</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>),
+  <span class="kw">interaction_combo</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Value&quot;</span>)
+)</code></pre></div>
+<p>The output of this code is:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_xm
+<span class="co">#&gt; function (data, mm, all_intxns = list(...)) </span>
+<span class="co">#&gt; {</span>
+<span class="co">#&gt;     create_interaction &lt;- function(intxn_function) {</span>
+<span class="co">#&gt;         intxn_function(data, mm)</span>
+<span class="co">#&gt;     }</span>
+<span class="co">#&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)</span>
+<span class="co">#&gt;     return(intxns_list)</span>
+<span class="co">#&gt; }</span>
+<span class="co">#&gt; &lt;environment: 0x0000000007af8508&gt;</span></code></pre></div>
+<p>As previously mentioned, a function which is not resolved until passed to <code>seminr()</code>.</p>
+</div>
+</div>
+<div id="pls-sem-model-estimation-with-seminr" class="section level2">
+<h2>PLS SEM Model Estimation with <code>seminr()</code></h2>
+<p>SEMinR verbs for PLS SEM model estimation:</p>
+<ul>
+<li><code>seminr()</code></li>
+</ul>
+<p>This verb is used to estimate your final PLS model using the semPLS function. It takes as parameters the structural model described by <code>structure()</code>, the measurement model described by <code>measure()</code> and an optional interactions function as described by <code>interact()</code>.</p>
+<p>For example, we can estimate the PLS SEM model based upon the structural and measurement model with interactions as described previously in this vignette.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># seminr syntax for creating measurement model</span>
+mobi_mm &lt;-<span class="st"> </span><span class="kw">measure</span>(
+  <span class="kw">reflect</span>(<span class="st">&quot;Image&quot;</span>,        <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span>:<span class="dv">5</span>)),
+  <span class="kw">reflect</span>(<span class="st">&quot;Expectation&quot;</span>,  <span class="kw">multi_items</span>(<span class="st">&quot;CUEX&quot;</span>, <span class="dv">1</span>:<span class="dv">3</span>)),
+  <span class="kw">reflect</span>(<span class="st">&quot;Value&quot;</span>,        <span class="kw">multi_items</span>(<span class="st">&quot;PERV&quot;</span>, <span class="dv">1</span>:<span class="dv">2</span>)),
+  <span class="kw">reflect</span>(<span class="st">&quot;Satisfaction&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;CUSA&quot;</span>, <span class="dv">1</span>:<span class="dv">3</span>))
+)
+
+<span class="co"># interaction factors must be created after the measurement model is defined</span>
+mobi_xm &lt;-<span class="st"> </span><span class="kw">interact</span>(
+  <span class="kw">interaction_combo</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>),
+  <span class="kw">interaction_combo</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Value&quot;</span>)
+)
+
+<span class="co"># structural model: note that name of the interactions factor should be</span>
+<span class="co">#  the names of its two main factors joined by a '.' in between.</span>
+mobi_sm &lt;-<span class="st"> </span><span class="kw">structure</span>(
+  <span class="kw">paths</span>(<span class="dt">to =</span> <span class="st">&quot;Satisfaction&quot;</span>,
+        <span class="dt">from =</span> <span class="kw">c</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>, <span class="st">&quot;Value&quot;</span>,
+                 <span class="st">&quot;Image.Expectation&quot;</span>, <span class="st">&quot;Image.Value&quot;</span>))
+)
+mobi_pls &lt;-<span class="st"> </span><span class="kw">seminr</span>(mobi, mobi_mm, mobi_xm, mobi_sm)
+<span class="co">#&gt; Estimating model using semPLS::sempls...</span>
+<span class="co">#&gt; All 250 observations are valid.</span>
+<span class="co">#&gt; Converged after 6 iterations.</span>
+<span class="co">#&gt; Tolerance: 1e-07</span>
+<span class="co">#&gt; Scheme: centroid</span></code></pre></div>
+<p>The output of this code is:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_pls
+<span class="co">#&gt;                                       Path Estimate</span>
+<span class="co">#&gt; lam_1_1               Expectation -&gt; CUEX1     0.76</span>
+<span class="co">#&gt; lam_1_2               Expectation -&gt; CUEX2     0.71</span>
+<span class="co">#&gt; lam_1_3               Expectation -&gt; CUEX3     0.60</span>
+<span class="co">#&gt; lam_2_1                     Image -&gt; IMAG1     0.76</span>
+<span class="co">#&gt; lam_2_2                     Image -&gt; IMAG2     0.60</span>
+<span class="co">#&gt; lam_2_3                     Image -&gt; IMAG3     0.56</span>
+<span class="co">#&gt; lam_2_4                     Image -&gt; IMAG4     0.77</span>
+<span class="co">#&gt; lam_2_5                     Image -&gt; IMAG5     0.74</span>
+<span class="co">#&gt; lam_3_1   Image.Expectation -&gt; IMAG1.CUEX1     0.79</span>
+<span class="co">#&gt; lam_3_2   Image.Expectation -&gt; IMAG1.CUEX2     0.79</span>
+<span class="co">#&gt; lam_3_3   Image.Expectation -&gt; IMAG1.CUEX3     0.75</span>
+<span class="co">#&gt; lam_3_4   Image.Expectation -&gt; IMAG2.CUEX1     0.72</span>
+<span class="co">#&gt; lam_3_5   Image.Expectation -&gt; IMAG2.CUEX2     0.76</span>
+<span class="co">#&gt; lam_3_6   Image.Expectation -&gt; IMAG2.CUEX3     0.67</span>
+<span class="co">#&gt; lam_3_7   Image.Expectation -&gt; IMAG3.CUEX1     0.70</span>
+<span class="co">#&gt; lam_3_8   Image.Expectation -&gt; IMAG3.CUEX2     0.71</span>
+<span class="co">#&gt; lam_3_9   Image.Expectation -&gt; IMAG3.CUEX3     0.71</span>
+<span class="co">#&gt; lam_3_10  Image.Expectation -&gt; IMAG4.CUEX1     0.80</span>
+<span class="co">#&gt; lam_3_11  Image.Expectation -&gt; IMAG4.CUEX2     0.79</span>
+<span class="co">#&gt; lam_3_12  Image.Expectation -&gt; IMAG4.CUEX3     0.76</span>
+<span class="co">#&gt; lam_3_13  Image.Expectation -&gt; IMAG5.CUEX1     0.77</span>
+<span class="co">#&gt; lam_3_14  Image.Expectation -&gt; IMAG5.CUEX2     0.75</span>
+<span class="co">#&gt; lam_3_15  Image.Expectation -&gt; IMAG5.CUEX3     0.75</span>
+<span class="co">#&gt; lam_4_1         Image.Value -&gt; IMAG1.PERV1     0.89</span>
+<span class="co">#&gt; lam_4_2         Image.Value -&gt; IMAG1.PERV2     0.90</span>
+<span class="co">#&gt; lam_4_3         Image.Value -&gt; IMAG2.PERV1     0.87</span>
+<span class="co">#&gt; lam_4_4         Image.Value -&gt; IMAG2.PERV2     0.86</span>
+<span class="co">#&gt; lam_4_5         Image.Value -&gt; IMAG3.PERV1     0.85</span>
+<span class="co">#&gt; lam_4_6         Image.Value -&gt; IMAG3.PERV2     0.81</span>
+<span class="co">#&gt; lam_4_7         Image.Value -&gt; IMAG4.PERV1     0.90</span>
+<span class="co">#&gt; lam_4_8         Image.Value -&gt; IMAG4.PERV2     0.87</span>
+<span class="co">#&gt; lam_4_9         Image.Value -&gt; IMAG5.PERV1     0.90</span>
+<span class="co">#&gt; lam_4_10        Image.Value -&gt; IMAG5.PERV2     0.88</span>
+<span class="co">#&gt; lam_5_1                     Value -&gt; PERV1     0.90</span>
+<span class="co">#&gt; lam_5_2                     Value -&gt; PERV2     0.94</span>
+<span class="co">#&gt; lam_6_1              Satisfaction -&gt; CUSA1     0.81</span>
+<span class="co">#&gt; lam_6_2              Satisfaction -&gt; CUSA2     0.84</span>
+<span class="co">#&gt; lam_6_3              Satisfaction -&gt; CUSA3     0.85</span>
+<span class="co">#&gt; beta_1_6       Expectation -&gt; Satisfaction     0.47</span>
+<span class="co">#&gt; beta_2_6             Image -&gt; Satisfaction     0.80</span>
+<span class="co">#&gt; beta_3_6 Image.Expectation -&gt; Satisfaction    -0.52</span>
+<span class="co">#&gt; beta_4_6       Image.Value -&gt; Satisfaction    -0.16</span>
+<span class="co">#&gt; beta_5_6             Value -&gt; Satisfaction     0.43</span>
+<span class="kw">print_paths</span>(mobi_pls)
+<span class="co">#&gt;                   Satisfaction</span>
+<span class="co">#&gt; R^2                       0.60</span>
+<span class="co">#&gt; Expectation               0.47</span>
+<span class="co">#&gt; Image                     0.80</span>
+<span class="co">#&gt; Image.Expectation        -0.52</span>
+<span class="co">#&gt; Image.Value              -0.16</span>
+<span class="co">#&gt; Value                     0.43</span>
+<span class="kw">plot_scores</span>(mobi_pls)</code></pre></div>
+<p><img src="data:image/png;base64,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" alt /><!-- --></p>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
