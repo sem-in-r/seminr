@@ -1,18 +1,18 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-modelr
+SEMinR
 ======
 
-The `modelr` package provides a natural syntax for researchers to describe PLS structural equation models.
+The `SEMinR` package provides a natural syntax for researchers to describe PLS structural equation models.
 
 Installation
 ------------
 
-You can install modelr from github with:
+You can install SEMinR from github with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("ISS-Analytics/modelr")
+devtools::install_github("ISS-Analytics/seminr")
 ```
 
 Example
