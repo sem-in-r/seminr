@@ -33,7 +33,7 @@ interact <- function(...) {
     return(intxns_list)
   }
 }
-
+#' @export
 interaction_combo <- function(factor1, factor2) {
   function(data, mm) {
     interaction_name <- paste(factor1, factor2, sep=".")

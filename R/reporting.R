@@ -58,7 +58,7 @@ print_paths <- function(fitted_model, na.print=".", digits=2) {
   final_paths <- round(path_matrix[c("R^2", exogenous), endogenous, drop=FALSE], digits)
   print(final_paths, na.print = na.print)
 }
-
+#' @export
 plot_scores <- function(fitted_model, factors=NULL) {
   if (missing(factors)) factors <- fitted_model$model$latent
 
