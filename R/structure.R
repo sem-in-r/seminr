@@ -29,6 +29,7 @@
 #'
 #' @aliases paths
 #'
+#' @export
 structure <- function(...) {
   return(matrix(c(...), ncol = 2, byrow = TRUE,
                 dimnames = list(NULL, c("source", "target"))))

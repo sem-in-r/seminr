@@ -25,6 +25,7 @@
 #'
 #' @aliases interaction_combo
 #'
+#' @export
 interact <- function(...) {
   function(data, mm, all_intxns=list(...)) {
     create_interaction <- function(intxn_function) { intxn_function(data, mm) }

@@ -52,7 +52,6 @@ mobi_pls <- seminr(data = mobi,
 
 print_paths(mobi_pls)
 plot_scores(mobi_pls)
-
 }
 \seealso{
 \code{\link{structure}} \code{\link{measure}} \code{\link{paths}} \code{\link{interact}}
