@@ -35,9 +35,9 @@ factor_scores <- mobi_pls$factor_scores
 weight <- mobi_pls$outer_weights
 write.csv(mobi_pls$outer_weights, file = "weights.csv")
 # Load controls
-coefficients_control <- read.csv("coefficients.csv")
-factor_scores_control <- as.matrix(read.csv("factorscores.csv")[,2:7])
-weight_control <- as.matrix(read.csv("weights.csv")[,2:7])
+coefficients_control <- read.csv("../fixtures/coefficients.csv")
+factor_scores_control <- as.matrix(read.csv("../fixtures/factorscores.csv")[,2:7])
+weight_control <- as.matrix(read.csv("../fixtures/weights.csv")[,2:7])
 
 # Testing
 

@@ -3,12 +3,12 @@
 SEMinR
 ======
 
-The `SEMinR` package provides a natural syntax for researchers to describe PLS structural equation models.
+The `seminr` package provides a natural syntax for researchers to describe PLS structural equation models.
 
 Installation
 ------------
 
-You can install SEMinR from github with:
+You can install seminr from github with:
 
 ``` r
 # install.packages("devtools")
@@ -22,4 +22,14 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 ## basic example code
+```
+
+Testing
+-------
+
+To test:
+
+``` r
+require(devtools)
+devtools::test()
 ```
