@@ -58,7 +58,7 @@ seminr <- function(data, measurement_model, interactions=NULL, structural_model,
     interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
     data <- cbind(data, interaction_data)
 
-    # update measurement model with
+    # update measurement model with interaction factors
     measure_interaction <- function(intxn) {
       reflect(intxn$name, names(intxn$data))
     }

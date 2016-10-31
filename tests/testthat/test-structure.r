@@ -35,3 +35,7 @@ test_that("Matrix in correct format", {
   expect_equal(ncol(sm2), 2)
 
 })
+
+test_that("Two model syntaxes produce same structural model", {
+  expect_identical(sm, sm2)
+})
