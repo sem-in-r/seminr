@@ -32,3 +32,13 @@ This is a basic example which shows you how to solve a common problem:
 ```{r example}
 ## basic example code
 ```
+
+## Testing
+
+To test:
+
+```{r devtools-test, eval = FALSE}
+require(devtools)
+devtools::test()
+```
+
