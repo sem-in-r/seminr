@@ -1,7 +1,7 @@
 #' seminr Model Assembly Functions
 #'
 #' The \code{seminr} package provides a natural syntax for researchers to describe PLS
-#' structural equation models. \code{seminr} is copatible with semPLS, simplePLS and matrixPLS,
+#' structural equation models. \code{seminr} is compatible with semPLS, simplePLS and matrixPLS,
 #' meaning that once a model is specified, it can be used across models for comparison.
 #'
 #' @param data A \code{data.frame} intendend to use for the fitting method
@@ -43,16 +43,19 @@
 #'   paths(from = "Complaints",   to = "Loyalty")
 #' )
 #'
-#' mobi_pls <- seminr(data = mobi,
-#'                    measurement_model = mobi_mm,
-#'                    structural_model = mobi_sm)
+#' plsm_model <- model(data = mobi,
+#'                     measurement_model = mobi_mm,
+#'                     structural_model = mobi_sm)
+#'
+#' mobi_pls <- estimate(plsm_model)
 #'
 #' print_paths(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
-seminr <- function(data, measurement_model, interactions=NULL, structural_model, ...) {
+model <- function(data, measurement_model, interactions=NULL, structural_model) {
+  cat("Generating the plsm model")
   if(!is.null(interactions)) {
-    # update data with new iteraction items
+    # update data with new interaction items
     intxns_list <- interactions(data, measurement_model)
     get_data <- function(intxn) { intxn$data }
     interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
@@ -65,8 +68,13 @@ seminr <- function(data, measurement_model, interactions=NULL, structural_model,
     intxns_mm <- measure(do.call("c", lapply(intxns_list, measure_interaction)))
     measurement_model <- rbind(measurement_model, intxns_mm)
   }
-
-  model = semPLS::plsm(data = data, strucmod = structural_model, measuremod = measurement_model)
+  seminr_model = semPLS::plsm(data = data, strucmod = structural_model, measuremod = measurement_model)
+  seminr_model$data <- data
+  return(seminr_model)
+}
+#' @export
+estimate <- function(seminr_model, ...) {
   cat("Estimating model using semPLS::sempls...\n")
-  mobi_pls_fitted <- semPLS::sempls(model, data, ...)
+  data <- seminr_model$data
+  mobi_pls_fitted <- semPLS::sempls(seminr_model, data, ...)
 }
