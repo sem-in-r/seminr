@@ -40,6 +40,7 @@
 #'
 #' @export
 print_paths <- function(fitted_model, na.print=".", digits=2) {
+  if (class(fitted_model)[1] == 'bootsempls') fitted_model <- fitted_model$fitted_model
   endogenous <- unique(fitted_model$model$strucmod[,"target"])
   exogenous <- unique(fitted_model$model$strucmod[,"source"])
   latent <- fitted_model$model$latent
@@ -60,6 +61,7 @@ print_paths <- function(fitted_model, na.print=".", digits=2) {
 }
 #' @export
 plot_scores <- function(fitted_model, factors=NULL) {
+  if (class(fitted_model)[1] == 'bootsempls') fitted_model <- fitted_model$fitted_model
   if (missing(factors)) factors <- fitted_model$model$latent
 
   plot(as.data.frame(fitted_model$factor_scores[, factors]), pch = 16,

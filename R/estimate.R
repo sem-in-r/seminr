@@ -10,6 +10,9 @@
 #'
 #' @param ... A list of parameters inherited from the estimation function (default is semPLS)
 #'
+#' @param nboot Number of bootstrap iterations to perform. Default value is 0. If 0 then no
+#'        bootstrapping is performed.
+#'
 #' @usage
 #' estimate_model(seminr_model, ...)
 #'
@@ -43,7 +46,11 @@
 #'                     measurement_model = mobi_mm,
 #'                     structural_model = mobi_sm)
 #'
+#' # Estimate model without bootstrapped significance
 #' mobi_pls <- estimate_model(plsm_model)
+#'
+#' # Estimate model with bootstrapped significance
+#' mobi_pls <- estimate_model(plsm_model, nboot = 200)
 #'
 #' print_paths(mobi_pls)
 #' plot_scores(mobi_pls)
