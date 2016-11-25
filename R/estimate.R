@@ -48,8 +48,13 @@
 #' print_paths(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
-estimate_model <- function(seminr_model, ...) {
+estimate_model <- function(seminr_model, nboot = 0, ...) {
   cat("Estimating model using semPLS::sempls...\n")
   data <- seminr_model$data
-  mobi_pls_fitted <- semPLS::sempls(seminr_model, data, ...)
+  if (nboot > 0) {
+    mobi_pls_fitted <- semPLS::bootsempls(seminr_model,nboot = nboot, ...)
+  } else {
+    mobi_pls_fitted <- semPLS::sempls(seminr_model, data, ...)
+  }
+  return(mobi_pls_fitted)
 }
