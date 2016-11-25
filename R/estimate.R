@@ -48,7 +48,7 @@
 #' print_paths(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
-seminr::estimate <- function(seminr_model, ...) {
+estimate <- function(seminr_model, ...) {
   cat("Estimating model using semPLS::sempls...\n")
   data <- seminr_model$data
   mobi_pls_fitted <- semPLS::sempls(seminr_model, data, ...)

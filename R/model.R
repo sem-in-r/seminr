@@ -55,7 +55,7 @@
 #' print_paths(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
-seminr::model <- function(data, measurement_model, interactions=NULL, structural_model) {
+model <- function(data, measurement_model, interactions=NULL, structural_model) {
   cat("Generating the plsm model")
   if(!is.null(interactions)) {
     # update data with new interaction items
