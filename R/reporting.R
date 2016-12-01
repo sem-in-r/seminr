@@ -23,16 +23,21 @@
 #'
 #' @usage
 #' print_paths(model, na.print=".", digits=2)
-#' ## S3 method for class 'seminr'
 #'
 #' plot_scores(fitted_model, factors=NULL)
-#' ## S3 method for class 'seminr'
 #'
 #' @examples
 #' data("mobi", package = "semPLS")
-#' mobi_pls <- seminr(data = mobi,
-#'                    measurement_model = mobi_mm,
-#'                    structural_model = mobi_sm)
+#' plsm_model <- create_model(data = mobi,
+#'                            measurement_model = mobi_mm,
+#'                            structural_model = mobi_sm)
+#'
+#' # Estimate model without bootstrapped significance
+#' mobi_pls <- estimate_model(plsm_model)
+#'
+#' # Estimate model with bootstrapped significance
+#' mobi_pls <- estimate_model(plsm_model, nboot = 200)
+#'
 #' print_paths(mobi_pls)
 #' plot_scores(mobi_pls)
 #'
@@ -40,7 +45,8 @@
 #'
 #' @export
 print_paths <- function(fitted_model, na.print=".", digits=2) {
-  if (class(fitted_model)[1] == 'bootsempls') fitted_model <- fitted_model$fitted_model
+
+
   endogenous <- unique(fitted_model$model$strucmod[,"target"])
   exogenous <- unique(fitted_model$model$strucmod[,"source"])
   latent <- fitted_model$model$latent
@@ -58,6 +64,19 @@ print_paths <- function(fitted_model, na.print=".", digits=2) {
   # round and print
   final_paths <- round(path_matrix[c("R^2", exogenous), endogenous, drop=FALSE], digits)
   print(final_paths, na.print = na.print)
+
+  # bootstrap results
+  if (!is.null(fitted_model$bootstrapMatrix)) {
+    bootstrapresults <- fitted_model$bootstrapMatrix
+    endpaths <- nrow(bootstrapresults)
+    startpaths <- endpaths - nrow(fitted_model$model$strucmod) + 1
+    bootstrapresults <- bootstrapresults[startpaths:endpaths,]
+    bootstrapresults <- bootstrapresults[order(bootstrapresults$Path),]
+    rownames(bootstrapresults) <- bootstrapresults[,1]
+    final_boot <- round(bootstrapresults[,c("Estimate","Bootstrapped Estimate", "Standard Error")], digits)
+    # print final_boot
+    print(final_boot, na.print = na.print)
+  }
 }
 #' @export
 plot_scores <- function(fitted_model, factors=NULL) {
