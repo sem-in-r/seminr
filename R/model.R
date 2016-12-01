@@ -1,4 +1,4 @@
-#' seminr Create_Model Function
+#' seminr create_model Function
 #'
 #' The \code{seminr} package provides a natural syntax for researchers to describe PLS
 #' structural equation models. \code{seminr} is compatible with semPLS, simplePLS and matrixPLS,
@@ -47,8 +47,8 @@
 #' )
 #'
 #' plsm_model <- create_model(data = mobi,
-#'                            measurement_model = mobi_mm,
-#'                            structural_model = mobi_sm)
+#'                             measurement_model = mobi_mm,
+#'                             structural_model = mobi_sm)
 #'
 #' mobi_pls <- estimate_model(plsm_model)
 #'

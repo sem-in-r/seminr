@@ -28,11 +28,11 @@ mobi_sm <- structure(
 # Regular semPLS functions to create and estimate model, and report estimates
 data("mobi", package = "semPLS")
 
-seminr_model <- seminr::create_model(data = mobi,
-                                     measurement_model = mobi_mm,
-                                     structural_model = mobi_sm)
+seminr_model <- create_model(data = mobi,
+                             measurement_model = mobi_mm,
+                             structural_model = mobi_sm)
 
-mobi_pls <- seminr::estimate_model(seminr_model)
+mobi_pls <- estimate_model(seminr_model, nboot = 20)
 
 print_paths(mobi_pls)
 plot_scores(mobi_pls)

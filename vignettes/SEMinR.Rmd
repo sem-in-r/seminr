@@ -81,7 +81,7 @@ These verbs are highly intuitive and provide for human-readable code that allows
 
 For example, we can describe the manifest variables: IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:
 
-```{r}
+```{r, eval = FALSE}
 multi_items("IMAG", 1:5)
 ```
 
@@ -99,13 +99,13 @@ c("IMAG1", "IMAG2", "IMAG3", "IMAG4", "IMAG5")
 
 For example, we can describe the reflective factor "Image" with manifest variables IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:
 
-```{r}
+```{r, eval=FALSE}
 reflect("Image", multi_items("IMAG", 1:5))
 ```
 
 or
 
-```{r}
+```{r, eval=FALSE}
 form("Image", multi_items("IMAG", 1:5))
 ```
 

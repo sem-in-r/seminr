@@ -25,10 +25,10 @@ mobi_sm <- structure(
 
 # Load data, assemble model, and estimate using semPLS
 data("mobi", package = "semPLS")
-seminr_model <- seminr::create_model(data = mobi,
-                                     measurement_model = mobi_mm,
-                                     interaction = mobi_xm,
-                                     structural_model = mobi_sm)
+seminr_model <- create_model(data = mobi,
+                             measurement_model = mobi_mm,
+                             interaction = mobi_xm,
+                             structural_model = mobi_sm)
 
-mobi_pls <- seminr::estimate_model(seminr_model)
+mobi_pls <- estimate_model(seminr_model)
 print_paths(mobi_pls)

@@ -5,7 +5,7 @@
 \alias{structure}
 \title{Structural specification functions for seminr package}
 \usage{
-structure(paths(from = "source factor", to = "destination factor")
+structure(paths(from = "source factor", to = "destination factor"))
 }
 \arguments{
 \item{from}{The source factor of a structural path}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/model.R
 \name{create_model}
 \alias{create_model}
-\title{seminr Create_Model Function}
+\title{seminr create_model Function}
 \usage{
 create_model(data, measurement_model, interactions=NULL, structural_model)
 }
@@ -49,8 +49,8 @@ mobi_sm <- structure(
 )
 
 plsm_model <- create_model(data = mobi,
-                           measurement_model = mobi_mm,
-                           structural_model = mobi_sm)
+                            measurement_model = mobi_mm,
+                            structural_model = mobi_sm)
 
 mobi_pls <- estimate_model(plsm_model)
 

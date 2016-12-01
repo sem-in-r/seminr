@@ -11,7 +11,7 @@
 #'   for each of the model's structural paths.
 #'
 #' @usage
-#' structure(paths(from = "source factor", to = "destination factor")
+#' structure(paths(from = "source factor", to = "destination factor"))
 #'
 #' @examples
 #' mobi_sm <- structure(

@@ -4,8 +4,8 @@ library(seminr)
 
 data("mobi", package = "semPLS")
 
-mobi_pls <- seminr::estimate_model(
-  seminr::create_model(
+mobi_pls <- estimate_model(
+  create_model(
     data = mobi,
 
     measure(
