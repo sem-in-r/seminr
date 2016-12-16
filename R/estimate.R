@@ -57,13 +57,11 @@
 #' @export
 estimate_model <- function(seminr_model, nboot = 0, ...) {
   cat("Estimating model using semPLS::sempls...\n")
-  data <- seminr_model$data
-  if (nboot > 0) {
-    sempls_model <- semPLS::sempls(seminr_model, data, ...)
-    mobi_pls_fitted <- semPLS::sempls(seminr_model, data, ...)
+  capture.output(mobi_pls_fitted <- semPLS::sempls(seminr_model, seminr_model$data, ...))
 
+  if (nboot > 0) {
     # Initialize the Estimates Matrix
-    bootstrapMatrix <- semPLS::sempls(seminr_model, data,...)$coefficients
+    bootstrapMatrix <- mobi_pls_fitted$coefficients
 
     # Function to generate random samples with replacement
     getRandomIndex <- function(d) {return(sample.int(nrow(d),replace = TRUE))}
@@ -73,7 +71,7 @@ estimate_model <- function(seminr_model, nboot = 0, ...) {
     }
 
     # Bootstrap the estimates
-    bootmatrix <- replicate(nboot,getEstimateResults(seminr_model$data))
+    capture.output(bootmatrix <- replicate(nboot, getEstimateResults(seminr_model$data)))
 
     # Add the columns for bootstrap mean and standard error
     bootstrapMatrix <- cbind(bootstrapMatrix,apply(bootmatrix,1,mean))
@@ -84,10 +82,7 @@ estimate_model <- function(seminr_model, nboot = 0, ...) {
 
     # Add the bootstrap matrix to the sempls object
     mobi_pls_fitted$bootstrapMatrix <- bootstrapMatrix
-
-
-  } else {
-    mobi_pls_fitted <- semPLS::sempls(seminr_model, data, ...)
   }
+
   return(mobi_pls_fitted)
 }

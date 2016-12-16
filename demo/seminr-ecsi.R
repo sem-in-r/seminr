@@ -32,7 +32,7 @@ seminr_model <- create_model(data = mobi,
                              measurement_model = mobi_mm,
                              structural_model = mobi_sm)
 
-mobi_pls <- estimate_model(seminr_model, nboot = 20)
+mobi_pls <- estimate_model(seminr_model, nboot = 200)
 
 print_paths(mobi_pls)
 plot_scores(mobi_pls)
