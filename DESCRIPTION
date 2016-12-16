@@ -12,7 +12,7 @@ Description: SEMinR offers an easy to write and easy to change syntax for
     specifying `plsm` models that are compatible with `semPLS`, `sem`,
     and possibly other packages supporting structural equation models.
 Imports:
-    semPLS
+    semPLS, parallel
 License: GPL-3
 LazyData: TRUE
 RoxygenNote: 5.0.1
