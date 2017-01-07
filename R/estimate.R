@@ -55,7 +55,6 @@
 #' print_paths(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
-library("parallel")
 estimate_model <- function(seminr_model, nboot = 0, ...) {
   cat("Estimating model using semPLS::sempls...\n")
   capture.output(mobi_pls_fitted <- semPLS::sempls(seminr_model, seminr_model$data, ...))
