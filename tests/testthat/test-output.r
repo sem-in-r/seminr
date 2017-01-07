@@ -27,7 +27,8 @@ mobi_sm <- structure(
 
 # Load data, assemble model, and estimate using semPLS
 data("mobi", package = "semPLS")
-mobi_pls <- seminr(mobi, mobi_mm, mobi_xm, mobi_sm)
+seminr_model <- create_model(mobi, mobi_mm, mobi_xm, mobi_sm)
+mobi_pls <- estimate_model(seminr_model)
 
 # Load outputs
 coefficients <- mobi_pls$coefficients

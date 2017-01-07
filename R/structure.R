@@ -7,15 +7,11 @@
 #'
 #' @param to The destination factor of a structural path
 #'
-#' @param ... The function \code{paths} that specifies the source and destination factors
+#' @param paths The function \code{paths} that specifies the source and destination factors
 #'   for each of the model's structural paths.
 #'
 #' @usage
-#' structure(...)
-#' ## S3 method for class seminr
-#'
-#' paths(from = , to = )
-#' ## S4 method for method structure()
+#' structure(paths(from = "source factor", to = "destination factor"))
 #'
 #' @examples
 #' mobi_sm <- structure(

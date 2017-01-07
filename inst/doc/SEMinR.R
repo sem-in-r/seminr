@@ -138,9 +138,19 @@ mobi_sm <- structure(
         from = c("Image", "Expectation", "Value",
                  "Image.Expectation", "Image.Value"))
 )
-mobi_pls <- seminr(mobi, mobi_mm, mobi_xm, mobi_sm)
+plsm_model <- model(data = mobi,
+                    measurement_model = mobi_mm,
+                    interactions = mobi_xm,
+                    structural_model = mobi_sm)
+
+mobi_pls <- estimate(plsm_model)
 
 ## ------------------------------------------------------------------------
+plsm_model <- model(data = mobi,
+                    measurement_model = mobi_mm,
+                    interactions = mobi_xm,
+                    structural_model = mobi_sm)
+mobi_pls <- estimate(plsm_model)
 mobi_pls
 print_paths(mobi_pls)
 plot_scores(mobi_pls)

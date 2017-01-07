@@ -5,19 +5,15 @@
 \alias{structure}
 \title{Structural specification functions for seminr package}
 \usage{
-structure(...)
-## S3 method for class seminr
-
-paths(from = , to = )
-## S4 method for method structure()
+structure(paths(from = "source factor", to = "destination factor"))
 }
 \arguments{
-\item{...}{The function \code{paths} that specifies the source and destination factors
-for each of the model's structural paths.}
-
 \item{from}{The source factor of a structural path}
 
 \item{to}{The destination factor of a structural path}
+
+\item{paths}{The function \code{paths} that specifies the source and destination factors
+for each of the model's structural paths.}
 }
 \description{
 \code{paths} creates the structural paths of a PLS SEM model and \code{structure} generates

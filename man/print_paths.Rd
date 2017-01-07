@@ -7,10 +7,8 @@
 and for generating a scatterplot matrix of factor scores.}
 \usage{
 print_paths(model, na.print=".", digits=2)
-## S3 method for class 'seminr'
 
 plot_scores(fitted_model, factors=NULL)
-## S3 method for class 'seminr'
 }
 \arguments{
 \item{fitted_model}{An object of class \code{seminr}. The estimated model
@@ -37,9 +35,16 @@ These functions generate an easy to read table reporting path coefficients
 }
 \examples{
 data("mobi", package = "semPLS")
-mobi_pls <- seminr(data = mobi,
-                   measurement_model = mobi_mm,
-                   structural_model = mobi_sm)
+plsm_model <- create_model(data = mobi,
+                           measurement_model = mobi_mm,
+                           structural_model = mobi_sm)
+
+# Estimate model without bootstrapped significance
+mobi_pls <- estimate_model(plsm_model)
+
+# Estimate model with bootstrapped significance
+mobi_pls <- estimate_model(plsm_model, nboot = 200)
+
 print_paths(mobi_pls)
 plot_scores(mobi_pls)
 
