@@ -38,8 +38,8 @@ interact <- function(...) {
 interaction_combo <- function(factor1, factor2) {
   function(data, mm) {
     interaction_name <- paste(factor1, factor2, sep=".")
-    iv1_items <- mm[mm[, "source"] == factor1, ][, "target"]
-    iv2_items <- mm[mm[, "source"] == factor2, ][, "target"]
+    iv1_items <- mm[mm[, "latent"] == factor1, ][, "measurement"]
+    iv2_items <- mm[mm[, "latent"] == factor2, ][, "measurement"]
 
     iv1_data <- data[iv1_items]
     iv2_data <- data[iv2_items]

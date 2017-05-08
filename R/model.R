@@ -71,7 +71,7 @@ create_model <- function(data, measurement_model, interactions=NULL, structural_
     intxns_mm <- measure(do.call("c", lapply(intxns_list, measure_interaction)))
     measurement_model <- rbind(measurement_model, intxns_mm)
   }
-  seminr_model = semPLS::plsm(data = data, strucmod = structural_model, measuremod = measurement_model)
+  seminr_model = simplePLS(obsData = data, smMatrix = structural_model, mmMatrix = measurement_model)
   seminr_model$data <- data
   return(seminr_model)
 }

@@ -31,18 +31,18 @@
 #'    )
 #' @export
 measure <- function(...) {
-  return(matrix(c(...), ncol = 2, byrow = TRUE,
-                dimnames = list(NULL, c("source", "target"))))
+  return(matrix(c(...), ncol = 3, byrow = TRUE,
+                dimnames = list(NULL, c("latent", "measurement", "type"))))
 }
 #' @export
 reflect <- function(construct_name, item_names) {
   construct_names <- rep(construct_name, length(item_names))
-  return(c(rbind(construct_names, item_names)))
+  return(c(rbind(construct_names, item_names, "R")))
 }
 #' @export
 form <- function(construct_name, item_names) {
   construct_names <- rep(construct_name, length(item_names))
-  return(c(rbind(item_names, construct_names)))
+  return(c(rbind(construct_names,item_names,"F")))
 }
 
 #
