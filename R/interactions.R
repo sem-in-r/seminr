@@ -54,3 +54,43 @@ interaction_combo <- function(factor1, factor2) {
     return(list(name = interaction_name, data = interaction_data))
   }
 }
+
+#' @export
+interaction_ortho <- function(factor1, factor2) {
+  function(data, mm) {
+    interaction_name <- paste(factor1, factor2, sep=".")
+    iv1_items <- mm[mm[, "latent"] == factor1, ][, "measurement"]
+    iv2_items <- mm[mm[, "latent"] == factor2, ][, "measurement"]
+
+    iv1_data <- data[iv1_items]
+    iv2_data <- data[iv2_items]
+
+    mult <- function(col) {
+      iv2_data*col
+    }
+
+    multiples_list <- lapply(iv1_data, mult)
+    interaction_data <- do.call("cbind", multiples_list)
+
+    # Create formula
+    frmla <- as.formula(paste("interaction_data[,i]",paste(as.vector(c(iv1_items,iv2_items)), collapse ="+"), sep = " ~ "))
+
+    # iterate and orthogonalize
+    for(i in 1:ncol(interaction_data)) {
+      interaction_data[,i] <- lm(formula = frmla, data = data)$residuals
+    }
+
+#    # ortho function
+#    ortho <- function(i) {
+#      cat(i)
+#      lm(formula = frmla, data = data)$residuals
+#    }
+
+    # call ortho
+#    interaction__data_ortho <- lapply(1:9, ortho)
+    # collect data
+#    interaction_data <- as.data.frame(do.call("cbind", interaction__data_ortho))
+
+    return(list(name = interaction_name, data = interaction_data))
+  }
+}

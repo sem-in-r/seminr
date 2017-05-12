@@ -63,21 +63,6 @@ create_model <- function(data, measurement_model, interactions=NULL, structural_
     get_data <- function(intxn) { intxn$data }
     interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
 
-
-    # Insert interaction type function here
-    # orthogonal
-#      orthogonalize <- function(intxns_list) {
-#    factors <- strsplit(intxns_list[[1]]$name, "[.]")
-#    items <- c(mobi_mm[mobi_mm[,"latent"]==factors[[1]][1],"measurement"],mobi_mm[mobi_mm[,"latent"]==factors[[1]][2],"measurement"])
-#    myformula <- "interaction_data[,i] ~ "
-#    for( item in items) {
-#      myformula <- paste(myformula,"data[,'",item,"']+ ", sep="")
-#    }
-
-    for( i in 1:ncol(intxns_list[[1]]$data)) {
-      interaction_data[,i] <- lm(interaction_data[,i] ~ data[,"CE1"] + data[,"CE2"] + data[,"CE3"] + data[,"CEFF1"] + data[,"CEFF2"] + data[,"CEFF3"] - 1)$residuals
-    }
-
     # Append data with interaction data
     data <- cbind(data, interaction_data)
 
