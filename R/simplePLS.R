@@ -11,7 +11,15 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
   #Create list of Latent Variables
   ltVariables <- unique(c(smMatrix[,1],smMatrix[,2]))
 
+#  normData <- as.matrix(obsData[,mmVariables])
   #Extract and Normalize the measurements for the model
+#  for(cols in mmVariables) {
+#    if(!grepl("\\.", cols)) {
+#      normData[,cols] <- scale(obsData[,cols],TRUE,TRUE)
+#   } else {
+#      normData[,cols] <- obsData[,cols]
+#    }
+#  }
   normData <- scale(obsData[,mmVariables],TRUE,TRUE)
 
   #Extract Mean and Standard Deviation of measurements for future prediction
@@ -45,7 +53,13 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
     #? fscores <- normData%*%outer_weights
     fscores <- normData[,mmVariables]%*%outer_weights
 
-    #Standarize Factor Scores
+    #Standardize Factor Scores
+#    for(cols in colnames(fscores)) {
+#      if(!grepl("\\.", cols)) {
+#        fscores[,cols] <- scale(fscores[,cols],TRUE,TRUE)
+#      }
+#    }
+
     fscores <- scale(fscores,TRUE,TRUE)
 
     #Estimate inner paths (symmetric matrix)
@@ -63,6 +77,12 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
     fscores<-fscores%*%inner_paths
 
     #Standarize Factor Scores
+#    for(cols in colnames(fscores)) {
+#      if(!grepl("\\.", cols)) {
+#        fscores[,cols] <- scale(fscores[,cols],TRUE,TRUE)
+#      }
+#    }
+
     fscores <- scale(fscores,TRUE,TRUE)
 
     #Save last outer_weights
