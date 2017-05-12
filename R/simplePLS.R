@@ -125,6 +125,34 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
   #Estimate Factor Scores from Outter Path
   fscores <- normData[,mmVariables]%*%outer_weights
 
+  #Create a matrix of Outer Loadings
+  outer_loadings <- matrix(data=0,
+                           nrow=length(mmVariables),
+                           ncol=length(ltVariables),
+                           dimnames = list(mmVariables,ltVariables))
+
+
+  #Calculate the Outer Loadings
+  for (i in 1:length(ltVariables))  {
+    outer_loadings [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
+                             "measurement"],
+                    ltVariables[i]] = cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
+
+  }
+
+  # Insert interaction adjustment here
+#  adjustment <- 0
+#  for(latent in ltVariables) {
+#    if(grepl("\\.", latent)) {
+#      list <- mmMatrix[mmMatrix[,"latent"]==latent,"measurement"]
+#
+#      for (item in list){
+#        adjustment <- adjustment + sd(obsData[,item])*as.numeric(outer_loadings[item,latent])
+#      }
+#      adjustment <- adjustment/length(list)
+#      fscores[,latent] <- fscores[,latent]*adjustment
+#    }
+#  }
 
   #Initialize Matrix of Path Coefficients
   path_coef <- matrix(data=0,
@@ -155,21 +183,6 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
     #Assign the Beta Values to the Path Coefficient Matrix
     for (j in 1:length(independant))
       path_coef[independant[j],dependant[i]]=coefficients[independant[j]]
-
-  }
-
-  #Create a matrix of Outer Loadings
-  outer_loadings <- matrix(data=0,
-                           nrow=length(mmVariables),
-                           ncol=length(ltVariables),
-                           dimnames = list(mmVariables,ltVariables))
-
-
-  #Calculate the Outer Loadings
-  for (i in 1:length(ltVariables))  {
-    outer_loadings [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
-                             "measurement"],
-                    ltVariables[i]] = cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
 
   }
 
