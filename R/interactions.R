@@ -35,14 +35,14 @@ interact <- function(...) {
   }
 }
 #' @export
-interaction_combo <- function(factor1, factor2) {
+interaction_scaled <- function(factor1, factor2) {
   function(data, mm) {
     interaction_name <- paste(factor1, factor2, sep=".")
     iv1_items <- mm[mm[, "latent"] == factor1, ][, "measurement"]
     iv2_items <- mm[mm[, "latent"] == factor2, ][, "measurement"]
 
-    iv1_data <- data[iv1_items]
-    iv2_data <- data[iv2_items]
+    iv1_data <- as.data.frame(scale(data[iv1_items]))
+    iv2_data <- as.data.frame(scale(data[iv2_items]))
 
     mult <- function(col) {
       iv2_data*col
@@ -62,8 +62,8 @@ interaction_ortho <- function(factor1, factor2) {
     iv1_items <- mm[mm[, "latent"] == factor1, ][, "measurement"]
     iv2_items <- mm[mm[, "latent"] == factor2, ][, "measurement"]
 
-    iv1_data <- data[iv1_items]
-    iv2_data <- data[iv2_items]
+    iv1_data <- as.data.frame(scale(data[iv1_items]))
+    iv2_data <- as.data.frame(scale(data[iv2_items]))
 
     mult <- function(col) {
       iv2_data*col

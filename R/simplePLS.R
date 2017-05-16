@@ -11,15 +11,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
   #Create list of Latent Variables
   ltVariables <- unique(c(smMatrix[,1],smMatrix[,2]))
 
-#  normData <- as.matrix(obsData[,mmVariables])
   #Extract and Normalize the measurements for the model
-#  for(cols in mmVariables) {
-#    if(!grepl("\\.", cols)) {
-#      normData[,cols] <- scale(obsData[,cols],TRUE,TRUE)
-#   } else {
-#      normData[,cols] <- obsData[,cols]
-#    }
-#  }
   normData <- scale(obsData[,mmVariables],TRUE,TRUE)
 
   #Extract Mean and Standard Deviation of measurements for future prediction
@@ -54,12 +46,6 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
     fscores <- normData[,mmVariables]%*%outer_weights
 
     #Standardize Factor Scores
-#    for(cols in colnames(fscores)) {
-#      if(!grepl("\\.", cols)) {
-#        fscores[,cols] <- scale(fscores[,cols],TRUE,TRUE)
-#      }
-#    }
-
     fscores <- scale(fscores,TRUE,TRUE)
 
     #Estimate inner paths (symmetric matrix)
@@ -77,12 +63,6 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
     fscores<-fscores%*%inner_paths
 
     #Standarize Factor Scores
-#    for(cols in colnames(fscores)) {
-#      if(!grepl("\\.", cols)) {
-#        fscores[,cols] <- scale(fscores[,cols],TRUE,TRUE)
-#      }
-#    }
-
     fscores <- scale(fscores,TRUE,TRUE)
 
     #Save last outer_weights
@@ -141,18 +121,36 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
   }
 
   # Insert interaction adjustment here
-#  adjustment <- 0
-#  for(latent in ltVariables) {
-#    if(grepl("\\.", latent)) {
-#      list <- mmMatrix[mmMatrix[,"latent"]==latent,"measurement"]
-#
-#      for (item in list){
-#        adjustment <- adjustment + sd(obsData[,item])*as.numeric(outer_loadings[item,latent])
-#      }
-#      adjustment <- adjustment/length(list)
-#      fscores[,latent] <- fscores[,latent]*adjustment
-#    }
-#  }
+  adjustment <- 0
+  denom <- 0
+  for(latent in ltVariables) {
+    if(grepl("\\.", latent)) {
+      list <- mmMatrix[mmMatrix[,"latent"]==latent,"measurement"]
+
+      for (item in list){
+        adjustment <- adjustment + sd(obsData[,item])*as.numeric(outer_loadings[item,latent])
+         denom <- denom + outer_loadings[item,latent]
+      }
+      adjustment <- adjustment/denom
+      fscores[,latent] <- fscores[,latent]*adjustment
+    }
+  }
+
+  #Create a matrix of Outer Loadings
+  outer_loadings <- matrix(data=0,
+                           nrow=length(mmVariables),
+                           ncol=length(ltVariables),
+                           dimnames = list(mmVariables,ltVariables))
+
+
+  #Calculate the Outer Loadings
+  for (i in 1:length(ltVariables))  {
+    outer_loadings [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
+                             "measurement"],
+                    ltVariables[i]] = cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
+
+  }
+
 
   #Initialize Matrix of Path Coefficients
   path_coef <- matrix(data=0,
@@ -169,9 +167,8 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
     #Indentify the independant variables
     independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
 
-    #Solve the sistem of equations
-    results<- solve(cor(fscores[,independant, drop=FALSE]),
-                    cor(fscores[,independant], fscores[,dependant[i]]))
+    #Solve the system of equations
+    results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant])
 
     #Transform to a generic vector
     coefficients <- as.vector(results)
