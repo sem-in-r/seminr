@@ -62,13 +62,20 @@ mobi_sm <- structure(
 
 # Load data, assemble model, and estimate using semPLS
 data("mobi", package = "semPLS")
-seminr_model <- create_model(data = mobi,
-                             measurement_model = mobi_mm,
-                             interaction = mobi_xm,
-                             structural_model = mobi_sm)
+seminr_model <- estimate_model(data = mobi,
+                               measurement_model = mobi_mm,
+                               interaction = mobi_xm,
+                               structural_model = mobi_sm)
 
-mobi_pls <- estimate_model(seminr_model, nboot = 200)
-print_paths(mobi_pls)
+print_paths(seminr_model)
+
+seminr_model_boot <- bootstrap_model(data = mobi,
+                                     measurement_model = mobi_mm,
+                                     interaction = mobi_xm,
+                                     structural_model = mobi_sm,
+                                     nboot = 200)
+
+print_paths(seminr_model_boot)
 ```
 
 ## Testing

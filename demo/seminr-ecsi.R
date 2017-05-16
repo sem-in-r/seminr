@@ -2,6 +2,8 @@
 #  https://cran.r-project.org/web/packages/semPLS/vignettes/semPLS-intro.pdf
 
 library(seminr)
+# Simple Style: Seperate declaration of measurement and structural model, no interactions. Estimated
+# using simplePLS.
 
 # seminr syntax for creating measurement model
 mobi_mm <- measure(
@@ -28,11 +30,18 @@ mobi_sm <- structure(
 # Regular semPLS functions to create and estimate model, and report estimates
 data("mobi", package = "semPLS")
 
-seminr_model <- create_model(data = mobi,
-                             measurement_model = mobi_mm,
-                             structural_model = mobi_sm)
+mobi_pls <- estimate_model(data = mobi,
+                           measurement_model = mobi_mm,
+                           structural_model = mobi_sm)
 
-mobi_pls <- estimate_model(seminr_model, nboot = 200)
+print_paths(mobi_pls)
+plot_scores(mobi_pls)
+
+# Bootstrap the model
+mobi_pls <- bootstrap_model(data = mobi,
+                            measurement_model = mobi_mm,
+                            structural_model = mobi_sm,
+                            nboot = 500)
 
 print_paths(mobi_pls)
 plot_scores(mobi_pls)

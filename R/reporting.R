@@ -9,8 +9,8 @@
 #'   and R2 values for endogenous constructs or a scatterplot matrix of factor
 #'   scores.
 #'
-#' @param fitted_model An object of class \code{seminr}. The estimated model
-#'   returned by the \code{seminr} function.
+#' @param seminr_model The PLS model estimated by simplePLS \code{seminr}. The estimated model
+#'   returned by the \code{estimate_model} or \code{bootstrap_model} methods.
 #'
 #' @param na.print A \code{character} substituting values not to be printed.
 #'   If not specified, default = "."
@@ -28,61 +28,57 @@
 #'
 #' @examples
 #' data("mobi", package = "semPLS")
-#' plsm_model <- create_model(data = mobi,
+#' mobi_pls <- estimate_model(data = mobi,
 #'                            measurement_model = mobi_mm,
 #'                            structural_model = mobi_sm)
-#'
-#' # Estimate model without bootstrapped significance
-#' mobi_pls <- estimate_model(plsm_model)
+#' print_paths(mobi_pls)
+#' plot_scores(mobi_pls)
 #'
 #' # Estimate model with bootstrapped significance
-#' mobi_pls <- estimate_model(plsm_model, nboot = 200)
+#' mobi_pls <- bootstrap_model(data = mobi,
+#'                            measurement_model = mobi_mm,
+#'                            structural_model = mobi_sm,
+#'                            nboot = 200)
 #'
 #' print_paths(mobi_pls)
 #' plot_scores(mobi_pls)
 #'
-#' @aliases plot_scores
+#' @aliases plot_scores print_paths
 #'
 #' @export
-print_paths <- function(fitted_model, na.print=".", digits=2) {
-
-
-  endogenous <- unique(fitted_model$model$strucmod[,"target"])
-  exogenous <- unique(fitted_model$model$strucmod[,"source"])
-  latent <- fitted_model$model$latent
-  structure_spec <- fitted_model$model$D
-
-  # create matrix of relevant path coefficients and NAs otherewise
-  path_matrix <- matrix(nrow = length(latent), ncol = length(latent), dimnames = list(latent, latent))
-  path_matrix[structure_spec == 1] <- fitted_model$path_coefficients[structure_spec == 1]
-
-  # add R Squared row
-  r_sq <- t(semPLS::rSquared(fitted_model))[1, ]
-  path_matrix <- rbind(r_sq, path_matrix)
-  rownames(path_matrix) <- c("R^2", latent)
-
-  # round and print
-  final_paths <- round(path_matrix[c("R^2", exogenous), endogenous, drop=FALSE], digits)
-  print(final_paths, na.print = na.print)
+print_paths <- function(seminr_model, na.print=".", digits=2) {
 
   # bootstrap results
-  if (!is.null(fitted_model$bootstrapMatrix)) {
-    bootstrapresults <- fitted_model$bootstrapMatrix
-    endpaths <- nrow(bootstrapresults)
-    startpaths <- endpaths - nrow(fitted_model$model$strucmod) + 1
-    bootstrapresults <- bootstrapresults[startpaths:endpaths,]
-    bootstrapresults <- bootstrapresults[order(bootstrapresults$Path),]
-    rownames(bootstrapresults) <- bootstrapresults[,1]
-    final_boot <- round(bootstrapresults[,c("Estimate","Bootstrapped Estimate", "Standard Error")], digits)
+  if (!is.null(seminr_model$bootstrapMatrix)) {
+    bootstrapresults <- seminr_model$bootstrapMatrix
+    final_boot <- round(bootstrapresults, digits)
     # print final_boot
     print(final_boot, na.print = na.print)
+  }else {
+
+   endogenous <- unique(seminr_model$smMatrix[,"target"])
+   exogenous <- unique(seminr_model$smMatrix[,"source"])
+   latent <- seminr_model$ltVariables
+
+   # create matrix of relevant path coefficients and NAs otherewise
+   path_matrix <- matrix(nrow = length(latent), ncol = length(latent), dimnames = list(latent, latent))
+   path_matrix[seminr_model$path_coef != 0] <- seminr_model$path_coef[seminr_model$path_coef != 0]
+
+   # add R Squared row
+   r_sq <- matrix(nrow = 1, ncol = length(latent), dimnames = list("R^2", latent))
+   r_sq[,colnames(seminr_model$rSquared)] <- seminr_model$rSquared
+   path_matrix <- rbind(r_sq, path_matrix)
+
+   # round and print
+   final_paths <- round(path_matrix[c("R^2", exogenous), endogenous, drop=FALSE], digits)
+   print(final_paths, na.print = na.print)
   }
 }
 #' @export
-plot_scores <- function(fitted_model, factors=NULL) {
-  if (class(fitted_model)[1] == 'bootsempls') fitted_model <- fitted_model$fitted_model
-  if (missing(factors)) factors <- fitted_model$model$latent
+plot_scores <- function(seminr_model, factors=NULL) {
+#  if (class(seminr_model)[1] == 'plsModel') seminr_model <- seminr_model
+  if (missing(factors)) factors <- seminr_model$ltVariables
 
-  plot(as.data.frame(fitted_model$factor_scores[, factors]), pch = 16,
+  plot(as.data.frame(seminr_model$fscores[, factors]), pch = 16,
        col = rgb(0.5, 0.5, 0.5, alpha = 0.6))
 }

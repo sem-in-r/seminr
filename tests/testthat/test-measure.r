@@ -12,30 +12,32 @@ mm <- measure(
 # Testing
 
 test_that("measure correctly specifies the measurement matrix object", {
-  expect_equal(colnames(mm), c("source","target"))
+  expect_equal(colnames(mm), c("latent","measurement","type"))
   expect_equal(nrow(mm), 10)
-  expect_equal(ncol(mm), 2)
+  expect_equal(ncol(mm), 3)
 })
 
 test_that("form correctly specifies a formative measure", {
-  expect_equal(as.vector(mm[7,]), c("CUSA1","Satisfaction"))
-  expect_equal(as.vector(mm[10,]), c("CUSCO","Complaints"))
+  expect_equal(as.vector(mm[7,]), c("Satisfaction","CUSA1","F"))
+  expect_equal(as.vector(mm[10,]), c("Complaints","CUSCO","F"))
 })
 
-test_that("reflect correctly specifies a formative measure", {
-  expect_equal(as.vector(mm[1,]), c( "Image", "IMAG1"))
-  expect_equal(as.vector(mm[6,]), c("Quality", "PERQ1"))
+test_that("reflect correctly specifies a reflective measure", {
+  expect_equal(as.vector(mm[1,]), c( "Image", "IMAG1","R"))
+  expect_equal(as.vector(mm[6,]), c("Quality", "PERQ1","R"))
 })
 
 test_that("multi_items correctly allocates measurement items", {
   expect_equal(as.vector(mm[1:5,]), c("Image", "Image", "Image", "Image", "Image",
-                                      "IMAG1", "IMAG2", "IMAG3", "IMAG4", "IMAG5"))
-  expect_equal(as.vector(mm[7:9,]), c("CUSA1", "CUSA2", "CUSA3",
-                                      "Satisfaction", "Satisfaction", "Satisfaction"))
+                                      "IMAG1", "IMAG2", "IMAG3", "IMAG4", "IMAG5",
+                                      "R","R","R","R","R"))
+  expect_equal(as.vector(mm[7:9,]), c("Satisfaction", "Satisfaction", "Satisfaction",
+                                      "CUSA1", "CUSA2", "CUSA3",
+                                      "F","F","F"))
 })
 
 test_that("single_item correctly allocates a measurement item", {
-  expect_equal(as.vector(mm[6,]),  c("Quality","PERQ1"))
-  expect_equal(as.vector(mm[10,]), c("CUSCO","Complaints"))
+  expect_equal(as.vector(mm[6,]),  c("Quality","PERQ1","R"))
+  expect_equal(as.vector(mm[10,]), c("Complaints","CUSCO","F"))
 })
 
