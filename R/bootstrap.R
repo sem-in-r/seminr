@@ -101,21 +101,28 @@ bootstrap_model <- function(data, measurement_model, interactions=NULL, structur
 
     # Clean the empty paths
     bootstrapMatrix <- bootstrapMatrix[, colSums(bootstrapMatrix != 0, na.rm = TRUE) > 0]
+    bootstrapMatrix <- bootstrapMatrix[rowSums(bootstrapMatrix != 0, na.rm = TRUE) > 0,]
 
     # Get the number of DVs
-    dependant<-unique(structural_model[,"target"])
+    if (length(unique(structural_model[,"target"])) == 1) {
+      dependant <- unique(structural_model[,"target"])
+    } else {
+      dependant <- colnames(bootstrapMatrix[,1:length(unique(structural_model[,"target"]))])
+    }
 
+    # Construct the vector of column names
     colnames<-c()
     # Clean the column names
-    for (parameter in c("Estimate", "Boot Mean", "Boot SE")) {
+    for (parameter in c("PLS Est.", "Boot Mean", "Boot SE")) {
       for(i in 1:length(dependant)) {
         colnames <- c(colnames, paste(dependant[i],parameter,sep = " "))
       }
-
     }
+
+    # Assign column names
     colnames(bootstrapMatrix) <- colnames
 
-    # Add the bootstrap matrix to the sempls object
+    # Add the bootstrap matrix to the simplePLS object
     seminr_model$bootstrapMatrix <- bootstrapMatrix
     stopCluster(cl)
   }
