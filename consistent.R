@@ -7,12 +7,12 @@ rhoA <- function(plsModel) {
   mmMatrix <- plsModel$mmMatrix
   smMatrix <- plsModel$smMatrix
   # Create rhoA holder matrix
-  rhoA <- matrix(,nrow = nrow(oldcor),ncol = 1,dimnames = list(rownames(oldcor),c("rhoA")))
+  rho <- matrix(,nrow = ncol(latentscores),ncol = 1,dimnames = list(colnames(latentscores),c("rhoA")))
   
-  for (i in rownames(rhoA))  {
+  for (i in rownames(rho))  {
     #If the measurement model is Formative assign rhoA = 1
     if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="F"){
-      rhoA[i,1] <- 1
+      rho[i,1] <- 1
     }
     #If the measurement model is Reflective Calculate RhoA
     if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="R"){
@@ -29,10 +29,10 @@ rhoA <- function(plsModel) {
       diag(AAnondiag) <- 0
       
       # Calculate rhoA
-      rhoA[i,1] <- (t(w) %*% w)^2 * ((t(w) %*% (S) %*% w)/(t(w) %*% AAnondiag %*% w))
+      rho[i,1] <- (t(w) %*% w)^2 * ((t(w) %*% (S) %*% w)/(t(w) %*% AAnondiag %*% w))
     }
   }
-return(rhoA)
+return(rho)
 }
 # End rhoA function
 
@@ -41,7 +41,7 @@ PLSc <- function(plsModel) {
   # get smMatrix and dependant latents, rhoA
   smMatrix <- plsModel$smMatrix
   dependant <- unique(smMatrix[,"target"])
-  rhoA <- rhoA(plsModel)
+  rho <- rhoA(plsModel)
   latents <- unique(as.vector(unique(smMatrix)))
   path_coef <- plsModel$path_coef
   # Determine inconsistent lv correlations from simplePLS
@@ -55,7 +55,7 @@ PLSc <- function(plsModel) {
         oldcor[i,j] <- 1
       }
       if (i != j) {
-        oldcor[i,j] <- oldcor[i,j]/(sqrt(rhoA[i,1]*rhoA[j,1]))
+        oldcor[i,j] <- oldcor[i,j]/(sqrt(rho[i,1]*rho[j,1]))
       }
     }
   }
@@ -63,22 +63,25 @@ PLSc <- function(plsModel) {
   for (i in dependant)  {
     
     #Indentify the independant variables
-    independant<-smMatrix[smMatrix[,"target"]==dependant,"source"]
+    independant<-smMatrix[smMatrix[,"target"]==i,"source"]
     
     #Solve the sistem of equations
     results<- solve(oldcor[independant,independant],
-                    oldcor[independant,dependant])
+                    oldcor[independant,i])
     
     #Transform to a generic vector
     coefficients <- as.vector(results)
-    if(!is.null(rownames(results)))
-      names(coefficients)<-rownames(results)
-    else
+    if(!is.null(rownames(results))) {
+      names(coefficients)<-rownames(results) 
+    } else if (!is.null(names(results))) {
       names(coefficients)<-names(results)
-    
+    } else {
+      names(coefficients)<-independant
+    }
     #Assign the Beta Values to the Path Coefficient Matrix
-    for (j in 1:length(independant))  
-      path_coef[independant[j],dependant]=coefficients[independant[j]]
+    for (j in independant) {  
+      path_coef[j,i] <- coefficients[j]
+    }
     
   }
   plsModel$path_coef <- path_coef
