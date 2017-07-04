@@ -34,17 +34,54 @@ rhoA <- function(plsModel) {
   }
 return(rhoA)
 }
-
 # End rhoA function
 
+PLSc <- function(plsModel) {
+  # Calculate PLSc function
+  # get smMatrix and dependant latents, rhoA
+  smMatrix <- plsModel$smMatrix
+  dependant <- unique(smMatrix[,"target"])
+  rhoA <- rhoA(plsModel)
+  latents <- unique(as.vector(unique(smMatrix)))
+  path_coef <- plsModel$path_coef
+  # Determine inconsistent lv correlations from simplePLS
+  latentscores <- plsModel$fscores
+  oldcor <- cor(latentscores,latentscores)
+  
+  # adjust all the latents
+  for(i in latents) {
+    for(j in latents) {
+      if(i == j) {
+        oldcor[i,j] <- 1
+      }
+      if (i != j) {
+        oldcor[i,j] <- oldcor[i,j]/(sqrt(rhoA[i,1]*rhoA[j,1]))
+      }
+    }
+  }
 
-# Calculate PLSc function
-#1 Determine inconsistent lv correlations from simplePLS
-latentscores <- plsModel$fscores
-oldcor <- cor(latentscores,latentscores)
-oldcor[lower.tri(oldcor)] <- 0
-diag(oldcor) <- 0
-
-oldcor[1,2] <- oldcor[1,2]*
-
-rhoA <- 
+  for (i in dependant)  {
+    
+    #Indentify the independant variables
+    independant<-smMatrix[smMatrix[,"target"]==dependant,"source"]
+    
+    #Solve the sistem of equations
+    results<- solve(oldcor[independant,independant],
+                    oldcor[independant,dependant])
+    
+    #Transform to a generic vector
+    coefficients <- as.vector(results)
+    if(!is.null(rownames(results)))
+      names(coefficients)<-rownames(results)
+    else
+      names(coefficients)<-names(results)
+    
+    #Assign the Beta Values to the Path Coefficient Matrix
+    for (j in 1:length(independant))  
+      path_coef[independant[j],dependant]=coefficients[independant[j]]
+    
+  }
+  plsModel$path_coef <- path_coef
+  return(plsModel)
+}
+# end PLSc function
