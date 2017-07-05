@@ -126,5 +126,6 @@ bootstrap_model <- function(data, measurement_model, interactions=NULL, structur
     seminr_model$bootstrapMatrix <- bootstrapMatrix
     stopCluster(cl)
   }
+  seminr_model$boots <- nboot
   return(seminr_model)
 }
