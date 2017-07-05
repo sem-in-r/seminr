@@ -53,7 +53,7 @@
 #' print_paths(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
-estimate_model <- function(data, measurement_model, interactions=NULL, structural_model) {
+estimate_model <- function(data, measurement_model, interactions=NULL, structural_model, model_estimation = "composite") {
   cat("Generating the plsm model")
   if(!is.null(interactions)) {
     # update data with new interaction items
@@ -73,6 +73,9 @@ estimate_model <- function(data, measurement_model, interactions=NULL, structura
   }
   seminr_model = seminr::simplePLS(obsData = data, smMatrix = structural_model, mmMatrix = measurement_model)
   seminr_model$data <- data
+  if(model_estimation == "common") {
+    seminr_model <- PLSc(seminr_model)
+  }
   return(seminr_model)
 }
 

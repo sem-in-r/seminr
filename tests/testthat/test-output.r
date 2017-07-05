@@ -1,4 +1,4 @@
-context("SEMinR correctly estimates the model orthogonally")
+context("SEMinR correctly estimates the model orthogonally\n")
 
 # Test cases
 ## Interaction case
@@ -27,7 +27,7 @@ mobi_sm <- structure(
 
 # Load data, assemble model, and estimate using semPLS
 data("mobi", package = "semPLS")
-seminr_model <- create_model(mobi, mobi_mm, mobi_xm, mobi_sm)
+seminr_model <- estimate_model(mobi, mobi_mm, mobi_xm, mobi_sm)
 
 
 # Load outputs
@@ -59,7 +59,7 @@ test_that("Seminr estimates the outer weights correctly", {
   expect_equal(weight, weight_control)
 })
 
-context("SEMinR correctly estimates the model scaled product indicator")
+context("SEMinR correctly estimates the model scaled product indicator\n")
 
 # Test cases
 ## Interaction case
@@ -88,7 +88,7 @@ mobi_sm <- structure(
 
 # Load data, assemble model, and estimate using semPLS
 data("mobi", package = "semPLS")
-seminr_model <- create_model(mobi, mobi_mm, mobi_xm, mobi_sm)
+seminr_model <- estimate_model(mobi, mobi_mm, mobi_xm, mobi_sm)
 
 
 # Load outputs

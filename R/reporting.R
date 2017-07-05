@@ -51,7 +51,7 @@ print_paths <- function(seminr_model, na.print=".", digits=2) {
   # bootstrap results
   if (!is.null(seminr_model$bootstrapMatrix)) {
     bootstrapresults <- seminr_model$bootstrapMatrix
-
+    nboots <- seminr_model$boots
     bootstraplist <- list()
     j <- ncol(bootstrapresults)/3
     k <- j+1
@@ -59,7 +59,7 @@ print_paths <- function(seminr_model, na.print=".", digits=2) {
     for(i in 1:j){
       bootstraplist[[i]] <- bootstrapresults[,c(i,k,l)]
       bootstraplist[[i]] <- cbind(bootstraplist[[i]],matrix((bootstraplist[[i]][,2]/bootstraplist[[i]][,3]),ncol = 1, dimnames = list(c(NULL),c("t value"))))
-      bootstraplist[[i]] <- cbind(bootstraplist[[i]], matrix(2*pt(-abs(bootstraplist[[i]][,4]),df = 500 - 1),ncol = 1, dimnames = list(c(NULL),c("Pr(>|t|)"))))
+      bootstraplist[[i]] <- cbind(bootstraplist[[i]], matrix(2*pt(-abs(bootstraplist[[i]][,4]),df = nboots - 1),ncol = 1, dimnames = list(c(NULL),c("Pr(>|t|)"))))
       bootstraplist[[i]][is.nan(bootstraplist[[i]])] <- 0
 #      bootstraplist[[i]] <- cbind(bootstraplist[[i]], bootstraplist[[i]][bootstraplist[[i]][,5] == 0,5] = "")
       k <- k+1
