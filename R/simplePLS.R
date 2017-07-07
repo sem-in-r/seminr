@@ -140,6 +140,11 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
         outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
           cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
       }
+      #If the measurement model is composite
+      if(mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"type"][1]=="C"){
+        outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
+          cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
+      }
     }
 
     #Estimate Factor Scores from Outer Weights
