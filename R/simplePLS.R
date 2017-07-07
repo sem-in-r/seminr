@@ -128,7 +128,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
     for (i in 1:length(ltVariables))  {
 
       #If the measurement model is Formative
-      if(mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"type"][1]=="F"){
+      if(measure_mode(ltVariables[i],mmMatrix)=="F"){
         outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
           solve(cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]])) %*%
                   cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],
@@ -136,12 +136,12 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
       }
 
       #If the measurement model is Reflective
-      if(mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"type"][1]=="R"){
+      if(measure_mode(ltVariables[i],mmMatrix)=="R"){
         outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
           cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
       }
       #If the measurement model is composite
-      if(mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"type"][1]=="C"){
+      if(measure_mode(ltVariables[i],mmMatrix)=="C"){
         outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
           cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
       }
@@ -287,3 +287,28 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
   class(plsModel) <- "plsModel"
   return(plsModel)
 }
+
+#' Create a function to get measurement mode
+#' @export
+measure_mode <- function(latent,mmMatrix) {
+  mmMatrix[mmMatrix[,"latent"]==latent,"type"][1]
+}
+
+#' Create a function to get all the items of a given measurement mode for a given latent
+#' @export
+items_per_mode <- function(latent, mode,mmMatrix) {
+  latentmatrix <- mmMatrix[mmMatrix[,"latent"]==latent,c("measurement","type")]
+  if(class(latentmatrix) == "matrix") {
+    return(latentmatrix[latentmatrix[,"type"] == mode,"measurement"])
+  }
+  if (class(latentmatrix) == "character") {
+    if(latentmatrix[2] == mode) {
+      return(latentmatrix[1])
+    }
+    if(latentmatrix[2] != mode) {
+      return(NULL)
+    }
+  }
+}
+
+
