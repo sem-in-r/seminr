@@ -44,7 +44,11 @@ form <- function(construct_name, item_names) {
   construct_names <- rep(construct_name, length(item_names))
   return(c(rbind(construct_names,item_names,"F")))
 }
-
+#' @export
+composite <- function(construct_name, item_names) {
+  construct_names <- rep(construct_name, length(item_names))
+  return(c(rbind(construct_names,item_names,"C")))
+}
 #
 #
 # arguments:
