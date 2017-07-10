@@ -56,6 +56,9 @@ rhoA <- function(plsModel) {
     if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="F"){
       rho[i,1] <- 1
     }
+    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="C"){
+      rho[i,1] <- 1
+    }
     #If the measurement model is Reflective Calculate RhoA
     if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="R"){
       # get the weights for the latent

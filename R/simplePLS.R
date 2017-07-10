@@ -288,27 +288,3 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
   return(plsModel)
 }
 
-#' Create a function to get measurement mode
-#' @export
-measure_mode <- function(latent,mmMatrix) {
-  mmMatrix[mmMatrix[,"latent"]==latent,"type"][1]
-}
-
-#' Create a function to get all the items of a given measurement mode for a given latent
-#' @export
-items_per_mode <- function(latent, mode,mmMatrix) {
-  latentmatrix <- mmMatrix[mmMatrix[,"latent"]==latent,c("measurement","type")]
-  if(class(latentmatrix) == "matrix") {
-    return(latentmatrix[latentmatrix[,"type"] == mode,"measurement"])
-  }
-  if (class(latentmatrix) == "character") {
-    if(latentmatrix[2] == mode) {
-      return(latentmatrix[1])
-    }
-    if(latentmatrix[2] != mode) {
-      return(NULL)
-    }
-  }
-}
-
-
