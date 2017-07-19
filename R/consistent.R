@@ -94,11 +94,14 @@ PLSc <- function(plsModel) {
 
   }
 
-  # adjust for consistent loadings
+  # adjust for consistent loadings of common factors
   for (i in rownames(rho))  {
-    # get the weights for the latent
-    w <- as.matrix(weights[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i])
-    loadings[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i] <- w %*% (sqrt(rho[i,]) / t(w) %*% w )
+    # if the latent is reflective
+    if(measure_mode(i,mmMatrix)=="R") {
+      # get the weights for the latent
+      w <- as.matrix(weights[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i])
+      loadings[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i] <- w %*% (sqrt(rho[i,]) / t(w) %*% w )
+    }
   }
 
   plsModel$path_coef <- path_coef
