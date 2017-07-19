@@ -74,6 +74,8 @@ estimate_model <- function(data, measurement_model, interactions=NULL, structura
   }
   seminr_model = seminr::simplePLS(obsData = data, smMatrix = structural_model, mmMatrix = measurement_model)
   seminr_model$data <- data
+
+  ## TODO: don't have model_estimation parameter; always do post-PLSc estimation
   if(model_estimation == "common") {
     seminr_model <- PLSc(seminr_model)
   }
