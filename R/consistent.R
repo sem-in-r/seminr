@@ -43,11 +43,10 @@
 #' @export
 PLSc <- function(plsModel) {
   # Calculate PLSc function
-  # get smMatrix and dependant latents, rhoA
+  # get relevant parts of the estimated model
   smMatrix <- plsModel$smMatrix
   mmMatrix <- plsModel$mmMatrix
   dependant <- unique(smMatrix[,"target"])
-  rho <- rhoA(plsModel)
   latents <- unique(as.vector(unique(smMatrix)))
   path_coef <- plsModel$path_coef
   weights <- plsModel$outer_weights
@@ -57,7 +56,15 @@ PLSc <- function(plsModel) {
   latentscores <- plsModel$fscores
   oldcor <- cor(latentscores,latentscores)
 
-  # adjust all the latents
+  # Calculate rhoA for adjustments
+  rho <- rhoA(plsModel)
+  ## TODO: refactor
+  ## (get rho as a vector)
+  ## adjustment <- sqrt(rho %*% t(rho))
+  ## diag(adjustment) <- 1
+  ## adj_fscore_cors <- cor(plsModel$fscores) / adjustment
+
+  # Adjust correlations involving common-factor latents
   for(i in latents) {
     for(j in latents) {
       if(i == j) {
@@ -69,8 +76,11 @@ PLSc <- function(plsModel) {
     }
   }
 
-  for (i in dependant)  {
+  ## TODO: make a common method to share with simplePLS
+  ## (rename dependant to endogenous)
 
+  for (i in dependant)  {
+    ## COMPUTE PATH COEFFCIENTS USING ADJUSTED CORRELATIONS
     #Indentify the independant variables
     independant<-smMatrix[smMatrix[,"target"]==i,"source"]
 
@@ -78,6 +88,7 @@ PLSc <- function(plsModel) {
     results<- solve(oldcor[independant,independant],
                     oldcor[independant,i])
 
+    ## NAME THE NEWLY COMPUTED PATH COEFFCIENTS
     #Transform to a generic vector
     coefficients <- as.vector(results)
     if(!is.null(rownames(results))) {
@@ -87,16 +98,22 @@ PLSc <- function(plsModel) {
     } else {
       names(coefficients)<-independant
     }
+
     #Assign the Beta Values to the Path Coefficient Matrix
     for (j in independant) {
       path_coef[j,i] <- coefficients[j]
     }
-
   }
+
+  ## TODO: Refactor into vectorized form if possible
+  ## (make sure single-item factors have rhoA == 1)
+  ## (make if body a function adjust_loadings; use sapply/apply to apply over all latents)
+  ## reflective <- unique(mmMatrix[mmMatrix[,"type"]=="R", "latent"])
+  ## (only apply over reflective)
 
   # adjust for consistent loadings of common factors
   for (i in rownames(rho))  {
-    # if the latent is reflective
+    # adjust loadings if the latent is reflective
     if(measure_mode(i,mmMatrix)=="R") {
       # get the weights for the latent
       w <- as.matrix(weights[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i])
