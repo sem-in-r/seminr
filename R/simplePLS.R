@@ -232,11 +232,12 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
     results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
 
     #Transform to a generic vector
-    coefficients <- as.vector(results)
-    if(!is.null(rownames(results)))
-      names(coefficients)<-rownames(results)
-    else
-      names(coefficients)<-independant
+    coefficients <- transform_to_named_vector(results,independant)
+#    coefficients <- as.vector(results)
+#    if(!is.null(rownames(results)))
+#      names(coefficients)<-rownames(results)
+#    else
+#      names(coefficients)<-independant
 
     #Assign the Beta Values to the Path Coefficient Matrix
     for (j in 1:length(independant))
