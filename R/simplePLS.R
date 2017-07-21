@@ -181,7 +181,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
 
   }
 
-  # Insert interaction adjustment here
+  # interaction adjustment
   for(latent in ltVariables) {
     adjustment <- 0
     denom <- 0
@@ -212,15 +212,15 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
 
   }
 
+  #Identify which variables have incoming paths
+  dependant<-unique(smMatrix[,"target"])
 
-  #Initialize Matrix of Path Coefficients
+  #Initialize Matrix of Path Coefficients and matrix of r-squared
   path_coef <- matrix(data=0,
                       nrow=length(ltVariables),
                       ncol=length(ltVariables),
                       dimnames = list(ltVariables,ltVariables))
-
-  #Identify which variables have incoming paths
-  dependant<-unique(smMatrix[,"target"])
+  rSquared <- matrix(,nrow=1,ncol=length(dependant),byrow =TRUE,dimnames = list(1,dependant))
 
   #We calculate a linear regresion for each dependant variable
   for (i in 1:length(dependant))  {
@@ -233,20 +233,16 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
 
     #Transform to a generic vector
     coefficients <- transform_to_named_vector(results,independant)
-#    coefficients <- as.vector(results)
-#    if(!is.null(rownames(results)))
-#      names(coefficients)<-rownames(results)
-#    else
-#      names(coefficients)<-independant
 
     #Assign the Beta Values to the Path Coefficient Matrix
     for (j in 1:length(independant))
       path_coef[independant[j],dependant[i]]=coefficients[independant[j]]
 
+    # Calculate r-squared for the endogenous variable
+    fscore_cors <- cor(fscores)
+    r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
+    rSquared[,i] <- r_sq[dependant[i],dependant[i]]
   }
-
-  #Calculate R Squared
-  rSquared <- estimate_Rsquared(smMatrix,fscores)
 
   #Prepare return Object
   plsModel <- list(meanData = meanData,

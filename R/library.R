@@ -27,6 +27,7 @@ mmMatrix_per_latent <- function(latent, mmMatrix) {
   }
 }
 
+# This function is not used!!
 # Function to estimate r_squared for endogenous constructs
 estimate_Rsquared <- function(smMatrix,fscores) {
   #Calculate R Squared
