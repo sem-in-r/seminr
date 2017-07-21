@@ -55,7 +55,7 @@
 #' @export
 estimate_model <- function(data, measurement_model, interactions=NULL, structural_model, model_estimation = "composite") {
   cat("Generating the plsm model\n")
-  warning_only_formative_construct(measurement_model)
+  warnings(measurement_model)
   if(!is.null(interactions)) {
     # update data with new interaction items
     intxns_list <- interactions(data, measurement_model)
