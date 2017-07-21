@@ -42,87 +42,54 @@
 #' PLSc(mobi_pls)
 #' @export
 PLSc <- function(plsModel) {
-  # Calculate PLSc function
   # get relevant parts of the estimated model
   smMatrix <- plsModel$smMatrix
   mmMatrix <- plsModel$mmMatrix
-  dependant <- unique(smMatrix[,"target"])
-  latents <- unique(as.vector(unique(smMatrix)))
   path_coef <- plsModel$path_coef
-  weights <- plsModel$outer_weights
   loadings <- plsModel$outer_loadings
 
-  # Determine inconsistent lv correlations from simplePLS
-  latentscores <- plsModel$fscores
-  oldcor <- cor(latentscores,latentscores)
-
-  # Calculate rhoA for adjustments
+  # Calculate rhoA for adjustments and adjust the correlation matrix
   rho <- rhoA(plsModel)
-  ## TODO: refactor
-  ## (get rho as a vector)
-  ## adjustment <- sqrt(rho %*% t(rho))
-  ## diag(adjustment) <- 1
-  ## adj_fscore_cors <- cor(plsModel$fscores) / adjustment
+  adjustment <- sqrt(rho %*% t(rho))
+  diag(adjustment) <- 1
+  adj_fscore_cors <- cor(plsModel$fscores) / adjustment
 
-  # Adjust correlations involving common-factor latents
-  for(i in latents) {
-    for(j in latents) {
-      if(i == j) {
-        oldcor[i,j] <- 1
-      }
-      if (i != j) {
-        oldcor[i,j] <- oldcor[i,j]/(sqrt(rho[i,1]*rho[j,1]))
-      }
-    }
-  }
+  # iterate over endogenous latents and adjust path coefficients
+  for (i in unique(smMatrix[,"target"]))  {
 
-  ## TODO: make a common method to share with simplePLS
-  ## (rename dependant to endogenous)
+    #Indentify the exogenous variables
+    exogenous<-smMatrix[smMatrix[,"target"]==i,"source"]
 
-  for (i in dependant)  {
-    ## COMPUTE PATH COEFFCIENTS USING ADJUSTED CORRELATIONS
-    #Indentify the independant variables
-    independant<-smMatrix[smMatrix[,"target"]==i,"source"]
+    #Solve the system of equations
+    results<- solve(adj_fscore_cors[exogenous,exogenous],
+                    adj_fscore_cors[exogenous,i])
 
-    #Solve the sistem of equations
-    results<- solve(oldcor[independant,independant],
-                    oldcor[independant,i])
-
-    ## NAME THE NEWLY COMPUTED PATH COEFFCIENTS
-    #Transform to a generic vector
-    coefficients <- as.vector(results)
-    if(!is.null(rownames(results))) {
-      names(coefficients)<-rownames(results)
-    } else if (!is.null(names(results))) {
-      names(coefficients)<-names(results)
-    } else {
-      names(coefficients)<-independant
-    }
+    ## NAME THE NEWLY COMPUTED PATH COEFFICIENTS VECTOR
+    coefficients <- transform_to_named_vector(results,exogenous)
 
     #Assign the Beta Values to the Path Coefficient Matrix
-    for (j in independant) {
+    for (j in exogenous) {
       path_coef[j,i] <- coefficients[j]
     }
   }
 
-  ## TODO: Refactor into vectorized form if possible
   ## (make sure single-item factors have rhoA == 1)
-  ## (make if body a function adjust_loadings; use sapply/apply to apply over all latents)
-  ## reflective <- unique(mmMatrix[mmMatrix[,"type"]=="R", "latent"])
-  ## (only apply over reflective)
 
-  # adjust for consistent loadings of common factors
-  for (i in rownames(rho))  {
-    # adjust loadings if the latent is reflective
-    if(measure_mode(i,mmMatrix)=="R") {
-      # get the weights for the latent
-      w <- as.matrix(weights[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i])
-      loadings[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i] <- w %*% (sqrt(rho[i,]) / t(w) %*% w )
-    }
+  # get all common-factor latents in a vector
+  reflective <- unique(mmMatrix[mmMatrix[,"type"]=="R", "latent"])
+
+  # function to adjust the loadings of a common-factor
+  adjust_loadings <- function(i) {
+    w <- as.matrix(plsModel$outer_weights[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i])
+    loadings[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i] <- w %*% (sqrt(rho[i,]) / t(w) %*% w )
+    loadings[,i]
   }
 
+  # apply the function over common-factors and assign to loadings matrix
+  loadings[,reflective] <- sapply(reflective, adjust_loadings)
+
+  # Assign the adjusted values for return
   plsModel$path_coef <- path_coef
   plsModel$outer_loadings <- loadings
   return(plsModel)
 }
-# end PLSc function

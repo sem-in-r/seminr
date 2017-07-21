@@ -27,6 +27,7 @@ mmMatrix_per_latent <- function(latent, mmMatrix) {
   }
 }
 
+# Function to estimate r_squared for endogenous constructs
 estimate_Rsquared <- function(smMatrix,fscores) {
   #Calculate R Squared
   #Get smMatrix
@@ -47,5 +48,17 @@ estimate_Rsquared <- function(smMatrix,fscores) {
     rSquared[,i] <- summary(lmmodels[[i]])$r.squared
   }
   return(rSquared)
+}
 
+# Function to create a named vector of path coefficients
+transform_to_named_vector <- function(results,independant) {
+  coefficients <- as.vector(results)
+  if(!is.null(rownames(results))) {
+    names(coefficients)<-rownames(results)
+  } else if (!is.null(names(results))) {
+    names(coefficients)<-names(results)
+  } else {
+    names(coefficients)<-independant
+  }
+  return(coefficients)
 }
