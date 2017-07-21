@@ -47,6 +47,7 @@ PLSc <- function(plsModel) {
   mmMatrix <- plsModel$mmMatrix
   path_coef <- plsModel$path_coef
   loadings <- plsModel$outer_loadings
+  rSquared <- plsModel$rSquared
 
   # Calculate rhoA for adjustments and adjust the correlation matrix
   rho <- rhoA(plsModel)
@@ -54,7 +55,7 @@ PLSc <- function(plsModel) {
   diag(adjustment) <- 1
   adj_fscore_cors <- cor(plsModel$fscores) / adjustment
 
-  # iterate over endogenous latents and adjust path coefficients
+  # iterate over endogenous latents and adjust path coefficients and R-squared
   for (i in unique(smMatrix[,"target"]))  {
 
     #Indentify the exogenous variables
@@ -71,6 +72,10 @@ PLSc <- function(plsModel) {
     for (j in exogenous) {
       path_coef[j,i] <- coefficients[j]
     }
+
+    # adjust the Rsquared of the endogenous latents
+    r_sq <- 1 - 1/solve(adj_fscore_cors[c(exogenous,i),c(exogenous,i)])
+    rSquared[,i] <- r_sq[i,i]
   }
 
   ## (make sure single-item factors have rhoA == 1)
@@ -91,5 +96,6 @@ PLSc <- function(plsModel) {
   # Assign the adjusted values for return
   plsModel$path_coef <- path_coef
   plsModel$outer_loadings <- loadings
+  plsModel$rSquared <- rSquared
   return(plsModel)
 }
