@@ -82,12 +82,12 @@ print_paths <- function(seminr_model, na.print=".", digits=2) {
    path_matrix[seminr_model$path_coef != 0] <- seminr_model$path_coef[seminr_model$path_coef != 0]
 
    # add R Squared row
-   r_sq <- matrix(nrow = 1, ncol = length(latent), dimnames = list("R^2", latent))
+   r_sq <- matrix(nrow = 2, ncol = length(latent), dimnames = list(c("R^2","AdjR^2"), latent))
    r_sq[,colnames(seminr_model$rSquared)] <- seminr_model$rSquared
    path_matrix <- rbind(r_sq, path_matrix)
 
    # round and print
-   final_paths <- round(path_matrix[c("R^2", exogenous), endogenous, drop=FALSE], digits)
+   final_paths <- round(path_matrix[c("R^2","AdjR^2", exogenous), endogenous, drop=FALSE], digits)
    print(final_paths, na.print = na.print)
   }
 }
