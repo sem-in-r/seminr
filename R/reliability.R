@@ -61,20 +61,25 @@ rhoA <- function(plsModel) {
     }
     #If the measurement model is Reflective Calculate RhoA
     if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="R"){
-      # get the weights for the latent
-      w <- as.matrix(weights[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i])
+      #if the latent is a single item rhoA = 1
+      if(nrow(mmMatrix_per_latent(i,mmMatrix)) == 1) {
+        rho[i,1] <- 1
+      } else {
+        # get the weights for the latent
+        w <- as.matrix(weights[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i])
 
-      # Get empirical covariance matrix of lv indicators (S)
-      indicators <- scale(obsData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],TRUE,TRUE)
-      S <- cov(indicators,indicators)
-      diag(S) <- 0
+        # Get empirical covariance matrix of lv indicators (S)
+        indicators <- scale(obsData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],TRUE,TRUE)
+        S <- cov(indicators,indicators)
+        diag(S) <- 0
 
-      # Get AA matrix without diagonal
-      AAnondiag <- w %*% t(w)
-      diag(AAnondiag) <- 0
+        # Get AA matrix without diagonal
+        AAnondiag <- w %*% t(w)
+        diag(AAnondiag) <- 0
 
-      # Calculate rhoA
-      rho[i,1] <- (t(w) %*% w)^2 * ((t(w) %*% (S) %*% w)/(t(w) %*% AAnondiag %*% w))
+        # Calculate rhoA
+        rho[i,1] <- (t(w) %*% w)^2 * ((t(w) %*% (S) %*% w)/(t(w) %*% AAnondiag %*% w))
+      }
     }
   }
   return(rho)
