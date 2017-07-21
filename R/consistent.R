@@ -75,7 +75,8 @@ PLSc <- function(plsModel) {
 
     # adjust the Rsquared of the endogenous latents
     r_sq <- 1 - 1/solve(adj_fscore_cors[c(exogenous,i),c(exogenous,i)])
-    rSquared[,i] <- r_sq[i,i]
+    rSquared[1,i] <- r_sq[i,i]
+    rSquared[2,i] <- 1 - (1 - rSquared[1,i])*((nrow(plsModel$data)-1)/(nrow(plsModel$data)-length(exogenous) - 1))
   }
 
   ## (make sure single-item factors have rhoA == 1)

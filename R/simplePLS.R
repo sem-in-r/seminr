@@ -220,7 +220,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
                       nrow=length(ltVariables),
                       ncol=length(ltVariables),
                       dimnames = list(ltVariables,ltVariables))
-  rSquared <- matrix(,nrow=1,ncol=length(dependant),byrow =TRUE,dimnames = list(1,dependant))
+  rSquared <- matrix(,nrow=2,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq"),dependant))
 
   #We calculate a linear regresion for each dependant variable
   for (i in 1:length(dependant))  {
@@ -241,7 +241,8 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
     # Calculate r-squared for the endogenous variable
     fscore_cors <- cor(fscores)
     r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
-    rSquared[,i] <- r_sq[dependant[i],dependant[i]]
+    rSquared[1,i] <- r_sq[dependant[i],dependant[i]]
+    rSquared[2,i] <- 1 - (1 - rSquared[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
   }
 
   #Prepare return Object
