@@ -79,8 +79,6 @@ PLSc <- function(plsModel) {
     rSquared[2,i] <- 1 - (1 - rSquared[1,i])*((nrow(plsModel$data)-1)/(nrow(plsModel$data)-length(exogenous) - 1))
   }
 
-  ## (make sure single-item factors have rhoA == 1)
-
   # get all common-factor latents in a vector
   reflective <- unique(mmMatrix[mmMatrix[,"type"]=="R", "latent"])
 

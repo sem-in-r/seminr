@@ -61,14 +61,16 @@
 #'
 #' print_paths(mobi_pls)
 #' @export
-bootstrap_model <- function(data, measurement_model, interactions=NULL, structural_model, nboot = 500, model_estimation = "composite", ...) {
+bootstrap_model <- function(seminr_model, nboot = 500, ...) {
   cat("Bootstrapping model using simplePLS...\n")
   library(parallel)
-  capture.output(seminr_model <- estimate_model(data = data,
-                                                measurement_model = measurement_model,
-                                                interactions = interactions,
-                                                structural_model = structural_model,
-                                                model_estimation = model_estimation, ...))
+
+  # prepare parameters for cluster export (model parameters)
+  interactions = seminr_model$mobi_xm
+  d <- seminr_model$rawdata
+  measurement_model <- seminr_model$mmMatrix
+  structural_model <- seminr_model$smMatrix
+  model_estimation <- seminr_model$model_estimation
 
   if (nboot > 0) {
     # Initialize the cluster
@@ -81,8 +83,6 @@ bootstrap_model <- function(data, measurement_model, interactions=NULL, structur
 
     # Function to generate random samples with replacement
     getRandomIndex <- function(d) {return(sample.int(nrow(d),replace = TRUE))}
-
-    d <- data
 
     # Export variables and functions to cluster
     clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model","getRandomIndex","d", "model_estimation"), envir=environment())

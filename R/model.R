@@ -56,6 +56,7 @@
 estimate_model <- function(data, measurement_model, interactions=NULL, structural_model, model_estimation = "composite") {
   cat("Generating the plsm model\n")
   warnings(measurement_model)
+  rawdata <- data
   if(!is.null(interactions)) {
     # update data with new interaction items
     intxns_list <- interactions(data, measurement_model)
@@ -74,6 +75,9 @@ estimate_model <- function(data, measurement_model, interactions=NULL, structura
   }
   seminr_model = seminr::simplePLS(obsData = data, smMatrix = structural_model, mmMatrix = measurement_model)
   seminr_model$data <- data
+  seminr_model$model_estimation <- model_estimation
+  seminr_model$mobi_xm <- interactions
+  seminr_model$rawdata <- rawdata
 
   ## TODO: don't have model_estimation parameter; always do post-PLSc estimation
   if(model_estimation == "common") {
