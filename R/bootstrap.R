@@ -61,13 +61,14 @@
 #'
 #' print_paths(mobi_pls)
 #' @export
-bootstrap_model <- function(data, measurement_model, interactions=NULL, structural_model, nboot = 500, ...) {
+bootstrap_model <- function(data, measurement_model, interactions=NULL, structural_model, nboot = 500, model_estimation = "composite", ...) {
   cat("Bootstrapping model using simplePLS...\n")
   library(parallel)
   capture.output(seminr_model <- estimate_model(data = data,
                                                 measurement_model = measurement_model,
                                                 interactions = interactions,
-                                                structural_model = structural_model, ...))
+                                                structural_model = structural_model,
+                                                model_estimation = model_estimation, ...))
 
   if (nboot > 0) {
     # Initialize the cluster
@@ -84,12 +85,12 @@ bootstrap_model <- function(data, measurement_model, interactions=NULL, structur
     d <- data
 
     # Export variables and functions to cluster
-    clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model","getRandomIndex","d"), envir=environment())
+    clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model","getRandomIndex","d", "model_estimation"), envir=environment())
 
     # Function to get PLS estimate results
     getEstimateResults <- function(i, d = d) {
       return(seminr::estimate_model(data = d[getRandomIndex(d),],
-                          measurement_model,interactions,structural_model)$path_coef)
+                          measurement_model,interactions,structural_model, model_estimation)$path_coef)
     }
 
     # Bootstrap the estimates
