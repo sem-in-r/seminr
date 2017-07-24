@@ -407,17 +407,17 @@ mobi_sm <- structure(
         from = c("Image", "Expectation", "Value",
                  "Image.Expectation", "Image.Value"))
 )
-mobi_pls <- bootstrap_model(data = mobi,
+mobi_pls <- estimate_model(data = mobi,
                             measurement_model = mobi_mm,
                             interactions = mobi_xm,
-                            structural_model = mobi_sm,
-                            nboot = 500)
+                            structural_model = mobi_sm)
+bootstrap_mobi_pls <- bootstrap_model(mobi_pls, nboot = 500)
 ```
 
 The output of this code is:
 
 ```{r}
-mobi_pls
-print_paths(mobi_pls)
-plot_scores(mobi_pls)
+bootstrap_mobi_pls
+print_paths(bootstrap_mobi_pls)
+plot_scores(bootstrap_mobi_pls)
 ```
