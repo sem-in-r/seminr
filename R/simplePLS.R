@@ -189,8 +189,8 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
       list <- mmMatrix[mmMatrix[,"latent"]==latent,"measurement"]
 
       for (item in list){
-        adjustment <- adjustment + sd(obsData[,item])*as.numeric(outer_loadings[item,latent])
-         denom <- denom + outer_loadings[item,latent]
+        adjustment <- adjustment + sd(obsData[,item])*abs(as.numeric(outer_loadings[item,latent]))
+         denom <- denom + abs(outer_loadings[item,latent])
       }
       adjustment <- adjustment/denom
       fscores[,latent] <- fscores[,latent]*adjustment
