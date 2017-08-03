@@ -11,7 +11,7 @@ data("mobi", package = "semPLS")
 mobi_pls <- estimate_pls(
   data = mobi,
 
-  measure(
+  constructs(
     reflective("Image", multi_items("IMAG", 1:5)),
     reflective("Expectation", multi_items("CUEX", 1:3)),
     reflective("Value", multi_items("PERV", 1:2)),

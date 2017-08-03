@@ -18,7 +18,7 @@ path coefficients and loadings for common factor models and composite models.
 data("mobi", package = "semPLS")
 
 #seminr syntax for creating measurement model
-mobi_mm <- measure(
+mobi_mm <- constructs(
              reflective("Image",        multi_items("IMAG", 1:5)),
              reflective("Expectation",  multi_items("CUEX", 1:3)),
              reflective("Quality",      multi_items("PERQ", 1:7)),
@@ -44,7 +44,7 @@ mobi_pls <- estimate_pls(data = mobi,
 PLSc(mobi_pls)
 }
 \seealso{
-\code{\link{relationships}} \code{\link{measure}} \code{\link{paths}} \code{\link{interact}}
+\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interact}}
          \code{\link{bootstrap_model}}
 }
 

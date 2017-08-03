@@ -6,7 +6,7 @@ library(seminr)
 # using simplePLS.
 
 # seminr syntax for creating measurement model
-mobi_mm <- measure(
+mobi_mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   causal("Expectation",  multi_items("CUEX", 1:3)),
   composite("Quality",      multi_items("PERQ", 1:7)),
