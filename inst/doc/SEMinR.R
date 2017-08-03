@@ -15,10 +15,10 @@ multi_items("IMAG", 1:5)
 #  c("IMAG1", "IMAG2", "IMAG3", "IMAG4", "IMAG5")
 
 ## ------------------------------------------------------------------------
-reflect("Image", multi_items("IMAG", 1:5))
+reflective("Image", multi_items("IMAG", 1:5))
 
 ## ------------------------------------------------------------------------
-form("Image", multi_items("IMAG", 1:5))
+causal("Image", multi_items("IMAG", 1:5))
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  c("Image", "IMAG1", "Image", "IMAG2", "Image", "IMAG3", "Image", "IMAG4", "Image", "IMAG5")
@@ -28,13 +28,13 @@ form("Image", multi_items("IMAG", 1:5))
 
 ## ------------------------------------------------------------------------
 mobi_mm <- measure(
-  reflect("Image",        multi_items("IMAG", 1:5)),
-  reflect("Expectation",  multi_items("CUEX", 1:3)),
-  reflect("Quality",      multi_items("PERQ", 1:7)),
-  reflect("Value",        multi_items("PERV", 1:2)),
-  form("Satisfaction",    multi_items("CUSA", 1:3)),
-  form("Complaints",      single_item("CUSCO")),
-  form("Loyalty",         multi_items("CUSL", 1:3))
+  reflective("Image",        multi_items("IMAG", 1:5)),
+  reflective("Expectation",  multi_items("CUEX", 1:3)),
+  reflective("Quality",      multi_items("PERQ", 1:7)),
+  reflective("Value",        multi_items("PERV", 1:2)),
+  causal("Satisfaction",    multi_items("CUSA", 1:3)),
+  causal("Complaints",      single_item("CUSCO")),
+  causal("Loyalty",         multi_items("CUSL", 1:3))
 )
 
 ## ------------------------------------------------------------------------
@@ -119,10 +119,10 @@ mobi_xm
 ## ------------------------------------------------------------------------
 # seminr syntax for creating measurement model
 mobi_mm <- measure(
-  reflect("Image",        multi_items("IMAG", 1:5)),
-  reflect("Expectation",  multi_items("CUEX", 1:3)),
-  reflect("Value",        multi_items("PERV", 1:2)),
-  reflect("Satisfaction", multi_items("CUSA", 1:3))
+  reflective("Image",        multi_items("IMAG", 1:5)),
+  reflective("Expectation",  multi_items("CUEX", 1:3)),
+  reflective("Value",        multi_items("PERV", 1:2)),
+  reflective("Satisfaction", multi_items("CUSA", 1:3))
 )
 
 # interaction factors must be created after the measurement model is defined

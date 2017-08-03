@@ -12,8 +12,8 @@ This document highlights the diffent types of `seminr` syntax for particular use
 You can specify formative or reflective factors:
 ``` r
 simple_mm <- measure(
-  reflect("Expectation", multi_items("CUEX", 1:3)),
-  form("Quality", multi_items("PERQ", 1:7))
+  reflective("Expectation", multi_items("CUEX", 1:3)),
+  causal("Quality", multi_items("PERQ", 1:7))
 )
 ```
 
@@ -23,9 +23,9 @@ You may specify multiple items or a single item to measure a construct. `multi_i
 
 ``` r
 simple_mm <- measure(
-  reflect("Quality", multi_items("PERQ", 1:7)),         # seven-item measure
-  reflect("Satisfaction", multi_items("CUSA", c(1,3))), # two-item measure
-  reflect("Expectation", "CUEX1")                       # single-item measure
+  reflective("Quality", multi_items("PERQ", 1:7)),         # seven-item measure
+  reflective("Satisfaction", multi_items("CUSA", c(1,3))), # two-item measure
+  reflective("Expectation", "CUEX1")                       # single-item measure
 )
 ```
 

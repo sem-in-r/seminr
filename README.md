@@ -30,10 +30,10 @@ Seminr can be used to create a plsm model, to estimate the model and to perform 
 ``` r
 # seminr syntax for creating measurement model
 mobi_mm <- measure(
-  reflect("Image",        multi_items("IMAG", 1:5)),
-  reflect("Expectation",  multi_items("CUEX", 1:3)),
-  reflect("Value",        multi_items("PERV", 1:2)),
-  reflect("Satisfaction", multi_items("CUSA", 1:3))
+  reflective("Image",        multi_items("IMAG", 1:5)),
+  reflective("Expectation",  multi_items("CUEX", 1:3)),
+  reflective("Value",        multi_items("PERV", 1:2)),
+  reflective("Satisfaction", multi_items("CUSA", 1:3))
 )
 
 # interaction factors must be created after the measurement model is defined
