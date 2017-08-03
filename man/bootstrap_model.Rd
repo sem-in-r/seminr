@@ -24,7 +24,7 @@ parameters and data.
 data("mobi", package = "semPLS")
 
 # seminr syntax for creating measurement model
-mobi_mm <- measure(
+mobi_mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Expectation",  multi_items("CUEX", 1:3)),
   reflective("Value",        multi_items("PERV", 1:2)),
@@ -56,6 +56,6 @@ boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
 print_paths(boot_mobi_pls)
 }
 \seealso{
-\code{\link{relationships}} \code{\link{measure}} \code{\link{paths}} \code{\link{interact}}
+\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interact}}
 }
 

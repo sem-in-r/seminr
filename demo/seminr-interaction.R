@@ -6,7 +6,7 @@ library(seminr)
 
 # First, using the orthogonalization method as per Henseler & Chin (2010).
 # seminr syntax for creating measurement model
-mobi_mm <- measure(
+mobi_mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Expectation",  multi_items("CUEX", 1:3)),
   reflective("Value",        multi_items("PERV", 1:2)),
@@ -44,7 +44,7 @@ print_paths(boot_mobi_pls)
 
 # Second, using the standardized product indicator method as per Henseler & Chin (2010).
 # seminr syntax for creating measurement model
-mobi_mm <- measure(
+mobi_mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Expectation",  multi_items("CUEX", 1:3)),
   reflective("Value",        multi_items("PERV", 1:2)),

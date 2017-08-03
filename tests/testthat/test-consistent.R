@@ -3,7 +3,7 @@ context("SEMinR correctly estimates rhoA for the simple model\n")
 # Test cases
 ## Simple case
 # seminr syntax for creating measurement model
-mobi_mm <- measure(
+mobi_mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Expectation",  multi_items("CUEX", 1:3)),
   reflective("Value",        multi_items("PERV", 1:2)),
@@ -43,7 +43,7 @@ context("SEMinR correctly estimates rhoA for the interaction model\n")
 ## Interaction case
 
 # seminr syntax for creating measurement model
-mobi_mm <- measure(
+mobi_mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Expectation",  multi_items("CUEX", 1:3)),
   reflective("Value",        multi_items("PERV", 1:2)),
@@ -88,7 +88,7 @@ context("SEMinR correctly estimates PLSc path coefficients and loadings for the 
 # Test cases
 ## Simple case
 # seminr syntax for creating measurement model
-mobi_mm <- measure(
+mobi_mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Expectation",  multi_items("CUEX", 1:3)),
   reflective("Value",        multi_items("PERV", 1:2)),
@@ -135,7 +135,7 @@ context("SEMinR correctly estimates PLSc path coefficients and loadings for the 
 ## Interaction case
 
 # seminr syntax for creating measurement model
-mobi_mm <- measure(
+mobi_mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Expectation",  multi_items("CUEX", 1:3)),
   reflective("Value",        multi_items("PERV", 1:2)),
