@@ -37,7 +37,7 @@ mobi_sm <- structure(
   paths(from = "Complaints",   to = "Loyalty")
 )
 
-mobi_pls <- estimate_model(data = mobi,
+mobi_pls <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
 

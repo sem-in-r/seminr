@@ -26,7 +26,7 @@
 #'   interaction_ortho("Image", "Value")
 #' )
 #'
-#' mobi_pls <- estimate_model(mobi, mobi_mm, mobi_xm, mobi_sm)
+#' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
 #' print_paths(mobi_pls)
 #'
 #' @aliases interaction_ortho, interaction_scaled
@@ -61,7 +61,7 @@ interact <- function(...) {
 #'   interaction_ortho("Image", "Value")
 #' )
 #'
-#' mobi_pls <- estimate_model(mobi, mobi_mm, mobi_xm, mobi_sm)
+#' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
 #' print_paths(mobi_pls)
 #'
 #' @aliases interaction_ortho, interaction_scaled
@@ -88,7 +88,7 @@ interact <- function(...) {
 #'   interaction_scaled("Image", "Value")
 #' )
 #'
-#' mobi_pls <- estimate_model(mobi, mobi_mm, mobi_xm, mobi_sm)
+#' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
 #' print_paths(mobi_pls)
 #'
 #' @aliases interaction_ortho, interaction_scaled

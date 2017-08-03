@@ -29,7 +29,7 @@ mobi_sm <- structure(
 
 # Load data, assemble model, and estimate using simplePLS
 data("mobi", package = "semPLS")
-mobi_pls <- estimate_model(data = mobi,
+mobi_pls <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            interaction = mobi_xm,
                            structural_model = mobi_sm)
@@ -37,13 +37,10 @@ mobi_pls <- estimate_model(data = mobi,
 print_paths(mobi_pls)
 
 # Bootstrap the model
-mobi_pls <- bootstrap_model(data = mobi,
-                            measurement_model = mobi_mm,
-                            interaction = mobi_xm,
-                            structural_model = mobi_sm,
-                            nboot = 500)
+boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
+                                 nboot = 500)
 
-print_paths(mobi_pls)
+print_paths(boot_mobi_pls)
 
 # Second, using the standardized product indicator method as per Henseler & Chin (2010).
 # seminr syntax for creating measurement model
@@ -70,7 +67,7 @@ mobi_sm <- structure(
 
 # Load data, assemble model, and estimate using simplePLS
 data("mobi", package = "semPLS")
-mobi_pls <- estimate_model(data = mobi,
+mobi_pls <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            interaction = mobi_xm,
                            structural_model = mobi_sm)
@@ -78,10 +75,7 @@ mobi_pls <- estimate_model(data = mobi,
 print_paths(mobi_pls)
 
 # Bootstrap the model
-mobi_pls <- bootstrap_model(data = mobi,
-                            measurement_model = mobi_mm,
-                            interaction = mobi_xm,
-                            structural_model = mobi_sm,
-                            nboot = 500)
+boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
+                                 nboot = 500)
 
-print_paths(mobi_pls)
+print_paths(boot_mobi_pls)
