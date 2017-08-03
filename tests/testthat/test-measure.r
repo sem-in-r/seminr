@@ -3,10 +3,10 @@ context("Measurement model specification")
 # Test cases
 ## Format 1 (includes all verbs)
 mm <- measure(
-  reflect("Image",        multi_items("IMAG", 1:5)),
-  reflect("Quality",      single_item("PERQ1")),
-  form("Satisfaction",    multi_items("CUSA", 1:3)),
-  form("Complaints",      single_item("CUSCO"))
+  reflective("Image",        multi_items("IMAG", 1:5)),
+  reflective("Quality",      single_item("PERQ1")),
+  causal("Satisfaction",    multi_items("CUSA", 1:3)),
+  causal("Complaints",      single_item("CUSCO"))
 )
 
 # Testing

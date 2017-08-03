@@ -1,10 +1,10 @@
 # Warning to check for formative only constructs
-warning_only_formative_construct <- function(mmMatrix) {
+warning_only_causal_construct <- function(mmMatrix) {
   latents <- unique(mmMatrix[,1])
 
   for(latent in latents) {
     if(length(items_per_mode(latent,"F",mmMatrix)) == nrow(mmMatrix_per_latent(latent,mmMatrix))) {
-      warning(c(latent," is purely formatively defined.\n"))
+      warning(c(latent," is purely defined as a causal formative construct.\n"))
     }
   }
 }
@@ -19,6 +19,6 @@ warning_single_item_formative <- function(mmMatrix) {
 }
 
 warnings <- function(mmMatrix) {
-  warning_only_formative_construct(mmMatrix)
+  warning_only_causal_construct(mmMatrix)
   warning_single_item_formative(mmMatrix)
 }
