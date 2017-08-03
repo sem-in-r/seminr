@@ -23,7 +23,7 @@ mobi_pls <- estimate_pls(
     interaction_ortho("Image", "Value")
   ),
 
-  structure(
+  relationships(
     paths(to = "Satisfaction",
           from = c("Image", "Expectation", "Value",
                    "Image.Expectation", "Image.Value"))
