@@ -12,7 +12,7 @@ plot_scores(fitted_model, factors=NULL)
 }
 \arguments{
 \item{seminr_model}{The PLS model estimated by simplePLS \code{seminr}. The estimated model
-returned by the \code{estimate_model} or \code{bootstrap_model} methods.}
+returned by the \code{estimate_pls} or \code{bootstrap_model} methods.}
 
 \item{na.print}{A \code{character} substituting values not to be printed.
 If not specified, default = "."}
@@ -35,7 +35,7 @@ These functions generate an easy to read table reporting path coefficients
 }
 \examples{
 data("mobi", package = "semPLS")
-mobi_pls <- estimate_model(data = mobi,
+mobi_pls <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
 print_paths(mobi_pls)

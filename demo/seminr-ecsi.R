@@ -30,18 +30,16 @@ mobi_sm <- structure(
 # Regular semPLS functions to create and estimate model, and report estimates
 data("mobi", package = "semPLS")
 
-mobi_pls <- estimate_model(data = mobi,
-                           measurement_model = mobi_mm,
-                           structural_model = mobi_sm)
+mobi_pls <- estimate_pls(data = mobi,
+                         measurement_model = mobi_mm,
+                         structural_model = mobi_sm)
 
 print_paths(mobi_pls)
 plot_scores(mobi_pls)
 
 # Bootstrap the model
-mobi_pls <- bootstrap_model(data = mobi,
-                            measurement_model = mobi_mm,
-                            structural_model = mobi_sm,
-                            nboot = 500)
+boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
+                                 nboot = 500)
 
-print_paths(mobi_pls)
-plot_scores(mobi_pls)
+print_paths(boot_mobi_pls)
+plot_scores(boot_mobi_pls)

@@ -8,32 +8,7 @@ library(seminr)
 
 data("mobi", package = "semPLS")
 
-mobi_pls <- estimate_model(
-    data = mobi,
-
-    measure(
-      reflect("Image", multi_items("IMAG", 1:5)),
-      reflect("Expectation", multi_items("CUEX", 1:3)),
-      reflect("Value", multi_items("PERV", 1:2)),
-      reflect("Satisfaction", multi_items("CUSA", 1:3))
-    ),
-
-    interact(
-      interaction_ortho("Image", "Expectation"),
-      interaction_ortho("Image", "Value")
-    ),
-
-    structure(
-      paths(to = "Satisfaction",
-            from = c("Image", "Expectation", "Value",
-                     "Image.Expectation", "Image.Value"))
-    )
-  )
-)
-
-print_paths(mobi_pls)
-
-mobi_pls <- bootstrap_model(
+mobi_pls <- estimate_pls(
   data = mobi,
 
   measure(
@@ -52,7 +27,13 @@ mobi_pls <- bootstrap_model(
     paths(to = "Satisfaction",
           from = c("Image", "Expectation", "Value",
                    "Image.Expectation", "Image.Value"))
-  ),
+  )
+)
+
+print_paths(mobi_pls)
+
+mobi_pls <- bootstrap_model(
+  seminr_model = mobi_pls,
   nboot = 500
 )
 print_paths(mobi_pls)

@@ -47,7 +47,7 @@ mobi_sm <- structure(
   paths(from = "Complaints",   to = "Loyalty")
 )
 
-mobi_pls <- estimate_model(data = mobi,
+mobi_pls <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
 
@@ -63,6 +63,6 @@ plot_scores(mobi_pls)
 }
 \seealso{
 \code{\link{structure}} \code{\link{measure}} \code{\link{paths}} \code{\link{interact}}
-         \code{\link{estimate_model}} \code{\link{bootstrap_model}}
+         \code{\link{estimate_pls}} \code{\link{bootstrap_model}}
 }
 

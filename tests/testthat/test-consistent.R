@@ -19,7 +19,7 @@ mobi_sm <- structure(
 
 # Load data, assemble model, and estimate using semPLS
 data("mobi", package = "semPLS")
-seminr_model <- estimate_model(mobi, mobi_mm, interactions = NULL, mobi_sm)
+seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm)
 
 
 # Load outputs
@@ -66,7 +66,7 @@ mobi_sm <- structure(
 
 # Load data, assemble model, and estimate using semPLS
 data("mobi", package = "semPLS")
-seminr_model <- estimate_model(mobi, mobi_mm, mobi_xm, mobi_sm)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
 
 # Load outputs
 rho <- rhoA(seminr_model)
@@ -104,7 +104,7 @@ mobi_sm <- structure(
 
 # Load data, assemble model, and estimate using semPLS
 data("mobi", package = "semPLS")
-seminr_model <- estimate_model(mobi, mobi_mm, interactions = NULL, mobi_sm)
+seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm)
 plscModel <- PLSc(seminr_model)
 
 # Load outputs
@@ -158,7 +158,7 @@ mobi_sm <- structure(
 
 # Load data, assemble model, and estimate using semPLS
 data("mobi", package = "semPLS")
-seminr_model <- estimate_model(mobi, mobi_mm, mobi_xm, mobi_sm)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
 plscModel <- PLSc(seminr_model)
 
 # Load outputs

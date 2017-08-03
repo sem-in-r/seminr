@@ -27,7 +27,7 @@ mobi_sm <- structure(
 
 # Load data, assemble model, and estimate using semPLS
 data("mobi", package = "semPLS")
-seminr_model <- estimate_model(mobi, mobi_mm, mobi_xm, mobi_sm)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
 
 
 # Load outputs
@@ -88,7 +88,7 @@ mobi_sm <- structure(
 
 # Load data, assemble model, and estimate using semPLS
 data("mobi", package = "semPLS")
-seminr_model <- estimate_model(mobi, mobi_mm, mobi_xm, mobi_sm)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
 
 
 # Load outputs
