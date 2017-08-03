@@ -22,13 +22,13 @@ on PLS SEM models. However, the syntax of these models is disparate and complica
 and often discourages practitioners from use. Additionally, many unnecessary options
 and settings are offered which makes model estimation complex and results questionable.
 
-The goal of SEMinR is to provide a natural syntax for researchers to describe PLS 
+The goal of SEMinR is to provide a natural syntax for researchers to describe PLS
 structural equation models and that provides only the most suitable methodology -
 allowing reliable and parsionious estimation of PLS models, interaction effects
 and bootstrapped significances.
 
 The description of the model often takes longer and requires dozens of lines of code,
-however SEMinR seeks to automate this process and make modelling such features as 
+however SEMinR seeks to automate this process and make modelling such features as
 interactions and mediations much simpler.
 
 There are 3 basic steps in the PLS SEM model description:
@@ -42,7 +42,7 @@ There are 3 basic steps in the PLS SEM model description:
 The SEMinR package makes these steps fast and easy:
 
 * By providing easily readable and writable syntax, describing the model becomes simpler -
- and you can quickly change paths and structures allowing for multiple model comparisons.
+ and you can quickly change structural relationships allowing for multiple model comparisons.
 
 * It provides simple "verbs", functions that correspond to the most common data manipulation tasks, to help you translate those thoughts into code.
 
@@ -72,14 +72,14 @@ SEMinR verbs for measurement model description:
 
 * `multi_items()` (or `single_items()`)
 * `reflective()` (or `causal()`)
-* `measure()` 
+* `measure()`
 
 These verbs are highly intuitive and provide for human-readable code that allows a practitioner to understand a measurement model on first glance and easily make changes to compare different measurement models.
 
 ### Describe multiple measurement items (manifest variables) with `multi_items()` or single item measurement items with `single_item()`
 
-`single_item()` provides a verb to describe a single measurement item, while 
-`multi_items()` provides a verb to describe multiple measurement items in one simple line of human-readable code. 
+`single_item()` provides a verb to describe a single measurement item, while
+`multi_items()` provides a verb to describe multiple measurement items in one simple line of human-readable code.
 
 For example, we can describe the manifest variables: IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:
 
@@ -97,7 +97,7 @@ c("IMAG1", "IMAG2", "IMAG3", "IMAG4", "IMAG5")
 
 ### Describe a factor with `causal()` or `reflective()`
 
-`causal()` and `reflective()` provide a verb to describe a factor in one simple line of human-readable code. 
+`causal()` and `reflective()` provide a verb to describe a factor in one simple line of human-readable code.
 
 For example, we can describe the reflective factor "Image" with manifest variables IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:
 
@@ -125,7 +125,7 @@ c("IMAG1", "Image", "IMAG2", "Image", "IMAG3", "Image", "IMAG4", "Image", "IMAG5
 
 for formative factors.
 
-`multi_items()` is used in conjunction with `reflective()` or `causal()` to describe a factor. 
+`multi_items()` is used in conjunction with `reflective()` or `causal()` to describe a factor.
 `measure()` is used in conjunction with multiple factor descriptions to describe the entire measurement model.
 
 ### Create measurement model matrix with `measure()`
@@ -182,22 +182,22 @@ mobi_mm <- matrix(c("Image","IMAG1",
                    dimnames = list(1:24,c("source","target")))
 ```
 
-That was a mouthful of code! The `seminr()` syntax is far more human-readable and the use of the verbs really makes the meaning explicit. Modifications to the `seminr()` measurement model description are quick and easy and intuitive. 
+That was a mouthful of code! The `seminr()` syntax is far more human-readable and the use of the verbs really makes the meaning explicit. Modifications to the `seminr()` measurement model description are quick and easy and intuitive.
 
 ## Structural model description verbs
 
 SEMinR verbs for structural model description:
 
-* `paths()` 
-* `structure()` 
+* `paths()`
+* `relationships()`
 
 These verbs are highly intuitive and provide for human-readable code that allows a practitioner to understand the structural model on first glance and easily make changes to compare different structural models.
 
 ### Describe structural model paths with `paths()`
 
-`paths()` provides a verb to describe single or multiple structural paths. 
- 
-For example, we can describe the structural model paths: 
+`paths()` provides a verb to describe single or multiple structural paths.
+
+For example, we can describe the structural model paths:
 
 * "Image" -> "Expectation"
 * "Image" -> "Satisfaction"
@@ -215,16 +215,16 @@ c("Image", "Expectation", "Image", "Satisfaction", "Image", "Loyalty")
 c("Value","Satisfaction")
 ```
 
-`paths()` is used in conjunction with `structure()` to describe the full structural model.
+`paths()` is used in conjunction with `relationships()` to describe the full structural model.
 
-### Create structural model matrix with `structure()`
+### Create structural model matrix with `relationships()`
 
-`structure()` compiles the structural model source-target matrix from the user specified structural path descriptions described in the parameters.
+`relationships()` compiles the structural model source-target matrix from the user specified structural path descriptions described in the parameters.
 
 For example, we can create a source-target matrix structural model for the `mobi` data:
 
 ```{r}
-mobi_sm <- structure(
+mobi_sm <- relationships(
   paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
   paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
   paths(from = "Quality",      to = c("Value", "Satisfaction")),
@@ -258,27 +258,27 @@ mobi_sm <- matrix(c("Image","Expectation",
                    dimnames = list(1:12,c("source","target")))
 ```
 
-Used in conjunction with the measurement model verbs, the description and comparison of your models can really be more intuitive and readable. 
+Used in conjunction with the measurement model verbs, the description and comparison of your models can really be more intuitive and readable.
 
 ## Interaction term description verbs
 
 SEMinR verbs for creating Interaction Terms:
 
-* `interact()` 
+* `interact()`
 * `interaction_scaled()`
 * `interaction_ortho()`
 
 Most PLS SEM packages require practitioners to create interaction terms by hand which can be a time-consuming and arduous task - not to mention presenting an opporunity for errors to enter the model. These verbs are highly intuitive and provide for human-readable code that allows a practitioner to quickly describe and "read" interaction terms and make changes and comparisons on the fly.
 
-We provide for 2 methods of interaction as per Henseler & Chin (2010) - 
+We provide for 2 methods of interaction as per Henseler & Chin (2010) -
 (1) Standardized product indicator approach in `interaction_scaled()`
 (2) Orthogonalized approach in `interaction_ortho()`
 
 ### Describe an interaction combo with `interaction_scaled()`
 
-`interaction_scaled()` provides a verb to describe single interaction item. 
- 
-For example, we can describe the following interaction items: 
+`interaction_scaled()` provides a verb to describe single interaction item.
+
+For example, we can describe the following interaction items:
 
 * "Image" + "Expectation"
 * "Image" + "Value"
@@ -288,13 +288,13 @@ interaction_scaled("Image", "Expectation")
 interaction_scaled("Image", "Value")
 ```
 
-These functions return functions themselves which are not resolved until passed as parameters to the `interact()` function. 
+These functions return functions themselves which are not resolved until passed as parameters to the `interact()` function.
 
 ### Describe an interaction combo with `interaction_ortho()`
 
-`interaction_ortho()` provides a verb to describe single interaction item. 
- 
-For example, we can describe the following interaction items: 
+`interaction_ortho()` provides a verb to describe single interaction item.
+
+For example, we can describe the following interaction items:
 
 * "Image" + "Expectation"
 * "Image" + "Value"
@@ -304,13 +304,13 @@ interaction_ortho("Image", "Expectation")
 interaction_ortho("Image", "Value")
 ```
 
-These functions return functions themselves which are not resolved until passed as parameters to the `interact()` function. 
+These functions return functions themselves which are not resolved until passed as parameters to the `interact()` function.
 
 ### Describe all model interactions with `interact()`
 
-`interact()` provides a verb to describe all interactions in a specific model. The function itself returns a function which is not resolved until passed as a parameter to the `seminr()` function.   
- 
-For example, we can describe the following interaction items in a model: 
+`interact()` provides a verb to describe all interactions in a specific model. The function itself returns a function which is not resolved until passed as a parameter to the `seminr()` function.
+
+For example, we can describe the following interaction items in a model:
 
 ```{r}
 mobi_xm <- interact(
@@ -333,8 +333,8 @@ SEMinR verbs for PLS SEM model estimation:
 
 * `estimate_model()`
 
-This verb is used to estimate the PLS model using the simplePLS function.  
-It takes as parameters the structural model described by `structure()`, the measurement model described by `measure()` and an optional interactions function as described by `interact()`. 
+This verb is used to estimate the PLS model using the simplePLS function.
+It takes as parameters the structural model described by `relationships()`, the measurement model described by `measure()` and an optional interactions function as described by `interact()`.
 
 For example, we can estimate the PLS SEM model based upon the structural and measurement model with interactions as described previously in this vignette.
 
@@ -355,7 +355,7 @@ mobi_xm <- interact(
 
 # structural model: note that name of the interactions factor should be
 #  the names of its two main factors joined by a '.' in between.
-mobi_sm <- structure(
+mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
                  "Image.Expectation", "Image.Value"))
@@ -380,8 +380,8 @@ SEMinR verbs for PLS SEM model bootstrapping:
 
 * `bootstrap_model()`
 
-This verb is used to bootstrap the PLS model for significance using the simplePLS function.  
-It takes as parameters the structural model described by `structure()`, the measurement model described by `measure()` and an optional interactions function as described by `interact()`. 
+This verb is used to bootstrap the PLS model for significance using the simplePLS function.
+It takes as parameters the structural model described by `relationships()`, the measurement model described by `measure()` and an optional interactions function as described by `interact()`.
 
 For example, we can estimate the PLS SEM model based upon the structural and measurement model with interactions as described previously in this vignette.
 
@@ -402,7 +402,7 @@ mobi_xm <- interact(
 
 # structural model: note that name of the interactions factor should be
 #  the names of its two main factors joined by a '.' in between.
-mobi_sm <- structure(
+mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
                  "Image.Expectation", "Image.Value"))

@@ -2,13 +2,13 @@ context("Structural model specification")
 
 # Test cases
 ## Format 1
-sm <- structure(
+sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value", "Image.Expectation", "Image.Value"))
 )
 
 ## Format 2
-sm2 <- structure(
+sm2 <- relationships(
   paths(from = "Image",             to = "Satisfaction"),
   paths(from = "Expectation",       to = "Satisfaction"),
   paths(from = "Value",             to = c("Satisfaction")),

@@ -8,7 +8,7 @@
 #' @usage
 #' rhoA(seminr_model)
 #'
-#' @seealso \code{\link{structure}} \code{\link{measure}} \code{\link{paths}} \code{\link{interact}}
+#' @seealso \code{\link{relationships}} \code{\link{measure}} \code{\link{paths}} \code{\link{interact}}
 #'          \code{\link{bootstrap_model}}
 #'
 #' @examples
@@ -25,7 +25,7 @@
 #'              reflective("Loyalty",      multi_items("CUSL", 1:3))
 #'            )
 #' #seminr syntax for creating structural model
-#' mobi_sm <- structure(
+#' mobi_sm <- relationships(
 #'   paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
 #'   paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
 #'   paths(from = "Quality",      to = c("Value", "Satisfaction")),

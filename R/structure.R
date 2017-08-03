@@ -1,6 +1,6 @@
 #' Structural specification functions for seminr package
 #'
-#' \code{paths} creates the structural paths of a PLS SEM model and \code{structure} generates
+#' \code{paths} creates the structural paths of a PLS SEM model and \code{relationships} generates
 #' the matrix of paths for use by PLS modelling packages such as semPLS and simplePLS.
 #'
 #' @param from The source factor of a structural path
@@ -11,10 +11,10 @@
 #'   for each of the model's structural paths.
 #'
 #' @usage
-#' structure(paths(from = "source factor", to = "destination factor"))
+#' relationships(paths(from = "source factor", to = "destination factor"))
 #'
 #' @examples
-#' mobi_sm <- structure(
+#' mobi_sm <- relationships(
 #'              paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
 #'              paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
 #'              paths(from = "Quality",      to = c("Value", "Satisfaction")),
@@ -26,10 +26,11 @@
 #' @aliases paths
 #'
 #' @export
-structure <- function(...) {
+relationships <- function(...) {
   return(matrix(c(...), ncol = 2, byrow = TRUE,
                 dimnames = list(NULL, c("source", "target"))))
 }
+
 #' @export
 paths <- function(from, to) {
   return(as.vector(t(as.matrix(expand.grid(from, to)))))

@@ -17,8 +17,8 @@ mobi_mm <- measure(
 )
 
 # seminr syntax for creating structural model
-# - note, three ways to represent the structure
-mobi_sm <- structure(
+# - note, three ways to represent the structural relationships
+mobi_sm <- relationships(
   paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
   paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
   paths(from = "Quality",      to = c("Value", "Satisfaction")),

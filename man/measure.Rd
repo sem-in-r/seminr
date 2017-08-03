@@ -20,7 +20,7 @@ relevant items to each factor and specifying reflective or formative (composite/
 \details{
 This function conveniently maps measurement items to factors using
 root name, numbers, and affixes with explicit definition of formative
-or reflective structure
+or reflective relationships
 }
 \examples{
   mobi_mm <- measure(

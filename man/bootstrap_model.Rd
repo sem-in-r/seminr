@@ -39,7 +39,7 @@ mobi_xm <- interact(
 
 # structural model: note that name of the interactions factor should be
 #  the names of its two main factors joined by a '.' in between.
-mobi_sm <- structure(
+mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
                  "Image.Expectation", "Image.Value"))
@@ -56,6 +56,6 @@ boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
 print_paths(boot_mobi_pls)
 }
 \seealso{
-\code{\link{structure}} \code{\link{measure}} \code{\link{paths}} \code{\link{interact}}
+\code{\link{relationships}} \code{\link{measure}} \code{\link{paths}} \code{\link{interact}}
 }
 

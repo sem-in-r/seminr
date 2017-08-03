@@ -15,7 +15,7 @@
 #' @usage
 #' bootstrap_model(seminr_model, nboot = 500)
 #'
-#' @seealso \code{\link{structure}} \code{\link{measure}} \code{\link{paths}} \code{\link{interact}}
+#' @seealso \code{\link{relationships}} \code{\link{measure}} \code{\link{paths}} \code{\link{interact}}
 #'
 #' @examples
 #' data("mobi", package = "semPLS")
@@ -36,7 +36,7 @@
 #'
 #' # structural model: note that name of the interactions factor should be
 #' #  the names of its two main factors joined by a '.' in between.
-#' mobi_sm <- structure(
+#' mobi_sm <- relationships(
 #'   paths(to = "Satisfaction",
 #'         from = c("Image", "Expectation", "Value",
 #'                  "Image.Expectation", "Image.Value"))
