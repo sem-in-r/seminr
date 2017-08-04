@@ -262,7 +262,7 @@ Used in conjunction with the measurement model verbs, the description and compar
 
 SEMinR verbs for creating Interaction Terms:
 
-* `interact()`
+* `interactions()`
 * `interaction_combo()`
 
 Most PLS SEM packages require practitioners to create interaction terms by hand which can be a time-consuming and arduous task - not to mention presenting an opporunity for errors to enter the model. These verbs are highly intuitive and provide for human-readable code that allows a practitioner to quickly describe and "read" interaction terms and make changes and comparisons on the fly.
@@ -281,16 +281,16 @@ interaction_combo("Image", "Expectation")
 interaction_combo("Image", "Value")
 ```
 
-These functions return functions themselves which are not resolved until passed as parameters to the `interact()` function.
+These functions return functions themselves which are not resolved until passed as parameters to the `interactions()` function.
 
-### Describe all model interactions with `interact()`
+### Describe all model interactions with `interactions()`
 
-`interact()` provides a verb to describe all interactions in a specific model. The function itself returns a function which is not resolved until passed as a parameter to the `seminr()` function.
+`interactions()` provides a verb to describe all interactions in a specific model. The function itself returns a function which is not resolved until passed as a parameter to the `seminr()` function.
 
 For example, we can describe the following interaction items in a model:
 
 ```{r}
-mobi_xm <- interact(
+mobi_xm <- interactions(
   interaction_combo("Image", "Expectation"),
   interaction_combo("Image", "Value")
 )
@@ -311,7 +311,7 @@ SEMinR verbs for PLS SEM model estimation:
 * `model()`
 
 This verb is used to generate the plsm model.
-It takes as parameters the structural model described by `relationships()`, the measurement model described by `constructs()` and an optional interactions function as described by `interact()`.
+It takes as parameters the structural model described by `relationships()`, the measurement model described by `constructs()` and an optional interactions function as described by `interactions()`.
 
 * `estimate()`
 
@@ -330,7 +330,7 @@ mobi_mm <- constructs(
 )
 
 # interaction factors must be created after the measurement model is defined
-mobi_xm <- interact(
+mobi_xm <- interactions(
   interaction_combo("Image", "Expectation"),
   interaction_combo("Image", "Value")
 )

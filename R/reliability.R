@@ -8,7 +8,7 @@
 #' @usage
 #' rhoA(seminr_model)
 #'
-#' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interact}}
+#' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'          \code{\link{bootstrap_model}}
 #'
 #' @examples

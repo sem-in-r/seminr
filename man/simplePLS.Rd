@@ -62,7 +62,7 @@ plot_scores(mobi_pls)
 
 }
 \seealso{
-\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interact}}
+\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
          \code{\link{estimate_pls}} \code{\link{bootstrap_model}}
 }
 

@@ -19,7 +19,7 @@
 #' @usage
 #' simplePLS(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7)
 #'
-#' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interact}}
+#' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'          \code{\link{estimate_pls}} \code{\link{bootstrap_model}}
 #'
 #' @examples

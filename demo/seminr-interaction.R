@@ -14,7 +14,7 @@ mobi_mm <- constructs(
 )
 
 # interaction factors must be created after the measurement model is defined
-mobi_xm <- interact(
+mobi_xm <- interactions(
   interaction_ortho("Image", "Expectation"),
   interaction_ortho("Image", "Value")
 )
@@ -30,9 +30,9 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using simplePLS
 data("mobi", package = "semPLS")
 mobi_pls <- estimate_pls(data = mobi,
-                           measurement_model = mobi_mm,
-                           interaction = mobi_xm,
-                           structural_model = mobi_sm)
+                         measurement_model = mobi_mm,
+                         interactions = mobi_xm,
+                         structural_model = mobi_sm)
 
 print_paths(mobi_pls)
 
@@ -52,7 +52,7 @@ mobi_mm <- constructs(
 )
 
 # interaction factors must be created after the measurement model is defined
-mobi_xm <- interact(
+mobi_xm <- interactions(
   interaction_scaled("Image", "Expectation"),
   interaction_scaled("Image", "Value")
 )
@@ -68,9 +68,9 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using simplePLS
 data("mobi", package = "semPLS")
 mobi_pls <- estimate_pls(data = mobi,
-                           measurement_model = mobi_mm,
-                           interaction = mobi_xm,
-                           structural_model = mobi_sm)
+                         measurement_model = mobi_mm,
+                         interactions = mobi_xm,
+                         structural_model = mobi_sm)
 
 print_paths(mobi_pls)
 

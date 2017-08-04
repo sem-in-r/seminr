@@ -108,7 +108,7 @@ mobi_sm
 #  interaction_combo("Image", "Value")
 
 ## ------------------------------------------------------------------------
-mobi_xm <- interact(
+mobi_xm <- interactions(
   interaction_combo("Image", "Expectation"),
   interaction_combo("Image", "Value")
 )
@@ -126,7 +126,7 @@ mobi_mm <- constructs(
 )
 
 # interaction factors must be created after the measurement model is defined
-mobi_xm <- interact(
+mobi_xm <- interactions(
   interaction_combo("Image", "Expectation"),
   interaction_combo("Image", "Value")
 )

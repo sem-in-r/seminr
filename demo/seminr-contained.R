@@ -18,7 +18,7 @@ mobi_pls <- estimate_pls(
     reflective("Satisfaction", multi_items("CUSA", 1:3))
   ),
 
-  interact(
+  interactions(
     interaction_ortho("Image", "Expectation"),
     interaction_ortho("Image", "Value")
   ),

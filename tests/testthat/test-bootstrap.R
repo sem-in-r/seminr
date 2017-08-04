@@ -60,7 +60,7 @@ mobi_mm <- constructs(
 )
 
 # interaction factors must be created after the measurement model is defined
-mobi_xm <- interact(
+mobi_xm <- interactions(
   interaction_ortho("Image", "Expectation"),
   interaction_ortho("Image", "Value")
 )
