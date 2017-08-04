@@ -3,7 +3,11 @@
 SEMinR
 ======
 
-The `seminr` package provides a natural syntax for researchers to describe PLS structural equation models.
+SEMinR provides a natural syntax for researchers to describe PLS structural equation models.
+
+The goals of SEMinR compared to other R packages for PLS and SEM: 1. Powerful syntax for model definition: - Estimation-agnostic modeling syntax: define generic SEM models, specify estimation method after (only PLS for now) - Multiple measurement models for constructs (reflective common-factor, formative-composite, formative-causal) - Interaction factors created automatically: choose from orthogonalized, scaled, etc. - Create multiple structural paths at once: complex models are easily defined 2. Latest estimation techniques: - Defaults to consistent-PLS estimation for reflective common-factors - Multi-core bootstrap: seeks to be among the fastest bootstrap methods for PLS 3. Wide range of reporting options (coming soon)
+
+The goals of SEMinR compared to commercial PLS modeling software: 1. Programmatic approach: use the full power of R 2. Free and open-source: - reference implementation for PLS estimation methods - learn by exploring under-the-hood implementation of PLS estimation - contribute your own ideas 3. Research test-bed: - Easily evaluate alternative parameters/approaches - Fork your own version for experimentation
 
 Documentation
 -------------
@@ -15,71 +19,82 @@ Demo code for use of Seminr can be found in the [seminr/demo/](https://github.co
 Installation
 ------------
 
-You can install seminr from github with:
+You can install SEMinR from its Github repo with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("ISS-Analytics/seminr")
+# First, install `devtools` once so that you can install SEMinR using it
+install.packages("devtools")
+
+# Now `devtools` can install SEMinR from its Github repo
+library(devtools)
+devtools::install_github("sem-in-r/seminr")
 ```
 
 Usage
 -----
 
-Seminr can be used to create a plsm model, to estimate the model and to perform bootstrapping.
+Consider the following starter example that uses data from the ECSI dataset
+
+1.  Define your constructs and their measurement mode:
 
 ``` r
-# seminr syntax for creating measurement model
-mobi_mm <- measure(
+mobi_mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Expectation",  multi_items("CUEX", 1:3)),
   reflective("Value",        multi_items("PERV", 1:2)),
-  reflective("Satisfaction", multi_items("CUSA", 1:3))
+  composite( "Satisfaction", multi_items("CUSA", 1:3))
 )
+```
 
-# interaction factors must be created after the measurement model is defined
-mobi_xm <- interact(
-  interaction_combo("Image", "Expectation"),
-  interaction_combo("Image", "Value")
+Interaction factors must be created after the measurement model is defined
+
+``` r
+mobi_xm <- interactions(
+  interaction_ortho("Image", "Expectation"),
+  interaction_ortho("Image", "Value")
 )
+```
 
-# structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
+Define structural model: note the default naming of interaction factors:
+
+``` r
 mobi_sm <- structure(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
                  "Image.Expectation", "Image.Value"))
 )
+```
 
-# Load data, assemble model, and estimate using semPLS
+Load data frame (could also use `read.csv()`, `read.table()`, etc.)
+
+``` r
 data("mobi", package = "semPLS")
-seminr_model <- create_model(data = mobi,
-                             measurement_model = mobi_mm,
-                             interaction = mobi_xm,
-                             structural_model = mobi_sm)
-#> Generating the plsm model
+```
 
-mobi_pls <- estimate_model(seminr_model, nboot = 200)
-#> Estimating model using semPLS::sempls...
+Assemble model, and estimate using built-in simplePLS algorithm:
+
+``` r
+seminr_model <- estimate_pls(data = mobi,
+                             measurement_model = mobi_mm,
+                             interactions = mobi_xm,
+                             structural_model = mobi_sm)
+```
+
+Show reports and figures (more coming soon):
+
+``` r
 print_paths(mobi_pls)
-#>                   Satisfaction
-#> R^2                       0.60
-#> Expectation               0.47
-#> Image                     0.80
-#> Image.Expectation        -0.52
-#> Image.Value              -0.16
-#> Value                     0.43
-#>                                   Estimate Bootstrapped Estimate
-#> Expectation -> Satisfaction           0.47                  0.40
-#> Image -> Satisfaction                 0.80                  0.77
-#> Image.Expectation -> Satisfaction    -0.52                 -0.40
-#> Image.Value -> Satisfaction          -0.16                 -0.25
-#> Value -> Satisfaction                 0.43                  0.51
-#>                                   Standard Error
-#> Expectation -> Satisfaction                 0.31
-#> Image -> Satisfaction                       0.19
-#> Image.Expectation -> Satisfaction           0.51
-#> Image.Value -> Satisfaction                 0.47
-#> Value -> Satisfaction                       0.33
+plot_scores(mobi_pls)
+```
+
+Bootstrap the estimated model:
+
+``` r
+boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
+                                 nboot = 500)
+
+print_paths(boot_mobi_pls)
+plot_scores(boot_mobi_pls)
 ```
 
 Testing
