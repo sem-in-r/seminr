@@ -264,7 +264,7 @@ Used in conjunction with the measurement model verbs, the description and compar
 
 SEMinR verbs for creating Interaction Terms:
 
-* `interact()`
+* `interactions()`
 * `interaction_scaled()`
 * `interaction_ortho()`
 
@@ -288,7 +288,7 @@ interaction_scaled("Image", "Expectation")
 interaction_scaled("Image", "Value")
 ```
 
-These functions return functions themselves which are not resolved until passed as parameters to the `interact()` function.
+These functions return functions themselves which are not resolved until passed as parameters to the `interactions()` function.
 
 ### Describe an interaction combo with `interaction_ortho()`
 
@@ -304,16 +304,16 @@ interaction_ortho("Image", "Expectation")
 interaction_ortho("Image", "Value")
 ```
 
-These functions return functions themselves which are not resolved until passed as parameters to the `interact()` function.
+These functions return functions themselves which are not resolved until passed as parameters to the `interactions()` function.
 
-### Describe all model interactions with `interact()`
+### Describe all model interactions with `interactions()`
 
-`interact()` provides a verb to describe all interactions in a specific model. The function itself returns a function which is not resolved until passed as a parameter to the `seminr()` function.
+`interactions()` provides a verb to describe all interactions in a specific model. The function itself returns a function which is not resolved until passed as a parameter to the `seminr()` function.
 
 For example, we can describe the following interaction items in a model:
 
 ```{r}
-mobi_xm <- interact(
+mobi_xm <- interactions(
   interaction_scaled("Image", "Expectation"),
   interaction_scaled("Image", "Value")
 )
@@ -334,7 +334,7 @@ SEMinR verbs for PLS SEM model estimation:
 * `estimate_model()`
 
 This verb is used to estimate the PLS model using the simplePLS function.
-It takes as parameters the structural model described by `relationships()`, the measurement model described by `constructs()` and an optional interactions function as described by `interact()`.
+It takes as parameters the structural model described by `relationships()`, the measurement model described by `constructs()` and an optional interactions function as described by `interactions()`.
 
 For example, we can estimate the PLS SEM model based upon the structural and measurement model with interactions as described previously in this vignette.
 
@@ -348,7 +348,7 @@ mobi_mm <- constructs(
 )
 
 # interaction factors must be created after the measurement model is defined
-mobi_xm <- interact(
+mobi_xm <- interactions(
   interaction_scaled("Image", "Expectation"),
   interaction_scaled("Image", "Value")
 )
@@ -381,7 +381,7 @@ SEMinR verbs for PLS SEM model bootstrapping:
 * `bootstrap_model()`
 
 This verb is used to bootstrap the PLS model for significance using the simplePLS function.
-It takes as parameters the structural model described by `relationships()`, the measurement model described by `constructs()` and an optional interactions function as described by `interact()`.
+It takes as parameters the structural model described by `relationships()`, the measurement model described by `constructs()` and an optional interactions function as described by `interactions()`.
 
 For example, we can estimate the PLS SEM model based upon the structural and measurement model with interactions as described previously in this vignette.
 
@@ -395,7 +395,7 @@ mobi_mm <- constructs(
 )
 
 # interaction factors must be created after the measurement model is defined
-mobi_xm <- interact(
+mobi_xm <- interactions(
   interaction_scaled("Image", "Expectation"),
   interaction_scaled("Image", "Value")
 )

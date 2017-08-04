@@ -47,7 +47,7 @@ mobi_mm <- constructs(
 )
 
 # interaction factors must be created after the measurement model is defined
-mobi_xm <- interact(
+mobi_xm <- interactions(
   interaction_combo("Image", "Expectation"),
   interaction_combo("Image", "Value")
 )
@@ -64,14 +64,14 @@ mobi_sm <- relationships(
 data("mobi", package = "semPLS")
 seminr_model <- estimate_model(data = mobi,
                                measurement_model = mobi_mm,
-                               interaction = mobi_xm,
+                               interactions = mobi_xm,
                                structural_model = mobi_sm)
 
 print_paths(seminr_model)
 
 seminr_model_boot <- bootstrap_model(data = mobi,
                                      measurement_model = mobi_mm,
-                                     interaction = mobi_xm,
+                                     interactions = mobi_xm,
                                      structural_model = mobi_sm,
                                      nboot = 200)
 

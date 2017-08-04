@@ -32,7 +32,7 @@ mobi_mm <- constructs(
 )
 
 # interaction factors must be created after the measurement model is defined
-mobi_xm <- interact(
+mobi_xm <- interactions(
   interaction_ortho("Image", "Expectation"),
   interaction_ortho("Image", "Value")
 )
@@ -56,6 +56,6 @@ boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
 print_paths(boot_mobi_pls)
 }
 \seealso{
-\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interact}}
+\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 }
 

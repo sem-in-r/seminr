@@ -43,7 +43,7 @@ mobi_pls <- estimate_pls(data = mobi,
 rhoA(mobi_pls)
 }
 \seealso{
-\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interact}}
+\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
          \code{\link{bootstrap_model}}
 }
 

@@ -1,6 +1,6 @@
 #' Interaction Functions
 #'
-#' \code{interact} creates interaction measurement items by multipying all combination of factor items.
+#' \code{interactions} creates interaction measurement items by multipying all combination of factor items.
 #'
 #' This function automatically generates interaction measurement items for a PLS SEM.
 #'
@@ -11,17 +11,17 @@
 #'  # Create two new interactions (factor1.factor2 and factor1.factor3) using
 #'
 #'  # (1) standardized product indicator approach as per Henseler & Chin (2010):
-#'  interact( interaction_scaled("factor1", "factor2"),
+#'  interactions( interaction_scaled("factor1", "factor2"),
 #'            interaction_scaled("factor1", "factor3"))
 #'
 #'  # (2) orthogonalization approach as per Henseler & CHin (2010):
-#'  interact( interaction_ortho("factor1", "factor2"),
+#'  interactions( interaction_ortho("factor1", "factor2"),
 #'            interaction_ortho("factor1", "factor3"))
 #'
 #' @examples
 #' data("mobi", package = "semPLS")
 #'
-#' mobi_xm <- interact(
+#' mobi_xm <- interactions(
 #'   interaction_ortho("Image", "Expectation"),
 #'   interaction_ortho("Image", "Value")
 #' )
@@ -32,7 +32,7 @@
 #' @aliases interaction_ortho, interaction_scaled
 #'
 #' @export
-interact <- function(...) {
+interactions <- function(...) {
   function(data, mm, all_intxns=list(...)) {
     create_interaction <- function(intxn_function) { intxn_function(data, mm) }
     intxns_list <- lapply(all_intxns, create_interaction)
@@ -50,13 +50,13 @@ interact <- function(...) {
 #'  # Create two new interactions (factor1.factor2 and factor1.factor3) using
 #'
 #'  # orthogonalization approach as per Henseler & CHin (2010):
-#'  interact( interaction_ortho("factor1", "factor2"),
+#'  interactions( interaction_ortho("factor1", "factor2"),
 #'            interaction_ortho("factor1", "factor3"))
 #'
 #' @examples
 #' data("mobi", package = "semPLS")
 #'
-#' mobi_xm <- interact(
+#' mobi_xm <- interactions(
 #'   interaction_ortho("Image", "Expectation"),
 #'   interaction_ortho("Image", "Value")
 #' )
@@ -66,6 +66,33 @@ interact <- function(...) {
 #'
 #' @aliases interaction_ortho, interaction_scaled
 #'
+#' @export
+interaction_ortho <- function(factor1, factor2) {
+  function(data, mm) {
+    interaction_name <- paste(factor1, factor2, sep=".")
+    iv1_items <- mm[mm[, "latent"] == factor1, ][, "measurement"]
+    iv2_items <- mm[mm[, "latent"] == factor2, ][, "measurement"]
+
+    iv1_data <- as.data.frame(scale(data[iv1_items]))
+    iv2_data <- as.data.frame(scale(data[iv2_items]))
+
+    mult <- function(col) {
+      iv2_data*col
+    }
+
+    multiples_list <- lapply(iv1_data, mult)
+    interaction_data <- do.call("cbind", multiples_list)
+
+    # Create formula
+    frmla <- as.formula(paste("interaction_data[,i]",paste(as.vector(c(iv1_items,iv2_items)), collapse ="+"), sep = " ~ "))
+
+    # iterate and orthogonalize
+    for(i in 1:ncol(interaction_data)) {
+      interaction_data[,i] <- lm(formula = frmla, data = data)$residuals
+    }
+    return(list(name = interaction_name, data = interaction_data))
+  }
+}
 
 #' \code{interaction_scaled} creates interaction measurement items by multipying all combination of factor items.
 #'
@@ -77,13 +104,13 @@ interact <- function(...) {
 #'  # Create two new interactions (factor1.factor2 and factor1.factor3) using
 #'
 #'  # standardized product indicator approach as per Henseler & Chin (2010):
-#'  interact( interaction_scaled("factor1", "factor2"),
+#'  interactions( interaction_scaled("factor1", "factor2"),
 #'            interaction_scaled("factor1", "factor3"))
 #'
 #' @examples
 #' data("mobi", package = "semPLS")
 #'
-#' mobi_xm <- interact(
+#' mobi_xm <- interactions(
 #'   interaction_scaled("Image", "Expectation"),
 #'   interaction_scaled("Image", "Value")
 #' )
@@ -114,30 +141,3 @@ interaction_scaled <- function(factor1, factor2) {
   }
 }
 
-#' @export
-interaction_ortho <- function(factor1, factor2) {
-  function(data, mm) {
-    interaction_name <- paste(factor1, factor2, sep=".")
-    iv1_items <- mm[mm[, "latent"] == factor1, ][, "measurement"]
-    iv2_items <- mm[mm[, "latent"] == factor2, ][, "measurement"]
-
-    iv1_data <- as.data.frame(scale(data[iv1_items]))
-    iv2_data <- as.data.frame(scale(data[iv2_items]))
-
-    mult <- function(col) {
-      iv2_data*col
-    }
-
-    multiples_list <- lapply(iv1_data, mult)
-    interaction_data <- do.call("cbind", multiples_list)
-
-    # Create formula
-    frmla <- as.formula(paste("interaction_data[,i]",paste(as.vector(c(iv1_items,iv2_items)), collapse ="+"), sep = " ~ "))
-
-    # iterate and orthogonalize
-    for(i in 1:ncol(interaction_data)) {
-      interaction_data[,i] <- lm(formula = frmla, data = data)$residuals
-    }
-    return(list(name = interaction_name, data = interaction_data))
-  }
-}

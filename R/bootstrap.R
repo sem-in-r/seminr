@@ -15,7 +15,7 @@
 #' @usage
 #' bootstrap_model(seminr_model, nboot = 500)
 #'
-#' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interact}}
+#' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'
 #' @examples
 #' data("mobi", package = "semPLS")
@@ -29,7 +29,7 @@
 #' )
 #'
 #' # interaction factors must be created after the measurement model is defined
-#' mobi_xm <- interact(
+#' mobi_xm <- interactions(
 #'   interaction_ortho("Image", "Expectation"),
 #'   interaction_ortho("Image", "Value")
 #' )
