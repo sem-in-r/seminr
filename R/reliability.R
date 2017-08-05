@@ -53,14 +53,14 @@ rhoA <- function(plsModel) {
 
   for (i in rownames(rho))  {
     #If the measurement model is Formative assign rhoA = 1
-    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="F"){
+    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="B"){
       rho[i,1] <- 1
     }
-    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="C"){
+    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="A"){
       rho[i,1] <- 1
     }
     #If the measurement model is Reflective Calculate RhoA
-    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="R"){
+    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="C"){
       #if the latent is a single item rhoA = 1
       if(nrow(mmMatrix_per_latent(i,mmMatrix)) == 1) {
         rho[i,1] <- 1

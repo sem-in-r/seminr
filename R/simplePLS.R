@@ -127,21 +127,16 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
     #Update outer_weights
     for (i in 1:length(ltVariables))  {
 
-      #If the measurement model is Formative
-      if(measure_mode(ltVariables[i],mmMatrix)=="F"){
+      #If the measurement model is Mode B Composite
+      if(measure_mode(ltVariables[i],mmMatrix)=="B"){
         outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
           solve(cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]])) %*%
                   cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],
                 fscores[,ltVariables[i]])
       }
 
-      #If the measurement model is Reflective
-      if(measure_mode(ltVariables[i],mmMatrix)=="R"){
-        outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
-          cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
-      }
-      #If the measurement model is composite
-      if(measure_mode(ltVariables[i],mmMatrix)=="C"){
+      #If the measurement model is Mode A Composite or Mode A Consistent
+      if(measure_mode(ltVariables[i],mmMatrix)=="C" | measure_mode(ltVariables[i],mmMatrix)=="A"){
         outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
           cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
       }

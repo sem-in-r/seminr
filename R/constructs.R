@@ -38,19 +38,19 @@ constructs <- function(...) {
 #' @export
 reflective <- function(construct_name, item_names) {
   construct_names <- rep(construct_name, length(item_names))
-  return(c(rbind(construct_names, item_names, "R")))
+  return(c(rbind(construct_names, item_names, "C")))
 }
 
 #' @export
 causal <- function(construct_name, item_names) {
   construct_names <- rep(construct_name, length(item_names))
-  return(c(rbind(construct_names,item_names,"F")))
+  return(c(rbind(construct_names,item_names,"B")))
 }
 
 #' @export
 composite <- function(construct_name, item_names) {
   construct_names <- rep(construct_name, length(item_names))
-  return(c(rbind(construct_names,item_names,"C")))
+  return(c(rbind(construct_names,item_names,"A")))
 }
 
 # arguments:
