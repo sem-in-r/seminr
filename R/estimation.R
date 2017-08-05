@@ -1,8 +1,7 @@
 #' seminr estimate_pls() function
 #'
-#' The \code{seminr} package provides a natural syntax for researchers to describe PLS
-#' structural equation models. \code{seminr} is compatible with semPLS, simplePLS and matrixPLS,
-#' meaning that once a model is specified, it can be used across models for comparison.
+#' The \code{seminr} package provides a natural syntax for researchers to describe
+#' structural equation models for estimation using PLS.
 #'
 #' @param data A \code{dataframe} containing the indicator measurement data.
 #'
@@ -18,7 +17,7 @@
 #' @usage
 #' estimate_pls(data, measurement_model, interactions=NULL, structural_model)
 #'
-#' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
+#' @seealso \code{\link{constructs}} \code{\link{interactions}} \code{\link{relationships}}
 #'          \code{\link{bootstrap_model}}
 #'
 #' @examples
@@ -52,7 +51,7 @@
 #' plot_scores(mobi_pls)
 #' @export
 estimate_pls <- function(data, measurement_model, interactions=NULL, structural_model, model_estimation = "composite") {
-  cat("Generating the plsm model\n")
+  cat("Generating the simplePLS model\n")
   warnings(measurement_model)
   rawdata <- data
   if(!is.null(interactions)) {
