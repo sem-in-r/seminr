@@ -5,8 +5,8 @@ context("Measurement model specification")
 mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Quality",      single_item("PERQ1")),
-  causal("Satisfaction",    multi_items("CUSA", 1:3)),
-  causal("Complaints",      single_item("CUSCO"))
+  composite("Satisfaction",  multi_items("CUSA", 1:3),weights = "regression"),
+  composite("Complaints",    single_item("CUSCO"),weights = "correlation")
 )
 
 # Testing
@@ -17,9 +17,12 @@ test_that("constructs correctly specifies the measurement matrix object", {
   expect_equal(ncol(mm), 3)
 })
 
-test_that("causal correctly specifies a formative constructs", {
+test_that("composite correctly specifies mode B constructs", {
   expect_equal(as.vector(mm[7,]), c("Satisfaction","CUSA1","B"))
-  expect_equal(as.vector(mm[10,]), c("Complaints","CUSCO","B"))
+})
+
+test_that("composite correctly specifies mode A constructs", {
+  expect_equal(as.vector(mm[10,]), c("Complaints","CUSCO","A"))
 })
 
 test_that("reflect correctly specifies a reflective constructs", {
@@ -38,5 +41,5 @@ test_that("multi_items correctly allocates measurement items", {
 
 test_that("single_item correctly allocates a measurement item", {
   expect_equal(as.vector(mm[6,]),  c("Quality","PERQ1","C"))
-  expect_equal(as.vector(mm[10,]), c("Complaints","CUSCO","B"))
+  expect_equal(as.vector(mm[10,]), c("Complaints","CUSCO","A"))
 })

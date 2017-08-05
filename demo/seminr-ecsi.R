@@ -7,13 +7,13 @@ library(seminr)
 
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
-  reflective("Image",        multi_items("IMAG", 1:5)),
-  causal("Expectation",  multi_items("CUEX", 1:3)),
-  composite("Quality",      multi_items("PERQ", 1:7)),
-  reflective("Value",        multi_items("PERV", 1:2)),
-  reflective("Satisfaction", multi_items("CUSA", 1:3)),
-  reflective("Complaints",   single_item("CUSCO")),
-  reflective("Loyalty",      multi_items("CUSL", 1:3))
+  reflective("Image",       multi_items("IMAG", 1:5)),
+  composite("Expectation",  multi_items("CUEX", 1:3),weights = "regression"),
+  composite("Quality",      multi_items("PERQ", 1:7),weights = "B"),
+  composite("Value",        multi_items("PERV", 1:2),weights = "correlation"),
+  composite("Satisfaction", multi_items("CUSA", 1:3),weights = "A"),
+  reflective("Complaints",  single_item("CUSCO")),
+  reflective("Loyalty",     multi_items("CUSL", 1:3))
 )
 
 # seminr syntax for creating structural model

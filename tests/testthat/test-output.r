@@ -5,10 +5,10 @@ context("SEMinR correctly estimates the model orthogonally\n")
 
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
-  reflective("Image",        multi_items("IMAG", 1:5)),
-  reflective("Expectation",  multi_items("CUEX", 1:3)),
-  reflective("Value",        multi_items("PERV", 1:2)),
-  reflective("Satisfaction", multi_items("CUSA", 1:3))
+  composite("Image",        multi_items("IMAG", 1:5),weights = "A"),
+  composite("Expectation",  multi_items("CUEX", 1:3),weights = "A"),
+  composite("Value",        multi_items("PERV", 1:2),weights = "A"),
+  composite("Satisfaction", multi_items("CUSA", 1:3),weights = "A")
 )
 
 # interaction factors must be created after the measurement model is defined
@@ -66,10 +66,10 @@ context("SEMinR correctly estimates the model scaled product indicator\n")
 
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
-  reflective("Image",        multi_items("IMAG", 1:5)),
-  reflective("Expectation",  multi_items("CUEX", 1:3)),
-  reflective("Value",        multi_items("PERV", 1:2)),
-  reflective("Satisfaction", multi_items("CUSA", 1:3))
+  composite("Image",        multi_items("IMAG", 1:5),weights = "A"),
+  composite("Expectation",  multi_items("CUEX", 1:3),weights = "A"),
+  composite("Value",        multi_items("PERV", 1:2),weights = "A"),
+  composite("Satisfaction", multi_items("CUSA", 1:3),weights = "A")
 )
 
 # interaction factors must be created after the measurement model is defined
