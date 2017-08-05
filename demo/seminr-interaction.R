@@ -28,7 +28,7 @@ mobi_sm <- relationships(
 )
 
 # Load data, assemble model, and estimate using simplePLS
-data("mobi", package = "semPLS")
+mobi <- mobi
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
                          interactions = mobi_xm,
@@ -66,7 +66,7 @@ mobi_sm <- relationships(
 )
 
 # Load data, assemble model, and estimate using simplePLS
-data("mobi", package = "semPLS")
+mobi <- mobi
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
                          interactions = mobi_xm,

@@ -26,7 +26,7 @@ mobi_sm <- relationships(
 )
 
 # Load data, assemble model, and estimate using semPLS
-data("mobi", package = "semPLS")
+mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
 
 
@@ -87,7 +87,7 @@ mobi_sm <- relationships(
 )
 
 # Load data, assemble model, and estimate using semPLS
-data("mobi", package = "semPLS")
+mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
 
 

@@ -27,7 +27,7 @@
 #' plot_scores(fitted_model, factors=NULL)
 #'
 #' @examples
-#' data("mobi", package = "semPLS")
+#' mobi <- mobi
 #' mobi_pls <- estimate_pls(data = mobi,
 #'                            measurement_model = mobi_mm,
 #'                            structural_model = mobi_sm)

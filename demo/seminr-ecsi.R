@@ -28,7 +28,7 @@ mobi_sm <- relationships(
 )
 
 # Regular semPLS functions to create and estimate model, and report estimates
-data("mobi", package = "semPLS")
+mobi <- mobi
 
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,

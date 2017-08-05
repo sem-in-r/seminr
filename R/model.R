@@ -22,7 +22,7 @@
 #'          \code{\link{bootstrap_model}}
 #'
 #' @examples
-#' data("mobi", package = "semPLS")
+#' mobi <- mobi
 #'
 #' #seminr syntax for creating measurement model
 #' mobi_mm <- constructs(

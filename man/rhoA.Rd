@@ -14,7 +14,7 @@ The \code{rhoA} function calculates the rhoA reliability indices for each constr
 formative constructs, the index is set to 1.
 }
 \examples{
-data("mobi", package = "semPLS")
+mobi <- mobi
 
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(

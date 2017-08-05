@@ -17,7 +17,7 @@ a common factor model with a simple interaction. It returns a \code{seminr_model
 adjusted and consistent path coefficients and loadings for a common factor model.
 }
 \examples{
-data("mobi", package = "semPLS")
+mobi <- mobi
 
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
