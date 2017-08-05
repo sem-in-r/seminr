@@ -3,32 +3,29 @@
 SEMinR
 ======
 
-SEMinR provides a natural syntax for researchers to describe PLS structural equation models:
+SEMinR provides a natural syntax for researchers to describe PLS structural equation models.
+
+-   [Goals of SEMinR](#goals-of-seminr)
+-   [Installation](#installation)
+-   [Usage Example](#usage-example)
+-   [Measurement Models](#measurement-models)
+-   [Documentation](#documentation)
+-   [Contributing](#contributing)
+
+Goals of SEMinR \[goals\]
+-------------------------
 
 1.  Powerful syntax for model definition:
-    -   Estimation-agnostic modeling syntax: define generic SEM models, specify estimation method after (PLS)
-    -   Multiple measurement models for constructs (reflective: common-factor; formative: composite or causal)
+    -   Easily create complex measurement and structural models
     -   Interaction factors created automatically: choose from orthogonalized, scaled, etc.
-    -   Create multiple structural paths at once: complex models are easily defined
-    -   Programmatic approach: use the full power of R
 
-2.  Latest estimation techniques:
-    -   Defaults to consistent-PLS estimation for reflective common-factors
-    -   Multi-core bootstrap: seeks to be among the fastest bootstrap methods for PLS
+2.  Advanced estimation methods:
+    -   Latest estimation advances: consistent PLS, adjustments for interactions, etc.
+    -   Fast bootstrapping: multicore parallel processing bootstrap
 
 3.  Free and open-source research test-bed:
     -   Reference implementation for PLS estimation methods
-    -   Learn by exploring under-the-hood implementation of PLS estimation
-    -   Contribute your own ideas
-    -   Easily evaluate alternative parameters/approaches
-    -   Fork your own version for experimentation
-
-Documentation
--------------
-
-The vignette for Seminr can be found in the [seminr/inst/doc/](https://github.com/sem-in-r/seminr/blob/master/inst/doc/SEMinR.html) folder or by running the `vignette("SEMinR")` command after installation.
-
-Demo code for use of Seminr can be found in the [seminr/demo/](https://github.com/sem-in-r/seminr/tree/master/demo) folder or by running the `demo("seminr-contained")`, `demo("seminr-ecsi")` or `demo("seminr-interaction")` commands after installation.
+    -   Contribute to or experiment with under-the-hood implementation
 
 Installation
 ------------
@@ -44,12 +41,12 @@ library(devtools)
 devtools::install_github("sem-in-r/seminr")
 ```
 
-Usage
------
+Usage Example
+-------------
 
 Consider the following starter example that uses data from the ECSI dataset.
 
-Define your constructs and their measurement mode:
+Define your constructs and their measurement mode (see details in \[measurement\_model\]\[\]):
 
 ``` r
 mobi_mm <- constructs(
@@ -69,7 +66,7 @@ mobi_xm <- interactions(
 )
 ```
 
-Define structural model, note the default naming of interaction factors:
+Define structural model (note the default names of interaction factors):
 
 ``` r
 mobi_sm <- structure(
@@ -111,19 +108,51 @@ print_paths(boot_mobi_pls)
 plot_scores(boot_mobi_pls)
 ```
 
-Development
------------
+Measurement Models
+------------------
 
-To develop:
+Constructs can be modeled in three ways for PLS estimation:
+
+1.  Reflective constructs (PLS consistent, mode A)
+
+    ``` r
+      reflective("Expectation",  multi_items("CUEX", 1:3))
+    ```
+
+2.  Composites with *correlation* weights (PLS, mode A)
+
+    ``` r
+    composite("Expectation",  multi_items("CUEX", 1:3), weights="correlation")
+    # or
+    composite("Expectation",  multi_items("CUEX", 1:3), weights="A")
+    ```
+
+3.  Composites with *regression* weights (PLS, mode B)
+
+    ``` r
+    composite("Expectation",  multi_items("CUEX", 1:3), weights="regression")
+    # or
+    composite("Expectation",  multi_items("CUEX", 1:3), weights="B")
+    ```
+
+Documentation
+-------------
+
+The vignette for Seminr can be found in the [seminr/inst/doc/](https://github.com/sem-in-r/seminr/blob/master/inst/doc/SEMinR.html) folder or by running the `vignette("SEMinR")` command after installation.
+
+Demo code for use of Seminr can be found in the [seminr/demo/](https://github.com/sem-in-r/seminr/tree/master/demo) folder or by running the `demo("seminr-contained")`, `demo("seminr-ecsi")` or `demo("seminr-interaction")` commands after installation.
+
+Contributing
+------------
 
 -   Fork this repo to your own Github profile
 -   Create a new branch and work in it
--   Push your branch to your own forked repo
--   Issue a PR for your new branch to this upstream repo
-
-To test:
+-   Test your code:
 
 ``` r
 require(devtools)
 devtools::test()
 ```
+
+-   Push your branch to your own forked repo
+-   Issue a PR for your new branch to this upstream repo
