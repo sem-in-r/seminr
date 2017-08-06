@@ -10,7 +10,7 @@ SEMinR provides a natural syntax for researchers to describe PLS structural equa
 -   [Usage Example](#usage-example)
 -   [Measurement Models](#measurement-models)
 -   [Documentation](#documentation)
--   [Contributing](#contributing)
+-   [Contributions](#contributions)
 
 Goals of SEMinR \[goals\]
 -------------------------
@@ -142,8 +142,19 @@ The vignette for Seminr can be found in the [seminr/inst/doc/](https://github.co
 
 Demo code for use of Seminr can be found in the [seminr/demo/](https://github.com/sem-in-r/seminr/tree/master/demo) folder or by running the `demo("seminr-contained")`, `demo("seminr-ecsi")` or `demo("seminr-interaction")` commands after installation.
 
-Contributing
-------------
+Contributions
+-------------
+
+### Authors
+
+-   Soumya Ray (creator, author)
+-   Nicholas Danks (author)
+
+### License
+
+This project is licensed under the GPL 3 License - see the [LICENSE.txt file](LICENSE.txt) for details
+
+### Contributing
 
 -   Fork this repo to your own Github profile
 -   Create a new branch and work in it
