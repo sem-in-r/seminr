@@ -18,7 +18,7 @@
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'
 #' @examples
-#' data("mobi", package = "semPLS")
+#' mobi <- mobi
 #'
 #' # seminr syntax for creating measurement model
 #' mobi_mm <- constructs(
@@ -61,7 +61,6 @@ bootstrap_model <- function(seminr_model, nboot = 500, ...) {
   d <- seminr_model$rawdata
   measurement_model <- seminr_model$mmMatrix
   structural_model <- seminr_model$smMatrix
-  model_estimation <- seminr_model$model_estimation
 
   if (nboot > 0) {
     # Initialize the cluster
@@ -76,12 +75,12 @@ bootstrap_model <- function(seminr_model, nboot = 500, ...) {
     getRandomIndex <- function(d) {return(sample.int(nrow(d),replace = TRUE))}
 
     # Export variables and functions to cluster
-    clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model","getRandomIndex","d", "model_estimation"), envir=environment())
+    clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model","getRandomIndex","d"), envir=environment())
 
     # Function to get PLS estimate results
     getEstimateResults <- function(i, d = d) {
       return(seminr::estimate_pls(data = d[getRandomIndex(d),],
-                          measurement_model,interactions,structural_model, model_estimation)$path_coef)
+                          measurement_model,interactions,structural_model)$path_coef)
     }
 
     # Bootstrap the estimates

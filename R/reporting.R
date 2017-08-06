@@ -27,7 +27,7 @@
 #' plot_scores(fitted_model, factors=NULL)
 #'
 #' @examples
-#' data("mobi", package = "semPLS")
+#' mobi <- mobi
 #' mobi_pls <- estimate_pls(data = mobi,
 #'                            measurement_model = mobi_mm,
 #'                            structural_model = mobi_sm)
@@ -46,7 +46,7 @@
 #' @aliases plot_scores print_paths
 #'
 #' @export
-print_paths <- function(seminr_model, na.print=".", digits=2) {
+print_paths <- function(seminr_model, na.print=".", digits=3) {
 
   # bootstrap results
   if (!is.null(seminr_model$bootstrapMatrix)) {

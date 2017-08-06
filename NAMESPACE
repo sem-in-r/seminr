@@ -3,7 +3,6 @@
 export(PLSc)
 export(PLSc_interact)
 export(bootstrap_model)
-export(causal)
 export(composite)
 export(constructs)
 export(estimate_pls)

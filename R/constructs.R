@@ -35,22 +35,88 @@ constructs <- function(...) {
                 dimnames = list(NULL, c("latent", "measurement", "type"))))
 }
 
+#' Reflective construct measurement model specification
+#'
+#' \code{reflective} creates the reflective measurement model matrix for a specific construct,
+#' specifying the relevant items of the construct and assigning the relationship of reflective or Mode A.
+#' By definition this construct will be estimated by PLS consistent.
+#'
+#' This function conveniently maps reflectively defined measurement items to a construct and is estimated
+#' using PLS consistent.
+#'
+#' @param \code{construct_name} of construct
+#' @param \code{item_names} returned by the \code{multi_items} or \code{single_item} functions
+#'
+#' @usage
+#'   measurement_model <- constructs(
+#'                          reflective("Satisfaction", multi_items("SAT", 1:3)),
+#'                        )
+#'
+#' @seealso See \code{\link{composite}}, \code{\link{reflective}}, \code{\link{multi_items}}
+#'   and \code{\link{single_item}}
+#'
+#' @examples
+#'   mobi_mm <- constructs(
+#'     reflective("Image",        multi_items("IMAG", 1:5)),
+#'     reflective("Expectation",  multi_items("CUEX", 1:3)),
+#'     reflective("Quality",      multi_items("PERQ", 1:7)),
+#'     reflective("Value",        multi_items("PERV", 1:2)),
+#'     reflective("Satisfaction", multi_items("CUSA", 1:3)),
+#'     reflective("Complaints",   single_item("CUSCO")),
+#'     reflective("Loyalty",      multi_items("CUSL", 1:3))
+#'   )
 #' @export
 reflective <- function(construct_name, item_names) {
   construct_names <- rep(construct_name, length(item_names))
-  return(c(rbind(construct_names, item_names, "R")))
+  return(c(rbind(construct_names, item_names, "C")))
 }
 
-#' @export
-causal <- function(construct_name, item_names) {
-  construct_names <- rep(construct_name, length(item_names))
-  return(c(rbind(construct_names,item_names,"F")))
-}
+###### Deprecate causal
+# #' @export
+# causal <- function(construct_name, item_names) {
+#   construct_names <- rep(construct_name, length(item_names))
+#   return(c(rbind(construct_names,item_names,"B")))
+# }
 
+#' Composite construct measurement model specification
+#'
+#' \code{composite} creates the composite measurement model matrix for a specific construct,
+#' specifying the relevant items of the construct and assigning the relationship of either
+#' correlation weights (Mode A) or regression weights (Mode B).
+#'
+#' This function conveniently maps composite defined measurement items to a construct and is
+#' estimated using PLS.
+#'
+#' @param \code{construct_name} of construct
+#' @param \code{item_names} returned by the \code{multi_items} or \code{single_item} functions
+#' @param \code{weights} is the relationship between the construct and its items. This can be
+#' specified as "correlation" or "A" for correlation weights(Mode A) or as "regression" or "B" for
+#' regression weights(Mode B).
+#'
+#' @usage
+#'   measurement_model <- constructs(
+#'                          composite("Satisfaction", multi_items("SAT", 1:3), weights = "correlation"),
+#'                        )
+#'
+#' @seealso See \code{\link{composite}}, \code{\link{reflective}}, \code{\link{multi_items}}
+#'   and \code{\link{single_item}}
+#'
+#' @examples
+#'   mobi_mm <- constructs(
+#'     composite("Image",        multi_items("IMAG", 1:5), weights = "correlation"),
+#'     composite("Expectation",  multi_items("CUEX", 1:3), weights = "A"),
+#'     composite("Quality",      multi_items("PERQ", 1:7), weights = "regression"),
+#'     composite("Value",        multi_items("PERV", 1:2), weights = "B")
+#'   )
 #' @export
-composite <- function(construct_name, item_names) {
+composite <- function(construct_name, item_names, weights = "correlation") {
   construct_names <- rep(construct_name, length(item_names))
-  return(c(rbind(construct_names,item_names,"C")))
+  if(weights == "correlation" | weights == "A") {
+    return(c(rbind(construct_names,item_names,"A")))
+  }
+  if(weights == "regression" | weights == "B") {
+    return(c(rbind(construct_names,item_names,"B")))
+  }
 }
 
 # arguments:

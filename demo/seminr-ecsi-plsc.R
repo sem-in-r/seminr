@@ -3,18 +3,18 @@
 
 library(seminr)
 # Simple Style: Seperate declaration of measurement and structural model, no interactions. Estimated
-# using simplePLS.
+# using simplePLS consistent.
 
 # seminr syntax for creating measurement mode
-# - note, composite() has a default parameter setting of weights = "A"
+# - note, reflective() is used to specify common-factor reflective constructs
 mobi_mm <- constructs(
-  composite("Image",       multi_items("IMAG", 1:5), weights = "correlation"),
-  composite("Expectation",  multi_items("CUEX", 1:3), weights = "A"),
-  composite("Quality",      multi_items("PERQ", 1:7)),
-  composite("Value",        multi_items("PERV", 1:2)),
-  composite("Satisfaction", multi_items("CUSA", 1:3)),
-  composite("Complaints",  single_item("CUSCO")),
-  composite("Loyalty",     multi_items("CUSL", 1:3))
+  reflective("Image",       multi_items("IMAG", 1:5)),
+  reflective("Expectation",  multi_items("CUEX", 1:3)),
+  reflective("Quality",      multi_items("PERQ", 1:7)),
+  reflective("Value",        multi_items("PERV", 1:2)),
+  reflective("Satisfaction", multi_items("CUSA", 1:3)),
+  reflective("Complaints",  single_item("CUSCO")),
+  reflective("Loyalty",     multi_items("CUSL", 1:3))
 )
 
 # seminr syntax for creating structural model
