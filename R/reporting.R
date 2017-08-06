@@ -46,7 +46,7 @@
 #' @aliases plot_scores print_paths
 #'
 #' @export
-print_paths <- function(seminr_model, na.print=".", digits=2) {
+print_paths <- function(seminr_model, na.print=".", digits=3) {
 
   # bootstrap results
   if (!is.null(seminr_model$bootstrapMatrix)) {

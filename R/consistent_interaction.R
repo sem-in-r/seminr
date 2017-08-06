@@ -34,6 +34,12 @@
 #'                          structural_model = mobi_sm)
 #'
 #' interaction_mobi_plsC <- PLSc_interact(mobi_pls)
+#'
+#' #path coefficients, R^2 and loadings
+#' mobi_plsc_interact$path_coef
+#' mobi_plsc_interact$rSquared
+#' mobi_plsc_interact$outer_loadings
+#'
 #' @export
 PLSc_interact <- function(plsModel) {
   # Calculate PLSc function

@@ -1,5 +1,5 @@
 # This example recreates the ECSI model on mobile users found at:
-#  https://cran.r-project.org/web/packages/semPLS/vignettes/semPLS-intro.pdf
+# https://cran.r-project.org/web/packages/semPLS/vignettes/semPLS-intro.pdf
 
 # Shows an example of contained model style
 library(seminr)
