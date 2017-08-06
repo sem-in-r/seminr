@@ -1,4 +1,6 @@
-#' seminr Consistent Interaction Function
+#' SEMinR - Consistent Interaction Function (experimental)
+#'
+#' WARNING: This is an experimental feature demonstration only - do not use it for publication purposes
 #'
 #' The \code{PLSc_interact} function calculates the consistent PLS path coefficients and loadings for
 #' a common factor model with a simple interaction. It returns a \code{seminr_model} containing the
@@ -15,7 +17,7 @@
 #'          \code{\link{bootstrap_model}}
 #'
 #' @examples
-#' mobi <- mobi
+#' 
 #'
 #' #seminr syntax for creating measurement model
 #' mobi_mm <- constructs(

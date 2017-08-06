@@ -23,7 +23,7 @@
 #'          \code{\link{estimate_pls}} \code{\link{bootstrap_model}}
 #'
 #' @examples
-#' mobi <- mobi
+#' 
 #'
 #' #seminr syntax for creating measurement model
 #' mobi_mm <- constructs(

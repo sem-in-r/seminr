@@ -15,7 +15,7 @@ a common factor model. It returns a \code{seminr_model} containing the adjusted 
 path coefficients and loadings for common factor models and composite models.
 }
 \examples{
-mobi <- mobi
+
 
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
