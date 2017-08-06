@@ -34,7 +34,7 @@ These functions generate an easy to read table reporting path coefficients
   scores.
 }
 \examples{
-mobi <- mobi
+
 mobi_pls <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)

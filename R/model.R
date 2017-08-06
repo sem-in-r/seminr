@@ -22,7 +22,7 @@
 #'          \code{\link{bootstrap_model}}
 #'
 #' @examples
-#' mobi <- mobi
+#' 
 #'
 #' #seminr syntax for creating measurement model
 #' mobi_mm <- constructs(
@@ -78,8 +78,9 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
   seminr_model$rawdata <- rawdata
 
   if(!is.null(interactions)) {
-    cat("Models with interactions cannot be estimated as PLS consistent\nand therefore no adjustment for PLS consistent has been made\nFor a PLS consistent simple interaction model please refer to PLSc_interact() function\n")
+    cat("Models with interactions cannot be estimated as PLS consistent\nand therefore no adjustment for PLS consistent has been made.\nPlease treat the results as experimental.\n")
   }
+
   if(is.null(interactions)) {
     seminr_model <- PLSc(seminr_model)
   }

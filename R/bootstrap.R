@@ -18,7 +18,7 @@
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'
 #' @examples
-#' mobi <- mobi
+#' 
 #'
 #' # seminr syntax for creating measurement model
 #' mobi_mm <- constructs(

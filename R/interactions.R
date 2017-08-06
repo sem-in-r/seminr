@@ -19,7 +19,7 @@
 #'            interaction_ortho("factor1", "factor3"))
 #'
 #' @examples
-#' mobi <- mobi
+#' 
 #'
 #' mobi_xm <- interactions(
 #'   interaction_ortho("Image", "Expectation"),
@@ -54,7 +54,7 @@ interactions <- function(...) {
 #'            interaction_ortho("factor1", "factor3"))
 #'
 #' @examples
-#' mobi <- mobi
+#' 
 #'
 #' mobi_xm <- interactions(
 #'   interaction_ortho("Image", "Expectation"),
@@ -108,7 +108,7 @@ interaction_ortho <- function(factor1, factor2) {
 #'            interaction_scaled("factor1", "factor3"))
 #'
 #' @examples
-#' mobi <- mobi
+#' 
 #'
 #' mobi_xm <- interactions(
 #'   interaction_scaled("Image", "Expectation"),

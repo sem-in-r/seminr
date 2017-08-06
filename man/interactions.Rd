@@ -27,7 +27,7 @@
 This function automatically generates interaction measurement items for a PLS SEM.
 }
 \examples{
-mobi <- mobi
+
 
 mobi_xm <- interactions(
   interaction_ortho("Image", "Expectation"),

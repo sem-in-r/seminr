@@ -2,7 +2,7 @@
 % Please edit documentation in R/consistent_interaction.R
 \name{PLSc_interact}
 \alias{PLSc_interact}
-\title{seminr Consistent Interaction Function}
+\title{SEMinR - Consistent Interaction Function (experimental)}
 \usage{
 PLSc_interact(seminr_model)
 }
@@ -12,12 +12,15 @@ antecedent constructs (no interaction is included yet, but will be automatically
 the two antecedent constructs).}
 }
 \description{
+WARNING: This is an experimental feature demonstration only - do not use it for publication purposes
+}
+\details{
 The \code{PLSc_interact} function calculates the consistent PLS path coefficients and loadings for
 a common factor model with a simple interaction. It returns a \code{seminr_model} containing the
 adjusted and consistent path coefficients and loadings for a common factor model.
 }
 \examples{
-mobi <- mobi
+
 
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
@@ -36,6 +39,12 @@ mobi_pls <- estimate_pls(data = mobi,
                          structural_model = mobi_sm)
 
 interaction_mobi_plsC <- PLSc_interact(mobi_pls)
+
+#path coefficients, R^2 and loadings
+mobi_plsc_interact$path_coef
+mobi_plsc_interact$rSquared
+mobi_plsc_interact$outer_loadings
+
 }
 \seealso{
 \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}

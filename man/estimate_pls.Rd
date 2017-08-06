@@ -24,7 +24,7 @@ structural equation models. \code{seminr} is compatible with semPLS, simplePLS a
 meaning that once a model is specified, it can be used across models for comparison.
 }
 \examples{
-mobi <- mobi
+
 
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
