@@ -3,10 +3,10 @@
 #' The \code{rhoA} function calculates the rhoA reliability indices for each construct. For
 #' formative constructs, the index is set to 1.
 #'
-#' @param plsModel A \code{seminr_model} containing the estimated seminr model.
+#' @param seminr.model A \code{seminr.model} containing the estimated seminr model.
 #'
 #' @usage
-#' rhoA(seminr_model)
+#' rhoA(seminr.model)
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'          \code{\link{bootstrap_model}}
@@ -40,14 +40,14 @@
 #'
 #' rhoA(mobi_pls)
 #' @export
-rhoA <- function(plsModel) {
+rhoA <- function(seminr.model) {
   # get latent variable scores and weights for each latent
-  latentscores <- plsModel$fscores
-  weights <- plsModel$outer_weights
+  latentscores <- seminr.model$fscores
+  weights <- seminr.model$outer_weights
   # get the mmMatrix and smMatrix
-  mmMatrix <- plsModel$mmMatrix
-  smMatrix <- plsModel$smMatrix
-  obsData <- plsModel$data
+  mmMatrix <- seminr.model$mmMatrix
+  smMatrix <- seminr.model$smMatrix
+  obsData <- seminr.model$data
   # Create rhoA holder matrix
   rho <- matrix(,nrow = ncol(latentscores),ncol = 1,dimnames = list(colnames(latentscores),c("rhoA")))
 
@@ -70,7 +70,7 @@ rhoA <- function(plsModel) {
 
         # Get empirical covariance matrix of lv indicators (S)
         indicators <- scale(obsData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],TRUE,TRUE)
-        S <- cov(indicators,indicators)
+        S <- stats::cov(indicators,indicators)
         diag(S) <- 0
 
         # Get AA matrix without diagonal

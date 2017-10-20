@@ -1,0 +1,6 @@
+seminr-contained   A demonstration of the contained style of SEMinR syntax
+seminr-ecsi-plsc   A demonstration of Consistent PLS estimation of the ECSI model
+seminr-ecsi   A demonstration of the regular style of SEMinR syntax
+seminr-interaction-plsc   A demonstration of a Consistent PLS  model including an interaction
+seminr-interaction   A demonstration of modeling an interaction using SEMinR syntax
+

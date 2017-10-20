@@ -4,7 +4,7 @@
 \alias{estimate_pls}
 \title{seminr estimate_pls() function}
 \usage{
-estimate_pls(data, measurement_model, interactions=NULL, structural_model, model_estimation = "common")
+estimate_pls(data, measurement_model, interactions=NULL, structural_model)
 }
 \arguments{
 \item{data}{A \code{dataframe} containing the indicator measurement data.}
@@ -57,4 +57,3 @@ plot_scores(mobi_pls)
 \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
          \code{\link{bootstrap_model}}
 }
-

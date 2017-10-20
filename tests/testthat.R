@@ -1,4 +1,4 @@
 library(testthat)
-library(SEMinR)
+library(seminr)
 
-test_check("SEMinR")
+test_check("seminr")

@@ -21,7 +21,7 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm)
-bootmodel <- bootstrap_model(seminr_model)
+bootmodel <- bootstrap_model(seminr_model,nboot = 50, cores = 2)
 
 # Load outputs
 bootmatrix <- bootmodel$bootstrapMatrix
@@ -76,7 +76,7 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
-bootmodel <- bootstrap_model(seminr_model,nboot = 500)
+bootmodel <- bootstrap_model(seminr_model,nboot = 50, cores = 2)
 
 # Load outputs
 bootmatrix <- bootmodel$bootstrapMatrix

@@ -25,7 +25,7 @@ structural equation models. \code{seminr} is compatible with simplePLS.
 \code{simplePLS} provides the verb for estimating a pls model.
 }
 \examples{
-mobi <- mobi
+data(mobi)
 
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
@@ -51,18 +51,11 @@ mobi_pls <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
 
-# Estimate model with bootstrapped significance
-mobi_pls <- bootstrap_model(data = mobi,
-                           measurement_model = mobi_mm,
-                           structural_model = mobi_sm,
-                           nboot = 500)
-
-print_paths(mobi_pls)
-plot_scores(mobi_pls)
+# Estimate modelwith simplePLS
+mobi_pls <- simplePLS(mobi,mobi_sm, mobi_mm)
 
 }
 \seealso{
 \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
          \code{\link{estimate_pls}} \code{\link{bootstrap_model}}
 }
-

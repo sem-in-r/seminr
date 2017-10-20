@@ -1,21 +1,20 @@
 Package: seminr
 Type: Package
-Title: Natural, friendly, domain-specific language for building PLS structural
-    equation models
+Title: Natural, Friendly, Domain-Specific Language for Building PLS Structural Equation Models
 Version: 0.1
-Date: 2016-08-12
+Date: 2017-10-12
 Authors@R: c(person("Soumya", "Ray",
               email = "soumya.ray@gmail.com", role = c("aut", "cre")),
              person("Nicholas", "Danks",
               email = "nicholasdanks@hotmail.com", role = c("aut")))
-Description: SEMinR offers an easy to write and easy to change syntax for
-    specifying `plsm` models that are compatible with `semPLS`, `sem`,
-    and possibly other packages supporting structural equation models.
+Description: A powerful, easy to write and easy to modify syntax for
+    specifying and estimating PLS path models using the latest estimation methods
+    for Consistent PLS, interactions and bootstrapping utilizing parallel processing. 
 Imports:
     parallel
 License: GPL-3
+Depends: R (>= 3.1.0)
 LazyData: TRUE
-RoxygenNote: 5.0.1
-Suggests: knitr, rmarkdown,
-    testthat
+RoxygenNote: 6.0.1
+Suggests: knitr, testthat, rmarkdown
 VignetteBuilder: knitr

@@ -411,7 +411,7 @@ mobi_pls <- estimate_pls(data = mobi,
                             measurement_model = mobi_mm,
                             interactions = mobi_xm,
                             structural_model = mobi_sm)
-bootstrap_mobi_pls <- bootstrap_model(mobi_pls, nboot = 500)
+bootstrap_mobi_pls <- bootstrap_model(mobi_pls, nboot = 500, cores = 2)
 ```
 
 The output of this code is:
