@@ -83,6 +83,7 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
   if(is.null(interactions)) {
     seminr_model <- PLSc(seminr_model)
   }
+  class(seminr_model) <- "seminr_model"
   return(seminr_model)
 }
 

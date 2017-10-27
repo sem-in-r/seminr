@@ -249,7 +249,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
                    fscores = fscores,
                    rSquared = rSquared)
 
-  class(plsModel) <- "plsModel"
+  class(plsModel) <- "simple_pls_model"
   return(plsModel)
 }
 
