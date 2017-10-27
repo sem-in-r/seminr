@@ -53,7 +53,7 @@ seminr.model <- estimate_pls(data = mobi,
 
 # Load data, assemble model, and bootstrap using simplePLS
 boot.seminr.model <- bootstrap_model(seminr_model = seminr.model,
-                                     nboot = 50, cores = 2)
+                                     nboot = 100, cores = 2)
 
 print_paths(boot.seminr.model)
 }
