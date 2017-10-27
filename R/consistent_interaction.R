@@ -1,21 +1,23 @@
-#' seminr Consistent Interaction Function
+#' seminr Consistent Interaction Function (Experimental)
+#'
+#' WARNING: This is an experimental feature demonstration only - do not use it for publication purposes
 #'
 #' The \code{PLSc_interact} function calculates the consistent PLS path coefficients and loadings for
-#' a common factor model with a simple interaction. It returns a \code{seminr.model} containing the
+#' a common factor model with a simple interaction. It returns a \code{seminr_model} containing the
 #' adjusted and consistent path coefficients and loadings for a common factor model.
 #'
-#' @param seminr.model A \code{seminr.model} containing the estimated seminr model with only the two
+#' @param seminr_model A \code{seminr_model} containing the estimated seminr model with only the two
 #' antecedent constructs (no interaction is included yet, but will be automatically created using
 #' the two antecedent constructs).
 #'
 #' @usage
-#' PLSc_interact(seminr.model)
+#' PLSc_interact(seminr_model)
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'          \code{\link{bootstrap_model}}
 #'
 #' @examples
-#' mobi <- mobi
+#' data(mobi)
 #'
 #' #seminr syntax for creating measurement model
 #' mobi_mm <- constructs(
@@ -29,37 +31,37 @@
 #'   paths(from = "Expectation",  to = "Satisfaction")
 #' )
 #'
-#' mobi.pls <- estimate_pls(data = mobi,
+#' mobi_pls <- estimate_pls(data = mobi,
 #'                          measurement_model = mobi_mm,
 #'                          structural_model = mobi_sm)
 #'
-#' mobi.pls.consistent.interaction <- PLSc_interact(mobi.pls)
+#' mobi_pls_consistent_interaction <- PLSc_interact(mobi_pls)
 #'
 #' #path coefficients, R^2 and loadings
-#' mobi.pls.consistent.interaction$path_coef
-#' mobi.pls.consistent.interaction$rSquared
-#' mobi.pls.consistent.interaction$outer_loadings
+#' mobi_pls_consistent_interaction$path_coef
+#' mobi_pls_consistent_interaction$rSquared
+#' mobi_pls_consistent_interaction$outer_loadings
 #'
 #' @export
-PLSc_interact <- function(seminr.model) {
+PLSc_interact <- function(seminr_model) {
   # Calculate PLSc function
   # get smMatrix and dependant latents, rhoA
-  smMatrix <- seminr.model$smMatrix
-  mmMatrix <- seminr.model$mmMatrix
+  smMatrix <- seminr_model$smMatrix
+  mmMatrix <- seminr_model$mmMatrix
   dependant <- unique(smMatrix[,"target"])
   rho <- rhoA(seminr.model)
   latents <- unique(as.vector(unique(smMatrix)))
-  path_coef <- seminr.model$path_coef
-  weights <- seminr.model$outer_weights
-  loadings <- seminr.model$outer_loadings
+  path_coef <- seminr_model$path_coef
+  weights <- seminr_model$outer_weights
+  loadings <- seminr_model$outer_loadings
 
   # create interaction term
-  latentscores <- seminr.model$fscores[,1:2]
+  latentscores <- seminr_model$fscores[,1:2]
   interaction <- as.matrix(scale(latentscores[,1]*latentscores[,2],center = TRUE, scale = FALSE))
   colnames(interaction) <- "interaction"
   latentscores <- cbind(latentscores,interaction)
-  latentscores <- cbind(latentscores,seminr.model$fscores[,3])
-  colnames(latentscores)[4] <- colnames(seminr.model$fscores)[3]
+  latentscores <- cbind(latentscores,seminr_model$fscores[,3])
+  colnames(latentscores)[4] <- colnames(seminr_model$fscores)[3]
 
   # Determine inconsistent lv correlations from simplePLS
   oldcor <- stats::cov(latentscores,latentscores)
@@ -85,7 +87,7 @@ PLSc_interact <- function(seminr.model) {
   }
 
   # correct for cov(eta1, centered(eta1eta2))
-  adjustment <- (((mean((seminr.model$fscores[,1]*seminr.model$fscores[,2])^2) - 1)/(rho[1,1]*rho[2,1]))+1) - (stats::cor(seminr.model$fscores[,1],seminr.model$fscores[,2])^2/(rho[1,1]*rho[2,1]))
+  adjustment <- (((mean((seminr_model$fscores[,1]*seminr_model$fscores[,2])^2) - 1)/(rho[1,1]*rho[2,1]))+1) - (stats::cor(seminr_model$fscores[,1],seminr_model$fscores[,2])^2/(rho[1,1]*rho[2,1]))
   oldcor[3,3] <- adjustment
 
   # adjust path_coef object
@@ -124,8 +126,9 @@ PLSc_interact <- function(seminr.model) {
     loadings[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i] <- w %*% (sqrt(rho[i,]) / t(w) %*% w )
   }
 
-  seminr.model$path_coef <- path_coef
-  seminr.model$outer_loadings <- loadings
-  return(seminr.model)
+
+  seminr_model$path_coef <- path_coef
+  seminr_model$outer_loadings <- loadings
+  return(seminr_model)
 }
 # end PLSc function

@@ -42,6 +42,7 @@ mobi.pls.consistent.interaction$path_coef
 mobi.pls.consistent.interaction$rSquared
 mobi.pls.consistent.interaction$outer_loadings
 
+
 }
 \seealso{
 \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}

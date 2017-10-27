@@ -1,4 +1,4 @@
-#' seminr bootstrap_model Function
+#' seminr bootstrap_model function
 #'
 #' The \code{seminr} package provides a natural syntax for researchers to describe PLS
 #' structural equation models. \code{seminr} is compatible with simplePLS.

@@ -14,6 +14,7 @@ value is 500. If 0 then no bootstrapping is performed.}
 
 \item{cores}{A parameter specifying the maximum number of cores to use in the parallelization.}
 
+
 \item{...}{A list of parameters passed on to the estimation method (e.g., \code{simplePLS}).}
 }
 \description{

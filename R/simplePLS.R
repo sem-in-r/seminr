@@ -252,4 +252,3 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
   class(plsModel) <- "simple_pls_model"
   return(plsModel)
 }
-

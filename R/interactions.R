@@ -1,6 +1,6 @@
 #' Interaction Functions
 #'
-#' \code{interactions} creates interaction measurement items by multipying all combination of factor items.
+#' \code{interactions} creates interaction measurement items by multipying all combination of construct items.
 #'
 #' This function automatically generates interaction measurement items for a PLS SEM.
 #'
@@ -168,4 +168,3 @@ interaction_scaled <- function(factor1, factor2) {
     return(list(name = interaction_name, data = interaction_data))
   }
 }
-

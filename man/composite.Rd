@@ -14,7 +14,6 @@ composite(construct_name, item_names,weights = "correlation")
 \item{weights}{is the relationship between the construct and its items. This can be
 specified as "correlation" or "A" for correlation weights(Mode A) or as "regression" or "B" for
 regression weights(Mode B). Default is correlation weights.}
-}
 \description{
 \code{composite} creates the composite measurement model matrix for a specific construct,
 specifying the relevant items of the construct and assigning the relationship of either

@@ -23,8 +23,6 @@ mobi_sm <- relationships(
 
 # Regular semPLS functions to create and estimate model without interaction.
 # - note, interaction is only calculated in the second stage.
-mobi <- mobi
-
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
                          structural_model = mobi_sm)

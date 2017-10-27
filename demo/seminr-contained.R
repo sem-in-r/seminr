@@ -6,8 +6,6 @@ library(seminr)
 # Contained Style: all model specifications are put together and estimated using
 # simplePLS.
 
-mobi <- mobi
-
 mobi_pls <- estimate_pls(
   data = mobi,
 

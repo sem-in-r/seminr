@@ -6,13 +6,13 @@ library(seminr)
 # using simplePLS.
 
 # seminr syntax for creating measurement mode
-# - note, composite() has a default parameter setting of weights = "A"
+# - note, composite() has a default parameter setting of weights = "A" or "correlation"
 mobi_mm <- constructs(
-  composite("Image",       multi_items("IMAG", 1:5), weights = "correlation"),
-  composite("Expectation",  multi_items("CUEX", 1:3), weights = "A"),
-  composite("Quality",      multi_items("PERQ", 1:7)),
+  composite("Image",       multi_items("IMAG", 1:5)),
+  reflective("Expectation",  multi_items("CUEX", 1:3)),
+  composite("Quality",      multi_items("PERQ", 1:7), weights = "B"),
   composite("Value",        multi_items("PERV", 1:2)),
-  composite("Satisfaction", multi_items("CUSA", 1:3)),
+  reflective("Satisfaction", multi_items("CUSA", 1:3)),
   composite("Complaints",  single_item("CUSCO")),
   composite("Loyalty",     multi_items("CUSL", 1:3))
 )
@@ -30,7 +30,7 @@ mobi_sm <- relationships(
 
 # Regular semPLS functions to create and estimate model, and report estimates
 # - note, the mobi dataset is bundled with seminr
-mobi <- mobi
+
 
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,

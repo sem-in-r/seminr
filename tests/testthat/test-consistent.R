@@ -18,7 +18,7 @@ mobi_sm <- relationships(
 )
 
 # Load data, assemble model, and estimate using semPLS
-mobi <- mobi
+
 seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm)
 
 
@@ -65,7 +65,7 @@ mobi_sm <- relationships(
 )
 
 # Load data, assemble model, and estimate using semPLS
-mobi <- mobi
+
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
 
 # Load outputs
@@ -103,7 +103,7 @@ mobi_sm <- relationships(
 )
 
 # Load data, assemble model, and estimate using semPLS
-mobi <- mobi
+
 seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm)
 # plscModel <- PLSc(seminr_model)
 
