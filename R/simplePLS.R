@@ -23,7 +23,7 @@
 #'          \code{\link{estimate_pls}} \code{\link{bootstrap_model}}
 #'
 #' @examples
-#' 
+#' data(mobi)
 #'
 #' #seminr syntax for creating measurement model
 #' mobi_mm <- constructs(
@@ -49,14 +49,8 @@
 #'                            measurement_model = mobi_mm,
 #'                            structural_model = mobi_sm)
 #'
-#' # Estimate model with bootstrapped significance
-#' mobi_pls <- bootstrap_model(data = mobi,
-#'                            measurement_model = mobi_mm,
-#'                            structural_model = mobi_sm,
-#'                            nboot = 500)
-#'
-#' print_paths(mobi_pls)
-#' plot_scores(mobi_pls)
+#' # Estimate modelwith simplePLS
+#' mobi_pls <- simplePLS(mobi,mobi_sm, mobi_mm)
 #'
 #' @export
 simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
@@ -107,12 +101,12 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
     #Estimate inner paths (symmetric matrix)
     for (i in 1:nrow(smMatrix))  {
       inner_paths[smMatrix[i,"source"],
-                  smMatrix[i,"target"]] = cov(fscores[,smMatrix[i,"source"]],
-                                              fscores[,smMatrix[i,"target"]])
+                  smMatrix[i,"target"]] = stats::cov(fscores[,smMatrix[i,"source"]],
+                                                     fscores[,smMatrix[i,"target"]])
       #? next step necessary?
       inner_paths[smMatrix[i,"target"],
-                  smMatrix[i,"source"]] = cov(fscores[,smMatrix[i,"source"]],
-                                              fscores[,smMatrix[i,"target"]])
+                  smMatrix[i,"source"]] = stats::cov(fscores[,smMatrix[i,"source"]],
+                                                     fscores[,smMatrix[i,"target"]])
     }
 
     #Estimate Factor Scores from Inner Path
@@ -130,15 +124,15 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
       #If the measurement model is Mode B Composite
       if(measure_mode(ltVariables[i],mmMatrix)=="B"){
         outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
-          solve(cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]])) %*%
-                  cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],
+          solve(stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]])) %*%
+                  stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],
                 fscores[,ltVariables[i]])
       }
 
       #If the measurement model is Mode A Composite or Mode A Consistent
       if(measure_mode(ltVariables[i],mmMatrix)=="C" | measure_mode(ltVariables[i],mmMatrix)=="A"){
         outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
-          cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
+          stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
       }
     }
 
@@ -148,7 +142,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
     #Standarize outer_weights
     for (i in 1:length(ltVariables))  {
       outer_weights [mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
-        outer_weights [mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] / sd(fscores[,ltVariables[i]])
+        outer_weights [mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] / stats::sd(fscores[,ltVariables[i]])
     }
 
     #Verify the stop criteria
@@ -172,7 +166,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
   for (i in 1:length(ltVariables))  {
     outer_loadings [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
                              "measurement"],
-                    ltVariables[i]] = cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
+                    ltVariables[i]] = stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
 
   }
 
@@ -184,7 +178,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
       list <- mmMatrix[mmMatrix[,"latent"]==latent,"measurement"]
 
       for (item in list){
-        adjustment <- adjustment + sd(obsData[,item])*abs(as.numeric(outer_loadings[item,latent]))
+        adjustment <- adjustment + stats::sd(obsData[,item])*abs(as.numeric(outer_loadings[item,latent]))
          denom <- denom + abs(outer_loadings[item,latent])
       }
       adjustment <- adjustment/denom
@@ -203,7 +197,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
   for (i in 1:length(ltVariables))  {
     outer_loadings [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
                              "measurement"],
-                    ltVariables[i]] = cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
+                    ltVariables[i]] = stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
 
   }
 
@@ -234,7 +228,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
       path_coef[independant[j],dependant[i]]=coefficients[independant[j]]
 
     # Calculate r-squared for the endogenous variable
-    fscore_cors <- cor(fscores)
+    fscore_cors <- stats::cor(fscores)
     r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
     rSquared[1,i] <- r_sq[dependant[i],dependant[i]]
     rSquared[2,i] <- 1 - (1 - rSquared[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
@@ -255,7 +249,6 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
                    fscores = fscores,
                    rSquared = rSquared)
 
-  class(plsModel) <- "plsModel"
+  class(plsModel) <- "simple_pls_model"
   return(plsModel)
 }
-

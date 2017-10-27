@@ -14,7 +14,7 @@ vignette: >
 ```{r, echo = FALSE, message = FALSE}
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 library(seminr)
-
+mobi <- mobi
 ```
 
 There are now many packages available for R to build, estimate and make predictions
@@ -59,7 +59,7 @@ This document introduces you to SEMinR's basic set of tools, and shows you how t
 To explore the basic syntax of SEMinR, we'll start with the data bundled with the semPLS package - `mobi` data frame. The data set is used as measurement instrument for the european customer satisfaction index (ECSI) adapted to the mobile phone market, see Tenenhaus et al. (2005).
 
 ```{r}
-
+mobi <- mobi
 dim(mobi)
 head(mobi)
 ```
@@ -411,7 +411,7 @@ mobi_pls <- estimate_pls(data = mobi,
                             measurement_model = mobi_mm,
                             interactions = mobi_xm,
                             structural_model = mobi_sm)
-bootstrap_mobi_pls <- bootstrap_model(mobi_pls, nboot = 500)
+bootstrap_mobi_pls <- bootstrap_model(mobi_pls, nboot = 500, cores = 2)
 ```
 
 The output of this code is:

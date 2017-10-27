@@ -4,13 +4,16 @@
 \alias{bootstrap_model}
 \title{seminr bootstrap_model Function}
 \usage{
-bootstrap_model(seminr_model, nboot = 500)
+bootstrap_model(seminr_model, nboot = 500, cores = NULL, ...)
 }
 \arguments{
 \item{seminr_model}{A fully estimated model with associated data, measurement model and structural model}
 
 \item{nboot}{A parameter specifying the number of bootstrap iterations to perform, default
 value is 500. If 0 then no bootstrapping is performed.}
+
+\item{cores}{A parameter specifying the maximum number of cores to use in the parallelization.}
+
 
 \item{...}{A list of parameters passed on to the estimation method (e.g., \code{simplePLS}).}
 }
@@ -21,14 +24,13 @@ structural equation models. \code{seminr} is compatible with simplePLS.
 parameters and data.
 }
 \examples{
-
-
+data(mobi)
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
-  reflective("Image",        multi_items("IMAG", 1:5)),
-  reflective("Expectation",  multi_items("CUEX", 1:3)),
-  reflective("Value",        multi_items("PERV", 1:2)),
-  reflective("Satisfaction", multi_items("CUSA", 1:3))
+  composite("Image",        multi_items("IMAG", 1:5)),
+  composite("Expectation",  multi_items("CUEX", 1:3)),
+  composite("Value",        multi_items("PERV", 1:2)),
+  composite("Satisfaction", multi_items("CUSA", 1:3))
 )
 
 # interaction factors must be created after the measurement model is defined
@@ -45,17 +47,17 @@ mobi_sm <- relationships(
                  "Image.Expectation", "Image.Value"))
 )
 
-mobi_pls <- estimate_pls(data = mobi,
-                         measurement_model = mobi_mm,
-                         structural_model = mobi_sm)
+seminr.model <- estimate_pls(data = mobi,
+                             measurement_model = mobi_mm,
+                             interactions = mobi_xm,
+                             structural_model = mobi_sm)
 
 # Load data, assemble model, and bootstrap using simplePLS
-boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
-                                 nboot = 500)
+boot.seminr.model <- bootstrap_model(seminr_model = seminr.model,
+                                     nboot = 50, cores = 2)
 
-print_paths(boot_mobi_pls)
+print_paths(boot.seminr.model)
 }
 \seealso{
 \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 }
-

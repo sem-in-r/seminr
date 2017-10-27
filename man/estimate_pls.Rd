@@ -4,7 +4,7 @@
 \alias{estimate_pls}
 \title{seminr estimate_pls() function}
 \usage{
-estimate_pls(data, measurement_model, interactions=NULL, structural_model, model_estimation = "common")
+estimate_pls(data, measurement_model, interactions=NULL, structural_model)
 }
 \arguments{
 \item{data}{A \code{dataframe} containing the indicator measurement data.}
@@ -24,7 +24,7 @@ structural equation models. \code{seminr} is compatible with semPLS, simplePLS a
 meaning that once a model is specified, it can be used across models for comparison.
 }
 \examples{
-
+mobi <- mobi
 
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
@@ -57,4 +57,3 @@ plot_scores(mobi_pls)
 \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
          \code{\link{bootstrap_model}}
 }
-

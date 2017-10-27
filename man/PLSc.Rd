@@ -7,7 +7,7 @@
 PLSc(seminr_model)
 }
 \arguments{
-\item{plsModel}{A \code{seminr_model} containing the estimated seminr model.}
+\item{seminr_model}{A \code{seminr_model} containing the estimated seminr model.}
 }
 \description{
 The \code{PLSc} function calculates the consistent PLS path coefficients and loadings for
@@ -15,7 +15,7 @@ a common factor model. It returns a \code{seminr_model} containing the adjusted 
 path coefficients and loadings for common factor models and composite models.
 }
 \examples{
-
+data(mobi)
 
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
@@ -37,14 +37,14 @@ mobi_sm <- relationships(
   paths(from = "Complaints",   to = "Loyalty")
 )
 
-mobi_pls <- estimate_pls(data = mobi,
-                           measurement_model = mobi_mm,
-                           structural_model = mobi_sm)
+seminr_model <- estimate_pls(data = mobi,
+                             measurement_model = mobi_mm,
+                             structural_model = mobi_sm)
 
-PLSc(mobi_pls)
+PLSc(seminr_model)
+
 }
 \seealso{
 \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
          \code{\link{bootstrap_model}}
 }
-

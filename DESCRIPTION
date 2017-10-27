@@ -1,23 +1,21 @@
 Package: seminr
 Type: Package
-Title: Natural domain-specific language for building and estimating structural equation models in R
-Version: 0.1.0
-Date: 2017-08-04
+Title: Natural, Friendly, Domain-Specific Language for Building PLS Structural Equation Models
+Version: 0.1
+Date: 2017-10-12
 Authors@R: c(person("Soumya", "Ray",
               email = "soumya.ray@gmail.com", role = c("aut", "cre")),
              person("Nicholas", "Danks",
               email = "nicholasdanks@hotmail.com", role = c("aut")))
-Description: SEMinR offers an natural syntax for R to create and estimate PLS structural equation models.
-             It particularly seeks to bring the latest thinking and research to PLS estimation of SEM models.
-             SEMinR is suited to methodologists seeking to push the boundaries of modeling and estimation using PLS,
-             and for practitioners seeking to incorporate the latest thinking into their PLS path models. SEMinR is
-             open sourced in the hope that its implementation can serve as a reference model to developers, researchers, 
-             and practitioners.
+
+Description: A powerful, easy to write and easy to modify syntax for
+    specifying and estimating PLS path models using the latest estimation methods
+    for Consistent PLS, interactions and bootstrapping utilizing parallel processing. 
 Imports:
     parallel
 License: GPL-3
+Depends: R (>= 3.1.0)
 LazyData: TRUE
-RoxygenNote: 5.0.1
-Suggests: knitr, rmarkdown,
-    testthat
+RoxygenNote: 6.0.1
+Suggests: knitr, testthat, rmarkdown
 VignetteBuilder: knitr

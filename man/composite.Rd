@@ -4,19 +4,16 @@
 \alias{composite}
 \title{Composite construct measurement model specification}
 \usage{
-measurement_model <- constructs(
-                         composite("Satisfaction", multi_items("SAT", 1:3), weights = "correlation"),
-                       )
+composite(construct_name, item_names,weights = "correlation")
 }
 \arguments{
-\item{\code{construct_name}}{of construct}
+\item{construct_name}{of construct}
 
-\item{\code{item_names}}{returned by the \code{multi_items} or \code{single_item} functions}
+\item{item_names}{returned by the \code{multi_items} or \code{single_item} functions}
 
-\item{\code{weights}}{is the relationship between the construct and its items. This can be
+\item{weights}{is the relationship between the construct and its items. This can be
 specified as "correlation" or "A" for correlation weights(Mode A) or as "regression" or "B" for
-regression weights(Mode B).}
-}
+regression weights(Mode B). Default is correlation weights.}
 \description{
 \code{composite} creates the composite measurement model matrix for a specific construct,
 specifying the relevant items of the construct and assigning the relationship of either
@@ -35,7 +32,5 @@ estimated using PLS.
   )
 }
 \seealso{
-See \code{\link{composite}}, \code{\link{reflective}}, \code{\link{multi_items}}
-  and \code{\link{single_item}}
+See \code{\link{constructs}}, \code{\link{reflective}}
 }
-

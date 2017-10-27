@@ -38,7 +38,7 @@ estimate_Rsquared <- function(smMatrix,fscores) {
   #Get composite scores
   valuesMatrix <- fscores
   #Calculate Linear Models
-  lmmodels <- lapply(uniquetarget, function(x) {lm(as.formula(paste(x,"~ .", sep = "")),
+  lmmodels <- lapply(uniquetarget, function(x) {stats::lm(stats::as.formula(paste(x,"~ .", sep = "")),
                                                    data = data.frame(valuesMatrix[,colnames(valuesMatrix) %in%
                                                                                     c(x,as.character(modelMatrix$source[which(modelMatrix$target==x)]))]))})
   #Initialize matrix holder for Rsquared values

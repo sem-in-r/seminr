@@ -2,25 +2,22 @@
 % Please edit documentation in R/consistent_interaction.R
 \name{PLSc_interact}
 \alias{PLSc_interact}
-\title{SEMinR - Consistent Interaction Function (experimental)}
+\title{seminr Consistent Interaction Function}
 \usage{
-PLSc_interact(seminr_model)
+PLSc_interact(seminr.model)
 }
 \arguments{
-\item{plsModel}{A \code{seminr_model} containing the estimated seminr model with only the two
+\item{seminr.model}{A \code{seminr.model} containing the estimated seminr model with only the two
 antecedent constructs (no interaction is included yet, but will be automatically created using
 the two antecedent constructs).}
 }
 \description{
-WARNING: This is an experimental feature demonstration only - do not use it for publication purposes
-}
-\details{
 The \code{PLSc_interact} function calculates the consistent PLS path coefficients and loadings for
-a common factor model with a simple interaction. It returns a \code{seminr_model} containing the
+a common factor model with a simple interaction. It returns a \code{seminr.model} containing the
 adjusted and consistent path coefficients and loadings for a common factor model.
 }
 \examples{
-
+mobi <- mobi
 
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
@@ -34,20 +31,20 @@ mobi_sm <- relationships(
   paths(from = "Expectation",  to = "Satisfaction")
 )
 
-mobi_pls <- estimate_pls(data = mobi,
+mobi.pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
                          structural_model = mobi_sm)
 
-interaction_mobi_plsC <- PLSc_interact(mobi_pls)
+mobi.pls.consistent.interaction <- PLSc_interact(mobi.pls)
 
 #path coefficients, R^2 and loadings
-mobi_plsc_interact$path_coef
-mobi_plsc_interact$rSquared
-mobi_plsc_interact$outer_loadings
+mobi.pls.consistent.interaction$path_coef
+mobi.pls.consistent.interaction$rSquared
+mobi.pls.consistent.interaction$outer_loadings
+
 
 }
 \seealso{
 \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
          \code{\link{bootstrap_model}}
 }
-

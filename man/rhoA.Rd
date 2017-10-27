@@ -4,17 +4,17 @@
 \alias{rhoA}
 \title{seminr rhoA Function}
 \usage{
-rhoA(seminr_model)
+rhoA(seminr.model)
 }
 \arguments{
-\item{plsModel}{A \code{seminr_model} containing the estimated seminr model.}
+\item{seminr.model}{A \code{seminr.model} containing the estimated seminr model.}
 }
 \description{
 The \code{rhoA} function calculates the rhoA reliability indices for each construct. For
 formative constructs, the index is set to 1.
 }
 \examples{
-
+mobi <- mobi
 
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
@@ -46,4 +46,3 @@ rhoA(mobi_pls)
 \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
          \code{\link{bootstrap_model}}
 }
-

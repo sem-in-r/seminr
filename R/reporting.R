@@ -22,24 +22,29 @@
 #'   specified, all factors are graphed and returned.
 #'
 #' @usage
-#' print_paths(model, na.print=".", digits=2)
+#' print_paths(seminr_model, na.print=".", digits=3)
 #'
-#' plot_scores(fitted_model, factors=NULL)
+#' plot_scores(seminr_model, factors=NULL)
 #'
 #' @examples
-#' 
-#' mobi_pls <- estimate_pls(data = mobi,
-#'                            measurement_model = mobi_mm,
-#'                            structural_model = mobi_sm)
-#' print_paths(mobi_pls)
-#' plot_scores(mobi_pls)
+#' data(mobi)
 #'
-#' # Estimate model with bootstrapped significance
-#' mobi_pls <- bootstrap_model(data = mobi,
-#'                            measurement_model = mobi_mm,
-#'                            structural_model = mobi_sm,
-#'                            nboot = 200)
+#' # seminr syntax for creating measurement model
+#' mobi_mm <- constructs(
+#'   composite("Image",        multi_items("IMAG", 1:5)),
+#'   composite("Expectation",  multi_items("CUEX", 1:3)),
+#'   composite("Value",        multi_items("PERV", 1:2)),
+#'   composite("Satisfaction", multi_items("CUSA", 1:3))
+#' )
 #'
+#' #  structural model: note that name of the interactions factor should be
+#' #  the names of its two main factors joined by a '.' in between.
+#' mobi_sm <- relationships(
+#'   paths(to = "Satisfaction",
+#'         from = c("Image", "Expectation", "Value"))
+#' )
+#'
+#' mobi_pls <- estimate_pls(mobi, measurement_model = mobi_mm, structural_model = mobi_sm)
 #' print_paths(mobi_pls)
 #' plot_scores(mobi_pls)
 #'
@@ -59,7 +64,7 @@ print_paths <- function(seminr_model, na.print=".", digits=3) {
     for(i in 1:j){
       bootstraplist[[i]] <- bootstrapresults[,c(i,k,l)]
       bootstraplist[[i]] <- cbind(bootstraplist[[i]],matrix((abs(bootstraplist[[i]][,1])/abs(bootstraplist[[i]][,3])),ncol = 1, dimnames = list(c(NULL),c("t value"))))
-      bootstraplist[[i]] <- cbind(bootstraplist[[i]], matrix(2*pt(-abs(bootstraplist[[i]][,4]),df = nboots - 1),ncol = 1, dimnames = list(c(NULL),c("Pr(>|t|)"))))
+      bootstraplist[[i]] <- cbind(bootstraplist[[i]], matrix(2*stats::pt(-abs(bootstraplist[[i]][,4]),df = nboots - 1),ncol = 1, dimnames = list(c(NULL),c("Pr(>|t|)"))))
       bootstraplist[[i]][is.nan(bootstraplist[[i]])] <- 0
 #      bootstraplist[[i]] <- cbind(bootstraplist[[i]], bootstraplist[[i]][bootstraplist[[i]][,5] == 0,5] = "")
       k <- k+1
@@ -96,6 +101,6 @@ plot_scores <- function(seminr_model, factors=NULL) {
 #  if (class(seminr_model)[1] == 'plsModel') seminr_model <- seminr_model
   if (missing(factors)) factors <- seminr_model$ltVariables
 
-  plot(as.data.frame(seminr_model$fscores[, factors]), pch = 16,
-       col = rgb(0.5, 0.5, 0.5, alpha = 0.6))
+  graphics::plot(as.data.frame(seminr_model$fscores[, factors]), pch = 16,
+       col = grDevices::rgb(0.5, 0.5, 0.5, alpha = 0.6))
 }

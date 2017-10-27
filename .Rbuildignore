@@ -6,3 +6,5 @@
 ^\.travis\.yml$     # Used for continuous integration testing with travis
 ^README\.Rmd$
 ^README-.*\.png$
+^SEMinR\.Rproj$
+^USAGE\.md$
