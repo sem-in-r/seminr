@@ -63,3 +63,5 @@ transform_to_named_vector <- function(results,independant) {
   }
   return(coefficients)
 }
+
+# Function to create inner paths matrix

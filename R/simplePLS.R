@@ -68,6 +68,9 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
   meanData <- attr(normData, "scaled:center")
   sdData <- attr(normData, "scaled:scale")
 
+  #Identify which variables have incoming paths (endogenous)
+  dependant<-unique(smMatrix[,"target"])
+
   #Create a matrix of outer_weights
   outer_weights <- matrix(data=0,
                           nrow=length(mmVariables),
@@ -97,18 +100,37 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
 
     #Standardize Factor Scores
     fscores <- scale(fscores,TRUE,TRUE)
-
+#######
     #Estimate inner paths (symmetric matrix)
     for (i in 1:nrow(smMatrix))  {
-      inner_paths[smMatrix[i,"source"],
-                  smMatrix[i,"target"]] = stats::cov(fscores[,smMatrix[i,"source"]],
-                                                     fscores[,smMatrix[i,"target"]])
+#      inner_paths[smMatrix[i,"source"],
+#                  smMatrix[i,"target"]] = stats::cov(fscores[,smMatrix[i,"source"]],
+#                                                     fscores[,smMatrix[i,"target"]])
       #? next step necessary?
       inner_paths[smMatrix[i,"target"],
                   smMatrix[i,"source"]] = stats::cov(fscores[,smMatrix[i,"source"]],
                                                      fscores[,smMatrix[i,"target"]])
     }
+#######
 
+    #Identify Endogenous Variables
+    dependant <- unique(smMatrix[,2])
+
+    #Iterate and regress the endogenous
+    for (i in 1:length(dependant))  {
+
+      #Indentify the independant variables
+      independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
+
+      #Solve the system of equations
+      results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
+
+      #Assign the inner weights to the Matrix
+      inner_paths[rownames(results),dependant[i]] = results
+#      inner_paths[dependant[i],rownames(results)] = results
+
+    }
+#######
     #Estimate Factor Scores from Inner Path
     fscores<-fscores%*%inner_paths
 
@@ -201,8 +223,6 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
 
   }
 
-  #Identify which variables have incoming paths
-  dependant<-unique(smMatrix[,"target"])
 
   #Initialize Matrix of Path Coefficients and matrix of r-squared
   path_coef <- matrix(data=0,
