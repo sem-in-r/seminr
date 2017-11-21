@@ -1,0 +1,109 @@
+context("SEMinR correctly estimates the model using path weighting scheme\n")
+
+# Test cases
+## Interaction case
+
+# seminr syntax for creating measurement model
+mobi_mm <- constructs(
+  composite("Image",        multi_items("IMAG", 1:5),weights = "A"),
+  composite("Expectation",  multi_items("CUEX", 1:3),weights = "A"),
+  composite("Value",        multi_items("PERV", 1:2),weights = "A"),
+  composite("Satisfaction", multi_items("CUSA", 1:3),weights = "A")
+)
+
+
+# structural model: note that name of the interactions factor should be
+#  the names of its two main factors joined by a '.' in between.
+mobi_sm <- relationships(
+  paths(to = "Satisfaction",
+        from = c("Image", "Expectation", "Value"))
+)
+
+# Load data, assemble model, and estimate using semPLS
+mobi <- mobi
+seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm)
+
+
+# Load outputs
+coefficients <- seminr_model$path_coef
+factor_scores <- seminr_model$fscores
+weight <- seminr_model$outer_weights
+
+## Output originally created using following lines
+#write.csv(seminr_model$path_coef, file = "tests/fixtures/inner_weights_coefficients.csv")
+#write.csv(seminr_model$fscores, file = "tests/fixtures/inner_weights_factorscores.csv")
+#write.csv(seminr_model$outer_weights, file = "tests/fixtures/inner_weights_weights.csv", row.names=TRUE)
+
+# Load controls
+coefficients_control <- as.matrix(read.csv("../fixtures/inner_weights_coefficients.csv", row.names = 1))
+factor_scores_control <- as.matrix(read.csv("../fixtures/inner_weights_factorscores.csv")[,2:7])
+weight_control <- as.matrix(read.csv("../fixtures/inner_weights_weights.csv", row.names=1))
+
+# Testing
+
+test_that("Seminr estimates the loadings and path coefficients correctly", {
+  expect_equal(coefficients[,4], coefficients_control[,4])
+})
+
+test_that("Seminr estimates the factor scores correctly", {
+  expect_equal(factor_scores[,1:4], factor_scores_control[,1:4])
+})
+
+test_that("Seminr estimates the outer weights correctly", {
+  expect_equal(weight, weight_control)
+})
+
+context("SEMinR correctly estimates the model using factorial scheme\n")
+
+# Test cases
+## Interaction case
+
+# seminr syntax for creating measurement model
+mobi_mm <- constructs(
+  composite("Image",        multi_items("IMAG", 1:5),weights = "A"),
+  composite("Expectation",  multi_items("CUEX", 1:3),weights = "A"),
+  composite("Value",        multi_items("PERV", 1:2),weights = "A"),
+  composite("Satisfaction", multi_items("CUSA", 1:3),weights = "A")
+)
+
+
+# structural model: note that name of the interactions factor should be
+#  the names of its two main factors joined by a '.' in between.
+mobi_sm <- relationships(
+  paths(to = "Satisfaction",
+        from = c("Image", "Expectation", "Value"))
+)
+
+# Load data, assemble model, and estimate using semPLS
+mobi <- mobi
+seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm)
+
+
+# Load outputs
+coefficients <- seminr_model$path_coef
+factor_scores <- seminr_model$fscores
+weight <- seminr_model$outer_weights
+
+## Output originally created using following lines
+#write.csv(seminr_model$path_coef, file = "tests/fixtures/factorial_coefficients.csv")
+#write.csv(seminr_model$fscores, file = "tests/fixtures/factorial_factorscores.csv")
+#write.csv(seminr_model$outer_weights, file = "tests/fixtures/factorial_weights.csv", row.names=TRUE)
+
+# Load controls
+coefficients_control <- as.matrix(read.csv("../fixtures/factorial_coefficients.csv", row.names = 1))
+factor_scores_control <- as.matrix(read.csv("../fixtures/factorial_factorscores.csv")[,2:7])
+weight_control <- as.matrix(read.csv("../fixtures/factorial_weights.csv", row.names=1))
+
+# Testing
+
+test_that("Seminr estimates the loadings and path coefficients correctly", {
+  expect_equal(coefficients[,4], coefficients_control[,4])
+})
+
+test_that("Seminr estimates the factor scores correctly", {
+  expect_equal(factor_scores[,1:4], factor_scores_control[,1:4])
+})
+
+test_that("Seminr estimates the outer weights correctly", {
+  expect_equal(weight, weight_control)
+})

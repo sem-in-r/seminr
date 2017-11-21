@@ -103,9 +103,9 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
 #######
     #Estimate inner paths (symmetric matrix)
     for (i in 1:nrow(smMatrix))  {
-#      inner_paths[smMatrix[i,"source"],
-#                  smMatrix[i,"target"]] = stats::cov(fscores[,smMatrix[i,"source"]],
-#                                                     fscores[,smMatrix[i,"target"]])
+      inner_paths[smMatrix[i,"source"],
+                  smMatrix[i,"target"]] = stats::cov(fscores[,smMatrix[i,"source"]],
+                                                     fscores[,smMatrix[i,"target"]])
       #? next step necessary?
       inner_paths[smMatrix[i,"target"],
                   smMatrix[i,"source"]] = stats::cov(fscores[,smMatrix[i,"source"]],
@@ -114,22 +114,22 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
 #######
 
     #Identify Endogenous Variables
-    dependant <- unique(smMatrix[,2])
+#    dependant <- unique(smMatrix[,2])
 
     #Iterate and regress the endogenous
-    for (i in 1:length(dependant))  {
-
-      #Indentify the independant variables
-      independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
-
-      #Solve the system of equations
-      results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
-
-      #Assign the inner weights to the Matrix
-      inner_paths[rownames(results),dependant[i]] = results
+#    for (i in 1:length(dependant))  {
+#
+#      #Indentify the independant variables
+#      independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
+#
+#      #Solve the system of equations
+#      results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
+#
+#      #Assign the inner weights to the Matrix
+#      inner_paths[rownames(results),dependant[i]] = results
 #      inner_paths[dependant[i],rownames(results)] = results
-
-    }
+#
+#    }
 #######
     #Estimate Factor Scores from Inner Path
     fscores<-fscores%*%inner_paths
