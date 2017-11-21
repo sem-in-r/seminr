@@ -21,7 +21,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm)
+seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner.weights = path.weighting)
 
 
 # Load outputs
@@ -36,7 +36,7 @@ weight <- seminr_model$outer_weights
 
 # Load controls
 coefficients_control <- as.matrix(read.csv("../fixtures/inner_weights_coefficients.csv", row.names = 1))
-factor_scores_control <- as.matrix(read.csv("../fixtures/inner_weights_factorscores.csv")[,2:7])
+factor_scores_control <- as.matrix(read.csv("../fixtures/inner_weights_factorscores.csv")[,2:5])
 weight_control <- as.matrix(read.csv("../fixtures/inner_weights_weights.csv", row.names=1))
 
 # Testing
@@ -76,7 +76,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm)
+seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner.weights = path.factorial)
 
 
 # Load outputs
@@ -91,7 +91,7 @@ weight <- seminr_model$outer_weights
 
 # Load controls
 coefficients_control <- as.matrix(read.csv("../fixtures/factorial_coefficients.csv", row.names = 1))
-factor_scores_control <- as.matrix(read.csv("../fixtures/factorial_factorscores.csv")[,2:7])
+factor_scores_control <- as.matrix(read.csv("../fixtures/factorial_factorscores.csv")[,2:5])
 weight_control <- as.matrix(read.csv("../fixtures/factorial_weights.csv", row.names=1))
 
 # Testing

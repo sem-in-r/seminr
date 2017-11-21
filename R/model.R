@@ -51,7 +51,7 @@
 #' print_paths(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
-estimate_pls <- function(data, measurement_model, interactions=NULL, structural_model) {
+estimate_pls <- function(data, measurement_model, interactions=NULL, structural_model, inner.weights = path.weighting) {
   cat("Generating the plsm model\n")
   warnings(measurement_model)
   rawdata <- data
@@ -72,7 +72,7 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
     measurement_model <- rbind(measurement_model, intxns_mm)
   }
 
-  seminr_model = seminr::simplePLS(obsData = data, smMatrix = structural_model, mmMatrix = measurement_model)
+  seminr_model = seminr::simplePLS(obsData = data, smMatrix = structural_model, mmMatrix = measurement_model, inner.weights = inner.weights)
   seminr_model$data <- data
   seminr_model$mobi_xm <- interactions
   seminr_model$rawdata <- rawdata
