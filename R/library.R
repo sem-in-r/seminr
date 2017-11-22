@@ -144,3 +144,53 @@ calculate.loadings <- function(mmMatrix, ltVariables,fscores, normData) {
   }
   return(outer_loadings)
 }
+
+adjust.interaction <- function(ltVariables, mmMatrix, outer_loadings, fscores, obsData){
+  for(latent in ltVariables) {
+    adjustment <- 0
+    denom <- 0
+    if(grepl("\\.", latent)) {
+      list <- mmMatrix[mmMatrix[,"latent"]==latent,"measurement"]
+
+      for (item in list){
+        adjustment <- adjustment + stats::sd(obsData[,item])*abs(as.numeric(outer_loadings[item,latent]))
+        denom <- denom + abs(outer_loadings[item,latent])
+      }
+      adjustment <- adjustment/denom
+      fscores[,latent] <- fscores[,latent]*adjustment
+    }
+  }
+  return(fscores)
+
+}
+
+
+path.coef <- function(smMatrix, fscores) {
+
+  #Create list of Latent Variables
+  ltVariables <- unique(c(smMatrix[,1],smMatrix[,2]))
+
+  #Identify Endogenous Variables
+  dependant <- unique(smMatrix[,2])
+
+  #Create a matrix of inner paths
+  #? inner_paths => inner_weights?
+  inner_paths <- matrix(data=0,
+                        nrow=length(ltVariables),
+                        ncol=length(ltVariables),
+                        dimnames = list(ltVariables,ltVariables))
+
+  #Regression betas for the incoming paths
+  #Iterate and regress the incoming paths
+  for (i in 1:length(dependant))  {
+    #Indentify the independant variables
+    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
+
+    #Solve the system of equations
+    results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
+
+    #solve the system of equations and Assign the inner weights to the Matrix
+    inner_paths[independant,dependant[i]] = results
+  }
+  return(inner_paths)
+}

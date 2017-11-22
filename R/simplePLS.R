@@ -143,55 +143,14 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
   #Estimate Factor Scores from Outter Path
   fscores <- normData[,mmVariables]%*%outer_weights
 
-  #Create a matrix of Outer Loadings
+  #Calculate Outer Loadings
   outer_loadings <- calculate.loadings(mmMatrix,ltVariables,fscores, normData)
-#  outer_loadings <- matrix(data=0,
-#                           nrow=length(mmVariables),
-#                           ncol=length(ltVariables),
-#                           dimnames = list(mmVariables,ltVariables))
-#
-#
-#  #Calculate the Outer Loadings
-#  for (i in 1:length(ltVariables))  {
-#    outer_loadings [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
-#                             "measurement"],
-#                    ltVariables[i]] = stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
-#
-#  }
 
   # interaction adjustment
-  for(latent in ltVariables) {
-    adjustment <- 0
-    denom <- 0
-    if(grepl("\\.", latent)) {
-      list <- mmMatrix[mmMatrix[,"latent"]==latent,"measurement"]
+  fscores <- adjust.interaction(ltVariables, mmMatrix, outer_loadings, fscores, obsData)
 
-      for (item in list){
-        adjustment <- adjustment + stats::sd(obsData[,item])*abs(as.numeric(outer_loadings[item,latent]))
-         denom <- denom + abs(outer_loadings[item,latent])
-      }
-      adjustment <- adjustment/denom
-      fscores[,latent] <- fscores[,latent]*adjustment
-    }
-  }
-
-
+  #Calculate Outer Loadings
   outer_loadings <- calculate.loadings(mmMatrix,ltVariables,fscores, normData)
-  #Create a matrix of Outer Loadings
-#  outer_loadings <- matrix(data=0,
-#                           nrow=length(mmVariables),
-#                           ncol=length(ltVariables),
-#                           dimnames = list(mmVariables,ltVariables))
-#
-#
-#  #Calculate the Outer Loadings
-#  for (i in 1:length(ltVariables))  {
-#    outer_loadings [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
-#                             "measurement"],
-#                    ltVariables[i]] = stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
-#
-#  }
-
 
   #Initialize Matrix of Path Coefficients and matrix of r-squared
   path_coef <- matrix(data=0,
@@ -201,20 +160,25 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
   rSquared <- matrix(,nrow=2,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq"),dependant))
 
   #We calculate a linear regresion for each dependant variable
+#######
+
+  path_coef <- path.coef(smMatrix, fscores)
+
+######
   for (i in 1:length(dependant))  {
 
-    #Indentify the independant variables
-    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
+#    #Indentify the independant variables
+#    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
 
     #Solve the system of equations
-    results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
+#    results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
 
     #Transform to a generic vector
-    coefficients <- transform_to_named_vector(results,independant)
+#    coefficients <- transform_to_named_vector(results,independant)
 
     #Assign the Beta Values to the Path Coefficient Matrix
     for (j in 1:length(independant))
-      path_coef[independant[j],dependant[i]]=coefficients[independant[j]]
+#      path_coef[independant[j],dependant[i]]=coefficients[independant[j]]
 
     # Calculate r-squared for the endogenous variable
     fscore_cors <- stats::cor(fscores)
@@ -222,6 +186,8 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
     rSquared[1,i] <- r_sq[dependant[i],dependant[i]]
     rSquared[2,i] <- 1 - (1 - rSquared[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
   }
+
+#######
 
   #Prepare return Object
   plsModel <- list(meanData = meanData,
