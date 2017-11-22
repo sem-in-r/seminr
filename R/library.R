@@ -127,3 +127,20 @@ path.weighting <- function(smMatrix, fscores) {
   return(inner_paths)
 }
 
+calculate.loadings <- function(mmMatrix, ltVariables,fscores, normData) {
+  #Create a matrix of Outer Loadings
+  outer_loadings <- matrix(data=0,
+                           nrow=nrow(mmMatrix),
+                           ncol=length(ltVariables),
+                           dimnames = list(mmMatrix[,2],ltVariables))
+
+
+  #Calculate the Outer Loadings
+  for (i in 1:length(ltVariables))  {
+    outer_loadings [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
+                             "measurement"],
+                    ltVariables[i]] = stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
+
+  }
+  return(outer_loadings)
+}

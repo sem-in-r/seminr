@@ -144,19 +144,20 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
   fscores <- normData[,mmVariables]%*%outer_weights
 
   #Create a matrix of Outer Loadings
-  outer_loadings <- matrix(data=0,
-                           nrow=length(mmVariables),
-                           ncol=length(ltVariables),
-                           dimnames = list(mmVariables,ltVariables))
-
-
-  #Calculate the Outer Loadings
-  for (i in 1:length(ltVariables))  {
-    outer_loadings [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
-                             "measurement"],
-                    ltVariables[i]] = stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
-
-  }
+  outer_loadings <- calculate.loadings(mmMatrix,ltVariables,fscores, normData)
+#  outer_loadings <- matrix(data=0,
+#                           nrow=length(mmVariables),
+#                           ncol=length(ltVariables),
+#                           dimnames = list(mmVariables,ltVariables))
+#
+#
+#  #Calculate the Outer Loadings
+#  for (i in 1:length(ltVariables))  {
+#    outer_loadings [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
+#                             "measurement"],
+#                    ltVariables[i]] = stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
+#
+#  }
 
   # interaction adjustment
   for(latent in ltVariables) {
@@ -174,20 +175,22 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
     }
   }
 
+
+  outer_loadings <- calculate.loadings(mmMatrix,ltVariables,fscores, normData)
   #Create a matrix of Outer Loadings
-  outer_loadings <- matrix(data=0,
-                           nrow=length(mmVariables),
-                           ncol=length(ltVariables),
-                           dimnames = list(mmVariables,ltVariables))
-
-
-  #Calculate the Outer Loadings
-  for (i in 1:length(ltVariables))  {
-    outer_loadings [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
-                             "measurement"],
-                    ltVariables[i]] = stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
-
-  }
+#  outer_loadings <- matrix(data=0,
+#                           nrow=length(mmVariables),
+#                           ncol=length(ltVariables),
+#                           dimnames = list(mmVariables,ltVariables))
+#
+#
+#  #Calculate the Outer Loadings
+#  for (i in 1:length(ltVariables))  {
+#    outer_loadings [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
+#                             "measurement"],
+#                    ltVariables[i]] = stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
+#
+#  }
 
 
   #Initialize Matrix of Path Coefficients and matrix of r-squared
