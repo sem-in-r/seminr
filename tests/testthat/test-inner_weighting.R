@@ -21,7 +21,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner.weights = path.weighting)
+seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path.weighting)
 
 
 # Load outputs
@@ -76,7 +76,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner.weights = path.factorial)
+seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path.factorial)
 
 
 # Load outputs

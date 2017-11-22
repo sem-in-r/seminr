@@ -63,6 +63,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
   measurement_model <- seminr_model$mmMatrix
   structural_model <- seminr_model$smMatrix
 
+
   if (nboot > 0) {
     # Initialize the cluster
     ifelse(is.null(cores), cl <- parallel::makeCluster(parallel::detectCores()), cl <- parallel::makeCluster(cores))

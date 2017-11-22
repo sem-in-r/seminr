@@ -53,7 +53,7 @@
 #' mobi_pls <- simplePLS(mobi,mobi_sm, mobi_mm)
 #'
 #' @export
-simplePLS <- function(obsData,smMatrix, mmMatrix, inner.weights = path.weighting, maxIt=300, stopCriterion=7){
+simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting, maxIt=300, stopCriterion=7){
 
   #Create list of Measurements Variables
   mmVariables <- mmMatrix[,"measurement"]
@@ -95,7 +95,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner.weights = path.weighting
     fscores <- scale(fscores,TRUE,TRUE)
 
     #Estimate inner paths using weighting scheme - factorial or path-weighting
-    inner_paths <- inner.weights(smMatrix, fscores)
+    inner_paths <- inner_weights(smMatrix, fscores)
 
     #Estimate Factor Scores from Inner Path
     fscores<-fscores%*%inner_paths
@@ -233,7 +233,8 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner.weights = path.weighting
                    iterations = iterations,
                    weightDiff = weightDiff,
                    fscores = fscores,
-                   rSquared = rSquared)
+                   rSquared = rSquared,
+                   inner_weights = inner_weights)
 
   class(plsModel) <- "simple_pls_model"
   return(plsModel)
