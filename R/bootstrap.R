@@ -62,7 +62,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
   d <- seminr_model$rawdata
   measurement_model <- seminr_model$mmMatrix
   structural_model <- seminr_model$smMatrix
-
+  inner_weights <- seminr_model$inner_weights
 
   if (nboot > 0) {
     # Initialize the cluster
@@ -77,12 +77,12 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
     getRandomIndex <- function(d) {return(sample.int(nrow(d),replace = TRUE))}
 
     # Export variables and functions to cluster
-    parallel::clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model","getRandomIndex","d"), envir=environment())
+    parallel::clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model","inner_weights","getRandomIndex","d"), envir=environment())
 
     # Function to get PLS estimate results
     getEstimateResults <- function(i, d = d) {
       return(seminr::estimate_pls(data = d[getRandomIndex(d),],
-                          measurement_model,interactions,structural_model)$path_coef)
+                          measurement_model,interactions,structural_model,inner_weights)$path_coef)
     }
 
     # Bootstrap the estimates
