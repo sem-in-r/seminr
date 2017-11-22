@@ -53,7 +53,7 @@
 #' mobi_pls <- simplePLS(mobi,mobi_sm, mobi_mm)
 #'
 #' @export
-simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
+simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting, maxIt=300, stopCriterion=7){
 
   #Create list of Measurements Variables
   mmVariables <- mmMatrix[,"measurement"]
@@ -68,6 +68,9 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
   meanData <- attr(normData, "scaled:center")
   sdData <- attr(normData, "scaled:scale")
 
+  #Identify which variables have incoming paths (endogenous)
+  dependant<-unique(smMatrix[,"target"])
+
   #Create a matrix of outer_weights
   outer_weights <- matrix(data=0,
                           nrow=length(mmVariables),
@@ -81,13 +84,6 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
                    ltVariables[i]] =1
   }
 
-  #Create a matrix of inner paths
-  #? inner_paths => inner_weights?
-  inner_paths <- matrix(data=0,
-                        nrow=length(ltVariables),
-                        ncol=length(ltVariables),
-                        dimnames = list(ltVariables,ltVariables))
-
   #Iterative Process Starts here
   for (iterations in 0:maxIt)  {
 
@@ -98,16 +94,8 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
     #Standardize Factor Scores
     fscores <- scale(fscores,TRUE,TRUE)
 
-    #Estimate inner paths (symmetric matrix)
-    for (i in 1:nrow(smMatrix))  {
-      inner_paths[smMatrix[i,"source"],
-                  smMatrix[i,"target"]] = stats::cov(fscores[,smMatrix[i,"source"]],
-                                                     fscores[,smMatrix[i,"target"]])
-      #? next step necessary?
-      inner_paths[smMatrix[i,"target"],
-                  smMatrix[i,"source"]] = stats::cov(fscores[,smMatrix[i,"source"]],
-                                                     fscores[,smMatrix[i,"target"]])
-    }
+    #Estimate inner paths using weighting scheme - factorial or path-weighting
+    inner_paths <- inner_weights(smMatrix, fscores)
 
     #Estimate Factor Scores from Inner Path
     fscores<-fscores%*%inner_paths
@@ -201,8 +189,6 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
 
   }
 
-  #Identify which variables have incoming paths
-  dependant<-unique(smMatrix[,"target"])
 
   #Initialize Matrix of Path Coefficients and matrix of r-squared
   path_coef <- matrix(data=0,
@@ -247,7 +233,8 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, maxIt=300, stopCriterion=7){
                    iterations = iterations,
                    weightDiff = weightDiff,
                    fscores = fscores,
-                   rSquared = rSquared)
+                   rSquared = rSquared,
+                   inner_weights = inner_weights)
 
   class(plsModel) <- "simple_pls_model"
   return(plsModel)

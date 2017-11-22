@@ -63,3 +63,67 @@ transform_to_named_vector <- function(results,independant) {
   }
   return(coefficients)
 }
+
+# Factorial weighting scheme Function to create inner paths matrix
+path.factorial <- function(smMatrix,fscores) {
+
+  #Create a matrix of inner paths
+  #? inner_paths => inner_weights?
+  inner_paths <- matrix(data=0,
+                        nrow=length(unique(c(smMatrix[,1],smMatrix[,2]))),
+                        ncol=length(unique(c(smMatrix[,1],smMatrix[,2]))),
+                        dimnames = list(unique(c(smMatrix[,1],smMatrix[,2])),unique(c(smMatrix[,1],smMatrix[,2]))))
+
+  #Estimate inner paths (symmetric matrix)
+  for (i in 1:nrow(smMatrix))  {
+    inner_paths[smMatrix[i,"source"],
+                smMatrix[i,"target"]] = stats::cor(fscores[,smMatrix[i,"source"]],
+                                                   fscores[,smMatrix[i,"target"]])
+    #? next step necessary?
+    inner_paths[smMatrix[i,"target"],
+                smMatrix[i,"source"]] = stats::cor(fscores[,smMatrix[i,"source"]],
+                                                   fscores[,smMatrix[i,"target"]])
+  }
+
+  return(inner_paths)
+}
+
+# Factorial weighting scheme Function to create inner paths matrix
+path.weighting <- function(smMatrix, fscores) {
+
+  #Create list of Latent Variables
+  ltVariables <- unique(c(smMatrix[,1],smMatrix[,2]))
+
+  #Identify Endogenous Variables
+  dependant <- unique(smMatrix[,2])
+
+  #Create a matrix of inner paths
+  #? inner_paths => inner_weights?
+  inner_paths <- matrix(data=0,
+                        nrow=length(ltVariables),
+                        ncol=length(ltVariables),
+                        dimnames = list(ltVariables,ltVariables))
+
+  #Estimate inner paths (a-symmetric matrix)
+  #Correlations for outgoing paths
+  for (i in 1:nrow(smMatrix))  {
+    inner_paths[smMatrix[i,"target"],
+                smMatrix[i,"source"]] = stats::cor(fscores[,smMatrix[i,"source"]],
+                                                   fscores[,smMatrix[i,"target"]])
+  }
+
+  #Regression betas for the incoming paths
+  #Iterate and regress the incoming paths
+  for (i in 1:length(dependant))  {
+    #Indentify the independant variables
+    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
+
+    #Solve the system of equations
+    results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
+
+    #solve the system of equations and Assign the inner weights to the Matrix
+    inner_paths[rownames(results),dependant[i]] = results
+    }
+  return(inner_paths)
+}
+
