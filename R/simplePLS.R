@@ -155,21 +155,8 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
   #Calculate and assign path coefficients
   path_coef <- path.coef(smMatrix, fscores,dependant,ltVariables)
 
-
-  #Initialize matrix of r-squared
-  rSquared <- matrix(,nrow=2,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq"),dependant))
-  for (i in 1:length(dependant))  {
-    #Indentify the independant variables
-    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
-    #Calculate Rsquared
-    for (j in 1:length(independant))
-
-    # Calculate r-squared for the endogenous variable
-    fscore_cors <- stats::cor(fscores)
-    r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
-    rSquared[1,i] <- r_sq[dependant[i],dependant[i]]
-    rSquared[2,i] <- 1 - (1 - rSquared[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
-  }
+  #Calculate and assign rSquared
+  rSquared <- calc.rSquared(obsData, fscores, smMatrix, dependant)
 
   #Prepare return Object
   plsModel <- list(meanData = meanData,

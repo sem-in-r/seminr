@@ -27,6 +27,7 @@ mmMatrix_per_latent <- function(latent, mmMatrix) {
   }
 }
 
+##### Deprecated
 # This function is not used!!
 # Function to estimate r_squared for endogenous constructs
 estimate_Rsquared <- function(smMatrix,fscores) {
@@ -145,6 +146,7 @@ calculate.loadings <- function(mmMatrix, ltVariables,fscores, normData) {
   return(outer_loadings)
 }
 
+# Function to adjust for the interaction
 adjust.interaction <- function(ltVariables, mmMatrix, outer_loadings, fscores, obsData){
   for(latent in ltVariables) {
     adjustment <- 0
@@ -207,5 +209,6 @@ calc.rSquared <- function(obsData, fscores, smMatrix, dependant) {
     rSquared[1,i] <- r_sq[dependant[i],dependant[i]]
     rSquared[2,i] <- 1 - (1 - rSquared[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
   }
+  return(rSquared)
 }
 
