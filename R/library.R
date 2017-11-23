@@ -165,13 +165,7 @@ adjust.interaction <- function(ltVariables, mmMatrix, outer_loadings, fscores, o
 }
 
 
-path.coef <- function(smMatrix, fscores) {
-
-  #Create list of Latent Variables
-  ltVariables <- unique(c(smMatrix[,1],smMatrix[,2]))
-
-  #Identify Endogenous Variables
-  dependant <- unique(smMatrix[,2])
+path.coef <- function(smMatrix, fscores,dependant,ltVariables) {
 
   #Create a matrix of inner paths
   #? inner_paths => inner_weights?
@@ -194,3 +188,24 @@ path.coef <- function(smMatrix, fscores) {
   }
   return(inner_paths)
 }
+
+### This metric should be moved to a metrics folder
+
+calc.rSquared <- function(obsData, fscores, smMatrix, dependant) {
+  rSquared <- matrix(,nrow=2,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq"),dependant))
+
+  for (i in 1:length(dependant))  {
+    #Indentify the independant variables
+    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
+
+    #Calculate Rsquared
+    for (j in 1:length(independant))
+
+      # Calculate r-squared for the endogenous variable
+      fscore_cors <- stats::cor(fscores)
+    r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
+    rSquared[1,i] <- r_sq[dependant[i],dependant[i]]
+    rSquared[2,i] <- 1 - (1 - rSquared[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
+  }
+}
+

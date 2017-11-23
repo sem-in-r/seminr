@@ -152,33 +152,17 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
   #Calculate Outer Loadings
   outer_loadings <- calculate.loadings(mmMatrix,ltVariables,fscores, normData)
 
-  #Initialize Matrix of Path Coefficients and matrix of r-squared
-  path_coef <- matrix(data=0,
-                      nrow=length(ltVariables),
-                      ncol=length(ltVariables),
-                      dimnames = list(ltVariables,ltVariables))
+  #Calculate and assign path coefficients
+  path_coef <- path.coef(smMatrix, fscores,dependant,ltVariables)
+
+
+  #Initialize matrix of r-squared
   rSquared <- matrix(,nrow=2,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq"),dependant))
-
-  #We calculate a linear regresion for each dependant variable
-#######
-
-  path_coef <- path.coef(smMatrix, fscores)
-
-######
   for (i in 1:length(dependant))  {
-
-#    #Indentify the independant variables
-#    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
-
-    #Solve the system of equations
-#    results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
-
-    #Transform to a generic vector
-#    coefficients <- transform_to_named_vector(results,independant)
-
-    #Assign the Beta Values to the Path Coefficient Matrix
+    #Indentify the independant variables
+    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
+    #Calculate Rsquared
     for (j in 1:length(independant))
-#      path_coef[independant[j],dependant[i]]=coefficients[independant[j]]
 
     # Calculate r-squared for the endogenous variable
     fscore_cors <- stats::cor(fscores)
@@ -186,8 +170,6 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
     rSquared[1,i] <- r_sq[dependant[i],dependant[i]]
     rSquared[2,i] <- 1 - (1 - rSquared[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
   }
-
-#######
 
   #Prepare return Object
   plsModel <- list(meanData = meanData,
