@@ -75,6 +75,7 @@ print_paths <- function(seminr_model, na.print=".", digits=3) {
 
     # print final_boot
     for(i in 1:length(bootstraplist)) { print(bootstraplist[[i]], na.print = na.print) }
+    return(bootstraplist)
 
   }else {
 
@@ -94,6 +95,7 @@ print_paths <- function(seminr_model, na.print=".", digits=3) {
    # round and print
    final_paths <- round(path_matrix[c("R^2","AdjR^2", exogenous), endogenous, drop=FALSE], digits)
    print(final_paths, na.print = na.print)
+   return(final_paths)
   }
 }
 #' @export
