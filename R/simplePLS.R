@@ -79,9 +79,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
 
   #Initialize outer_weights matrix with value 1 for each relationship in the measurement model
   for (i in 1:length(ltVariables))  {
-    outer_weights [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
-                            "measurement"],
-                   ltVariables[i]] =1
+    outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"],ltVariables[i]] =1
   }
 
   #Iterative Process Starts here
@@ -117,7 +115,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
                 fscores[,ltVariables[i]])
       }
 
-      #If the measurement model is Mode A Composite or Mode A Consistent
+      #If the measurement model is Mode A Composite or Mode A Consistent (C)
       if(measure_mode(ltVariables[i],mmMatrix)=="C" | measure_mode(ltVariables[i],mmMatrix)=="A"){
         outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
           stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
