@@ -77,6 +77,10 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
     measurement_model <- rbind(measurement_model, intxns_mm)
   }
 
+  # warning if the model is incorrectly specified
+  warning_struc_meas_model_complete(structural_model,measurement_model,data)
+
+  # Run the model in simplePLS
   seminr_model = seminr::simplePLS(obsData = data, smMatrix = structural_model, mmMatrix = measurement_model, inner_weights = inner_weights)
   seminr_model$data <- data
   seminr_model$mobi_xm <- interactions

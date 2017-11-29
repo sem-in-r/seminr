@@ -49,7 +49,6 @@ warning_struc_meas_model_complete <- function(smMatrix, mmMatrix, data) {
 }
 
 warnings <- function(mmMatrix,data, smMatrix) {
-  warning_struc_meas_model_complete(smMatrix,mmMatrix,data)
   warning_only_causal_construct(mmMatrix)
   warning_single_item_formative(mmMatrix)
   warning_missing_data(data, mmMatrix)

@@ -36,7 +36,7 @@ weight <- seminr_model$outer_weights
 
 # Load controls
 coefficients_control <- as.matrix(read.csv("../fixtures/inner_weights_coefficients.csv", row.names = 1))
-factor_scores_control <- as.matrix(read.csv("../fixtures/inner_weights_factorscores.csv")[,2:5])
+factor_scores_control <- as.matrix(read.csv("../fixtures/inner_weights_factorscores.csv", row.names = 1))
 weight_control <- as.matrix(read.csv("../fixtures/inner_weights_weights.csv", row.names=1))
 
 # Testing
@@ -91,7 +91,7 @@ weight <- seminr_model$outer_weights
 
 # Load controls
 coefficients_control <- as.matrix(read.csv("../fixtures/factorial_coefficients.csv", row.names = 1))
-factor_scores_control <- as.matrix(read.csv("../fixtures/factorial_factorscores.csv")[,2:5])
+factor_scores_control <- as.matrix(read.csv("../fixtures/factorial_factorscores.csv", row.names = 1))
 weight_control <- as.matrix(read.csv("../fixtures/factorial_weights.csv", row.names=1))
 
 # Testing
