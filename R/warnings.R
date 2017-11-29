@@ -32,9 +32,24 @@ warning_missing_data <- function(data, mmMatrix) {
   }
 }
 
+warning_struc_meas_model_complete <- function(smMatrix, mmMatrix, data) {
+  latent <- unique(as.vector(smMatrix))
+  latentmm <- unique(as.vector(mmMatrix[,1]))
+  if(any(latent %in% colnames(data))) {
+    stop("The latent variables cannot share names with the manifest variables.")
+  }
+  manifest <- sort(setdiff(as.vector(mmMatrix[,1:2]), latent))
 
+  if(!all(manifest %in% colnames(data))) {
+    stop("The manifest variables must occur as columns in the data.")
+  }
+  if(!all(latent %in% latentmm)) {
+    stop("The latent variables described in the structural model must occur in the measurement model.")
+  }
+}
 
-warnings <- function(mmMatrix,data) {
+warnings <- function(mmMatrix,data, smMatrix) {
+  warning_struc_meas_model_complete(smMatrix,mmMatrix,data)
   warning_only_causal_construct(mmMatrix)
   warning_single_item_formative(mmMatrix)
   warning_missing_data(data, mmMatrix)

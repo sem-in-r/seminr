@@ -57,7 +57,7 @@
 #' @export
 estimate_pls <- function(data, measurement_model, interactions=NULL, structural_model, inner_weights = path.weighting) {
   cat("Generating the seminr model\n")
-  warnings(measurement_model, data)
+  warnings(measurement_model, data, structural_model)
   data <- na.omit(data)
   rawdata <- data
   if(!is.null(interactions)) {
