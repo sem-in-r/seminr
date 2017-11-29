@@ -95,7 +95,7 @@ path.weighting <- function(smMatrix, fscores, dependant, ltVariables) {
 }
 
 calculate.loadings <- function(weights_matrix,fscores, normData) {
-  return(as.matrix(cov(normData,fscores) * weights_matrix))
+  return(as.matrix(stats::cov(normData,fscores) * weights_matrix))
 }
 
 # Function to adjust for the interaction
