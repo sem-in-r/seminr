@@ -27,31 +27,6 @@ mmMatrix_per_latent <- function(latent, mmMatrix) {
   }
 }
 
-##### Deprecated
-# This function is not used!!
-# Function to estimate r_squared for endogenous constructs
-estimate_Rsquared <- function(smMatrix,fscores) {
-  #Calculate R Squared
-  #Get smMatrix
-  modelMatrix <- data.frame(smMatrix)
-  #Get endogenous composites
-  uniquetarget <- as.character(unique(modelMatrix$target))
-  #Get composite scores
-  valuesMatrix <- fscores
-  #Calculate Linear Models
-  lmmodels <- lapply(uniquetarget, function(x) {stats::lm(stats::as.formula(paste(x,"~ .", sep = "")),
-                                                   data = data.frame(valuesMatrix[,colnames(valuesMatrix) %in%
-                                                                                    c(x,as.character(modelMatrix$source[which(modelMatrix$target==x)]))]))})
-  #Initialize matrix holder for Rsquared values
-  rSquared <- matrix(,nrow=1,ncol=length(uniquetarget),byrow =TRUE,dimnames = list(1,uniquetarget))
-
-  # Iterate and extract every R^2 value
-  for (i in 1:length(lmmodels)) {
-    rSquared[,i] <- summary(lmmodels[[i]])$r.squared
-  }
-  return(rSquared)
-}
-
 # Function to create a named vector of path coefficients
 transform_to_named_vector <- function(results,independant) {
   coefficients <- as.vector(results)
@@ -66,14 +41,13 @@ transform_to_named_vector <- function(results,independant) {
 }
 
 # Factorial weighting scheme Function to create inner paths matrix
-path.factorial <- function(smMatrix,fscores) {
+path.factorial <- function(smMatrix,fscores, dependant, ltVariables) {
 
   #Create a matrix of inner paths
-  #? inner_paths => inner_weights?
   inner_paths <- matrix(data=0,
-                        nrow=length(unique(c(smMatrix[,1],smMatrix[,2]))),
-                        ncol=length(unique(c(smMatrix[,1],smMatrix[,2]))),
-                        dimnames = list(unique(c(smMatrix[,1],smMatrix[,2])),unique(c(smMatrix[,1],smMatrix[,2]))))
+                        nrow=length(ltVariables),
+                        ncol=length(ltVariables),
+                        dimnames = list(ltVariables,ltVariables))
 
   #Estimate inner paths (symmetric matrix)
   for (i in 1:nrow(smMatrix))  {
@@ -85,21 +59,13 @@ path.factorial <- function(smMatrix,fscores) {
                 smMatrix[i,"source"]] = stats::cor(fscores[,smMatrix[i,"source"]],
                                                    fscores[,smMatrix[i,"target"]])
   }
-
   return(inner_paths)
 }
 
 # Factorial weighting scheme Function to create inner paths matrix
-path.weighting <- function(smMatrix, fscores) {
-
-  #Create list of Latent Variables
-  ltVariables <- unique(c(smMatrix[,1],smMatrix[,2]))
-
-  #Identify Endogenous Variables
-  dependant <- unique(smMatrix[,2])
+path.weighting <- function(smMatrix, fscores, dependant, ltVariables) {
 
   #Create a matrix of inner paths
-  #? inner_paths => inner_weights?
   inner_paths <- matrix(data=0,
                         nrow=length(ltVariables),
                         ncol=length(ltVariables),
@@ -123,27 +89,13 @@ path.weighting <- function(smMatrix, fscores) {
     results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
 
     #solve the system of equations and Assign the inner weights to the Matrix
-    inner_paths[rownames(results),dependant[i]] = results
-    }
+    inner_paths[independant,dependant[i]] = results
+  }
   return(inner_paths)
 }
 
-calculate.loadings <- function(mmMatrix, ltVariables,fscores, normData) {
-  #Create a matrix of Outer Loadings
-  outer_loadings <- matrix(data=0,
-                           nrow=nrow(mmMatrix),
-                           ncol=length(ltVariables),
-                           dimnames = list(mmMatrix[,2],ltVariables))
-
-
-  #Calculate the Outer Loadings
-  for (i in 1:length(ltVariables))  {
-    outer_loadings [mmMatrix[mmMatrix[,"latent"]==ltVariables[i],
-                             "measurement"],
-                    ltVariables[i]] = stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
-
-  }
-  return(outer_loadings)
+calculate.loadings <- function(weights_matrix,fscores, normData) {
+  cov(normData,fscores) * weights_matrix
 }
 
 # Function to adjust for the interaction
@@ -201,14 +153,21 @@ calc.rSquared <- function(obsData, fscores, smMatrix, dependant) {
     independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
 
     #Calculate Rsquared
-    for (j in 1:length(independant))
+    for (j in 1:length(independant)) {
 
       # Calculate r-squared for the endogenous variable
       fscore_cors <- stats::cor(fscores)
-    r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
-    rSquared[1,i] <- r_sq[dependant[i],dependant[i]]
-    rSquared[2,i] <- 1 - (1 - rSquared[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
+      r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
+      rSquared[1,i] <- r_sq[dependant[i],dependant[i]]
+      rSquared[2,i] <- 1 - (1 - rSquared[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
+    }
   }
   return(rSquared)
 }
 
+standardize.outer.weights <- function(normData, mmVariables, outer_weights) {
+  # Standardize the outer weights
+  std_devs <- attr(scale((normData[,mmVariables]%*%outer_weights), center = FALSE),"scaled:scale")
+  # divide by matrix bvy std_devs and return
+  return(t(t(outer_weights) / std_devs))
+}

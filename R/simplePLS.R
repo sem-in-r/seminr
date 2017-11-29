@@ -82,6 +82,8 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
     outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"],ltVariables[i]] =1
   }
 
+  weights_matrix <- outer_weights
+
   #Iterative Process Starts here
   for (iterations in 0:maxIt)  {
 
@@ -93,7 +95,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
     fscores <- scale(fscores,TRUE,TRUE)
 
     #Estimate inner paths using weighting scheme - factorial or path-weighting
-    inner_paths <- inner_weights(smMatrix, fscores)
+    inner_paths <- inner_weights(smMatrix, fscores, dependant, ltVariables)
 
     #Estimate Factor Scores from Inner Path
     fscores<-fscores%*%inner_paths
@@ -122,14 +124,8 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
       }
     }
 
-    #Estimate Factor Scores from Outer Weights
-    fscores <- normData[,mmVariables]%*%outer_weights
-
     #Standarize outer_weights
-    for (i in 1:length(ltVariables))  {
-      outer_weights [mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
-        outer_weights [mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] / stats::sd(fscores[,ltVariables[i]])
-    }
+    outer_weights <- standardize.outer.weights(normData, mmVariables, outer_weights)
 
     #Verify the stop criteria
     weightDiff <- sum(abs(outer_weights-last_outer_weights))
@@ -142,13 +138,13 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
   fscores <- normData[,mmVariables]%*%outer_weights
 
   #Calculate Outer Loadings
-  outer_loadings <- calculate.loadings(mmMatrix,ltVariables,fscores, normData)
+  outer_loadings <- calculate.loadings(weights_matrix,fscores, normData)
 
   # interaction adjustment
   fscores <- adjust.interaction(ltVariables, mmMatrix, outer_loadings, fscores, obsData)
 
   #Calculate Outer Loadings
-  outer_loadings <- calculate.loadings(mmMatrix,ltVariables,fscores, normData)
+  outer_loadings <- calculate.loadings(weights_matrix,fscores, normData)
 
   #Calculate and assign path coefficients
   path_coef <- path.coef(smMatrix, fscores,dependant,ltVariables)
