@@ -1,9 +1,15 @@
-summary.seminr_model <- function(seminr_model) {
-  stopifnot(inherits(x, "seminr_model"))
+# summary function for seminr
+summary.seminr_model <- function(object, ...) {
+  stopifnot(inherits(object, "seminr_model"))
   cat("\t\n",
-      sprintf("Weighting: %s\n", seminr_model$inner_weights),
-      sprintf("Total Words: %s", sum(sapply(x, length))))
-
+#      sprintf("Weighting: %s\n", object$inner_weights),
+      sprintf("Total Iterations: %s", object$iterations),
+      sprintf("\nPath Coefficients:\n"))
+  print_paths(mobi_pls)
+  cat("\nLoadings:\n")
+  print(object$outer_loadings, na.print = ".")
+  cat("\nOuter Weights:\n")
+  print(object$outer_weights, na.print = ".")
 
 
 }

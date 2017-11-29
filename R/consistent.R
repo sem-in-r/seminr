@@ -90,7 +90,9 @@ PLSc <- function(seminr.model) {
   }
 
   # apply the function over common-factors and assign to loadings matrix
-  loadings[,reflective] <- sapply(reflective, adjust_loadings)
+  if(length(reflective) > 0) {
+    loadings[,reflective] <- sapply(reflective, adjust_loadings)
+  }
 
   # Assign the adjusted values for return
   seminr.model$path_coef <- path_coef

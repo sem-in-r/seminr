@@ -83,7 +83,7 @@ test_that("Seminr estimates rhoA correctly\n", {
   expect_equal(rho, rho_control)
 })
 
-context("SEMinR correctly estimates PLSc path coefficients and loadings for the simple model\n")
+context("SEMinR correctly estimates PLSc path coefficients, rsquared and loadings for the simple model\n")
 
 # Test cases
 ## Simple case
@@ -110,14 +110,18 @@ seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_w
 # Load outputs
 path_coef <- seminr_model$path_coef
 loadings <- seminr_model$outer_loadings
+rSquared <- seminr_model$rSquared
 
 ## Output originally created using following lines
 # write.csv(path_coef, file = "tests/fixtures/path_coef1.csv")
 # write.csv(loadings, file = "tests/fixtures/loadings1.csv")
+# write.csv(rSquared, file = "tests/fixtures/rsquaredplsc.csv")
+
 
 # Load controls
 path_coef_control <- as.matrix(read.csv("../fixtures/path_coef1.csv", row.names = 1))
 loadings_control <- as.matrix(read.csv("../fixtures/loadings1.csv", row.names = 1))
+rSquared_control <- as.matrix(read.csv("../fixtures/rsquaredplsc.csv", row.names = 1))
 
 # Testing
 
@@ -127,6 +131,10 @@ test_that("Seminr estimates PLSc path coefficients correctly\n", {
 
 test_that("Seminr estimates PLSc loadings correctly\n", {
   expect_equal(loadings, loadings_control)
+})
+
+test_that("Seminr estimates rsquared  correctly\n", {
+  expect_equal(rSquared, rSquared_control)
 })
 
 # redundant as you cannot perform PLSc on a moderated model
