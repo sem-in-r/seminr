@@ -14,7 +14,20 @@ summary.seminr_model <- function(object, ...) {
 
 
 }
+#' @export
+summary.boot_seminr_model <- function(object, ...) {
+  stopifnot(inherits(object, "boot_seminr_model"))
+  cat("\t\n",
+      sprintf("Total Iterations: %s", object$iterations),
+      sprintf("\nPath Coefficients and bootstrapped significances:\n"))
+  print_paths(object)
+  cat("\nLoadings:\n\n")
+  print(object$outer_loadings, na.print = ".")
+  cat("\nOuter Weights:\n\n")
+  print(object$outer_weights, na.print = ".")
 
+
+}
 
 ##### Not yet modified for usage in seminr ######
 # Adaption of the path.diagram method in the 'sem' package (J. Fox)
