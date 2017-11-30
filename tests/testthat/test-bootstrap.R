@@ -37,25 +37,25 @@ bootmatrix_control <- as.matrix(read.csv("../fixtures/boostrapmatrix1.csv", row.
 test_that("Seminr performs the bootstrapping correctly", {
 #  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
   diff <- abs(bootmatrix[,1] - bootmatrix_control[,1])
-  expect_lt(diff[[1]], 0.02)
-  expect_lt(diff[[2]], 0.02)
-  expect_lt(diff[[3]], 0.02)
+  expect_lt(diff[[1]], 0.03)
+  expect_lt(diff[[2]], 0.03)
+  expect_lt(diff[[3]], 0.03)
 })
 
 test_that("Seminr performs the bootstrapping correctly", {
 #  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
   diff <- abs(bootmatrix[,2] - bootmatrix_control[,2])
-  expect_lt(diff[[1]], 0.02)
-  expect_lt(diff[[2]], 0.02)
-  expect_lt(diff[[3]], 0.02)
+  expect_lt(diff[[1]], 0.03)
+  expect_lt(diff[[2]], 0.03)
+  expect_lt(diff[[3]], 0.03)
 })
 
 test_that("Seminr performs the bootstrapping correctly", {
 #  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
   diff <- abs(bootmatrix[,3] - bootmatrix_control[,3])
-  expect_lt(diff[[1]], 0.02)
-  expect_lt(diff[[2]], 0.02)
-  expect_lt(diff[[3]], 0.02)
+  expect_lt(diff[[1]], 0.03)
+  expect_lt(diff[[2]], 0.03)
+  expect_lt(diff[[3]], 0.03)
 })
 
 context("SEMinR correctly bootstraps the interaction model\n")
@@ -104,23 +104,23 @@ bootmatrix_control <- as.matrix(read.csv("../fixtures/boostrapmatrix2.csv", row.
 test_that("Seminr performs the bootstrapping correctly", {
 #  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
   diff <- abs(bootmatrix[,1] - bootmatrix_control[,1])
-  expect_lt(diff[[1]], 0.02)
-  expect_lt(diff[[2]], 0.02)
-  expect_lt(diff[[3]], 0.02)
+  expect_lt(diff[[1]], 0.03)
+  expect_lt(diff[[2]], 0.03)
+  expect_lt(diff[[3]], 0.03)
 })
 
 test_that("Seminr performs the bootstrapping correctly", {
 #  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
   diff <- abs(bootmatrix[,2] - bootmatrix_control[,2])
-  expect_lt(diff[[1]], 0.02)
-  expect_lt(diff[[2]], 0.02)
-  expect_lt(diff[[3]], 0.02)
+  expect_lt(diff[[1]], 0.03)
+  expect_lt(diff[[2]], 0.03)
+  expect_lt(diff[[3]], 0.03)
 })
 
 test_that("Seminr performs the bootstrapping correctly", {
 #  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
   diff <- abs(bootmatrix[,3] - bootmatrix_control[,3])
-  expect_lt(diff[[1]], 0.02)
-  expect_lt(diff[[2]], 0.02)
-  expect_lt(diff[[3]], 0.02)
+  expect_lt(diff[[1]], 0.03)
+  expect_lt(diff[[2]], 0.03)
+  expect_lt(diff[[3]], 0.03)
 })
