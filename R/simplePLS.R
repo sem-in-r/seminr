@@ -154,7 +154,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
   path_coef <- path.coef(smMatrix, fscores,dependant,ltVariables)
 
   #Calculate and assign rSquared
-  rSquared <- calc.rSquared(obsData, fscores, smMatrix, dependant)
+  rSquared <- calc.insample(obsData, fscores, smMatrix, dependant)
 
   #Prepare return Object
   plsModel <- list(meanData = meanData,

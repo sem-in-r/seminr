@@ -147,24 +147,24 @@ path.coef <- function(smMatrix, fscores,dependant,ltVariables) {
 
 ### This metric should be moved to a metrics folder
 
-calc.rSquared <- function(obsData, fscores, smMatrix, dependant) {
-  rSquared <- matrix(,nrow=2,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq"),dependant))
+calc.insample <- function(obsData, fscores, smMatrix, dependant) {
+  insample <- matrix(,nrow=3,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq","BIC"),dependant))
 
   for (i in 1:length(dependant))  {
     #Indentify the independant variables
     independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
 
-    #Calculate Rsquared
+    #Calculate insample
     for (j in 1:length(independant)) {
 
       # Calculate r-squared for the endogenous variable
       fscore_cors <- stats::cor(fscores)
       r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
-      rSquared[1,i] <- r_sq[dependant[i],dependant[i]]
-      rSquared[2,i] <- 1 - (1 - rSquared[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
+      insample[1,i] <- r_sq[dependant[i],dependant[i]]
+      insample[2,i] <- 1 - (1 - insample[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
     }
   }
-  return(rSquared)
+  return(insample)
 }
 
 standardize.outer.weights <- function(normData, mmVariables, outer_weights) {
