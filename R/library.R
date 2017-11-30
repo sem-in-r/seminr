@@ -41,6 +41,7 @@ transform_to_named_vector <- function(results,independant) {
 }
 
 # Factorial weighting scheme Function to create inner paths matrix
+#' @export
 path.factorial <- function(smMatrix,fscores, dependant, ltVariables) {
 
   #Create a matrix of inner paths
@@ -63,6 +64,7 @@ path.factorial <- function(smMatrix,fscores, dependant, ltVariables) {
 }
 
 # Factorial weighting scheme Function to create inner paths matrix
+#' @export
 path.weighting <- function(smMatrix, fscores, dependant, ltVariables) {
 
   #Create a matrix of inner paths
