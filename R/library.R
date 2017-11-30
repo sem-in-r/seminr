@@ -145,8 +145,16 @@ path.coef <- function(smMatrix, fscores,dependant,ltVariables) {
   return(inner_paths)
 }
 
-### This metric should be moved to a metrics folder
 
+
+### This metric should be moved to a metrics folder
+# BIC function using rsq, SST, n pk
+BIC_func <- function(rsq, pk, N, fscore){
+  SSerrk <- (1-rsq)*(stats::var(fscore)*(N-1))
+  N*(log(SSerrk/N)) + (pk+1)*log(N)
+}
+
+# calculating insample metrics
 calc.insample <- function(obsData, fscores, smMatrix, dependant) {
   insample <- matrix(,nrow=3,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq","BIC"),dependant))
 
@@ -162,6 +170,9 @@ calc.insample <- function(obsData, fscores, smMatrix, dependant) {
       r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
       insample[1,i] <- r_sq[dependant[i],dependant[i]]
       insample[2,i] <- 1 - (1 - insample[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
+      # Calculate the BIC for the endogenous
+      insample[3,i] <- BIC_func(r_sq[dependant[i],dependant[i]],length(independant),nrow(obsData),fscores[,dependant[i]])
+
     }
   }
   return(insample)
