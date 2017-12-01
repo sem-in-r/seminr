@@ -1,5 +1,15 @@
-## Implement SRMR
-# This is not working -------------------
+evaluate_model <- function(seminr_model) {
+  gof <- GoF(seminr_model)
+  rel <- reliability(seminr_model)
+  val <- validity(seminr_model)
+  out <- list(gof,rel,val)
+  names(out) <- c("Goodness-of-Fit","Reliability","Validity")
+  return(out)
+}
+
+
+## Goodness-of-fit -----------------------
+## SRMR
 SRMR <- function(seminr_model) {
   # calculate the observed correlation matrix
   obs <- cor(seminr_model$data[,seminr_model$mmVariables],seminr_model$data[,seminr_model$mmVariables])
@@ -19,10 +29,14 @@ SRMR <- function(seminr_model) {
   lobs <- lobs[lobs>0]
   limp <- limp[limp>0]
   #calculate SRMR
-  return(sqrt(mean((limp - lobs)^2)))
-
+  return(as.numeric(sqrt(mean((limp - lobs)^2))))
 }
 
+GoF <- function(seminr_model) {
+  SRMR(seminr_model)
+}
+
+## Reliability -------------------------
 # RhoC and AVE
 rhoC_AVE <- function(seminr_model){
   dgr <- matrix(NA, nrow=length(seminr_model$ltVariables), ncol=2)
@@ -95,6 +109,14 @@ reliability <- function(seminr_model) {
 }
 
 ## Validity ---------------------
+
+validity <- function(seminr_model) {
+  cl <- cross_loadings(seminr_model)
+  htmt <- HTMT(seminr_model)
+  out <- list(cl,htmt)
+  names(out) <- c("Cross-Loadings", "HTMT")
+  return(out)
+}
 
 cross_loadings <- function(seminr_model) {
   return(stats::cor(seminr_model$data[,seminr_model$mmVariables],seminr_model$fscores))
