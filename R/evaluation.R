@@ -1,22 +1,29 @@
 ## Implement SRMR
 # This is not working -------------------
 SRMR <- function(seminr_model) {
-  obs <- mobi_pls$path_coef
-  diag(obs) <- 1
+  # calculate the observed correlation matrix
+  obs <- cor(seminr_model$data[,seminr_model$mmVariables],seminr_model$data[,seminr_model$mmVariables])
+  # Calculate the implied correlation matrix
+  imp <- seminr_model$outer_loadings %*% t(seminr_model$outer_loadings)
+  # diagonals will be excluded from differences
+  diag(imp) <- 0
+  diag(obs) <- 0
 
-  imp <- stats::cor(mobi_pls$fscores)
+  # just take upper triangle to avoid duplication
   lobs <-  obs[!lower.tri(obs)]
   limp <-  imp[!lower.tri(imp)]
-  limp[lobs==0] <- 0
+  # Remove correlations in observed that do not occur in implied
+  lobs[limp==0] <- 0
 
-  sqrt(mean((limp - lobs)^2))
+  # retain vector of only non-zero correlations
+  lobs <- lobs[lobs>0]
+  limp <- limp[limp>0]
+  #calculate SRMR
+  return(sqrt(mean((limp - lobs)^2)))
+
 }
-#  End of not working -------------------
 
 # RhoC and AVE
-
-
-
 rhoC_AVE <- function(seminr_model){
   dgr <- matrix(NA, nrow=length(seminr_model$ltVariables), ncol=2)
   rownames(dgr) <- seminr_model$ltVariables
