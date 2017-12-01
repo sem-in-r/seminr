@@ -86,3 +86,39 @@ reliability <- function(seminr_model) {
   mat2 <- rho_A(seminr_model)
   return(cbind(mat1,mat2))
 }
+
+## Validity ---------------------
+
+cross_loadings <- function(seminr_model) {
+  return(stats::cor(seminr_model$data[,seminr_model$mmVariables],seminr_model$fscores))
+}
+
+HTMT <- function(seminr_model) {
+  HTMT <- matrix(, nrow=length(seminr_model$ltVariables), ncol=length(seminr_model$ltVariables),
+                 dimnames = list(seminr_model$ltVariables,seminr_model$ltVariables))
+  for (latenti in seminr_model$ltVariables[1:(length(seminr_model$ltVariables)-1)]) {
+    for (latentj in seminr_model$ltVariables[(which(seminr_model$ltVariables == latenti)+1):length(seminr_model$ltVariables)]) {
+      manifesti <- seminr_model$mmVariables[seminr_model$mmMatrix[,1] == latenti]
+      manifestj <- seminr_model$mmVariables[seminr_model$mmMatrix[,1] == latentj]
+      item_correlation_matrix <- stats::cor(seminr_model$data[,manifesti],seminr_model$data[,manifestj])
+      HTHM <- mean(item_correlation_matrix)
+      if(length(manifesti)>1 ) {
+        cor_matrix <- stats::cor(seminr_model$data[,manifesti],seminr_model$data[,manifesti])
+        diag(cor_matrix) <- 0
+        MTHM <- (2/(length(manifesti)*(length(manifesti)-1)))*(sum(cor_matrix[!lower.tri(cor_matrix)]))
+      } else {
+        MTHM <- 1
+      }
+      if(length(manifestj)>1) {
+        cor_matrix2 <- stats::cor(seminr_model$data[,manifestj],seminr_model$data[,manifestj])
+        diag(cor_matrix2) <- 0
+        MTHM <- sqrt(MTHM * (2/(length(manifestj)*(length(manifestj)-1)))*(sum(cor_matrix2[!lower.tri(cor_matrix2)])))
+      } else {
+        MTHM <- sqrt(1 * MTHM)
+      }
+      HTMT[latenti,latentj] <- HTHM / MTHM
+    }
+  }
+  return(HTMT)
+}
+
