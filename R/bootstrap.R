@@ -120,5 +120,6 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
     parallel::stopCluster(cl)
   }
   seminr_model$boots <- nboot
+  class(seminr_model) <- "boot_seminr_model"
   return(seminr_model)
 }
