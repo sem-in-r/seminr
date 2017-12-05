@@ -22,7 +22,7 @@ summary.seminr_model <- function(object, ...) {
   cat("\nOuter Weights:\n\n")
   print(object$outer_weights, na.print = ".")
 
-
+#  TODO: return a named and classed list
 }
 #' @export
 summary.boot_seminr_model <- function(object, ...) {

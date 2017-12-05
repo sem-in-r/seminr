@@ -3,18 +3,19 @@ measure_mode <- function(latent,mmMatrix) {
   mmMatrix[mmMatrix[,"latent"]==latent,"type"][1]
 }
 
+# TODO: Remove if not used
 # function to get all the items of a given measurement mode for a given latent
 items_per_mode <- function(latent, mode,mmMatrix) {
   latentmatrix <- mmMatrix[mmMatrix[,"latent"]==latent,c("measurement","type")]
-  if(class(latentmatrix) == "matrix") {
-    return(latentmatrix[latentmatrix[,"type"] == mode,"measurement"])
-  }
+#  if(class(latentmatrix) == "matrix") {
+#  }
   if (class(latentmatrix) == "character") {
     latentmatrix = t(as.matrix(latentmatrix))
-    return(latentmatrix[latentmatrix[,"type"] == mode,"measurement"])
   }
+  return(latentmatrix[latentmatrix[,"type"] == mode,"measurement"])
 }
 
+# TODO: Remove if not used
 # function to subset and return the mmMatrix for a latent
 mmMatrix_per_latent <- function(latent, mmMatrix) {
   latentmatrix <- mmMatrix[mmMatrix[,"latent"]==latent,c("latent","measurement","type")]
@@ -28,6 +29,7 @@ mmMatrix_per_latent <- function(latent, mmMatrix) {
 }
 
 # Function to create a named vector of path coefficients
+# TODO: check whether all these conditions occur and whether we should improve or document
 transform_to_named_vector <- function(results,independant) {
   coefficients <- as.vector(results)
   if(!is.null(rownames(results))) {
@@ -101,6 +103,7 @@ calculate.loadings <- function(weights_matrix,fscores, normData) {
 }
 
 # Function to adjust for the interaction
+# TODO: add a citation in the comments here replace this line
 adjust.interaction <- function(ltVariables, mmMatrix, outer_loadings, fscores, obsData){
   for(latent in ltVariables) {
     adjustment <- 0
