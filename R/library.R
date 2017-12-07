@@ -44,44 +44,16 @@ transform_to_named_vector <- function(results,independant) {
 
 # Factorial weighting scheme Function to create inner paths matrix
 #' @export
-path.factorial <- function(smMatrix,fscores, dependant, ltVariables) {
-
-  #Create a matrix of inner paths
-  inner_paths <- matrix(data=0,
-                        nrow=length(ltVariables),
-                        ncol=length(ltVariables),
-                        dimnames = list(ltVariables,ltVariables))
-
-  #Estimate inner paths (symmetric matrix)
-  for (i in 1:nrow(smMatrix))  {
-    inner_paths[smMatrix[i,"source"],
-                smMatrix[i,"target"]] = stats::cor(fscores[,smMatrix[i,"source"]],
-                                                   fscores[,smMatrix[i,"target"]])
-    #? next step necessary?
-    inner_paths[smMatrix[i,"target"],
-                smMatrix[i,"source"]] = stats::cor(fscores[,smMatrix[i,"source"]],
-                                                   fscores[,smMatrix[i,"target"]])
-  }
+path.factorial <- function(smMatrix,fscores, dependant, paths_matrix) {
+  inner_paths <- cor(fscores,fscores) * (paths_matrix + t(paths_matrix))
   return(inner_paths)
 }
 
 # Factorial weighting scheme Function to create inner paths matrix
 #' @export
-path.weighting <- function(smMatrix, fscores, dependant, ltVariables) {
-
-  #Create a matrix of inner paths
-  inner_paths <- matrix(data=0,
-                        nrow=length(ltVariables),
-                        ncol=length(ltVariables),
-                        dimnames = list(ltVariables,ltVariables))
-
-  #Estimate inner paths (a-symmetric matrix)
-  #Correlations for outgoing paths
-  for (i in 1:nrow(smMatrix))  {
-    inner_paths[smMatrix[i,"target"],
-                smMatrix[i,"source"]] = stats::cor(fscores[,smMatrix[i,"source"]],
-                                                   fscores[,smMatrix[i,"target"]])
-  }
+path.weighting <- function(smMatrix, fscores, dependant, paths_matrix) {
+  # correlations for outgoing paths
+  inner_paths <- cor(fscores,fscores) * t(paths_matrix)
 
   #Regression betas for the incoming paths
   #Iterate and regress the incoming paths
@@ -90,10 +62,7 @@ path.weighting <- function(smMatrix, fscores, dependant, ltVariables) {
     independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
 
     #Solve the system of equations
-    results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
-
-    #solve the system of equations and Assign the inner weights to the Matrix
-    inner_paths[independant,dependant[i]] = results
+    inner_paths[independant,dependant[i]] = solve(t(fscores[,independant]) %*% fscores[,independant], t(fscores[,independant]) %*% fscores[,dependant[i]])
   }
   return(inner_paths)
 }
@@ -124,15 +93,7 @@ adjust.interaction <- function(ltVariables, mmMatrix, outer_loadings, fscores, o
 }
 
 
-path.coef <- function(smMatrix, fscores,dependant,ltVariables) {
-
-  #Create a matrix of inner paths
-  #? inner_paths => inner_weights?
-  inner_paths <- matrix(data=0,
-                        nrow=length(ltVariables),
-                        ncol=length(ltVariables),
-                        dimnames = list(ltVariables,ltVariables))
-
+path.coef <- function(smMatrix, fscores,dependant, paths_matrix) {
   #Regression betas for the incoming paths
   #Iterate and regress the incoming paths
   for (i in 1:length(dependant))  {
@@ -140,12 +101,9 @@ path.coef <- function(smMatrix, fscores,dependant,ltVariables) {
     independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
 
     #Solve the system of equations
-    results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
-
-    #solve the system of equations and Assign the inner weights to the Matrix
-    inner_paths[independant,dependant[i]] = results
+    paths_matrix[independant,dependant[i]] = solve(t(fscores[,independant]) %*% fscores[,independant], t(fscores[,independant]) %*% fscores[,dependant[i]])
   }
-  return(inner_paths)
+  return(paths_matrix)
 }
 
 
