@@ -99,25 +99,20 @@ BIC_func <- function(rsq, pk, N, fscore){
 }
 
 # calculating insample metrics
-calc.insample <- function(obsData, fscores, smMatrix, dependant) {
+calc.insample <- function(obsData, fscores, smMatrix, dependant, fscore_cors) {
   insample <- matrix(,nrow=3,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq","BIC"),dependant))
 
   for (i in 1:length(dependant))  {
     #Indentify the independant variables
     independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
 
-    #Calculate insample
-    for (j in 1:length(independant)) {
-
-      # Calculate r-squared for the endogenous variable
-      fscore_cors <- stats::cor(fscores)
-      r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
-      insample[1,i] <- r_sq[dependant[i],dependant[i]]
-      insample[2,i] <- 1 - (1 - insample[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
-      # Calculate the BIC for the endogenous
-      insample[3,i] <- BIC_func(r_sq[dependant[i],dependant[i]],length(independant),nrow(obsData),fscores[,dependant[i]])
-
-    }
+    #Calculate insample for endogenous
+#    fscore_cors <- stats::cor(fscores)
+    r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
+    insample[1,i] <- r_sq[dependant[i],dependant[i]]
+    insample[2,i] <- 1 - (1 - insample[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
+    # Calculate the BIC for the endogenous
+    insample[3,i] <- BIC_func(r_sq[dependant[i],dependant[i]],length(independant),nrow(obsData),fscores[,dependant[i]])
   }
   return(insample)
 }
