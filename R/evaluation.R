@@ -151,3 +151,250 @@ HTMT <- function(seminr_model) {
   return(HTMT)
 }
 
+fitted.matrixpls <- function(object, ...) {
+
+  # Equation numbers in parenthesis refer to equation number in Lohmoller 1989
+
+  nativeModel <- attr(object,"model")
+
+  # Check that the matrices form a valid model
+
+  if(any(rowSums(nativeModel$formative) > 0 & rowSums(nativeModel$formative) > 0))
+    stop("Cannot calculate model implied covariance matrix. A composite is a dependent variable in both formative and inner matrices resulting in an impossible model")
+
+  S <- cov(seminr_model$data[,seminr_model$mmVariables])
+  IC <- cov(seminr_model$fscores,seminr_model$data[,seminr_model$mmVariables])
+  C <- cor(seminr_model$fscores)
+  B <- t(seminr_model$path_coef) ####(maybe t()??????) B = Inner
+  F <- matrix(0,nrow = 4,ncol = 13)
+  L <- seminr_model$outer_weights[seminr_model$mmMatrix[,4] == "A",]
+
+  r2 <- rowSums(B * C)
+
+  # Matrices containing all regressions and covariances
+  # indicators first, then composites
+
+  fullB <- rbind(cbind(matrix(0,nrow(S),nrow(S)),L),
+                 cbind(F,B))
+
+  fullC <- rbind(cbind(S,t(IC)),
+                 cbind(IC,C))
+
+  exog <- rowSums(fullB) == 0
+
+  # Add indicator errors and composite errors
+
+  e <- c(diag(S) - rowSums(L * t(IC)),
+         1-r2)
+
+  fullC <- rbind(cbind(fullC,matrix(0, nrow(fullC), sum(!exog))),
+                 cbind(matrix(0, sum(!exog), nrow(fullC)), diag(e)[!exog,!exog]))
+
+  fullB <- cbind(fullB,diag(length(e))[,! exog])
+  fullB <- rbind(fullB, matrix(0,sum(!exog), ncol(fullB)))
+
+  # Update exog because fullB is now larger
+  exog <- rowSums(fullB) == 0
+
+  #
+  # Derive the implied covariance matrix using the Bentler-Weeks model
+  #
+  # Bentler, P. M., & Weeks, D. G. (1980). Linear structural equations with latent variables. Psychometrika, 45(3), 289–308. doi:10.1007/BetaF02293905
+  #
+
+  # beta (regression paths between dependent variables)
+
+  beta <- fullB[!exog,!exog]
+
+
+  # gamma (regression paths between dependent and independent  variables)
+
+  gamma <- fullB[!exog,exog]
+
+  # exogenous variable covariance matrix
+  Phi <- fullC[exog,exog]
+
+  #
+  # Calculate sigma
+  #
+
+  # Matrix orders
+
+  # number of observed dependent
+  p = sum(!exog[1:nrow(S)])
+  # number of observed independent
+  q = nrow(S)-p
+
+  # number of independent variables
+  n = nrow(Phi)
+  # number of dependent variables
+  m = nrow(beta)
+
+  # Number of observed variables
+  r = p + q
+  # Number of variables
+  s = m + n
+
+  # The matrices
+
+  Beta <- matrix(0,s,s)
+  Gamma <- matrix(0,s,n)
+  G <- matrix(0,r,s)
+
+  # Identity matrix
+
+  I<-diag(nrow(Beta))
+
+  # Populate the parameter matrices
+
+  Gamma[1:m,] <- gamma
+  Gamma[(m+1):s,] <- diag(n)
+
+  Beta[1:m,1:m]<-beta
+
+  # Populate the selection matrix (columns of all variables  selected to rows of observed variables)
+  observed <- NULL
+  if(p>0){
+    observed <- 1:p
+  }
+  if(q>0){
+    observed <- c(observed,(1:q)+n)
+  }
+
+  G <- diag(s)[observed,]
+
+  # G has dependent variables followed by independent variables. Reorder to match the variables
+  # in S
+
+  G <- G[order(exog[1:nrow(S)]),]
+
+  # Calculate the model implied covariance matrix and return
+
+  Sigma = G %*% solve(I-Beta) %*% Gamma %*% Phi %*% t(Gamma) %*% t(solve(I-Beta))%*% t(G)
+  rownames(Sigma) <- colnames(Sigma) <- rownames(S)
+
+  Sigma
+}
+
+
+residuals.matrixpls <- function(object, ..., observed = TRUE) {
+
+  RMS <- function(num) sqrt(sum(num^2)/length(num))
+
+  S <- cov(seminr_model$data[,seminr_model$mmVariables])
+
+  # Lohmöller defines quite a few statistics based on correlations.
+  # Because S is a covariance matrix, we need to calculate the
+  # corresponding correlation matrix as well.
+
+  Scor <- stats::cov2cor(S)
+
+  nativeModel <- attr(object,"model")
+
+  # Equation numbers in parenthesis refer to equation number in Lohmoller 1989
+
+  if(observed){
+
+    W <- t(seminr_model$outer_weights)
+
+    # Number of reflective indicators
+    reflectiveIndicators<- rowSums(seminr_model$outer_loadings)>0
+    k <- sum(reflectiveIndicators)
+
+    # Number of endog LVs
+    endog <- rowSums(t(seminr_model$path_coef))>0
+    h <- sum(endog)
+
+
+
+    # Factor loading matrix
+    P <- seminr_model$outer_loadings
+
+    P[P==1] <- object[grepl("=~", names(object), fixed=TRUE)]
+
+    # Standardized loadings
+    Pstd <- sweep(P,MARGIN=1,sqrt(diag(S)),`/`)
+
+    # This is always standardized, so no need to rescale
+    B <- t(seminr_model$path_coef)
+
+    # Lohmoller is not clear whether R should be based on the estimated betas or calculated scores
+    # The scores are used here because this results in less complex code
+
+    R <- cor(seminr_model$fscores)
+    R_star <- (B %*% R %*% t(B))[endog,endog] # e. 2.99
+
+
+    # Model implied indicator correlations
+    H <- Pstd %*% R %*% t(Pstd) # eq 2.96
+
+    I <- diag(ncol(Scor))
+    H2 <- (I * H)  %*% solve(I * Scor) # eq 2.97
+
+    F <- Pstd %*% B %*% R %*% t(B) %*% t(Pstd) # eq 2.104
+
+    F2 <- (I * F) %*% solve(I * Scor) # eq 2.105
+
+    r2 <- rowSums(B * cor(seminr_model$fscores))
+
+
+    # Lohmoller 1989 uses C for the residual covariance matrix of indicators
+    # matrixpls uses C for the composite correlation matrix, but from here on
+    # until the end of the function, C is used for the residual covariance matrix
+
+    # Lohmoller does not define C in covariance form, so we need to do it ourselfs.
+    #
+    # Start with the observed residuals:
+    #
+    # e = X-XW'P'
+    #
+    # because residuals have a mean of zero cov(e) can be defined as
+    #
+    # cov(e) = (X-XW'P')’(X-XW'P')
+    # cov(e) = (X’-(XW'P')')(X-XW'P')
+    # cov(e) = (X’-PWX')(X-XW'P')
+    # cov(e) = X’X-X’XW'P'-PWX'X+PWX'XW'P'
+    # cov(e) = S-SW'P'-PWS+PWSXW'P'
+    # cov(e) = S-SW'P'-(SW'P')’+PRP'
+
+    C <- S - S%*%t(W)%*%t(P) - t(S-S%*%t(W)%*%t(P)) + P%*%R%*%t(P)
+
+    Q <- (W %*% S %*% t(W))[endog,endog] - R_star
+
+
+    indices <- c(Communality = psych::tr(H2)/k, # eq 2.109
+                 Redundancy = psych::tr(F2)/k,  # eq 2.110
+                 SMC = sum(r2)/h,         # eq 2.111
+                 "RMS outer residual covariance" = RMS(C[lower.tri(C)]), # eq 2.118
+                 "RMS inner residual covariance" = RMS(C[lower.tri(Q)]) # eq 2.118
+    )
+  }
+  else{
+    #C <- S-stats::fitted(object)
+    C <- S-Sigma
+    indices <- c()
+  }
+
+  C_std <- diag(1/diag(S)) %*% C
+
+  indices <- c(indices,c(
+
+    # SRMR as calculated in SEM. (Hu and Bentler, 1999, p. 3)
+
+    SRMR = sqrt(sum(C_std[lower.tri(C_std)]^2)/length(C[lower.tri(C_std, diag=TRUE)])),
+
+    # SRMR calculated ignoring within block residuals from Henserler et al 2014.
+
+    "SRMR (Henseler)" = sqrt(2*sum((C_std[(seminr_model$outer_loadings %*% t(seminr_model$outer_loadings))==0])^2)/182))
+  )
+
+  if(observed){
+    result<- list(inner = Q, outer = C, indices = indices)
+  }
+  else{
+    result<- list(outer = C, indices = indices)
+  }
+
+  class(result) <- "matrixplsresiduals"
+  result
+}

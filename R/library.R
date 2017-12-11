@@ -91,11 +91,18 @@ path.coef <- function(smMatrix, fscores,dependant, paths_matrix) {
 
 
 
-### This metric should be moved to a metrics folder
+# TODO: This metric should be moved to a metrics folder
 # BIC function using rsq, SST, n pk
 BIC_func <- function(rsq, pk, N, fscore){
   SSerrk <- (1-rsq)*(stats::var(fscore)*(N-1))
-  N*(log(SSerrk/N)) + (pk+1)*log(N)
+  N*log(SSerrk/N) + (pk+1)*log(N)
+}
+
+# TODO: This metric should be moved to a metrics folder
+# BIC function using rsq, SST, n pk
+AIC_func <- function(rsq, pk, N, fscore){
+  SSerrk <- (1-rsq)*(stats::var(fscore)*(N-1))
+  2*(pk+1)+N*log(SSerrk/N)
 }
 
 # calculating insample metrics
