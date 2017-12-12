@@ -1,8 +1,8 @@
 evaluate_model <- function(seminr_model) {
   rel <- reliability(seminr_model)
   val <- validity(seminr_model)
-  out <- list(gof,rel,val)
-  names(out) <- c("Goodness-of-Fit","Reliability","Validity")
+  out <- list(rel,val)
+  names(out) <- c("Reliability","Validity")
   return(out)
 }
 
