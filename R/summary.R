@@ -2,26 +2,39 @@
 #' @export
 summary.seminr_model <- function(model, na.print=".", digits=3, ...) {
   stopifnot(inherits(model, "seminr_model"))
-  cat("\n",
-    sprintf("Total Iterations: %s", model$iterations),
-    "\nPath Coefficients:\n")
   path_reports <- report_paths(model, digits)
-  print(path_reports, na.print = na.print, digits=digits)
-
   metrics <- evaluate_model(model)
-  cat("\n\nReliability:\n")
-  print(metrics$Reliability, na.print = na.print, digits=digits)
+  iterations <- model$iterations
 
   # TODO: HTMT
 
-  model_summary <- list(paths=path_reports, metrics=metrics,
+  model_summary <- list(iterations=iterations,
+                        paths=path_reports,
+                        metrics=metrics,
                         loadings=model$outer_loadings,
                         cross_loadings=metrics$Validity$`Cross-Loadings`,
                         weights=model$outer_weights,
                         reliability=metrics$Reliability)
   class(model_summary) <- "summary.seminr_model"
-  return(model_summary)
+  model_summary
 }
+
+# print summary function for seminr
+#' @export
+print.summary.seminr_model <- function(summarized, na.print=".", digits=3, ...) {
+  cat("\n", sprintf("Total Iterations: %s", summarized$iterations))
+
+  cat("\nPath Coefficients:\n")
+  print(summarized$paths, na.print = na.print, digits=digits)
+
+  cat("\nReliability:\n")
+  print(summarized$reliability, na.print = na.print, digits=digits)
+
+  cat("\n")
+  invisible(summarized)
+}
+
+
 
 #' @export
 summary.boot_seminr_model <- function(object, ...) {

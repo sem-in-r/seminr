@@ -67,10 +67,6 @@ report_paths <- function(seminr_model, digits=3) {
 
   # round and print
   final_paths <- round(path_matrix[c("R^2","AdjR^2","BIC", exogenous), endogenous, drop=FALSE], digits)
-
-  # MOVE: printing to summary function
-  # print(final_paths, na.print = na.print)
-  class(final_paths) <- "report_paths"
   final_paths
 }
 

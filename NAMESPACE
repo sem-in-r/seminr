@@ -2,6 +2,7 @@
 
 S3method(summary,boot_seminr_model)
 S3method(summary,seminr_model)
+S3method(print,summary.seminr_model)
 export(PLSc)
 export(PLSc_interact)
 export(bootstrap_model)
