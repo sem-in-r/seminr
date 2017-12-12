@@ -30,11 +30,12 @@ mobi_sm <- relationships(
 
 # Regular semPLS functions to create and estimate model, and report estimates
 # - note, the mobi dataset is bundled with seminr
-mobi <- mobi
-
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
                          structural_model = mobi_sm)
+
+report_paths(mobi_pls)
+summary(mobi_pls)
 
 print_paths(mobi_pls)
 plot_scores(mobi_pls)

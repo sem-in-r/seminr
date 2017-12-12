@@ -1,29 +1,28 @@
 # summary function for seminr
 #' @export
-summary.seminr_model <- function(object, ...) {
-  stopifnot(inherits(object, "seminr_model"))
-  cat("\t\n",
-#      sprintf("Weighting: %s\n", object$inner_weights),
-      sprintf("Total Iterations: %s", object$iterations),
-      sprintf("\nPath Coefficients:\n"))
-  print_paths(object)
-  metrics <- evaluate_model(object)
-  cat("\t\n",
-      sprintf("\nGoodness of Fit:\n"))
-  cat("\t\n",
-      sprintf("SRMR: %s \n", metrics$`Goodness-of-Fit`),
-      sprintf("\nValidity:\n\n"))
-  print(metrics$Validity)
-  cat("\t\n",
-      sprintf("\nReliability:\n\n"))
-  print(metrics$Reliability)
-  cat("\nLoadings:\n\n")
-  print(object$outer_loadings, na.print = ".")
-  cat("\nOuter Weights:\n\n")
-  print(object$outer_weights, na.print = ".")
+summary.seminr_model <- function(model, na.print=".", digits=3, ...) {
+  stopifnot(inherits(model, "seminr_model"))
+  cat("\n",
+    sprintf("Total Iterations: %s", model$iterations),
+    "\nPath Coefficients:\n")
+  path_reports <- report_paths(model, digits)
+  print(path_reports, na.print = na.print, digits=digits)
 
-#  TODO: return a named and classed list
+  metrics <- evaluate_model(model)
+  cat("\n\nReliability:\n")
+  print(metrics$Reliability, na.print = na.print, digits=digits)
+
+  # TODO: HTMT
+
+  model_summary <- list(paths=path_reports, metrics=metrics,
+                        loadings=model$outer_loadings,
+                        cross_loadings=metrics$Validity$`Cross-Loadings`,
+                        weights=model$outer_weights,
+                        reliability=metrics$Reliability)
+  class(model_summary) <- "summary.seminr_model"
+  return(model_summary)
 }
+
 #' @export
 summary.boot_seminr_model <- function(object, ...) {
   stopifnot(inherits(object, "boot_seminr_model"))
@@ -35,8 +34,6 @@ summary.boot_seminr_model <- function(object, ...) {
   print(object$outer_loadings, na.print = ".")
   cat("\nOuter Weights:\n\n")
   print(object$outer_weights, na.print = ".")
-
-
 }
 
 ##### Not yet modified for usage in seminr ######
