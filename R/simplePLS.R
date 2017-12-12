@@ -86,7 +86,19 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
     outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"],ltVariables[i]] =1
   }
 
+  # create a weights matrix with value 1 for each relationship
   weights_matrix <- outer_weights
+
+  #Create a matrix of inner paths
+  paths_matrix <- matrix(data=0,
+                        nrow=length(ltVariables),
+                        ncol=length(ltVariables),
+                        dimnames = list(ltVariables,ltVariables))
+
+  #Initialize inner_paths matrix with value 1 for each relationship in the structural model
+  for (i in 1:length(ltVariables))  {
+    paths_matrix[smMatrix[smMatrix[,"target"]==ltVariables[i],"source"],ltVariables[i]] =1
+  }
 
   #Iterative Process Starts here
   for (iterations in 0:maxIt)  {
@@ -99,7 +111,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
     fscores <- scale(fscores,TRUE,TRUE)
 
     #Estimate inner paths using weighting scheme - factorial or path-weighting
-    inner_paths <- inner_weights(smMatrix, fscores, dependant, ltVariables)
+    inner_paths <- inner_weights(smMatrix, fscores, dependant, paths_matrix)
 
     #Estimate Factor Scores from Inner Path
     fscores<-fscores%*%inner_paths
@@ -151,10 +163,10 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
   outer_loadings <- calculate.loadings(weights_matrix,fscores, normData)
 
   #Calculate and assign path coefficients
-  path_coef <- path.coef(smMatrix, fscores,dependant,ltVariables)
+  path_coef <- path.coef(smMatrix, fscores,dependant, paths_matrix)
 
   #Calculate and assign rSquared
-  rSquared <- calc.insample(obsData, fscores, smMatrix, dependant)
+  rSquared <- calc.insample(obsData, fscores, smMatrix, dependant,stats::cor(fscores))
 
   #Prepare return Object
   plsModel <- list(meanData = meanData,

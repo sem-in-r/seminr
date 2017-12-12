@@ -48,6 +48,7 @@ PLSc <- function(seminr.model) {
   path_coef <- seminr.model$path_coef
   loadings <- seminr.model$outer_loadings
   rSquared <- seminr.model$rSquared
+  fscores <- seminr.model$fscores
 
   # Calculate rhoA for adjustments and adjust the correlation matrix
   rho <- rhoA(seminr.model)
@@ -62,22 +63,17 @@ PLSc <- function(seminr.model) {
     exogenous<-smMatrix[smMatrix[,"target"]==i,"source"]
 
     #Solve the system of equations
-    results<- solve(adj_fscore_cors[exogenous,exogenous],
+    results <- solve(adj_fscore_cors[exogenous,exogenous],
                     adj_fscore_cors[exogenous,i])
-
-    ## NAME THE NEWLY COMPUTED PATH COEFFICIENTS VECTOR
-    coefficients <- transform_to_named_vector(results,exogenous)
+    # Assign the path names
+    names(results) <- exogenous
 
     #Assign the Beta Values to the Path Coefficient Matrix
-    for (j in exogenous) {
-      path_coef[j,i] <- coefficients[j]
-    }
-
-    # adjust the Rsquared of the endogenous latents
-    r_sq <- 1 - 1/solve(adj_fscore_cors[c(exogenous,i),c(exogenous,i)])
-    rSquared[1,i] <- r_sq[i,i]
-    rSquared[2,i] <- 1 - (1 - rSquared[1,i])*((nrow(seminr.model$data)-1)/(nrow(seminr.model$data)-length(exogenous) - 1))
+    path_coef[exogenous,i] <- results
   }
+
+  #calculate insample metrics
+  rSquared <- calc.insample(seminr.model$data, fscores, smMatrix, unique(smMatrix[,"target"]),adj_fscore_cors)
 
   # get all common-factor latents (Mode A Consistent) in a vector
   reflective <- unique(mmMatrix[mmMatrix[,"type"]=="C", "latent"])

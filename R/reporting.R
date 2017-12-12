@@ -95,8 +95,8 @@ print_paths <- function(seminr_model, na.print=".", digits=3) {
    # round and print
    final_paths <- round(path_matrix[c("R^2","AdjR^2","BIC", exogenous), endogenous, drop=FALSE], digits)
    print(final_paths, na.print = na.print)
-   return(final_paths)
   }
+  final_paths
 }
 #' @export
 plot_scores <- function(seminr_model, factors=NULL) {

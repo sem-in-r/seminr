@@ -1,5 +1,4 @@
 evaluate_model <- function(seminr_model) {
-  gof <- GoF(seminr_model)
   rel <- reliability(seminr_model)
   val <- validity(seminr_model)
   out <- list(gof,rel,val)
@@ -7,34 +6,6 @@ evaluate_model <- function(seminr_model) {
   return(out)
 }
 
-
-## Goodness-of-fit -----------------------
-## SRMR
-SRMR <- function(seminr_model) {
-  # calculate the observed correlation matrix
-  obs <- cor(seminr_model$data[,seminr_model$mmVariables],seminr_model$data[,seminr_model$mmVariables])
-  # Calculate the implied correlation matrix
-  imp <- seminr_model$outer_loadings %*% t(seminr_model$outer_loadings)
-  # diagonals will be excluded from differences
-  diag(imp) <- 0
-  diag(obs) <- 0
-
-  # just take upper triangle to avoid duplication
-  lobs <-  obs[!lower.tri(obs)]
-  limp <-  imp[!lower.tri(imp)]
-  # Remove correlations in observed that do not occur in implied
-  lobs[limp==0] <- 0
-
-  # retain vector of only non-zero correlations
-  lobs <- lobs[lobs>0]
-  limp <- limp[limp>0]
-  #calculate SRMR
-  return(as.numeric(sqrt(mean((limp - lobs)^2))))
-}
-
-GoF <- function(seminr_model) {
-  SRMR(seminr_model)
-}
 
 ## Reliability -------------------------
 # RhoC and AVE

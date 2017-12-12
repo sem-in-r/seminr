@@ -3,85 +3,40 @@ measure_mode <- function(latent,mmMatrix) {
   mmMatrix[mmMatrix[,"latent"]==latent,"type"][1]
 }
 
-# TODO: Remove if not used
+# Used in warnings - warning_only_causal_construct()
 # function to get all the items of a given measurement mode for a given latent
 items_per_mode <- function(latent, mode,mmMatrix) {
   latentmatrix <- mmMatrix[mmMatrix[,"latent"]==latent,c("measurement","type")]
-#  if(class(latentmatrix) == "matrix") {
-#  }
+  # If single item latent
   if (class(latentmatrix) == "character") {
     latentmatrix = t(as.matrix(latentmatrix))
   }
   return(latentmatrix[latentmatrix[,"type"] == mode,"measurement"])
 }
 
-# TODO: Remove if not used
+# Used in warnings - warning_only_causal_construct() and warning_single_item_formative()
 # function to subset and return the mmMatrix for a latent
 mmMatrix_per_latent <- function(latent, mmMatrix) {
   latentmatrix <- mmMatrix[mmMatrix[,"latent"]==latent,c("latent","measurement","type")]
-  if(class(latentmatrix) == "matrix") {
-    return(latentmatrix)
-  }
+  # If single item latent
   if (class(latentmatrix) == "character") {
     latentmatrix = t(as.matrix(latentmatrix))
-    return(latentmatrix)
   }
-}
-
-# Function to create a named vector of path coefficients
-# TODO: check whether all these conditions occur and whether we should improve or document
-transform_to_named_vector <- function(results,independant) {
-  coefficients <- as.vector(results)
-  if(!is.null(rownames(results))) {
-    names(coefficients)<-rownames(results)
-  } else if (!is.null(names(results))) {
-    names(coefficients)<-names(results)
-  } else {
-    names(coefficients)<-independant
-  }
-  return(coefficients)
+  return(latentmatrix)
 }
 
 # Factorial weighting scheme Function to create inner paths matrix
 #' @export
-path.factorial <- function(smMatrix,fscores, dependant, ltVariables) {
-
-  #Create a matrix of inner paths
-  inner_paths <- matrix(data=0,
-                        nrow=length(ltVariables),
-                        ncol=length(ltVariables),
-                        dimnames = list(ltVariables,ltVariables))
-
-  #Estimate inner paths (symmetric matrix)
-  for (i in 1:nrow(smMatrix))  {
-    inner_paths[smMatrix[i,"source"],
-                smMatrix[i,"target"]] = stats::cor(fscores[,smMatrix[i,"source"]],
-                                                   fscores[,smMatrix[i,"target"]])
-    #? next step necessary?
-    inner_paths[smMatrix[i,"target"],
-                smMatrix[i,"source"]] = stats::cor(fscores[,smMatrix[i,"source"]],
-                                                   fscores[,smMatrix[i,"target"]])
-  }
+path.factorial <- function(smMatrix,fscores, dependant, paths_matrix) {
+  inner_paths <- cor(fscores,fscores) * (paths_matrix + t(paths_matrix))
   return(inner_paths)
 }
 
 # Factorial weighting scheme Function to create inner paths matrix
 #' @export
-path.weighting <- function(smMatrix, fscores, dependant, ltVariables) {
-
-  #Create a matrix of inner paths
-  inner_paths <- matrix(data=0,
-                        nrow=length(ltVariables),
-                        ncol=length(ltVariables),
-                        dimnames = list(ltVariables,ltVariables))
-
-  #Estimate inner paths (a-symmetric matrix)
-  #Correlations for outgoing paths
-  for (i in 1:nrow(smMatrix))  {
-    inner_paths[smMatrix[i,"target"],
-                smMatrix[i,"source"]] = stats::cor(fscores[,smMatrix[i,"source"]],
-                                                   fscores[,smMatrix[i,"target"]])
-  }
+path.weighting <- function(smMatrix, fscores, dependant, paths_matrix) {
+  # correlations for outgoing paths
+  inner_paths <- cor(fscores,fscores) * t(paths_matrix)
 
   #Regression betas for the incoming paths
   #Iterate and regress the incoming paths
@@ -90,10 +45,7 @@ path.weighting <- function(smMatrix, fscores, dependant, ltVariables) {
     independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
 
     #Solve the system of equations
-    results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
-
-    #solve the system of equations and Assign the inner weights to the Matrix
-    inner_paths[independant,dependant[i]] = results
+    inner_paths[independant,dependant[i]] = solve(t(fscores[,independant]) %*% fscores[,independant], t(fscores[,independant]) %*% fscores[,dependant[i]])
   }
   return(inner_paths)
 }
@@ -124,15 +76,7 @@ adjust.interaction <- function(ltVariables, mmMatrix, outer_loadings, fscores, o
 }
 
 
-path.coef <- function(smMatrix, fscores,dependant,ltVariables) {
-
-  #Create a matrix of inner paths
-  #? inner_paths => inner_weights?
-  inner_paths <- matrix(data=0,
-                        nrow=length(ltVariables),
-                        ncol=length(ltVariables),
-                        dimnames = list(ltVariables,ltVariables))
-
+path.coef <- function(smMatrix, fscores,dependant, paths_matrix) {
   #Regression betas for the incoming paths
   #Iterate and regress the incoming paths
   for (i in 1:length(dependant))  {
@@ -140,43 +84,42 @@ path.coef <- function(smMatrix, fscores,dependant,ltVariables) {
     independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
 
     #Solve the system of equations
-    results = solve(t(fscores[,independant]) %*% fscores[,independant]) %*% (t(fscores[,independant]) %*% fscores[,dependant[i]])
-
-    #solve the system of equations and Assign the inner weights to the Matrix
-    inner_paths[independant,dependant[i]] = results
+    paths_matrix[independant,dependant[i]] = solve(t(fscores[,independant]) %*% fscores[,independant], t(fscores[,independant]) %*% fscores[,dependant[i]])
   }
-  return(inner_paths)
+  return(paths_matrix)
 }
 
 
 
-### This metric should be moved to a metrics folder
+# TODO: This metric should be moved to a metrics folder
 # BIC function using rsq, SST, n pk
 BIC_func <- function(rsq, pk, N, fscore){
   SSerrk <- (1-rsq)*(stats::var(fscore)*(N-1))
-  N*(log(SSerrk/N)) + (pk+1)*log(N)
+  N*log(SSerrk/N) + (pk+1)*log(N)
+}
+
+# TODO: This metric should be moved to a metrics folder
+# BIC function using rsq, SST, n pk
+AIC_func <- function(rsq, pk, N, fscore){
+  SSerrk <- (1-rsq)*(stats::var(fscore)*(N-1))
+  2*(pk+1)+N*log(SSerrk/N)
 }
 
 # calculating insample metrics
-calc.insample <- function(obsData, fscores, smMatrix, dependant) {
+calc.insample <- function(obsData, fscores, smMatrix, dependant, fscore_cors) {
   insample <- matrix(,nrow=3,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq","BIC"),dependant))
 
   for (i in 1:length(dependant))  {
     #Indentify the independant variables
     independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
 
-    #Calculate insample
-    for (j in 1:length(independant)) {
-
-      # Calculate r-squared for the endogenous variable
-      fscore_cors <- stats::cor(fscores)
-      r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
-      insample[1,i] <- r_sq[dependant[i],dependant[i]]
-      insample[2,i] <- 1 - (1 - insample[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
-      # Calculate the BIC for the endogenous
-      insample[3,i] <- BIC_func(r_sq[dependant[i],dependant[i]],length(independant),nrow(obsData),fscores[,dependant[i]])
-
-    }
+    #Calculate insample for endogenous
+#    fscore_cors <- stats::cor(fscores)
+    r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
+    insample[1,i] <- r_sq[dependant[i],dependant[i]]
+    insample[2,i] <- 1 - (1 - insample[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
+    # Calculate the BIC for the endogenous
+    insample[3,i] <- BIC_func(r_sq[dependant[i],dependant[i]],length(independant),nrow(obsData),fscores[,dependant[i]])
   }
   return(insample)
 }
