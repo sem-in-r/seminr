@@ -34,7 +34,6 @@ mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
                          structural_model = mobi_sm)
 
-report_paths(mobi_pls)
 summary(mobi_pls)
 
 plot_scores(mobi_pls)
@@ -42,5 +41,5 @@ plot_scores(mobi_pls)
 # Bootstrap the model
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls, nboot = 500)
 
-print_paths(boot_mobi_pls)
+summary(boot_mobi_pls)
 plot_scores(boot_mobi_pls)

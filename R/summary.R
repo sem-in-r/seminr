@@ -34,20 +34,52 @@ print.summary.seminr_model <- function(summarized, na.print=".", digits=3, ...) 
   invisible(summarized)
 }
 
-
-
+# Summary for bootstrapped seminr model
 #' @export
-summary.boot_seminr_model <- function(object, ...) {
-  stopifnot(inherits(object, "boot_seminr_model"))
-  cat("\t\n",
-      sprintf("Total Iterations: %s", object$iterations),
-      sprintf("\nPath Coefficients and bootstrapped significances:\n"))
-  print_paths(object)
-  cat("\nLoadings:\n\n")
-  print(object$outer_loadings, na.print = ".")
-  cat("\nOuter Weights:\n\n")
-  print(object$outer_weights, na.print = ".")
+summary.boot_seminr_model <- function(boot_model, ...) {
+  stopifnot(inherits(boot_model, "boot_seminr_model"))
+  boot_matrix <- boot_model$bootstrapMatrix
+
+  # REFACTOR: Extract mean and SE columns from boot_matrix
+  endogenous_count <- ncol(boot_matrix) / 3
+  boot_mean <- boot_matrix[, c((endogenous_count+1):(2*endogenous_count))]
+  boot_SE <- boot_matrix[, c((2*endogenous_count+1):(3*endogenous_count))]
+
+  # calculate p-values; 0 paths become NaN
+  boot_p <- boot_mean / boot_SE
+
+  # REFACTOR: removing " Boot Mean" suffix from column names
+  colnames(boot_p) <- substr(colnames(boot_p), 1, nchar(colnames(boot_p))-10)
+  boot_p[is.nan(boot_p)] = NA
+
+  boot_summary <- list(nboot = boot_model$boots, p_values = boot_p)
+  class(boot_summary) <- "summary.boot_seminr_model"
+  boot_summary
 }
+
+# Print for summary of bootstrapped seminr model
+#' @export
+print.summary.boot_seminr_model <- function(summarized, na.print=".", digits=3, ...) {
+  cat("\n", sprintf("Bootstrapped resamples: %s", summarized$nboot))
+
+  cat("\n\nPath p-values:\n")
+  print(summarized$p_values, na.print = na.print, digits=digits)
+
+  cat("\n")
+  invisible(summarized)
+}
+
+# summary.boot_seminr_model <- function(object, ...) {
+#   stopifnot(inherits(object, "boot_seminr_model"))
+#   cat("\t\n",
+#       sprintf("Total Iterations: %s", object$iterations),
+#       sprintf("\nPath Coefficients and bootstrapped significances:\n"))
+#   print_paths(object)
+#   cat("\nLoadings:\n\n")
+#   print(object$outer_loadings, na.print = ".")
+#   cat("\nOuter Weights:\n\n")
+#   print(object$outer_weights, na.print = ".")
+# }
 
 ##### Not yet modified for usage in seminr ######
 # Adaption of the path.diagram method in the 'sem' package (J. Fox)
