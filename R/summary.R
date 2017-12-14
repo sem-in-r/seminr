@@ -6,8 +6,6 @@ summary.seminr_model <- function(model, na.print=".", digits=3, ...) {
   metrics <- evaluate_model(model)
   iterations <- model$iterations
 
-  # TODO: HTMT
-
   model_summary <- list(iterations=iterations,
                         paths=path_reports,
                         metrics=metrics,
@@ -39,22 +37,32 @@ print.summary.seminr_model <- function(summarized, na.print=".", digits=3, ...) 
 summary.boot_seminr_model <- function(boot_model, ...) {
   stopifnot(inherits(boot_model, "boot_seminr_model"))
   boot_matrix <- boot_model$bootstrapMatrix
+  n <- nrow(boot_mobi_pls$data)
 
   # REFACTOR: Extract mean and SE columns from boot_matrix
-  endogenous_count <- ncol(boot_matrix) / 3
-  boot_mean <- boot_matrix[, c((endogenous_count+1):(2*endogenous_count))]
-  boot_SE <- boot_matrix[, c((2*endogenous_count+1):(3*endogenous_count))]
+  num_endogenous <- ncol(boot_matrix) / 3
+  boot_mean <- boot_matrix[, c((num_endogenous+1):(2*num_endogenous))]
+  boot_SE <- boot_matrix[, c((2*num_endogenous+1):(3*num_endogenous))]
 
-  # calculate p-values; 0 paths become NaN
-  boot_p <- boot_mean / boot_SE
+  # calculate t-values and two-tailed p-values; 0 paths become NaN
+  boot_t <- boot_mean / boot_SE
+  boot_p <- 2*pt(boot_t, df = n-1, lower.tail = FALSE)
 
   # REFACTOR: removing " Boot Mean" suffix from column names
+  colnames(boot_t) <- substr(colnames(boot_t), 1, nchar(colnames(boot_t))-10)
   colnames(boot_p) <- substr(colnames(boot_p), 1, nchar(colnames(boot_p))-10)
-  boot_p[is.nan(boot_p)] = NA
+  boot_t[is.nan(boot_t)] <- NA
+  boot_p[is.nan(boot_p)] <- NA
 
-  boot_summary <- list(nboot = boot_model$boots, p_values = boot_p)
+  boot_summary <- list(nboot = boot_model$boots, t_values = boot_t, p_values = boot_p)
   class(boot_summary) <- "summary.boot_seminr_model"
   boot_summary
+}
+
+# formatting for print functions
+print_matrix <- function(pmatrix, na.print=".", digits=3) {
+  pmatrix[!is.na(pmatrix)] <- sprintf("%.*f", digits, pmatrix[!is.na(pmatrix)])
+  print(pmatrix, na.print = na.print, digits=digits, quote = FALSE, right = TRUE)
 }
 
 # Print for summary of bootstrapped seminr model
@@ -62,115 +70,12 @@ summary.boot_seminr_model <- function(boot_model, ...) {
 print.summary.boot_seminr_model <- function(summarized, na.print=".", digits=3, ...) {
   cat("\n", sprintf("Bootstrapped resamples: %s", summarized$nboot))
 
-  cat("\n\nPath p-values:\n")
-  print(summarized$p_values, na.print = na.print, digits=digits)
+  cat("\n\nStructural Path t-values:\n")
+  print_matrix(summarized$t_values, na.print, digits)
+
+  cat("\n\nStructural Path p-values:\n")
+  print_matrix(summarized$p_values, na.print, digits)
 
   cat("\n")
   invisible(summarized)
-}
-
-# summary.boot_seminr_model <- function(object, ...) {
-#   stopifnot(inherits(object, "boot_seminr_model"))
-#   cat("\t\n",
-#       sprintf("Total Iterations: %s", object$iterations),
-#       sprintf("\nPath Coefficients and bootstrapped significances:\n"))
-#   print_paths(object)
-#   cat("\nLoadings:\n\n")
-#   print(object$outer_loadings, na.print = ".")
-#   cat("\nOuter Weights:\n\n")
-#   print(object$outer_weights, na.print = ".")
-# }
-
-##### Not yet modified for usage in seminr ######
-# Adaption of the path.diagram method in the 'sem' package (J. Fox)
-# for 'sempls' objects
-pathDiagram <- function(object, ...){
-  UseMethod("pathDiagram")
-}
-
-pathDiagram.sempls <- function(object, file, min.rank=NULL, max.rank=NULL, same.rank=NULL,
-                               edge.labels=c("names", "values", "both"), size=c(8,8), node.font=c("Helvetica", 14),
-                               edge.font=c("Helvetica", 10), rank.direction=c("LR", "TB"), digits=2,
-                               output.type = c("graphics", "dot"), graphics.fmt = "pdf",
-                               dot.options = NULL, rSquared=NULL, full=TRUE, ...){
-
-  latent <- object$model$latent
-  variables <- c(object$model$manifest,latent)
-  parameters <- rownames(object$coefficients)
-
-  output.type <- match.arg(output.type)
-  if(!missing(file)){
-    dot.file <- paste(file, ".dot", sep = "")
-    handle <- file(dot.file, "w")
-    on.exit(close(handle))
-    if (output.type == "graphics"){
-      graph.file <- paste(file, ".", graphics.fmt, sep = "")
-    }
-  }
-  else handle <- stdout()
-  edge.labels <- match.arg(edge.labels)
-  rank.direction <- match.arg(rank.direction)
-  cat(file = handle, paste("digraph \"", deparse(substitute(object)),
-                           "\" {\n", sep = ""))
-  cat(file = handle, paste("  rankdir=", rank.direction, ";\n",
-                           sep = ""))
-  cat(file = handle, paste("  size=\"", size[1], ",", size[2],
-                           "\";\n", sep = ""))
-  cat(file = handle, paste("  node [fontname=\"", node.font[1],
-                           "\" fontsize=", node.font[2], " shape=box];\n", sep = ""))
-  cat(file = handle, paste("  edge [fontname=\"", edge.font[1],
-                           "\" fontsize=", edge.font[2], "];\n", sep = ""))
-  cat(file = handle, "  center=1;\n")
-  if (!is.null(min.rank)) {
-    min.rank <- paste("\"", min.rank, "\"", sep = "")
-    min.rank <- gsub(",", "\" \"", gsub(" ", "", min.rank))
-    cat(file = handle, paste("  {rank=min ", min.rank, "}\n",
-                             sep = ""))
-  }
-  if (!is.null(max.rank)) {
-    max.rank <- paste("\"", max.rank, "\"", sep = "")
-    max.rank <- gsub(",", "\" \"", gsub(" ", "", max.rank))
-    cat(file = handle, paste("  {rank=max ", max.rank, "}\n",
-                             sep = ""))
-  }
-  if (!is.null(same.rank)) {
-    for (s in 1:length(same.rank)) {
-      same <- paste("\"", same.rank[s], "\"", sep = "")
-      same <- gsub(",", "\" \"", gsub(" ", "", same))
-      cat(file = handle, paste("  {rank=same ", same, "}\n",
-                               sep = ""))
-    }
-  }
-  if(!is.null(rSquared)) rSquared <- round(rSquared, digits)
-  for(lat in latent){
-    if(is.null(rSquared) || is.na(rSquared[lat,])){
-      cat(file=handle, paste('  "', lat, '" [shape=ellipse]\n', sep=""))
-    }
-    else{cat(file=handle, paste('  "', lat, '" [shape=ellipse, label="', lat, '\\n',
-                                rSquared[lat,], '"]\n', sep=""))}
-  }
-
-  values <- round(object$coefficients$Estimate, digits)
-  labels <- if (edge.labels == "names")
-    parameters
-  else if (edge.labels == "values")
-    values
-  else paste(parameters, values, sep = "=")
-  path <- sub(' -> ', '" -> "', object$coefficients[,1])
-  cat(file=handle,
-      if(full){
-        paste(' "', path, '" [label="', labels, '"];\n', sep="")
-      }
-      else{paste(' "', path[-(1:length(object$model$manifest))],
-                 '" [label="', labels[-(1:length(object$model$manifest))], '"];\n',
-                 sep="")}
-  )
-  cat(file = handle, "}\n")
-  if (output.type == "graphics" && !missing(file)) {
-    cmd <- paste("dot -T", graphics.fmt, " -o ", graph.file,
-                 " ", dot.options, " ", dot.file, sep = "")
-    cat("Running ", cmd, "\n")
-    result <- try(system(cmd))
-  }
-  invisible(NULL)
 }
