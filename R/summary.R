@@ -37,20 +37,21 @@ print.summary.seminr_model <- function(summarized, na.print=".", digits=3, ...) 
 summary.boot_seminr_model <- function(boot_model, ...) {
   stopifnot(inherits(boot_model, "boot_seminr_model"))
   boot_matrix <- boot_model$bootstrapMatrix
-  n <- nrow(boot_mobi_pls$data)
+  n <- nrow(boot_model$data)
 
-  # REFACTOR: Extract mean and SE columns from boot_matrix
+  # REFACTOR: Extract endogenous column names, means, and SEs from boot_matrix
   num_endogenous <- ncol(boot_matrix) / 3
-  boot_mean <- boot_matrix[, c((num_endogenous+1):(2*num_endogenous))]
-  boot_SE <- boot_matrix[, c((2*num_endogenous+1):(3*num_endogenous))]
+  column_names <- colnames(boot_matrix)[1:num_endogenous]
+  endogenous_names <- as.vector(substr(column_names, 1, nchar(column_names)-nchar(" PLS Est.")))
+  boot_mean <- as.matrix(boot_matrix[, c((1*num_endogenous+1):(2*num_endogenous))])
+  boot_SE   <- as.matrix(boot_matrix[, c((2*num_endogenous+1):(3*num_endogenous))])
 
   # calculate t-values and two-tailed p-values; 0 paths become NaN
   boot_t <- boot_mean / boot_SE
-  boot_p <- 2*pt(boot_t, df = n-1, lower.tail = FALSE)
+  boot_p <- 2*pt(abs(boot_t), df = boot_model$boots-1, lower.tail = FALSE)
 
-  # REFACTOR: removing " Boot Mean" suffix from column names
-  colnames(boot_t) <- substr(colnames(boot_t), 1, nchar(colnames(boot_t))-10)
-  colnames(boot_p) <- substr(colnames(boot_p), 1, nchar(colnames(boot_p))-10)
+  colnames(boot_t) <- endogenous_names
+  colnames(boot_p) <- endogenous_names
   boot_t[is.nan(boot_t)] <- NA
   boot_p[is.nan(boot_p)] <- NA
 
@@ -73,7 +74,7 @@ print.summary.boot_seminr_model <- function(summarized, na.print=".", digits=3, 
   cat("\n\nStructural Path t-values:\n")
   print_matrix(summarized$t_values, na.print, digits)
 
-  cat("\n\nStructural Path p-values:\n")
+  cat("\nStructural Path p-values:\n")
   print_matrix(summarized$p_values, na.print, digits)
 
   cat("\n")

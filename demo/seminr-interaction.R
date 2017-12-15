@@ -1,11 +1,12 @@
-# This example recreates the ECSI model on mobile users found at:
-#  https://cran.r-project.org/web/packages/semPLS/vignettes/semPLS-intro.pdf
-
-library(seminr)
 # Simple Style: Seperate declaration of measurement,interactions and structural model.
 
-# First, using the orthogonalization method as per Henseler & Chin (2010).
-# seminr syntax for creating measurement model
+# This example adapts on the ECSI model on mobile users found at:
+#  https://cran.r-project.org/web/packages/semPLS/vignettes/semPLS-intro.pdf
+mobi <- mobi
+
+library(seminr)
+
+# Creating our measurement model
 mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5)),
   composite("Expectation",  multi_items("CUEX", 1:3)),
@@ -13,14 +14,15 @@ mobi_mm <- constructs(
   composite("Satisfaction", multi_items("CUSA", 1:3))
 )
 
-# interaction factors must be created after the measurement model is defined
+# Interaction factors must be created after the measurement model is defined.
+# We are using the orthogonalization method as per Henseler & Chin (2010)
 mobi_xm <- interactions(
   interaction_ortho("Image", "Expectation"),
   interaction_ortho("Image", "Value")
 )
 
-# structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
+# Structural model
+#  note: interactions should be the names of its main constructs joined by a '.' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
@@ -28,7 +30,6 @@ mobi_sm <- relationships(
 )
 
 # Load data, assemble model, and estimate using simplePLS
-mobi <- mobi
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
                          interactions = mobi_xm,
