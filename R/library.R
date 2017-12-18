@@ -89,41 +89,6 @@ path.coef <- function(smMatrix, fscores,dependant, paths_matrix) {
   return(paths_matrix)
 }
 
-
-
-# TODO: This metric should be moved to a metrics folder
-# BIC function using rsq, SST, n pk
-BIC_func <- function(rsq, pk, N, fscore){
-  SSerrk <- (1-rsq)*(stats::var(fscore)*(N-1))
-  N*log(SSerrk/N) + (pk+1)*log(N)
-}
-
-# TODO: This metric should be moved to a metrics folder
-# BIC function using rsq, SST, n pk
-AIC_func <- function(rsq, pk, N, fscore){
-  SSerrk <- (1-rsq)*(stats::var(fscore)*(N-1))
-  2*(pk+1)+N*log(SSerrk/N)
-}
-
-# calculating insample metrics
-calc.insample <- function(obsData, fscores, smMatrix, dependant, fscore_cors) {
-  insample <- matrix(,nrow=3,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq","BIC"),dependant))
-
-  for (i in 1:length(dependant))  {
-    #Indentify the independant variables
-    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
-
-    #Calculate insample for endogenous
-#    fscore_cors <- stats::cor(fscores)
-    r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
-    insample[1,i] <- r_sq[dependant[i],dependant[i]]
-    insample[2,i] <- 1 - (1 - insample[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
-    # Calculate the BIC for the endogenous
-    insample[3,i] <- BIC_func(r_sq[dependant[i],dependant[i]],length(independant),nrow(obsData),fscores[,dependant[i]])
-  }
-  return(insample)
-}
-
 standardize.outer.weights <- function(normData, mmVariables, outer_weights) {
   # Standardize the outer weights
   std_devs <- attr(scale((normData[,mmVariables]%*%outer_weights), center = FALSE),"scaled:scale")
