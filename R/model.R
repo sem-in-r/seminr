@@ -86,12 +86,10 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
   seminr_model$mobi_xm <- interactions
   seminr_model$rawdata <- rawdata
 
-  if(!is.null(interactions)) {
-    cat("Models with interactions cannot be estimated as PLS consistent\nand therefore no adjustment for PLS consistent has been made\nFor a PLS consistent simple interaction model please refer to PLSc_interact() function\n")
-  }
-  if(is.null(interactions)) {
-    seminr_model <- PLSc(seminr_model)
-  }
+  # Correct for Bias in Reflective models using PLS Consistent
+  ## TODO cite Henseler
+  seminr_model <- model_consistent(seminr_model)
+
   class(seminr_model) <- "seminr_model"
   return(seminr_model)
 }
