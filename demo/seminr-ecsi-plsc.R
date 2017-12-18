@@ -1,11 +1,12 @@
-# This example recreates the ECSI model on mobile users found at:
-# https://cran.r-project.org/web/packages/semPLS/vignettes/semPLS-intro.pdf
-
-library(seminr)
 # Simple Style: Seperate declaration of measurement and structural model, no interactions. Estimated
 # using simplePLS consistent.
+library(seminr)
 
-# seminr syntax for creating measurement mode
+# This example recreates the ECSI model on mobile users found at:
+# https://cran.r-project.org/web/packages/semPLS/vignettes/semPLS-intro.pdf
+mobi <- mobi
+
+# Creating measurement model
 # - note, reflective() is used to specify common-factor reflective constructs
 mobi_mm <- constructs(
   reflective("Image",       multi_items("IMAG", 1:5)),
@@ -29,19 +30,16 @@ mobi_sm <- relationships(
 )
 
 # Regular semPLS functions to create and estimate model, and report estimates
-# - note, the mobi dataset is bundled with seminr
-mobi <- mobi
-
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
                          structural_model = mobi_sm)
 
-print_paths(mobi_pls)
+summary(mobi_pls)
 plot_scores(mobi_pls)
 
 # Bootstrap the model
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
                                  nboot = 500)
 
-print_paths(boot_mobi_pls)
+summary(boot_mobi_pls)
 plot_scores(boot_mobi_pls)
