@@ -95,3 +95,17 @@ standardize.outer.weights <- function(normData, mmVariables, outer_weights) {
   # divide by matrix bvy std_devs and return
   return(t(t(outer_weights) / std_devs))
 }
+
+A <- C <- function(outer_weights, mmMatrix, ltVariables, i, normData, fscores) {
+  outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
+    stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
+  return(outer_weights)
+}
+
+B <- function(outer_weights, mmMatrix, ltVariables,i,normData, fscores) {
+  outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
+    solve(stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]])) %*%
+    stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],
+               fscores[,ltVariables[i]])
+  return(outer_weights)
+}

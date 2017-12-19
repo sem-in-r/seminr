@@ -124,20 +124,10 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path.weighting
 
     #Update outer_weights
     for (i in 1:length(ltVariables))  {
-
-      #If the measurement model is Mode B Composite
-      if(measure_mode(ltVariables[i],mmMatrix)=="B"){
-        outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
-          solve(stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]])) %*%
-                  stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],
-                fscores[,ltVariables[i]])
-      }
-
-      #If the measurement model is Mode A Composite or Mode A Consistent (C)
-      if(measure_mode(ltVariables[i],mmMatrix)=="C" | measure_mode(ltVariables[i],mmMatrix)=="A"){
-        outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
-          stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
-      }
+      # get function for mode type
+      outer_weight_scheme <- get(measure_mode(ltVariables[i],mmMatrix))
+      # Run function and return
+      outer_weights <- outer_weight_scheme(outer_weights, mmMatrix, ltVariables,i,normData, fscores)
     }
 
     #Standarize outer_weights
