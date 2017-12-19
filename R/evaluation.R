@@ -137,7 +137,7 @@ AIC_func <- function(rsq, pk, N, fscore){
 }
 
 # calculating insample metrics
-calc.insample <- function(obsData, fscores, smMatrix, dependant, fscore_cors) {
+calc_insample <- function(obsData, fscores, smMatrix, dependant, fscore_cors) {
   # matrix includes BIC
   # Remove BIC for now
   #insample <- matrix(,nrow=3,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq","BIC"),dependant))

@@ -20,7 +20,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm, inner_weights = path.factorial)
+seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm, inner_weights = path_factorial)
 bootmodel <- bootstrap_model(seminr_model,nboot = 50, cores = 2)
 
 # Load outputs
@@ -87,7 +87,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm, inner_weights = path.factorial)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm, inner_weights = path_factorial)
 bootmodel <- bootstrap_model(seminr_model,nboot = 100, cores = 2)
 
 # Load outputs

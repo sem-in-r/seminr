@@ -43,16 +43,16 @@
 #'                  "Image.Expectation", "Image.Value"))
 #' )
 #'
-#' seminr.model <- estimate_pls(data = mobi,
+#' seminr_model <- estimate_pls(data = mobi,
 #'                              measurement_model = mobi_mm,
 #'                              interactions = mobi_xm,
 #'                              structural_model = mobi_sm)
 #'
 #' # Load data, assemble model, and bootstrap using simplePLS
-#' boot.seminr.model <- bootstrap_model(seminr_model = seminr.model,
+#' boot_seminr_model <- bootstrap_model(seminr_model = seminr_model,
 #'                                      nboot = 100, cores = 2)
 #'
-#' print_paths(boot.seminr.model)
+#' print_paths(boot_seminr_model)
 #' @export
 bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
   cat("Bootstrapping model using simplePLS...\n")

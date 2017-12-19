@@ -27,14 +27,14 @@ mmMatrix_per_latent <- function(latent, mmMatrix) {
 
 # Factorial weighting scheme Function to create inner paths matrix
 #' @export
-path.factorial <- function(smMatrix,fscores, dependant, paths_matrix) {
+path_factorial <- function(smMatrix,fscores, dependant, paths_matrix) {
   inner_paths <- cor(fscores,fscores) * (paths_matrix + t(paths_matrix))
   return(inner_paths)
 }
 
 # Factorial weighting scheme Function to create inner paths matrix
 #' @export
-path.weighting <- function(smMatrix, fscores, dependant, paths_matrix) {
+path_weighting <- function(smMatrix, fscores, dependant, paths_matrix) {
   # correlations for outgoing paths
   inner_paths <- cor(fscores,fscores) * t(paths_matrix)
 
@@ -50,13 +50,13 @@ path.weighting <- function(smMatrix, fscores, dependant, paths_matrix) {
   return(inner_paths)
 }
 
-calculate.loadings <- function(weights_matrix,fscores, normData) {
+calculate_loadings <- function(weights_matrix,fscores, normData) {
   return(as.matrix(stats::cov(normData,fscores) * weights_matrix))
 }
 
 # Function to adjust for the interaction
 # TODO: add a citation in the comments here replace this line
-adjust.interaction <- function(ltVariables, mmMatrix, outer_loadings, fscores, obsData){
+adjust_interaction <- function(ltVariables, mmMatrix, outer_loadings, fscores, obsData){
   for(latent in ltVariables) {
     adjustment <- 0
     denom <- 0
@@ -76,7 +76,7 @@ adjust.interaction <- function(ltVariables, mmMatrix, outer_loadings, fscores, o
 }
 
 
-path.coef <- function(smMatrix, fscores,dependant, paths_matrix) {
+path_coef <- function(smMatrix, fscores,dependant, paths_matrix) {
   #Regression betas for the incoming paths
   #Iterate and regress the incoming paths
   for (i in 1:length(dependant))  {
@@ -89,7 +89,7 @@ path.coef <- function(smMatrix, fscores,dependant, paths_matrix) {
   return(paths_matrix)
 }
 
-standardize.outer.weights <- function(normData, mmVariables, outer_weights) {
+standardize_outer_weights <- function(normData, mmVariables, outer_weights) {
   # Standardize the outer weights
   std_devs <- attr(scale((normData[,mmVariables]%*%outer_weights), center = FALSE),"scaled:scale")
   # divide by matrix bvy std_devs and return

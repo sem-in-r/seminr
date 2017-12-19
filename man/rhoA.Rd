@@ -4,10 +4,10 @@
 \alias{rhoA}
 \title{seminr rhoA Function}
 \usage{
-rhoA(seminr.model)
+rhoA(seminr_model)
 }
 \arguments{
-\item{seminr.model}{A \code{seminr.model} containing the estimated seminr model.}
+\item{seminr_model}{A \code{seminr_model} containing the estimated seminr model.}
 }
 \description{
 The \code{rhoA} function calculates the rhoA reliability indices for each construct. For

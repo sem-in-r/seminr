@@ -4,7 +4,7 @@
 #' the matrix of paths for use by PLS modelling packages such as semPLS and simplePLS.
 #'
 #' @param ... A comma separated list of all the structural relationships in the the model. These
-#'  paths take the form (from = c(constructy_name), to = c(construct_name)).
+#'  paths take the form (from = c(construct_name), to = c(construct_name)).
 #'
 #' @param to The destination construct of a structural path
 #'
