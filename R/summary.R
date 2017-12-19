@@ -11,8 +11,7 @@ summary.seminr_model <- function(model, na.print=".", digits=3, ...) {
                         metrics=metrics,
                         loadings=model$outer_loadings,
                         cross_loadings=metrics$Validity$`Cross-Loadings`,
-                        weights=model$outer_weights,
-                        reliability=metrics$Reliability)
+                        weights=model$outer_weights)
   class(model_summary) <- "summary.seminr_model"
   model_summary
 }
@@ -26,7 +25,7 @@ print.summary.seminr_model <- function(summarized, na.print=".", digits=3, ...) 
   print(summarized$paths, na.print = na.print, digits=digits)
 
   cat("\nReliability:\n")
-  print(summarized$reliability, na.print = na.print, digits=digits)
+  print(summarized$metrics$Reliability, na.print = na.print, digits=digits)
 
   cat("\n")
   invisible(summarized)
