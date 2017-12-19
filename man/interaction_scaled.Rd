@@ -42,3 +42,8 @@ mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
 print_paths(mobi_pls)
 
 }
+\references{
+Henseler, J., & Chin, W. W. (2010), A comparison of approaches for the analysis of interaction effects
+ between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1), 82–109.
+ https://doi.org/10.1080/10705510903439003
+}

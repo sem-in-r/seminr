@@ -19,6 +19,9 @@
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'
+#' @references Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on Partial Least Squares
+#'  Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.
+#'
 #' @examples
 #' data(mobi)
 #' # seminr syntax for creating measurement model
@@ -55,6 +58,8 @@
 #' print_paths(boot_seminr_model)
 #' @export
 bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
+  # Bootstrapping for significance as per Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on
+  # Partial Least Squares Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.
   cat("Bootstrapping model using simplePLS...\n")
 
   # prepare parameters for cluster export (model parameters)

@@ -87,7 +87,6 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
   seminr_model$rawdata <- rawdata
 
   # Correct for Bias in Reflective models using PLS Consistent
-  ## TODO cite Henseler
   seminr_model <- model_consistent(seminr_model)
 
   class(seminr_model) <- "seminr_model"

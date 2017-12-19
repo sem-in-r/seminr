@@ -12,6 +12,8 @@
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'          \code{\link{bootstrap_model}}
 #'
+#' @references Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+#'
 #' @examples
 #' mobi <- mobi
 #'
@@ -42,6 +44,7 @@
 #' PLSc(seminr_model)
 #' @export
 PLSc <- function(seminr_model) {
+  # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
   # get relevant parts of the estimated model
   smMatrix <- seminr_model$smMatrix
   mmMatrix <- seminr_model$mmMatrix
@@ -97,6 +100,7 @@ PLSc <- function(seminr_model) {
   return(seminr_model)
 }
 
+# Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
 model_consistent <- function(seminr_model) {
   if(!is.null(seminr_model$mobi_xm) && ("C" %in% seminr_model$mmMatrix[,"type"])) {
     cat("Models with interactions cannot be estimated as PLS consistent and therefore no adjustment for PLS consistent has been made\n")

@@ -11,6 +11,8 @@
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'          \code{\link{bootstrap_model}}
 #'
+#' @references Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+#'
 #' @examples
 #' mobi <- mobi
 #'
@@ -41,6 +43,8 @@
 #' rhoA(mobi_pls)
 #' @export
 rhoA <- function(seminr_model) {
+  #Function to implement rhoA as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+
   # get latent variable scores and weights for each latent
   latentscores <- seminr_model$fscores
   weights <- seminr_model$outer_weights

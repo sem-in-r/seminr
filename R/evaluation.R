@@ -9,6 +9,10 @@ evaluate_model <- function(seminr_model) {
 
 ## Reliability -------------------------
 # RhoC and AVE
+# Dillon-Goldstein's Rho as per: Dillon, W. R, and M. Goldstein. 1987. „Multivariate Analysis: Methods
+# and Applications.“ Biometrical Journal 29 (6): 750–756.
+# Average Variance Extracted as per:  Fornell, C. and D. F. Larcker (February 1981). Evaluating
+# structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5
 rhoC_AVE <- function(seminr_model){
   dgr <- matrix(NA, nrow=length(seminr_model$ltVariables), ncol=2)
   rownames(dgr) <- seminr_model$ltVariables
@@ -32,6 +36,7 @@ rhoC_AVE <- function(seminr_model){
   return(dgr)
 }
 
+# rhoA as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
 rho_A <- function(seminr_model) {
   # get latent variable scores and weights for each latent
   latentscores <- seminr_model$fscores
@@ -93,6 +98,9 @@ cross_loadings <- function(seminr_model) {
   return(stats::cor(seminr_model$data[,seminr_model$mmVariables],seminr_model$fscores))
 }
 
+# HTMT as per Henseler, J., Ringle, C. M., & Sarstedt, M. (2014). A new criterion for assessing discriminant validity in
+# variance-based structural equation modeling. Journal of the Academy of Marketing Science, 43(1), 115–135.
+# https://doi.org/10.1007/s11747-014-0403-8
 HTMT <- function(seminr_model) {
   HTMT <- matrix(, nrow=length(seminr_model$ltVariables), ncol=length(seminr_model$ltVariables),
                  dimnames = list(seminr_model$ltVariables,seminr_model$ltVariables))

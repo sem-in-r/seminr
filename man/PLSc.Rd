@@ -43,6 +43,9 @@ seminr_model <- estimate_pls(data = mobi,
 
 PLSc(seminr_model)
 }
+\references{
+Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+}
 \seealso{
 \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
          \code{\link{bootstrap_model}}
