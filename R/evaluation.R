@@ -88,9 +88,12 @@ reliability <- function(seminr_model) {
 
 validity <- function(seminr_model) {
   cl <- cross_loadings(seminr_model)
-  htmt <- HTMT(seminr_model)
-  out <- list(cl,htmt)
-  names(out) <- c("Cross-Loadings", "HTMT")
+# Remove HTMT
+#  htmt <- HTMT(seminr_model)
+#  out <- list(cl,htmt)
+  out <- list(cl)
+#  names(out) <- c("Cross-Loadings", "HTMT")
+  names(out) <- "Cross-Loadings"
   return(out)
 }
 

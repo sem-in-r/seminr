@@ -19,7 +19,8 @@ seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_w
 summary_object <- summary(seminr_model)
 
 # Load outputs
-htmt <- summary_object$metrics$Validity$HTMT
+# Remove HTMT
+#htmt <- summary_object$metrics$Validity$HTMT
 cross_loadings <- summary_object$cross_loadings
 reliability <- summary_object$metrics$Reliability
 
@@ -28,15 +29,17 @@ reliability <- summary_object$metrics$Reliability
 # write.csv(summary_object$cross_loadings, file = "tests/fixtures/cross_loadings.csv")
 # write.csv(summary_object$reliability, file = "tests/fixtures/reliability.csv")
 
-htmt_control <- as.matrix(read.csv("../fixtures/htmt.csv", row.names = 1))
+# Remove HTMT
+#htmt_control <- as.matrix(read.csv("../fixtures/htmt.csv", row.names = 1))
 cross_loadings_control <- as.matrix(read.csv("../fixtures/cross_loadings.csv", row.names = 1))
 reliability_control <- as.matrix(read.csv("../fixtures/reliability.csv", row.names=1))
 
 # Testing
 
-test_that("Seminr estimates the htmt correctly", {
-  expect_equal(htmt, htmt_control)
-})
+# Remove HTMT
+#test_that("Seminr estimates the htmt correctly", {
+#  expect_equal(htmt, htmt_control)
+#})
 
 test_that("Seminr estimates the cross-loadings correctly", {
   expect_equal(cross_loadings, cross_loadings_control)
