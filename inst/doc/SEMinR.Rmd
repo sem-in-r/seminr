@@ -72,7 +72,7 @@ head(mobi)
 
 PLS SEM estimation and prediction packages generally take a source - target type matrix as parameters for each of the structural model and the measurement model. They require the practitioner to create any interaction terms by hand prior to model description. SEMinR makes use of simple and natural verbs to describe the model.
 
-## Measurement model description verbs
+## Measurement model description
 
 SEMinR verbs for measurement model description:
 
@@ -160,7 +160,7 @@ mobi_mm
 
 The `seminr()` syntax is far more human-readable and the use of the verbs makes the definition of the measurement model explicit. Modifications to the `seminr()` measurement model description are quick, easy and intuitive.
 
-## Structural model description verbs
+## Structural model description 
 
 SEMinR verbs for structural model description:
 
@@ -207,7 +207,7 @@ mobi_sm
 
 Used in conjunction with the measurement model verbs, the description and comparison of models can is more intuitive, readable and comparable.
 
-## Interaction term description verbs
+## Interaction term description 
 
 SEMinR verbs for creating Interaction Terms:
 
@@ -309,33 +309,66 @@ mobi_pls <- estimate_pls(data = mobi,
                          inner_weights = path_weighting)
 ```
 
+### Consistent PLS (PLSc as per Dijkstra and Henseler, 2015)
+
+NOTE!: Seminr always adjusts for consistent estimates of coefficients for common-factor defined constructs (i.e. those constructs defined as `reflective()`). Unfortunately, seminr v1.0 does not adjust for PLSc on models with interactions at this point. Thus in models including common-factors and interactions, the coefficient of common-factors will be subject to bias. 
+
+## Bootstrapping the model for significance
+
+As per Hair et al. (2017) PLS path models can be bootstrapped for significance. To this end, seminr provides a verb for bootstrapping - `bootstrap_model()`. Notably, bootstrapping can also be meaningfully applied to models containing interaction terms and recalculates the interaction term for every sub-sample. This leads to slightly increased processing times, but provides accurate estimations.
+
+SEMinR verbs for PLS SEM model bootstrapping:
+
+* `bootstrap_model()`
+
+This verb is used to bootstrap a pre-described seminr model and takes the following parameters:
+
+* `seminr_model`: the seminr model as described by `estimate_pls()`
+* `nboot`: the number of bootstrap subsamples to generate
+* `cores`: If your pc supports multi-core processing, the number of cores to utilize for parallel processing. The default is NULL in which case seminr will detect the number of available cores and utilize all available cores for maximum performance
+
+For example, we can bootstrap the model described above with `nboot = 2000` for 2000 bootstraps and utilizing 4 parallel cores with `cores = 4`:
+
+```{r}
+boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
+                                 nboot = 2000,
+                                 cores = 4)
+```
+
 ## Reporting the PLS SEM Model
+
+### Reporting the estimated `seminr_model` 
 
 There are multiple ways of reporting the estimated model. The `estimate_pls()` function returns an object of class `seminr_model`. This can be passed directly to the base R function `summary()`. This can be used in two primary ways:   
 
-* `summary(seminr_model)` to report $R^{2}$, adjusted $R^{2}$, path coefficients for the structural model, and the construct reliability metrics $rho_{C}$, AVE, and $rho_{A}$.
-
-* `model_summary <- summary(seminr_model)` returns an object of class `summary_seminr_model` which contains the following accessible objects:
-
-** `model_summary$iterations` reports the number of iterations to converge on a stable model
-** `model_summary$paths` reports the matrix of path coefficients, $R^{2}$, and adjusted $R^{2}$
-** 
-
-This verb is used to estimate the model and takes the following parameters:
-
-
-The output of this code is:
+1. `summary(seminr_model)` to report $R^{2}$, adjusted $R^{2}$, path coefficients for the structural model, and the construct reliability metrics $rho_{C}$, AVE, and $rho_{A}$. ($rho_{A}$: Dillon-Goldstein's Rho as per: Dillon and Goldstein, 1987, AVE as per: Fornell and Larcker, 1981, $rho_{A}$ as per: Dijkstra and Henseler, 2015)
 
 ```{r}
-mobi_pls <- estimate_pls(data = mobi,
-                         measurement_model = mobi_mm,
-                         interactions = mobi_xm,
-                         structural_model = mobi_sm,
-                         inner_weights = path_weighting)
-mobi_pls
-report_paths(mobi_pls)
 summary(mobi_pls)
 ```
+
+2. `model_summary <- summary(seminr_model)` returns an object of class `summary.seminr_model` which contains the following accessible objects:
+    + `model_summary$iterations` reports the number of iterations to converge on a stable model
+    + `model_summary$paths` reports the matrix of path coefficients, $R^{2}$, and adjusted $R^{2}$
+    + `model_summary$metrics` reports the reliability and cross-loadings of the model
+    + `model_summary$loadings` reports the estimated loadings of the measurement model
+    + `model_summary$weights` reports the estimated weights of the measurement model
+
+
+### Reporting the bootstrapped `boot_seminr_model` 
+
+As with the estimated model, there are multiple ways of reporting the bootstrapped model. The `bootstrap_model()` function returns an object of class `boot_seminr_model`. This can be passed directly to the base R function `summary()`. This can be used in two primary ways:   
+
+1. `summary(boot_seminr_model)` to report t-values and p-values for the structural paths
+
+```{r}
+summary(boot_mobi_pls)
+```
+
+2. `boot_model_summary <- summary(boot_seminr_model)` returns an object of class `summary.boot_seminr_model` which contains the following accessible objects:
+    + `boot_model_summary$nboot` reports the number of bootstraps performed
+    + `model_summary$t_values` reports the matrix of t_values for path co-efficients
+    + `model_summary$p_values` reports the matrix of p_values for path co-efficients
 
 ## References
 
@@ -343,3 +376,7 @@ summary(mobi_pls)
 using partial least squares path modeling. Structural Equation Modeling, 17(1), 82–109. https://doi.org/10.1080/10705510903439003
 * Lohmöller, J.-B. (1989). Latent variables path modeling with partial least squares. Heidelberg, Germany: Physica- Verlag.
 Marsh,
+* Dillon, W. R, and M. Goldstein. 1987. Multivariate Analysis: Methods, and Applications. Biometrical Journal 29 (6): 750–756.
+* Fornell, C. and D. F. Larcker (February 1981). Evaluating structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5)
+* Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+* Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on Partial Least Squares Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.
