@@ -284,7 +284,7 @@ mobi_sm
 <span class="co">#&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)</span>
 <span class="co">#&gt;     return(intxns_list)</span>
 <span class="co">#&gt;   }</span>
-<span class="co">#&gt; &lt;environment: 0x7f9cbcc26470&gt;</span></code></pre></div>
+<span class="co">#&gt; &lt;environment: 0x10d9b9f18&gt;</span></code></pre></div>
 <p>As previously mentioned, a function which is not resolved until passed to <code>estimate_pls()</code>.</p>
 </div>
 </div>
@@ -410,19 +410,19 @@ mobi_pls &lt;-<span class="st"> </span><span class="kw">estimate_pls</span>(<spa
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Structural Path t-values:</span>
 <span class="co">#&gt;                   Satisfaction</span>
-<span class="co">#&gt; Image                    8.479</span>
-<span class="co">#&gt; Expectation              2.793</span>
-<span class="co">#&gt; Value                    4.721</span>
-<span class="co">#&gt; Image.Expectation       -1.050</span>
-<span class="co">#&gt; Image.Value             -0.030</span>
+<span class="co">#&gt; Image                    8.027</span>
+<span class="co">#&gt; Expectation              2.756</span>
+<span class="co">#&gt; Value                    4.484</span>
+<span class="co">#&gt; Image.Expectation        0.966</span>
+<span class="co">#&gt; Image.Value              0.025</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Structural Path p-values:</span>
 <span class="co">#&gt;                   Satisfaction</span>
 <span class="co">#&gt; Image                    0.000</span>
-<span class="co">#&gt; Expectation              0.005</span>
+<span class="co">#&gt; Expectation              0.006</span>
 <span class="co">#&gt; Value                    0.000</span>
-<span class="co">#&gt; Image.Expectation        0.294</span>
-<span class="co">#&gt; Image.Value              0.976</span></code></pre></div>
+<span class="co">#&gt; Image.Expectation        0.334</span>
+<span class="co">#&gt; Image.Value              0.980</span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li><code>boot_model_summary &lt;- summary(boot_seminr_model)</code> returns an object of class <code>summary.boot_seminr_model</code> which contains the following accessible objects:
 <ul>

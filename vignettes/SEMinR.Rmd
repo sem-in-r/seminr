@@ -1,8 +1,8 @@
 ---
 title: "SEMinR"
 author: "Soumya Ray & Nicholas Danks"
-date: "August 26, 2016"
-output: rmarkdown::html_vignette
+date: "January 12, 2018"
+output: rmarkdown::html_vignette 
 vignette: >
   %\VignetteIndexEntry{SEMinR}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,30 +14,35 @@ vignette: >
 ```{r, echo = FALSE, message = FALSE}
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 library(seminr)
-mobi <- mobi
 ```
 
 There are now many packages available for R to build, estimate and make predictions
 on PLS SEM models. However, the syntax of these models is disparate and complicated
-and often discourages practitioners from use. Additionally, many unnecessary options
-and settings are offered which makes model estimation complex and results questionable.
+and often discourages practitioners from use. Further, these packages require the 
+manual computation and generation of interaction terms, do not extend bootstrap 
+functionality to interaction models, and are not optimized to be used methodologically
+in Montecarlo simulations and/or experiments.
 
-The goal of SEMinR is to provide a natural syntax for researchers to describe PLS
-structural equation models and that provides only the most suitable methodology -
-allowing reliable and parsionious estimation of PLS models, interaction effects
-and bootstrapped significances.
+The goal of SEMinR is to provide a natural syntax for researchers and methodologists 
+to describe PLS structural equation models and that provides state of the art 
+functionality and features - streamlined for high computational efficiency. Additionally,
+the syntax is designed in such a way as to allow explicit definition of constructs as
+either composite or common factor in nature - avoiding confusing use of formative in
+the measurement model specification.
 
 The description of the model often takes longer and requires dozens of lines of code,
 however SEMinR seeks to automate this process and make modelling such features as
 interactions and mediations much simpler.
 
-There are 3 basic steps in the PLS SEM model description:
+There are 4 basic steps in the PLS SEM modelling:
 
 * Describe the structural (inner) model
 
 * Describe the measurement (outer) model
 
 * Describe interactions
+
+* Evaluate model performance
 
 The SEMinR package makes these steps fast and easy:
 
@@ -48,33 +53,34 @@ The SEMinR package makes these steps fast and easy:
 
 * It automates such tedious tasks as creating interaction terms which usually require multiple lines of code and can be difficult to read and follow.
 
+* By providing only the relevant and appropriate measurement-, structural- and overall-model evaluation criteria.  
+
 This document introduces you to SEMinR's basic set of tools, and shows you how to apply them to your models. Other vignettes provide more details on specific topics:
 
 * vignette#2: bla bla bla
 
 * vignette#3: bla bla bla
 
-## Data: 'mobi' from semPLS package
+## Data: 'mobi' 
 
-To explore the basic syntax of SEMinR, we'll start with the data bundled with the semPLS package - `mobi` data frame. The data set is used as measurement instrument for the european customer satisfaction index (ECSI) adapted to the mobile phone market, see Tenenhaus et al. (2005).
+To explore the basic syntax of SEMinR, we'll start with the data bundled with the seminr package - `mobi` data frame. The data set is used as measurement instrument for the european customer satisfaction index (ECSI) adapted to the mobile phone market, see Tenenhaus et al. (2005).
 
 ```{r}
-mobi <- mobi
 dim(mobi)
 head(mobi)
 ```
 
 PLS SEM estimation and prediction packages generally take a source - target type matrix as parameters for each of the structural model and the measurement model. They require the practitioner to create any interaction terms by hand prior to model description. SEMinR makes use of simple and natural verbs to describe the model.
 
-## Measurement model description verbs
+## Measurement model description
 
 SEMinR verbs for measurement model description:
 
-* `multi_items()` (or `single_items()`)
-* `reflective()` (or `composite()`)
-* `constructs()`
+* `multi_items()` or `single_item()`
+* `composite()` or `reflective()`
 
-These verbs are highly intuitive and provide for human-readable code that allows a practitioner to understand a measurement model on first glance and easily make changes to compare different measurement models.
+These verbs are highly intuitive and provide for human-readable code that allows a practitioner to understand a measurement model on first glance and easily make changes to compare different measurement models. They also force the explicit definition of each construct
+as belonging to either the composite or common-factor model.
 
 ### Describe multiple measurement items (manifest variables) with `multi_items()` or single item measurement items with `single_item()`
 
@@ -83,108 +89,78 @@ These verbs are highly intuitive and provide for human-readable code that allows
 
 For example, we can describe the manifest variables: IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:
 
-```{r, eval = FALSE}
+```{r, eval=FALSE}
 multi_items("IMAG", 1:5)
 ```
 
-This is equivalent to the more verbose code in base R:
+`multi_items()` is used in conjunction with `composite()` or `reflective()` to describe a composite and common-factor construct respectively.
 
-```{r, eval = FALSE}
-c("IMAG1", "IMAG2", "IMAG3", "IMAG4", "IMAG5")
-```
-
-`multi_items()` is used in conjunction with `reflective()` or `causal()` to describe a factor.
-
-### Describe a factor with `composite()` or `reflective()`
-
-`composite()` and `reflective()` provide a verb to describe a factor in one simple line of human-readable code.
-
-For example, we can describe the reflective factor "Image" with manifest variables IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:
+We can also describe a single manifest variable: CUSCO:
 
 ```{r, eval=FALSE}
-reflective("Image", multi_items("IMAG", 1:5))
+single_item("CUSCO")
 ```
 
-or
+`multi_items()` is used in conjunction with `composite()` or `reflective()` to describe the multi-item measurement model of a composite and common-factor construct respectively.
+
+`single_item()` is used in conjunction with composite()` or `reflective()` to describe the single-item measurement model of a composite and common-factor construct respectively. It is important to note that a single-item construct should be defined as either composite mode A or reflective.
+
+### Describe a construct with `composite()` or `reflective()`
+
+`composite()` and `reflective()` provide a verb to describe a construct in one simple line of human-readable code.
+
+For example, we can use `composite()` to describe the mode A (or correlation weights) composite "Image" with manifest variables IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:
+
+```{r, eval=FALSE}
+composite("Image", multi_items("IMAG", 1:5), weights = "A")
+```
+or 
+```{r, eval=FALSE}
+composite("Image", multi_items("IMAG", 1:5), weights = "correlation")
+```
+
+or mode B (regression weights) composite "Image" with manifest variables IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:
 
 ```{r, eval=FALSE}
 composite("Image", multi_items("IMAG", 1:5), weights = "B")
 ```
-
-This is equivalent to the more verbose code in base R:
-
-```{r, eval = FALSE}
-c("Image", "IMAG1", "Image", "IMAG2", "Image", "IMAG3", "Image", "IMAG4", "Image", "IMAG5")
+or
+```{r, eval=FALSE}
+composite("Image", multi_items("IMAG", 1:5), weights = "regression")
 ```
 
-for reflective factors or:
+Similarly, we can use `reflective()` to describe the common-factor "Image" with manifest variables IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:
 
 ```{r, eval = FALSE}
-c("IMAG1", "Image", "IMAG2", "Image", "IMAG3", "Image", "IMAG4", "Image", "IMAG5", "Image")
+reflective("Image", multi_items("IMAG", 1:5))
 ```
 
-for formative factors.
-
-`multi_items()` is used in conjunction with `reflective()` or `composite()` to describe a factor.
-`constructs()` is used in conjunction with multiple factor descriptions to describe the entire measurement model.
+`multi_items()` is used in conjunction with `reflective()` or `composite()` to describe a construct.
+`constructs()` is used in conjunction with multiple construct descriptions to describe the entire measurement model.
 
 ### Create measurement model matrix with `constructs()`
 
-`constructs()` compiles the measurement model source-target matrix from the user specified factor descriptions described in the parameters.
+`constructs()` compiles the measurement model source-target matrix from the user specified construct descriptions described in the parameters.
 
-For example, we can create a source-target matrix measurement model for the `mobi` data:
+For example, we can create a source-target matrix measurement model for the `mobi` data (NOTE: this is a demonstration model illustrating the options provided by seminr and does not reflect the model originally proposed by Tenenhaus et al., 2005).
+Output is displayed:
 
 ```{r}
 mobi_mm <- constructs(
-  reflective("Image",        multi_items("IMAG", 1:5)),
-  reflective("Expectation",  multi_items("CUEX", 1:3)),
-  reflective("Quality",      multi_items("PERQ", 1:7)),
-  reflective("Value",        multi_items("PERV", 1:2)),
-  composite("Satisfaction",    multi_items("CUSA", 1:3), weights = "B"),
-  composite("Complaints",      single_item("CUSCO"), weights = "B"),
-  composite("Loyalty",         multi_items("CUSL", 1:3), weights = "B")
+  composite("Image",         multi_items("IMAG", 1:5), weights = "B"),
+  composite("Expectation",   multi_items("CUEX", 1:3), weights = "regression"),
+  composite("Quality",       multi_items("PERQ", 1:7), weights = "A"),
+  composite("Value",         multi_items("PERV", 1:2), weights = "correlation"),
+  reflective("Satisfaction", multi_items("CUSA", 1:3)),
+  reflective("Complaints",   single_item("CUSCO")),
+  reflective("Loyalty",      multi_items("CUSL", 1:3))
 )
-```
-
-The output of this code is:
-
-```{r}
 mobi_mm
 ```
 
-This is equivalent to the more verbose code in base R:
+The `seminr()` syntax is far more human-readable and the use of the verbs makes the definition of the measurement model explicit. Modifications to the `seminr()` measurement model description are quick, easy and intuitive.
 
-```{r, eval = FALSE}
-mobi_mm <- matrix(c("Image","IMAG1",
-                    "Image","IMAG2",
-                    "Image","IMAG3",
-                    "Image","IMAG4",
-                    "Image","IMAG5",
-                    "Expectation","CUEX1",
-                    "Expectation","CUEX2",
-                    "Expectation","CUEX3",
-                    "Quality", "PERQ1",
-                    "Quality", "PERQ2",
-                    "Quality", "PERQ3",
-                    "Quality", "PERQ4",
-                    "Quality", "PERQ5",
-                    "Quality", "PERQ6",
-                    "Quality", "PERQ7",
-                    "Value","PERV1",
-                    "Value","PERV2",
-                    "CUSA1", "Satisfaction",
-                    "CUSA2", "Satisfaction",
-                    "CUSA3", "Satisfaction",
-                    "CUSCO", "Complaints",
-                    "CUSL1", "Loyalty",
-                    "CUSL2", "Loyalty",
-                    "CUSL3", "Loyalty"),nrow=24,ncol=2,byrow =TRUE,
-                   dimnames = list(1:24,c("source","target")))
-```
-
-That was a mouthful of code! The `seminr()` syntax is far more human-readable and the use of the verbs really makes the meaning explicit. Modifications to the `seminr()` measurement model description are quick and easy and intuitive.
-
-## Structural model description verbs
+## Structural model description 
 
 SEMinR verbs for structural model description:
 
@@ -203,16 +179,10 @@ For example, we can describe the structural model paths:
 * "Image" -> "Satisfaction"
 * "Value" -> "Satisfaction"
 
-```{r}
-paths(from = "Image", to = c("Expectation", "Satisfaction", "Loyalty"))
-paths(from = "Value", to = c("Satisfaction"))
-```
-
-This is equivalent to the more verbose code in base R:
-
-```{r, eval = FALSE}
-c("Image", "Expectation", "Image", "Satisfaction", "Image", "Loyalty")
-c("Value","Satisfaction")
+```{r, eval=FALSE}
+paths(from = "Image",                     to = c("Expectation", "Satisfaction"))
+paths(from = "Value",                     to = "Satisfaction")
+paths(from = c("Satisfaction","Loyalty"), to = "Value")
 ```
 
 `paths()` is used in conjunction with `relationships()` to describe the full structural model.
@@ -221,7 +191,7 @@ c("Value","Satisfaction")
 
 `relationships()` compiles the structural model source-target matrix from the user specified structural path descriptions described in the parameters.
 
-For example, we can create a source-target matrix structural model for the `mobi` data:
+For example, we can create a source-target matrix structural model for the `mobi` data (with output displayed):
 
 ```{r}
 mobi_sm <- relationships(
@@ -232,76 +202,40 @@ mobi_sm <- relationships(
   paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
   paths(from = "Complaints",   to = "Loyalty")
 )
-```
-
-The output of this code is:
-
-```{r}
 mobi_sm
 ```
 
-This is equivalent to the more verbose code in base R:
+Used in conjunction with the measurement model verbs, the description and comparison of models can is more intuitive, readable and comparable.
 
-```{r, eval = FALSE}
-mobi_sm <- matrix(c("Image","Expectation",
-                    "Image","Satisfaction",
-                    "Image","Loyalty",
-                    "Expectation","Quality",
-                    "Expectation","Value",
-                    "Expectation","Satisfaction",
-                    "Quality","Value",
-                    "Quality","Satisfaction",
-                    "Value", "Satisfaction",
-                    "Satisfaction", "Complaints",
-                    "Satisfaction", "Loyalty",
-                    "Complaints", "Loyalty"),nrow=12,ncol=2,byrow =TRUE,
-                   dimnames = list(1:12,c("source","target")))
-```
-
-Used in conjunction with the measurement model verbs, the description and comparison of your models can really be more intuitive and readable.
-
-## Interaction term description verbs
+## Interaction term description 
 
 SEMinR verbs for creating Interaction Terms:
 
 * `interactions()`
-* `interaction_scaled()`
-* `interaction_ortho()`
+* `interaction_ortho()` or `interaction_scaled()`
 
-Most PLS SEM packages require practitioners to create interaction terms by hand which can be a time-consuming and arduous task - not to mention presenting an opporunity for errors to enter the model. These verbs are highly intuitive and provide for human-readable code that allows a practitioner to quickly describe and "read" interaction terms and make changes and comparisons on the fly.
+Most PLS SEM packages require practitioners to create interaction terms by hand which can be a time-consuming and arduous task - not to mention presenting many opporunities for errors and mis-specifications to enter the model. These verbs are highly intuitive and provide for human-readable code that allows a practitioner to quickly describe and "read" interaction terms and make changes and comparisons on the fly. 
 
-We provide for 2 methods of interaction as per Henseler & Chin (2010) -
-(1) Standardized product indicator approach in `interaction_scaled()`
-(2) Orthogonalized approach in `interaction_ortho()`
+Henseler and Chin (2010) suggest adjusting the SD of the interaction term because:
+"In general, the product of two standardized variables does not equal the standardized product of these variables"
+Seminr automatically adjusts for this providing highly accurate model estimations.
 
-### Describe an interaction combo with `interaction_scaled()`
+### Describe an interaction with `interaction_ortho()` or `interaction_scaled()`
 
-`interaction_scaled()` provides a verb to describe single interaction item.
-
-For example, we can describe the following interaction items:
-
-* "Image" + "Expectation"
-* "Image" + "Value"
-
-```{r, eval = FALSE}
-interaction_scaled("Image", "Expectation")
-interaction_scaled("Image", "Value")
-```
-
-These functions return functions themselves which are not resolved until passed as parameters to the `interactions()` function.
-
-### Describe an interaction combo with `interaction_ortho()`
-
-`interaction_ortho()` provides a verb to describe single interaction item.
+`interaction_ortho()` provides a verb to describe single interaction item as generated by the orthogonalization method as described by Henseler and Chin (2010).
+`interaction_scaled()` provides a verb to describe a single interaction item as generated by the scale product-indicator method as described by Henseler and Chin (2010).
+For both these methods the SD of the interactino term is adjusted as noted above.
 
 For example, we can describe the following interaction items:
 
 * "Image" + "Expectation"
 * "Image" + "Value"
+
+Note: Seminr syntax uses a period as a naming convention for the interaction construct and thus "Image" + "Expectation" becomes "Image.Expectation". Please refrain from using a period in the naming of non-interaction constructs.
 
 ```{r, eval = FALSE}
 interaction_ortho("Image", "Expectation")
-interaction_ortho("Image", "Value")
+interaction_scaled("Image", "Value")
 ```
 
 These functions return functions themselves which are not resolved until passed as parameters to the `interactions()` function.
@@ -310,12 +244,12 @@ These functions return functions themselves which are not resolved until passed 
 
 `interactions()` provides a verb to describe all interactions in a specific model. The function itself returns a function which is not resolved until passed as a parameter to the `seminr()` function.
 
-For example, we can describe the following interaction items in a model:
+For example, we can describe the following interaction constructs in a model:
 
 ```{r}
 mobi_xm <- interactions(
-  interaction_scaled("Image", "Expectation"),
-  interaction_scaled("Image", "Value")
+  interaction_ortho("Image", "Expectation"),
+  interaction_ortho("Image", "Value")
 )
 ```
 
@@ -325,16 +259,23 @@ The output of this code is:
 mobi_xm
 ```
 
-As previously mentioned, this method returns a function which is not resolved until passed to `estimate_pls()` or `bootstrap_model()`.
+As previously mentioned, a function which is not resolved until passed to `estimate_pls()`.
 
-## PLS SEM Model Estimation with `estimate_pls()`
+## PLS SEM Model Estimation with `seminr`
 
 SEMinR verbs for PLS SEM model estimation:
 
 * `estimate_pls()`
 
-This verb is used to estimate the PLS model using the simplePLS function.
-It takes as parameters the structural model described by `relationships()`, the measurement model described by `constructs()` and an optional interactions function as described by `interactions()`.
+This verb is used to estimate the model and takes the following parameters:
+
+* `data`: the dataset containing the measurement model items specified in `constructs()`
+* `measurement_model`: the measurement model described by the `constructs()` function
+* `interactions`: the interactions described by the `interactions()` function. If no interaction constructs are specified, this should be assigned the value of `NULL`
+* `structural_model`: the structural model described by the `paths()` function
+* `inner_weights`: the inner_weighting scheme for model estimation. This can take either `path_weighting` for path_weighting or `path_factorial` for factor weighting as proposed by Lohmöller (1989)
+
+Note: `max_iterations` is set to 300 as default and `stop_criterion` to 7. 
 
 For example, we can estimate the PLS SEM model based upon the structural and measurement model with interactions as described previously in this vignette.
 
@@ -349,8 +290,8 @@ mobi_mm <- constructs(
 
 # interaction factors must be created after the measurement model is defined
 mobi_xm <- interactions(
-  interaction_scaled("Image", "Expectation"),
-  interaction_scaled("Image", "Value")
+  interaction_ortho("Image", "Expectation"),
+  interaction_ortho("Image", "Value")
 )
 
 # structural model: note that name of the interactions factor should be
@@ -360,64 +301,82 @@ mobi_sm <- relationships(
         from = c("Image", "Expectation", "Value",
                  "Image.Expectation", "Image.Value"))
 )
+
 mobi_pls <- estimate_pls(data = mobi,
-                           measurement_model = mobi_mm,
-                           interactions = mobi_xm,
-                           structural_model = mobi_sm)
+                         measurement_model = mobi_mm,
+                         interactions = mobi_xm,
+                         structural_model = mobi_sm,
+                         inner_weights = path_weighting)
 ```
 
-The output of this code is:
+### Consistent PLS (PLSc as per Dijkstra and Henseler, 2015)
 
-```{r}
-mobi_pls
-print_paths(mobi_pls)
-plot_scores(mobi_pls)
-```
+NOTE!: Seminr always adjusts for consistent estimates of coefficients for common-factor defined constructs (i.e. those constructs defined as `reflective()`). Unfortunately, seminr v1.0 does not adjust for PLSc on models with interactions at this point. Thus in models including common-factors and interactions, the coefficient of common-factors will be subject to bias. 
 
-## PLS SEM Model Bootstrapping for significance with `bootstrap_model()`
+## Bootstrapping the model for significance
+
+As per Hair et al. (2017) PLS path models can be bootstrapped for significance. To this end, seminr provides a verb for bootstrapping - `bootstrap_model()`. Notably, bootstrapping can also be meaningfully applied to models containing interaction terms and recalculates the interaction term for every sub-sample. This leads to slightly increased processing times, but provides accurate estimations.
 
 SEMinR verbs for PLS SEM model bootstrapping:
 
 * `bootstrap_model()`
 
-This verb is used to bootstrap the PLS model for significance using the simplePLS function.
-It takes as parameters the structural model described by `relationships()`, the measurement model described by `constructs()` and an optional interactions function as described by `interactions()`.
+This verb is used to bootstrap a pre-described seminr model and takes the following parameters:
 
-For example, we can estimate the PLS SEM model based upon the structural and measurement model with interactions as described previously in this vignette.
+* `seminr_model`: the seminr model as described by `estimate_pls()`
+* `nboot`: the number of bootstrap subsamples to generate
+* `cores`: If your pc supports multi-core processing, the number of cores to utilize for parallel processing. The default is NULL in which case seminr will detect the number of available cores and utilize all available cores for maximum performance
 
-```{r}
-# seminr syntax for creating measurement model
-mobi_mm <- constructs(
-  reflective("Image",        multi_items("IMAG", 1:5)),
-  reflective("Expectation",  multi_items("CUEX", 1:3)),
-  reflective("Value",        multi_items("PERV", 1:2)),
-  reflective("Satisfaction", multi_items("CUSA", 1:3))
-)
-
-# interaction factors must be created after the measurement model is defined
-mobi_xm <- interactions(
-  interaction_scaled("Image", "Expectation"),
-  interaction_scaled("Image", "Value")
-)
-
-# structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
-mobi_sm <- relationships(
-  paths(to = "Satisfaction",
-        from = c("Image", "Expectation", "Value",
-                 "Image.Expectation", "Image.Value"))
-)
-mobi_pls <- estimate_pls(data = mobi,
-                            measurement_model = mobi_mm,
-                            interactions = mobi_xm,
-                            structural_model = mobi_sm)
-bootstrap_mobi_pls <- bootstrap_model(mobi_pls, nboot = 500, cores = 2)
-```
-
-The output of this code is:
+For example, we can bootstrap the model described above with `nboot = 2000` for 2000 bootstraps and utilizing 4 parallel cores with `cores = 4`:
 
 ```{r}
-bootstrap_mobi_pls
-print_paths(bootstrap_mobi_pls)
-plot_scores(bootstrap_mobi_pls)
+boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
+                                 nboot = 2000,
+                                 cores = 4)
 ```
+
+## Reporting the PLS SEM Model
+
+### Reporting the estimated `seminr_model` 
+
+There are multiple ways of reporting the estimated model. The `estimate_pls()` function returns an object of class `seminr_model`. This can be passed directly to the base R function `summary()`. This can be used in two primary ways:   
+
+1. `summary(seminr_model)` to report $R^{2}$, adjusted $R^{2}$, path coefficients for the structural model, and the construct reliability metrics $rho_{C}$, AVE, and $rho_{A}$. ($rho_{A}$: Dillon-Goldstein's Rho as per: Dillon and Goldstein, 1987, AVE as per: Fornell and Larcker, 1981, $rho_{A}$ as per: Dijkstra and Henseler, 2015)
+
+```{r}
+summary(mobi_pls)
+```
+
+2. `model_summary <- summary(seminr_model)` returns an object of class `summary.seminr_model` which contains the following accessible objects:
+    + `model_summary$iterations` reports the number of iterations to converge on a stable model
+    + `model_summary$paths` reports the matrix of path coefficients, $R^{2}$, and adjusted $R^{2}$
+    + `model_summary$metrics` reports the reliability and cross-loadings of the model
+    + `model_summary$loadings` reports the estimated loadings of the measurement model
+    + `model_summary$weights` reports the estimated weights of the measurement model
+
+
+### Reporting the bootstrapped `boot_seminr_model` 
+
+As with the estimated model, there are multiple ways of reporting the bootstrapped model. The `bootstrap_model()` function returns an object of class `boot_seminr_model`. This can be passed directly to the base R function `summary()`. This can be used in two primary ways:   
+
+1. `summary(boot_seminr_model)` to report t-values and p-values for the structural paths
+
+```{r}
+summary(boot_mobi_pls)
+```
+
+2. `boot_model_summary <- summary(boot_seminr_model)` returns an object of class `summary.boot_seminr_model` which contains the following accessible objects:
+    + `boot_model_summary$nboot` reports the number of bootstraps performed
+    + `model_summary$t_values` reports the matrix of t_values for path co-efficients
+    + `model_summary$p_values` reports the matrix of p_values for path co-efficients
+
+## References
+
+* Henseler, J., & Chin, W. W. (2010), A comparison of approaches for the analysis of interaction effects between latent variables 
+using partial least squares path modeling. Structural Equation Modeling, 17(1), 82–109. https://doi.org/10.1080/10705510903439003
+* Lohmöller, J.-B. (1989). Latent variables path modeling with partial least squares. Heidelberg, Germany: Physica- Verlag.
+Marsh,
+* Dillon, W. R, and M. Goldstein. 1987. Multivariate Analysis: Methods, and Applications. Biometrical Journal 29 (6): 750–756.
+* Fornell, C. and D. F. Larcker (February 1981). Evaluating structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5)
+* Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+* Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on Partial Least Squares Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.

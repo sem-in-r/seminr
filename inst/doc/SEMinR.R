@@ -1,79 +1,48 @@
 ## ---- echo = FALSE, message = FALSE--------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 library(seminr)
-data("mobi", package = "semPLS")
 
 ## ------------------------------------------------------------------------
-data("mobi", package = "semPLS")
 dim(mobi)
 head(mobi)
 
-## ------------------------------------------------------------------------
-multi_items("IMAG", 1:5)
+## ---- eval=FALSE---------------------------------------------------------
+#  multi_items("IMAG", 1:5)
+
+## ---- eval=FALSE---------------------------------------------------------
+#  single_item("CUSCO")
+
+## ---- eval=FALSE---------------------------------------------------------
+#  composite("Image", multi_items("IMAG", 1:5), weights = "A")
+
+## ---- eval=FALSE---------------------------------------------------------
+#  composite("Image", multi_items("IMAG", 1:5), weights = "correlation")
+
+## ---- eval=FALSE---------------------------------------------------------
+#  composite("Image", multi_items("IMAG", 1:5), weights = "B")
+
+## ---- eval=FALSE---------------------------------------------------------
+#  composite("Image", multi_items("IMAG", 1:5), weights = "regression")
 
 ## ---- eval = FALSE-------------------------------------------------------
-#  c("IMAG1", "IMAG2", "IMAG3", "IMAG4", "IMAG5")
-
-## ------------------------------------------------------------------------
-reflective("Image", multi_items("IMAG", 1:5))
-
-## ------------------------------------------------------------------------
-causal("Image", multi_items("IMAG", 1:5))
-
-## ---- eval = FALSE-------------------------------------------------------
-#  c("Image", "IMAG1", "Image", "IMAG2", "Image", "IMAG3", "Image", "IMAG4", "Image", "IMAG5")
-
-## ---- eval = FALSE-------------------------------------------------------
-#  c("IMAG1", "Image", "IMAG2", "Image", "IMAG3", "Image", "IMAG4", "Image", "IMAG5", "Image")
+#  reflective("Image", multi_items("IMAG", 1:5))
 
 ## ------------------------------------------------------------------------
 mobi_mm <- constructs(
-  reflective("Image",        multi_items("IMAG", 1:5)),
-  reflective("Expectation",  multi_items("CUEX", 1:3)),
-  reflective("Quality",      multi_items("PERQ", 1:7)),
-  reflective("Value",        multi_items("PERV", 1:2)),
-  causal("Satisfaction",    multi_items("CUSA", 1:3)),
-  causal("Complaints",      single_item("CUSCO")),
-  causal("Loyalty",         multi_items("CUSL", 1:3))
+  composite("Image",         multi_items("IMAG", 1:5), weights = "B"),
+  composite("Expectation",   multi_items("CUEX", 1:3), weights = "regression"),
+  composite("Quality",       multi_items("PERQ", 1:7), weights = "A"),
+  composite("Value",         multi_items("PERV", 1:2), weights = "correlation"),
+  reflective("Satisfaction", multi_items("CUSA", 1:3)),
+  reflective("Complaints",   single_item("CUSCO")),
+  reflective("Loyalty",      multi_items("CUSL", 1:3))
 )
-
-## ------------------------------------------------------------------------
 mobi_mm
 
-## ---- eval = FALSE-------------------------------------------------------
-#  mobi_mm <- matrix(c("Image","IMAG1",
-#                      "Image","IMAG2",
-#                      "Image","IMAG3",
-#                      "Image","IMAG4",
-#                      "Image","IMAG5",
-#                      "Expectation","CUEX1",
-#                      "Expectation","CUEX2",
-#                      "Expectation","CUEX3",
-#                      "Quality", "PERQ1",
-#                      "Quality", "PERQ2",
-#                      "Quality", "PERQ3",
-#                      "Quality", "PERQ4",
-#                      "Quality", "PERQ5",
-#                      "Quality", "PERQ6",
-#                      "Quality", "PERQ7",
-#                      "Value","PERV1",
-#                      "Value","PERV2",
-#                      "CUSA1", "Satisfaction",
-#                      "CUSA2", "Satisfaction",
-#                      "CUSA3", "Satisfaction",
-#                      "CUSCO", "Complaints",
-#                      "CUSL1", "Loyalty",
-#                      "CUSL2", "Loyalty",
-#                      "CUSL3", "Loyalty"),nrow=24,ncol=2,byrow =TRUE,
-#                     dimnames = list(1:24,c("source","target")))
-
-## ------------------------------------------------------------------------
-paths(from = "Image", to = c("Expectation", "Satisfaction", "Loyalty"))
-paths(from = "Value", to = c("Satisfaction"))
-
-## ---- eval = FALSE-------------------------------------------------------
-#  c("Image", "Expectation", "Image", "Satisfaction", "Image", "Loyalty")
-#  c("Value","Satisfaction")
+## ---- eval=FALSE---------------------------------------------------------
+#  paths(from = "Image",                     to = c("Expectation", "Satisfaction"))
+#  paths(from = "Value",                     to = "Satisfaction")
+#  paths(from = c("Satisfaction","Loyalty"), to = "Value")
 
 ## ------------------------------------------------------------------------
 mobi_sm <- relationships(
@@ -84,33 +53,16 @@ mobi_sm <- relationships(
   paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
   paths(from = "Complaints",   to = "Loyalty")
 )
-
-## ------------------------------------------------------------------------
 mobi_sm
 
 ## ---- eval = FALSE-------------------------------------------------------
-#  mobi_sm <- matrix(c("Image","Expectation",
-#                      "Image","Satisfaction",
-#                      "Image","Loyalty",
-#                      "Expectation","Quality",
-#                      "Expectation","Value",
-#                      "Expectation","Satisfaction",
-#                      "Quality","Value",
-#                      "Quality","Satisfaction",
-#                      "Value", "Satisfaction",
-#                      "Satisfaction", "Complaints",
-#                      "Satisfaction", "Loyalty",
-#                      "Complaints", "Loyalty"),nrow=12,ncol=2,byrow =TRUE,
-#                     dimnames = list(1:12,c("source","target")))
-
-## ---- eval = FALSE-------------------------------------------------------
-#  interaction_combo("Image", "Expectation")
-#  interaction_combo("Image", "Value")
+#  interaction_ortho("Image", "Expectation")
+#  interaction_scaled("Image", "Value")
 
 ## ------------------------------------------------------------------------
 mobi_xm <- interactions(
-  interaction_combo("Image", "Expectation"),
-  interaction_combo("Image", "Value")
+  interaction_ortho("Image", "Expectation"),
+  interaction_ortho("Image", "Value")
 )
 
 ## ------------------------------------------------------------------------
@@ -127,8 +79,8 @@ mobi_mm <- constructs(
 
 # interaction factors must be created after the measurement model is defined
 mobi_xm <- interactions(
-  interaction_combo("Image", "Expectation"),
-  interaction_combo("Image", "Value")
+  interaction_ortho("Image", "Expectation"),
+  interaction_ortho("Image", "Value")
 )
 
 # structural model: note that name of the interactions factor should be
@@ -138,20 +90,21 @@ mobi_sm <- relationships(
         from = c("Image", "Expectation", "Value",
                  "Image.Expectation", "Image.Value"))
 )
-plsm_model <- model(data = mobi,
-                    measurement_model = mobi_mm,
-                    interactions = mobi_xm,
-                    structural_model = mobi_sm)
 
-mobi_pls <- estimate(plsm_model)
+mobi_pls <- estimate_pls(data = mobi,
+                         measurement_model = mobi_mm,
+                         interactions = mobi_xm,
+                         structural_model = mobi_sm,
+                         inner_weights = path_weighting)
 
 ## ------------------------------------------------------------------------
-plsm_model <- model(data = mobi,
-                    measurement_model = mobi_mm,
-                    interactions = mobi_xm,
-                    structural_model = mobi_sm)
-mobi_pls <- estimate(plsm_model)
-mobi_pls
-print_paths(mobi_pls)
-plot_scores(mobi_pls)
+boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
+                                 nboot = 2000,
+                                 cores = 4)
+
+## ------------------------------------------------------------------------
+summary(mobi_pls)
+
+## ------------------------------------------------------------------------
+summary(boot_mobi_pls)
 
