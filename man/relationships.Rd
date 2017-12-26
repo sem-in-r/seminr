@@ -11,7 +11,7 @@ paths(from,to)
 }
 \arguments{
 \item{...}{A comma separated list of all the structural relationships in the the model. These
-paths take the form (from = c(constructy_name), to = c(construct_name)).}
+paths take the form (from = c(construct_name), to = c(construct_name)).}
 
 \item{to}{The destination construct of a structural path}
 

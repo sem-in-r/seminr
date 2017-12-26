@@ -1,7 +1,8 @@
 # Warning to check for formative only constructs
+# DEPRECATED
+# TODO: Decide if we need to warn about this or just disregard and model
 warning_only_causal_construct <- function(mmMatrix) {
   latents <- unique(mmMatrix[,1])
-
   for(latent in latents) {
     if(length(items_per_mode(latent,"B",mmMatrix)) == nrow(mmMatrix_per_latent(latent,mmMatrix))) {
       warning(c(latent," is purely defined as a causal mode B construct.\n"))
@@ -49,7 +50,7 @@ warning_struc_meas_model_complete <- function(smMatrix, mmMatrix, data) {
 }
 
 warnings <- function(mmMatrix,data, smMatrix) {
-  warning_only_causal_construct(mmMatrix)
+#  warning_only_causal_construct(mmMatrix)
   warning_single_item_formative(mmMatrix)
   warning_missing_data(data, mmMatrix)
 }

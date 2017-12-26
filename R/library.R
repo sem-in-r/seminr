@@ -27,14 +27,14 @@ mmMatrix_per_latent <- function(latent, mmMatrix) {
 
 # Factorial weighting scheme Function to create inner paths matrix
 #' @export
-path.factorial <- function(smMatrix,fscores, dependant, paths_matrix) {
+path_factorial <- function(smMatrix,fscores, dependant, paths_matrix) {
   inner_paths <- cor(fscores,fscores) * (paths_matrix + t(paths_matrix))
   return(inner_paths)
 }
 
 # Factorial weighting scheme Function to create inner paths matrix
 #' @export
-path.weighting <- function(smMatrix, fscores, dependant, paths_matrix) {
+path_weighting <- function(smMatrix, fscores, dependant, paths_matrix) {
   # correlations for outgoing paths
   inner_paths <- cor(fscores,fscores) * t(paths_matrix)
 
@@ -50,13 +50,15 @@ path.weighting <- function(smMatrix, fscores, dependant, paths_matrix) {
   return(inner_paths)
 }
 
-calculate.loadings <- function(weights_matrix,fscores, normData) {
+calculate_loadings <- function(weights_matrix,fscores, normData) {
   return(as.matrix(stats::cov(normData,fscores) * weights_matrix))
 }
 
 # Function to adjust for the interaction
-# TODO: add a citation in the comments here replace this line
-adjust.interaction <- function(ltVariables, mmMatrix, outer_loadings, fscores, obsData){
+# Adjustment of the SD of the interaction term as per Henseler, J., & Chin, W. W. (2010),
+# A comparison of approaches for the analysis of interaction effects between latent variables
+# using partial least squares path modeling. Structural Equation Modeling, 17(1), 82–109. https://doi.org/10.1080/10705510903439003
+adjust_interaction <- function(ltVariables, mmMatrix, outer_loadings, fscores, obsData){
   for(latent in ltVariables) {
     adjustment <- 0
     denom <- 0
@@ -76,7 +78,7 @@ adjust.interaction <- function(ltVariables, mmMatrix, outer_loadings, fscores, o
 }
 
 
-path.coef <- function(smMatrix, fscores,dependant, paths_matrix) {
+path_coef <- function(smMatrix, fscores,dependant, paths_matrix) {
   #Regression betas for the incoming paths
   #Iterate and regress the incoming paths
   for (i in 1:length(dependant))  {
@@ -89,44 +91,23 @@ path.coef <- function(smMatrix, fscores,dependant, paths_matrix) {
   return(paths_matrix)
 }
 
-
-
-# TODO: This metric should be moved to a metrics folder
-# BIC function using rsq, SST, n pk
-BIC_func <- function(rsq, pk, N, fscore){
-  SSerrk <- (1-rsq)*(stats::var(fscore)*(N-1))
-  N*log(SSerrk/N) + (pk+1)*log(N)
-}
-
-# TODO: This metric should be moved to a metrics folder
-# BIC function using rsq, SST, n pk
-AIC_func <- function(rsq, pk, N, fscore){
-  SSerrk <- (1-rsq)*(stats::var(fscore)*(N-1))
-  2*(pk+1)+N*log(SSerrk/N)
-}
-
-# calculating insample metrics
-calc.insample <- function(obsData, fscores, smMatrix, dependant, fscore_cors) {
-  insample <- matrix(,nrow=3,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq","BIC"),dependant))
-
-  for (i in 1:length(dependant))  {
-    #Indentify the independant variables
-    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
-
-    #Calculate insample for endogenous
-#    fscore_cors <- stats::cor(fscores)
-    r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
-    insample[1,i] <- r_sq[dependant[i],dependant[i]]
-    insample[2,i] <- 1 - (1 - insample[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
-    # Calculate the BIC for the endogenous
-    insample[3,i] <- BIC_func(r_sq[dependant[i],dependant[i]],length(independant),nrow(obsData),fscores[,dependant[i]])
-  }
-  return(insample)
-}
-
-standardize.outer.weights <- function(normData, mmVariables, outer_weights) {
+standardize_outer_weights <- function(normData, mmVariables, outer_weights) {
   # Standardize the outer weights
   std_devs <- attr(scale((normData[,mmVariables]%*%outer_weights), center = FALSE),"scaled:scale")
   # divide by matrix bvy std_devs and return
   return(t(t(outer_weights) / std_devs))
+}
+
+A <- C <- function(outer_weights, mmMatrix, ltVariables, i, normData, fscores) {
+  outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
+    stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
+  return(outer_weights)
+}
+
+B <- function(outer_weights, mmMatrix, ltVariables,i,normData, fscores) {
+  outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
+    solve(stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]])) %*%
+    stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],
+               fscores[,ltVariables[i]])
+  return(outer_weights)
 }

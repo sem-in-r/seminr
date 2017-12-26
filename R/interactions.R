@@ -57,6 +57,10 @@ interactions <- function(...) {
 #'  # orthogonalization approach as per Henseler & CHin (2010):
 #'  interaction_ortho(factor1, factor2)
 #'
+#' @references Henseler, J., & Chin, W. W. (2010), A comparison of approaches for the analysis of interaction effects
+#'  between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1), 82–109.
+#'  https://doi.org/10.1080/10705510903439003
+#'
 #' @examples
 #' data(mobi)
 #'
@@ -121,6 +125,10 @@ interaction_ortho <- function(factor1, factor2) {
 #' @usage
 #'  # standardized product indicator approach as per Henseler & Chin (2010):
 #'  interaction_scaled("factor1", "factor2")
+#'
+#' @references Henseler, J., & Chin, W. W. (2010), A comparison of approaches for the analysis of interaction effects
+#'  between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1), 82–109.
+#'  https://doi.org/10.1080/10705510903439003
 #'
 #' @examples
 #' data(mobi)

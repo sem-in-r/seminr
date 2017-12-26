@@ -1,16 +1,18 @@
 #' seminr PLSc Function
 #'
 #' The \code{PLSc} function calculates the consistent PLS path coefficients and loadings for
-#' a common factor model. It returns a \code{seminr.model} containing the adjusted and consistent
+#' a common factor model. It returns a \code{seminr_model} containing the adjusted and consistent
 #' path coefficients and loadings for common factor models and composite models.
 #'
-#' @param seminr.model A \code{seminr.model} containing the estimated seminr model.
+#' @param seminr_model A \code{seminr_model} containing the estimated seminr model.
 #'
 #' @usage
-#' PLSc(seminr.model)
+#' PLSc(seminr_model)
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'          \code{\link{bootstrap_model}}
+#'
+#' @references Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
 #'
 #' @examples
 #' mobi <- mobi
@@ -35,26 +37,27 @@
 #'   paths(from = "Complaints",   to = "Loyalty")
 #' )
 #'
-#' seminr.model <- estimate_pls(data = mobi,
+#' seminr_model <- estimate_pls(data = mobi,
 #'                              measurement_model = mobi_mm,
 #'                              structural_model = mobi_sm)
 #'
-#' PLSc(seminr.model)
+#' PLSc(seminr_model)
 #' @export
-PLSc <- function(seminr.model) {
+PLSc <- function(seminr_model) {
+  # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
   # get relevant parts of the estimated model
-  smMatrix <- seminr.model$smMatrix
-  mmMatrix <- seminr.model$mmMatrix
-  path_coef <- seminr.model$path_coef
-  loadings <- seminr.model$outer_loadings
-  rSquared <- seminr.model$rSquared
-  fscores <- seminr.model$fscores
+  smMatrix <- seminr_model$smMatrix
+  mmMatrix <- seminr_model$mmMatrix
+  path_coef <- seminr_model$path_coef
+  loadings <- seminr_model$outer_loadings
+  rSquared <- seminr_model$rSquared
+  fscores <- seminr_model$fscores
 
   # Calculate rhoA for adjustments and adjust the correlation matrix
-  rho <- rhoA(seminr.model)
+  rho <- rhoA(seminr_model)
   adjustment <- sqrt(rho %*% t(rho))
   diag(adjustment) <- 1
-  adj_fscore_cors <- stats::cor(seminr.model$fscores) / adjustment
+  adj_fscore_cors <- stats::cor(seminr_model$fscores) / adjustment
 
   # iterate over endogenous latents and adjust path coefficients and R-squared
   for (i in unique(smMatrix[,"target"]))  {
@@ -73,14 +76,14 @@ PLSc <- function(seminr.model) {
   }
 
   #calculate insample metrics
-  rSquared <- calc.insample(seminr.model$data, fscores, smMatrix, unique(smMatrix[,"target"]),adj_fscore_cors)
+  rSquared <- calc_insample(seminr_model$data, fscores, smMatrix, unique(smMatrix[,"target"]),adj_fscore_cors)
 
   # get all common-factor latents (Mode A Consistent) in a vector
   reflective <- unique(mmMatrix[mmMatrix[,"type"]=="C", "latent"])
 
   # function to adjust the loadings of a common-factor
   adjust_loadings <- function(i) {
-    w <- as.matrix(seminr.model$outer_weights[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i])
+    w <- as.matrix(seminr_model$outer_weights[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i])
     loadings[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i] <- w %*% (sqrt(rho[i,]) / t(w) %*% w )
     loadings[,i]
   }
@@ -91,8 +94,19 @@ PLSc <- function(seminr.model) {
   }
 
   # Assign the adjusted values for return
-  seminr.model$path_coef <- path_coef
-  seminr.model$outer_loadings <- loadings
-  seminr.model$rSquared <- rSquared
-  return(seminr.model)
+  seminr_model$path_coef <- path_coef
+  seminr_model$outer_loadings <- loadings
+  seminr_model$rSquared <- rSquared
+  return(seminr_model)
+}
+
+# Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+model_consistent <- function(seminr_model) {
+  if(!is.null(seminr_model$mobi_xm) && ("C" %in% seminr_model$mmMatrix[,"type"])) {
+    cat("Models with interactions cannot be estimated as PLS consistent and therefore no adjustment for PLS consistent has been made\n")
+  }
+  if(is.null(seminr_model$mobi_xm) && ("C" %in% seminr_model$mmMatrix[,"type"])) {
+    seminr_model <- PLSc(seminr_model)
+  }
+  return(seminr_model)
 }
