@@ -74,33 +74,81 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<div id="seminr" class="section level1">
-<h1>SEMinR</h1>
-<p>There are now many packages available for R to build, estimate and make predictions on PLS SEM models. However, the syntax of these models is disparate and complicated and often discourages practitioners from use. Further, these packages require the manual computation and generation of interaction terms, do not extend bootstrap functionality to interaction models, and are not optimized to be used methodologically in Montecarlo simulations and/or experiments.</p>
-<p>The goal of SEMinR is to provide a natural syntax for researchers and methodologists to describe PLS structural equation models and that provides state of the art functionality and features - streamlined for high computational efficiency. Additionally, the syntax is designed in such a way as to allow explicit definition of constructs as either composite or common factor in nature - avoiding confusing use of formative in the measurement model specification.</p>
-<p>The description of the model often takes longer and requires dozens of lines of code, however SEMinR seeks to automate this process and make modelling such features as interactions and mediations much simpler.</p>
-<p>There are 4 basic steps in the PLS SEM modelling:</p>
+<p><em>TODO</em>:</p>
 <ul>
-<li><p>Describe the structural (inner) model</p></li>
-<li><p>Describe the measurement (outer) model</p></li>
-<li><p>Describe interactions</p></li>
-<li><p>Evaluate model performance</p></li>
+<li>change nboot back to 2000 throughout</li>
+<li>change measurement weighting to functions</li>
+<li>WARNING: for dots in names of columns</li>
+<li>check citations and references</li>
+<li>equivalent R code for single_item</li>
+<li>paths example from single antecedant to single outcome</li>
+<li>check summary reporting of cross-loadings</li>
 </ul>
-<p>The SEMinR package makes these steps fast and easy:</p>
+<div id="introduction" class="section level2">
+<h2>Introduction</h2>
+<p>SEMinR brings many advancements to creating and estimating structural equation models (SEM):</p>
 <ul>
-<li><p>By providing easily readable and writable syntax, describing the model becomes simpler - and you can quickly change structural relationships allowing for multiple model comparisons.</p></li>
-<li><p>It provides simple “verbs”, functions that correspond to the most common data manipulation tasks, to help you translate those thoughts into code.</p></li>
-<li><p>It automates such tedious tasks as creating interaction terms which usually require multiple lines of code and can be difficult to read and follow.</p></li>
-<li><p>By providing only the relevant and appropriate measurement-, structural- and overall-model evaluation criteria.</p></li>
+<li>A <em>natural</em> feeling, <em>domain-specific</em> language to build and estimate structural equation models in R</li>
+<li>Uses <em>variance-based PLS estimation</em> to model both <em>composite</em> and <em>common-factor</em> constructs</li>
+<li><em>High-level functions</em> to quickly specify complex measurements (including interactions) and complicated structural models</li>
 </ul>
-<p>This document introduces you to SEMinR’s basic set of tools, and shows you how to apply them to your models. Other vignettes provide more details on specific topics:</p>
+<p>SEMinR follows the latest best-practices in methodological literature:</p>
 <ul>
-<li><p>vignette#2: bla bla bla</p></li>
-<li><p>vignette#3: bla bla bla</p></li>
+<li>Automatically <em>adjusts to ensure consistency (PLSc)</em> wherever common factors are involved</li>
+<li>Ajusts for known biases in interaction terms in PLS models (only available in leading commercial solutions)</li>
+<li>Continuously tested against leading PLS path modeling (PLSPM) software such as SmartPLS and ADANCO, as well as other R packages for PLSPM such as sem-pls and matrixpls, to ensure parity of outcomes</li>
+<li><em>High performance</em> multi-core toolkit to bootstrap models in simulations</li>
 </ul>
-<div id="data-mobi" class="section level2">
-<h2>Data: ‘mobi’</h2>
-<p>To explore the basic syntax of SEMinR, we’ll start with the data bundled with the seminr package - <code>mobi</code> data frame. The data set is used as measurement instrument for the european customer satisfaction index (ECSI) adapted to the mobile phone market, see Tenenhaus et al. (2005).</p>
+<p>Briefly, there are four steps to specifying and estimating a full SEM using SEMinR:</p>
+<ol style="list-style-type: decimal">
+<li>Describe measurement model for each construct and its items:</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Distinguish and mix composite or reflective (common-factor) measurement models</span>
+measurements &lt;-<span class="st"> </span><span class="kw">constructs</span>(
+  <span class="kw">composite</span>(<span class="st">&quot;Image&quot;</span>,       <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>), <span class="dt">weights =</span> <span class="st">&quot;B&quot;</span>),
+  <span class="kw">composite</span>(<span class="st">&quot;Expectation&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;CUEX&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>), <span class="dt">weights =</span> <span class="st">&quot;A&quot;</span>),
+  <span class="kw">reflective</span>(<span class="st">&quot;Loyalty&quot;</span>,    <span class="kw">multi_items</span>(<span class="st">&quot;CUSL&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>))
+)</code></pre></div>
+<ol start="2" style="list-style-type: decimal">
+<li>Specify any interactions between constructs:</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Easily create orthogonalized or scaled interactions between constructs</span>
+intxns &lt;-<span class="st"> </span><span class="kw">interactions</span>(
+  <span class="kw">interaction_ortho</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>)
+)</code></pre></div>
+<ol start="3" style="list-style-type: decimal">
+<li>Describe the structural model of causal relationships between constructs (and interactions):</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Quickly create multiple paths &quot;from&quot; and &quot;to&quot; sets of constructs</span>
+structure &lt;-<span class="st"> </span><span class="kw">relationships</span>(
+  <span class="kw">paths</span>(<span class="dt">from =</span> <span class="kw">c</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>, <span class="st">&quot;Image.Expectation&quot;</span>), 
+        <span class="dt">to =</span> <span class="st">&quot;Loyalty&quot;</span>)
+)</code></pre></div>
+<ol start="4" style="list-style-type: decimal">
+<li>Put the above elements together to estimate and bootstrap the model:</li>
+</ol>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Dynamically compose SEM models from individual parts</span>
+pls_model &lt;-<span class="st"> </span><span class="kw">estimate_pls</span>(<span class="dt">data =</span> mobi, measurements, intxns, structure)
+<span class="kw">summary</span>(pls_model)
+
+<span class="co"># Use multi-core parallel processing to speed up bootstraps</span>
+boot_estimates &lt;-<span class="st"> </span><span class="kw">bootstrap_model</span>(pls_model, <span class="dt">nboot =</span> <span class="dv">100</span>, <span class="dt">cores =</span> <span class="dv">4</span>)
+<span class="kw">summary</span>(boot_estimates)</code></pre></div>
+<p>SEMinR seeks to combine ease-of-use, flexible model construction, and high-performance. Below, we will cover the details and options of each of the four parts of model construction and estimation demonstrated above.</p>
+</div>
+<div id="setup" class="section level2">
+<h2>Setup</h2>
+<p>You must install the SEMinR library once on your local machine:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">&quot;seminr&quot;</span>)</code></pre></div>
+<p>And then load it in every session you want to use it:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(seminr)</code></pre></div>
+</div>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>You must load your data into a dataframe from any source you wish (CSV, etc.). Column names must be names of your measurement items.</p>
+<p><em>Important:</em> Avoid dots ‘.’ in your column names (these are reserved for interaction terms).</p>
+<p>For demonstration purposes, we will start with a dataset bundled with the seminr package - the <code>mobi</code> data frame (also found in the <code>sem-pls</code> R package). This dataset comes from a measurement instrument for the European Customer Satisfaction Index (ECSI) adapted to the mobile phone market (Tenenhaus et al. 2005).</p>
+<p>You can see a description and sample of what is in <code>mobi</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(mobi)
 <span class="co">#&gt; [1] 250  24</span>
 <span class="kw">head</span>(mobi)
@@ -118,46 +166,20 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="co">#&gt; 4     5     5    10     8    10    10     8     4     5     8     5     5</span>
 <span class="co">#&gt; 5     5     8     9    10     9     8    10     9     9     8     6     6</span>
 <span class="co">#&gt; 6    10     8     9     9    10     9    10     8     9     9    10    10</span></code></pre></div>
-<p>PLS SEM estimation and prediction packages generally take a source - target type matrix as parameters for each of the structural model and the measurement model. They require the practitioner to create any interaction terms by hand prior to model description. SEMinR makes use of simple and natural verbs to describe the model.</p>
 </div>
 <div id="measurement-model-description" class="section level2">
 <h2>Measurement model description</h2>
-<p>SEMinR verbs for measurement model description:</p>
+<p>SEMinR uses the following functions to describe measurement models:</p>
 <ul>
-<li><code>multi_items()</code> or <code>single_item()</code></li>
-<li><code>composite()</code> or <code>reflective()</code></li>
+<li><code>constructs()</code> gathers all the construct measurement models</li>
+<li><code>composite()</code> or <code>reflective()</code> define the measurement mode of individual constructs</li>
+<li><code>multi_items()</code> or <code>single_item()</code> define the items of a construct</li>
 </ul>
-<p>These verbs are highly intuitive and provide for human-readable code that allows a practitioner to understand a measurement model on first glance and easily make changes to compare different measurement models. They also force the explicit definition of each construct as belonging to either the composite or common-factor model.</p>
-<div id="describe-multiple-measurement-items-manifest-variables-with-multi_items-or-single-item-measurement-items-with-single_item" class="section level3">
-<h3>Describe multiple measurement items (manifest variables) with <code>multi_items()</code> or single item measurement items with <code>single_item()</code></h3>
-<p><code>single_item()</code> provides a verb to describe a single measurement item, while <code>multi_items()</code> provides a verb to describe multiple measurement items in one simple line of human-readable code.</p>
-<p>For example, we can describe the manifest variables: IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>)</code></pre></div>
-<p><code>multi_items()</code> is used in conjunction with <code>composite()</code> or <code>reflective()</code> to describe a composite and common-factor construct respectively.</p>
-<p>We can also describe a single manifest variable: CUSCO:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">single_item</span>(<span class="st">&quot;CUSCO&quot;</span>)</code></pre></div>
-<p><code>multi_items()</code> is used in conjunction with <code>composite()</code> or <code>reflective()</code> to describe the multi-item measurement model of a composite and common-factor construct respectively.</p>
-<p><code>single_item()</code> is used in conjunction with composite()<code>or</code>reflective()` to describe the single-item measurement model of a composite and common-factor construct respectively. It is important to note that a single-item construct should be defined as either composite mode A or reflective.</p>
-</div>
-<div id="describe-a-construct-with-composite-or-reflective" class="section level3">
-<h3>Describe a construct with <code>composite()</code> or <code>reflective()</code></h3>
-<p><code>composite()</code> and <code>reflective()</code> provide a verb to describe a construct in one simple line of human-readable code.</p>
-<p>For example, we can use <code>composite()</code> to describe the mode A (or correlation weights) composite “Image” with manifest variables IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">composite</span>(<span class="st">&quot;Image&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>), <span class="dt">weights =</span> <span class="st">&quot;A&quot;</span>)</code></pre></div>
-<p>or</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">composite</span>(<span class="st">&quot;Image&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>), <span class="dt">weights =</span> <span class="st">&quot;correlation&quot;</span>)</code></pre></div>
-<p>or mode B (regression weights) composite “Image” with manifest variables IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">composite</span>(<span class="st">&quot;Image&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>), <span class="dt">weights =</span> <span class="st">&quot;B&quot;</span>)</code></pre></div>
-<p>or</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">composite</span>(<span class="st">&quot;Image&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>), <span class="dt">weights =</span> <span class="st">&quot;regression&quot;</span>)</code></pre></div>
-<p>Similarly, we can use <code>reflective()</code> to describe the common-factor “Image” with manifest variables IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">reflective</span>(<span class="st">&quot;Image&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>))</code></pre></div>
-<p><code>multi_items()</code> is used in conjunction with <code>reflective()</code> or <code>composite()</code> to describe a construct. <code>constructs()</code> is used in conjunction with multiple construct descriptions to describe the entire measurement model.</p>
-</div>
+<p>These functions should be natural to SEM practitioners and encourages them to explicitly specify their core nature of their measurement models: composite or common-factor (See Sarstedt et al. () and Henseler et al. () for clear definitions).</p>
+<p>Let’s take a closer look at the individual functions.</p>
 <div id="create-measurement-model-matrix-with-constructs" class="section level3">
 <h3>Create measurement model matrix with <code>constructs()</code></h3>
-<p><code>constructs()</code> compiles the measurement model source-target matrix from the user specified construct descriptions described in the parameters.</p>
-<p>For example, we can create a source-target matrix measurement model for the <code>mobi</code> data (NOTE: this is a demonstration model illustrating the options provided by seminr and does not reflect the model originally proposed by Tenenhaus et al., 2005). Output is displayed:</p>
+<p><code>constructs()</code> compiles the measurement model source-target matrix from the user specified construct descriptions described in the parameters. You must supply it with any number of individual <em>composite</em> or <em>reflective</em> constructs:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_mm &lt;-<span class="st"> </span><span class="kw">constructs</span>(
   <span class="kw">composite</span>(<span class="st">&quot;Image&quot;</span>,         <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>), <span class="dt">weights =</span> <span class="st">&quot;B&quot;</span>),
   <span class="kw">composite</span>(<span class="st">&quot;Expectation&quot;</span>,   <span class="kw">multi_items</span>(<span class="st">&quot;CUEX&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>), <span class="dt">weights =</span> <span class="st">&quot;regression&quot;</span>),
@@ -166,62 +188,94 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <span class="kw">reflective</span>(<span class="st">&quot;Satisfaction&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;CUSA&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>)),
   <span class="kw">reflective</span>(<span class="st">&quot;Complaints&quot;</span>,   <span class="kw">single_item</span>(<span class="st">&quot;CUSCO&quot;</span>)),
   <span class="kw">reflective</span>(<span class="st">&quot;Loyalty&quot;</span>,      <span class="kw">multi_items</span>(<span class="st">&quot;CUSL&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>))
-)
-mobi_mm
-<span class="co">#&gt;       latent         measurement type</span>
-<span class="co">#&gt;  [1,] &quot;Image&quot;        &quot;IMAG1&quot;     &quot;B&quot; </span>
-<span class="co">#&gt;  [2,] &quot;Image&quot;        &quot;IMAG2&quot;     &quot;B&quot; </span>
-<span class="co">#&gt;  [3,] &quot;Image&quot;        &quot;IMAG3&quot;     &quot;B&quot; </span>
-<span class="co">#&gt;  [4,] &quot;Image&quot;        &quot;IMAG4&quot;     &quot;B&quot; </span>
-<span class="co">#&gt;  [5,] &quot;Image&quot;        &quot;IMAG5&quot;     &quot;B&quot; </span>
-<span class="co">#&gt;  [6,] &quot;Expectation&quot;  &quot;CUEX1&quot;     &quot;B&quot; </span>
-<span class="co">#&gt;  [7,] &quot;Expectation&quot;  &quot;CUEX2&quot;     &quot;B&quot; </span>
-<span class="co">#&gt;  [8,] &quot;Expectation&quot;  &quot;CUEX3&quot;     &quot;B&quot; </span>
-<span class="co">#&gt;  [9,] &quot;Quality&quot;      &quot;PERQ1&quot;     &quot;A&quot; </span>
-<span class="co">#&gt; [10,] &quot;Quality&quot;      &quot;PERQ2&quot;     &quot;A&quot; </span>
-<span class="co">#&gt; [11,] &quot;Quality&quot;      &quot;PERQ3&quot;     &quot;A&quot; </span>
-<span class="co">#&gt; [12,] &quot;Quality&quot;      &quot;PERQ4&quot;     &quot;A&quot; </span>
-<span class="co">#&gt; [13,] &quot;Quality&quot;      &quot;PERQ5&quot;     &quot;A&quot; </span>
-<span class="co">#&gt; [14,] &quot;Quality&quot;      &quot;PERQ6&quot;     &quot;A&quot; </span>
-<span class="co">#&gt; [15,] &quot;Quality&quot;      &quot;PERQ7&quot;     &quot;A&quot; </span>
-<span class="co">#&gt; [16,] &quot;Value&quot;        &quot;PERV1&quot;     &quot;A&quot; </span>
-<span class="co">#&gt; [17,] &quot;Value&quot;        &quot;PERV2&quot;     &quot;A&quot; </span>
-<span class="co">#&gt; [18,] &quot;Satisfaction&quot; &quot;CUSA1&quot;     &quot;C&quot; </span>
-<span class="co">#&gt; [19,] &quot;Satisfaction&quot; &quot;CUSA2&quot;     &quot;C&quot; </span>
-<span class="co">#&gt; [20,] &quot;Satisfaction&quot; &quot;CUSA3&quot;     &quot;C&quot; </span>
-<span class="co">#&gt; [21,] &quot;Complaints&quot;   &quot;CUSCO&quot;     &quot;C&quot; </span>
-<span class="co">#&gt; [22,] &quot;Loyalty&quot;      &quot;CUSL1&quot;     &quot;C&quot; </span>
-<span class="co">#&gt; [23,] &quot;Loyalty&quot;      &quot;CUSL2&quot;     &quot;C&quot; </span>
-<span class="co">#&gt; [24,] &quot;Loyalty&quot;      &quot;CUSL3&quot;     &quot;C&quot;</span></code></pre></div>
-<p>The <code>seminr()</code> syntax is far more human-readable and the use of the verbs makes the definition of the measurement model explicit. Modifications to the <code>seminr()</code> measurement model description are quick, easy and intuitive.</p>
+)</code></pre></div>
+<p>We are storing the measurement model in the <code>mobi_mm</code> variable for later use.</p>
+<p>Note that neither a dataset nor a structural model is specified in the measurement model stage, so we can reuse the measurement model object <code>mobi_mm</code> across different datasets and structural models.</p>
+</div>
+<div id="describe-individual-constructs-with-composite-or-reflective" class="section level3">
+<h3>Describe individual constructs with <code>composite()</code> or <code>reflective()</code></h3>
+<p><code>composite()</code> or <code>reflective()</code> describe a construct and its items.</p>
+<p>For example, we can use <code>composite()</code> to describe mode A (correlation weights) for the “Expectation” construct with manifest variables CUEX1, CUEX2, and CUEX3:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">composite</span>(<span class="st">&quot;Expectation&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;CUEX&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>), <span class="dt">weights =</span> <span class="st">&quot;A&quot;</span>)
+<span class="co"># is equivalent to:</span>
+<span class="kw">composite</span>(<span class="st">&quot;Expectation&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;CUEX&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>), <span class="dt">weights =</span> <span class="st">&quot;correlation&quot;</span>)</code></pre></div>
+<p>We can describe composite “Image” using mode B (regression weights) with manifest variables IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">composite</span>(<span class="st">&quot;Image&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>), <span class="dt">weights =</span> <span class="st">&quot;B&quot;</span>)
+<span class="co"># is equivalent to:</span>
+<span class="kw">composite</span>(<span class="st">&quot;Image&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>), <span class="dt">weights =</span> <span class="st">&quot;regression&quot;</span>)</code></pre></div>
+<p>Alternatively, we can use <code>reflective()</code> to describe the reflective, common-factor measurement of the “Satisfaction” construct with manifest variables CUSA1, CUSA2, and CUSA3:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">reflective</span>(<span class="st">&quot;Satisfaction&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;CUSA&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>))</code></pre></div>
+</div>
+<div id="specifying-construct-measurement-items" class="section level3">
+<h3>Specifying construct measurement items</h3>
+<p>SEMinR strives to make specification of measurement items shorter and cleaner using <code>multi_items()</code> or <code>single_item()</code></p>
+<ul>
+<li><code>multi_items()</code> creates a vector of multiple measurement items with similar names</li>
+<li><code>single_item()</code> describe a single measurement item</li>
+</ul>
+<p>We can describe the manifest variables: IMAG1, IMAG2, IMAG3, IMAG4 and IMAG5:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>)
+<span class="co"># which is equivalent to the R vector:</span>
+<span class="kw">c</span>(<span class="st">&quot;IMAG1&quot;</span>, <span class="st">&quot;IMAG2&quot;</span>, <span class="st">&quot;IMAG3&quot;</span>, <span class="st">&quot;IMAG4&quot;</span>, <span class="st">&quot;IMAG5&quot;</span>)</code></pre></div>
+<p><code>multi_items()</code> is used in conjunction with <code>composite()</code> or <code>reflective()</code> to describe a composite and common-factor construct respectively.</p>
+<p>We can describe a single manifest variable CUSCO:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">single_item</span>(<span class="st">&quot;CUSCO&quot;</span>)
+<span class="co"># which is equivalent to the R character string:</span>
+<span class="st">&quot;CUSCO&quot;</span></code></pre></div>
+<p>It is important to note that a single-item constructs can be defined as either composite mode A or reflective common-factor, but they are essentially composites whose factors scores are determined.</p>
+</div>
+</div>
+<div id="interaction-terms" class="section level2">
+<h2>Interaction terms</h2>
+<p>Creating interaction terms by hand can be a time-consuming and error-prone. SEMinR provides high-level functions for simply creating interactions between constructs.</p>
+<ul>
+<li><code>interactions()</code> gathers all pairs of interacting constructs in the model</li>
+<li><code>interaction_ortho()</code> or <code>interaction_scaled()</code> specify individual pairs of interactions</li>
+</ul>
+<p>Note that recent studies show PLS models must adjust the standard deviation of the interaction term because: <em>“In general, the product of two standardized variables does not equal the standardized product of these variables”</em> (Henseler and Chin 2010). SEMinR automatically adjusts for this providing highly accurate model estimations.</p>
+<div id="describe-all-model-interactions-with-interactions" class="section level3">
+<h3>Describe all model interactions with <code>interactions()</code></h3>
+<p><code>interactions()</code> describes all pairs of interactions in a model.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_xm &lt;-<span class="st"> </span><span class="kw">interactions</span>(
+  <span class="kw">interaction_ortho</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>),
+  <span class="kw">interaction_ortho</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Value&quot;</span>)
+)</code></pre></div>
+<p>The object held in <code>mobi_xm</code> is:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_xm
+<span class="co">#&gt; function(data, mm, all_intxns=list(...)) {</span>
+<span class="co">#&gt;     create_interaction &lt;- function(intxn_function) { intxn_function(data, mm) }</span>
+<span class="co">#&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)</span>
+<span class="co">#&gt;     return(intxns_list)</span>
+<span class="co">#&gt;   }</span>
+<span class="co">#&gt; &lt;environment: 0x113a4d068&gt;</span></code></pre></div>
+<p>Not that these functions themselves return functions that are not resolved until passed as a parameter to the <code>estimate_pls()</code> function for model estimation.</p>
+</div>
+<div id="describe-an-interaction-with-interaction_ortho-or-interaction_scaled" class="section level3">
+<h3>Describe an interaction with <code>interaction_ortho()</code> or <code>interaction_scaled()</code></h3>
+<p><code>interaction_ortho()</code> describes a single interaction composite generated by the orthogonalization method of Henseler and Chin (2010).</p>
+<p><code>interaction_scaled()</code> describes a single interaction composite as generated by the scale product-indicator method as described by Henseler and Chin (2010).</p>
+<p>For both these methods the standard deviation of the interaction term is adjusted as noted above.</p>
+<p>For example, we can describe the following interactions between antecedent and moderator: * “Image” + “Value”</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Orgthogonalized interaction between &quot;Image&quot; x &quot;Expectation&quot;</span>
+<span class="kw">interaction_ortho</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>)
+
+<span class="co"># Scaled (mean-centered, standardized) interaction between &quot;Image&quot; x &quot;Value&quot;</span>
+<span class="kw">interaction_scaled</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Value&quot;</span>)</code></pre></div>
+<p>These functions themselves return functions that are not resolved but passed as parameters to the <code>interactions()</code> function discussed above.</p>
+<p><strong>Important Note:</strong> SEMinR syntax uses a dot “.” as a naming convention for the interaction construct. Thus, the “Image” + “Expectation” interaction is called “Image.Expectation” in the structural model below. Please refrain from using a dot “.” in the naming of non-interaction constructs.</p>
 </div>
 </div>
 <div id="structural-model-description" class="section level2">
 <h2>Structural model description</h2>
-<p>SEMinR verbs for structural model description:</p>
+<p>SEMinR makes for human-readable and explicit structural model specification using these functions:</p>
 <ul>
-<li><code>paths()</code></li>
-<li><code>relationships()</code></li>
+<li><code>relationships()</code> gather all the structural relationships between all constructs</li>
+<li><code>paths()</code> specifies relationships between sets of antecedents and outcomes</li>
 </ul>
-<p>These verbs are highly intuitive and provide for human-readable code that allows a practitioner to understand the structural model on first glance and easily make changes to compare different structural models.</p>
-<div id="describe-structural-model-paths-with-paths" class="section level3">
-<h3>Describe structural model paths with <code>paths()</code></h3>
-<p><code>paths()</code> provides a verb to describe single or multiple structural paths.</p>
-<p>For example, we can describe the structural model paths:</p>
-<ul>
-<li>“Image” -&gt; “Expectation”</li>
-<li>“Image” -&gt; “Satisfaction”</li>
-<li>“Value” -&gt; “Satisfaction”</li>
-</ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Image&quot;</span>,                     <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Expectation&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>))
-<span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Value&quot;</span>,                     <span class="dt">to =</span> <span class="st">&quot;Satisfaction&quot;</span>)
-<span class="kw">paths</span>(<span class="dt">from =</span> <span class="kw">c</span>(<span class="st">&quot;Satisfaction&quot;</span>,<span class="st">&quot;Loyalty&quot;</span>), <span class="dt">to =</span> <span class="st">&quot;Value&quot;</span>)</code></pre></div>
-<p><code>paths()</code> is used in conjunction with <code>relationships()</code> to describe the full structural model.</p>
-</div>
-<div id="create-structural-model-matrix-with-relationships" class="section level3">
-<h3>Create structural model matrix with <code>relationships()</code></h3>
+<div id="create-structural-model-with-relationships" class="section level3">
+<h3>Create structural model with <code>relationships()</code></h3>
 <p><code>relationships()</code> compiles the structural model source-target matrix from the user specified structural path descriptions described in the parameters.</p>
-<p>For example, we can create a source-target matrix structural model for the <code>mobi</code> data (with output displayed):</p>
+<p>For example, we can describe a structural model for the <code>mobi</code> data:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_sm &lt;-<span class="st"> </span><span class="kw">relationships</span>(
   <span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Image&quot;</span>,        <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Expectation&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>, <span class="st">&quot;Loyalty&quot;</span>)),
   <span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Expectation&quot;</span>,  <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Quality&quot;</span>, <span class="st">&quot;Value&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>)),
@@ -229,97 +283,65 @@ mobi_mm
   <span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Value&quot;</span>,        <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Satisfaction&quot;</span>)),
   <span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Satisfaction&quot;</span>, <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Complaints&quot;</span>, <span class="st">&quot;Loyalty&quot;</span>)),
   <span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Complaints&quot;</span>,   <span class="dt">to =</span> <span class="st">&quot;Loyalty&quot;</span>)
-)
-mobi_sm
-<span class="co">#&gt;       source         target        </span>
-<span class="co">#&gt;  [1,] &quot;Image&quot;        &quot;Expectation&quot; </span>
-<span class="co">#&gt;  [2,] &quot;Image&quot;        &quot;Satisfaction&quot;</span>
-<span class="co">#&gt;  [3,] &quot;Image&quot;        &quot;Loyalty&quot;     </span>
-<span class="co">#&gt;  [4,] &quot;Expectation&quot;  &quot;Quality&quot;     </span>
-<span class="co">#&gt;  [5,] &quot;Expectation&quot;  &quot;Value&quot;       </span>
-<span class="co">#&gt;  [6,] &quot;Expectation&quot;  &quot;Satisfaction&quot;</span>
-<span class="co">#&gt;  [7,] &quot;Quality&quot;      &quot;Value&quot;       </span>
-<span class="co">#&gt;  [8,] &quot;Quality&quot;      &quot;Satisfaction&quot;</span>
-<span class="co">#&gt;  [9,] &quot;Value&quot;        &quot;Satisfaction&quot;</span>
-<span class="co">#&gt; [10,] &quot;Satisfaction&quot; &quot;Complaints&quot;  </span>
-<span class="co">#&gt; [11,] &quot;Satisfaction&quot; &quot;Loyalty&quot;     </span>
-<span class="co">#&gt; [12,] &quot;Complaints&quot;   &quot;Loyalty&quot;</span></code></pre></div>
-<p>Used in conjunction with the measurement model verbs, the description and comparison of models can is more intuitive, readable and comparable.</p>
-</div>
-</div>
-<div id="interaction-term-description" class="section level2">
-<h2>Interaction term description</h2>
-<p>SEMinR verbs for creating Interaction Terms:</p>
-<ul>
-<li><code>interactions()</code></li>
-<li><code>interaction_ortho()</code> or <code>interaction_scaled()</code></li>
-</ul>
-<p>Most PLS SEM packages require practitioners to create interaction terms by hand which can be a time-consuming and arduous task - not to mention presenting many opporunities for errors and mis-specifications to enter the model. These verbs are highly intuitive and provide for human-readable code that allows a practitioner to quickly describe and “read” interaction terms and make changes and comparisons on the fly.</p>
-<p>Henseler and Chin (2010) suggest adjusting the SD of the interaction term because: “In general, the product of two standardized variables does not equal the standardized product of these variables” Seminr automatically adjusts for this providing highly accurate model estimations.</p>
-<div id="describe-an-interaction-with-interaction_ortho-or-interaction_scaled" class="section level3">
-<h3>Describe an interaction with <code>interaction_ortho()</code> or <code>interaction_scaled()</code></h3>
-<p><code>interaction_ortho()</code> provides a verb to describe single interaction item as generated by the orthogonalization method as described by Henseler and Chin (2010). <code>interaction_scaled()</code> provides a verb to describe a single interaction item as generated by the scale product-indicator method as described by Henseler and Chin (2010). For both these methods the SD of the interactino term is adjusted as noted above.</p>
-<p>For example, we can describe the following interaction items:</p>
-<ul>
-<li>“Image” + “Expectation”</li>
-<li>“Image” + “Value”</li>
-</ul>
-<p>Note: Seminr syntax uses a period as a naming convention for the interaction construct and thus “Image” + “Expectation” becomes “Image.Expectation”. Please refrain from using a period in the naming of non-interaction constructs.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">interaction_ortho</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>)
-<span class="kw">interaction_scaled</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Value&quot;</span>)</code></pre></div>
-<p>These functions return functions themselves which are not resolved until passed as parameters to the <code>interactions()</code> function.</p>
-</div>
-<div id="describe-all-model-interactions-with-interactions" class="section level3">
-<h3>Describe all model interactions with <code>interactions()</code></h3>
-<p><code>interactions()</code> provides a verb to describe all interactions in a specific model. The function itself returns a function which is not resolved until passed as a parameter to the <code>seminr()</code> function.</p>
-<p>For example, we can describe the following interaction constructs in a model:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_xm &lt;-<span class="st"> </span><span class="kw">interactions</span>(
-  <span class="kw">interaction_ortho</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>),
-  <span class="kw">interaction_ortho</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Value&quot;</span>)
 )</code></pre></div>
-<p>The output of this code is:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mobi_xm
-<span class="co">#&gt; function(data, mm, all_intxns=list(...)) {</span>
-<span class="co">#&gt;     create_interaction &lt;- function(intxn_function) { intxn_function(data, mm) }</span>
-<span class="co">#&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)</span>
-<span class="co">#&gt;     return(intxns_list)</span>
-<span class="co">#&gt;   }</span>
-<span class="co">#&gt; &lt;environment: 0x10d9b9f18&gt;</span></code></pre></div>
-<p>As previously mentioned, a function which is not resolved until passed to <code>estimate_pls()</code>.</p>
+<p>Note that neither a dataset nor a measurement model is specified in the structural model stage, so we can reuse the structural model object <code>mobi_sm</code> across different datasets and measurement models.</p>
+</div>
+<div id="describe-structural-paths-with-paths" class="section level3">
+<h3>Describe structural paths with <code>paths()</code></h3>
+<p><code>paths()</code> describe single or multiple structural paths between sets of constructs.</p>
+<p>For example, we can define paths from a single antecedent construct to a single outcome construct:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># &quot;Image&quot; -&gt; &quot;Expectation&quot;</span>
+<span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Image&quot;</span>, <span class="dt">to =</span> <span class="st">&quot;Expectation&quot;</span>)</code></pre></div>
+<p>Or paths from a single antecedent to multiple outcomes:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># &quot;Image&quot; -&gt; &quot;Expectation&quot;</span>
+<span class="co"># &quot;Image&quot; -&gt; &quot;Satisfaction&quot;</span>
+<span class="kw">paths</span>(<span class="dt">from =</span> <span class="st">&quot;Image&quot;</span>, <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Expectation&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>))</code></pre></div>
+<p>Or paths from multiple antecedents to a single outcome:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># &quot;Image&quot; -&gt; &quot;Satisfaction&quot;</span>
+<span class="co"># &quot;Expectation&quot; -&gt; &quot;Satisfaction&quot;</span>
+<span class="kw">paths</span>(<span class="dt">from =</span> <span class="kw">c</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>), <span class="dt">to =</span> <span class="st">&quot;Satisfaction&quot;</span>)</code></pre></div>
+<p>Or paths from multiple antecedents to a common set of outcomes:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># &quot;Expectation&quot; -&gt; &quot;Value&quot;</span>
+<span class="co"># &quot;Expectation&quot; -&gt; &quot;Satisfaction&quot;</span>
+<span class="co"># &quot;Quality&quot; -&gt; &quot;Value&quot;</span>
+<span class="co"># &quot;Quality&quot; -&gt; &quot;Satisfaction&quot;</span>
+<span class="kw">paths</span>(<span class="dt">from =</span> <span class="kw">c</span>(<span class="st">&quot;Expectation&quot;</span>, <span class="st">&quot;Quality&quot;</span>), <span class="dt">to =</span> <span class="kw">c</span>(<span class="st">&quot;Value&quot;</span>, <span class="st">&quot;Satisfaction&quot;</span>))</code></pre></div>
+<p>Even the most complicated structural models become quick and easy to specify or modify.</p>
 </div>
 </div>
-<div id="pls-sem-model-estimation-with-seminr" class="section level2">
-<h2>PLS SEM Model Estimation with <code>seminr</code></h2>
-<p>SEMinR verbs for PLS SEM model estimation:</p>
+<div id="pls-sem-model-estimation" class="section level2">
+<h2>PLS SEM Model Estimation</h2>
+<p>SEMinR can estimate a full SEM model described by the measurement and structural models above:</p>
 <ul>
-<li><code>estimate_pls()</code></li>
+<li><code>estimate_pls()</code> estimates the inner and outer parameters of a SEM model using PLSPM algorithms</li>
 </ul>
-<p>This verb is used to estimate the model and takes the following parameters:</p>
+<p>This function takes the following parameters:</p>
 <ul>
 <li><code>data</code>: the dataset containing the measurement model items specified in <code>constructs()</code></li>
 <li><code>measurement_model</code>: the measurement model described by the <code>constructs()</code> function</li>
-<li><code>interactions</code>: the interactions described by the <code>interactions()</code> function. If no interaction constructs are specified, this should be assigned the value of <code>NULL</code></li>
+<li><code>interactions</code> (optional): the interactions described by the <code>interactions()</code> function (default is NULL)</li>
 <li><code>structural_model</code>: the structural model described by the <code>paths()</code> function</li>
-<li><code>inner_weights</code>: the inner_weighting scheme for model estimation. This can take either <code>path_weighting</code> for path_weighting or <code>path_factorial</code> for factor weighting as proposed by Lohmöller (1989)</li>
+<li><code>inner_weights</code>: the weighting scheme for path estimation - either <code>path_weighting</code> for path weighting (default) or <code>path_factorial</code> for factor weighting (Lohmöller 1989)</li>
+<li><code>max_iterations</code> (optional): the maximum number of iterations (default is 300)</li>
+<li><code>stop_criterion</code> (optional): the number of places of precision to stop at (default is 7)</li>
 </ul>
-<p>Note: <code>max_iterations</code> is set to 300 as default and <code>stop_criterion</code> to 7.</p>
-<p>For example, we can estimate the PLS SEM model based upon the structural and measurement model with interactions as described previously in this vignette.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># seminr syntax for creating measurement model</span>
+<p>For example, we can estimate a simple PLS SEM model adapted from the structural and measurement model with interactions described thus far:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># define measurement model</span>
 mobi_mm &lt;-<span class="st"> </span><span class="kw">constructs</span>(
-  <span class="kw">reflective</span>(<span class="st">&quot;Image&quot;</span>,        <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>)),
-  <span class="kw">reflective</span>(<span class="st">&quot;Expectation&quot;</span>,  <span class="kw">multi_items</span>(<span class="st">&quot;CUEX&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>)),
-  <span class="kw">reflective</span>(<span class="st">&quot;Value&quot;</span>,        <span class="kw">multi_items</span>(<span class="st">&quot;PERV&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)),
-  <span class="kw">reflective</span>(<span class="st">&quot;Satisfaction&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;CUSA&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>))
+  <span class="kw">composite</span>(<span class="st">&quot;Image&quot;</span>,        <span class="kw">multi_items</span>(<span class="st">&quot;IMAG&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">5</span>)),
+  <span class="kw">composite</span>(<span class="st">&quot;Expectation&quot;</span>,  <span class="kw">multi_items</span>(<span class="st">&quot;CUEX&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>)),
+  <span class="kw">composite</span>(<span class="st">&quot;Value&quot;</span>,        <span class="kw">multi_items</span>(<span class="st">&quot;PERV&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">2</span>)),
+  <span class="kw">composite</span>(<span class="st">&quot;Satisfaction&quot;</span>, <span class="kw">multi_items</span>(<span class="st">&quot;CUSA&quot;</span>, <span class="dv">1</span><span class="op">:</span><span class="dv">3</span>))
 )
 
-<span class="co"># interaction factors must be created after the measurement model is defined</span>
+<span class="co"># specify interactions among constructs</span>
 mobi_xm &lt;-<span class="st"> </span><span class="kw">interactions</span>(
   <span class="kw">interaction_ortho</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>),
   <span class="kw">interaction_ortho</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Value&quot;</span>)
 )
 
-<span class="co"># structural model: note that name of the interactions factor should be</span>
-<span class="co">#  the names of its two main factors joined by a '.' in between.</span>
+<span class="co"># define structural model</span>
+<span class="co"># note: interactions factor should be named by its main factors joined by a '.'</span>
 mobi_sm &lt;-<span class="st"> </span><span class="kw">relationships</span>(
   <span class="kw">paths</span>(<span class="dt">to =</span> <span class="st">&quot;Satisfaction&quot;</span>,
         <span class="dt">from =</span> <span class="kw">c</span>(<span class="st">&quot;Image&quot;</span>, <span class="st">&quot;Expectation&quot;</span>, <span class="st">&quot;Value&quot;</span>,
@@ -332,31 +354,32 @@ mobi_pls &lt;-<span class="st"> </span><span class="kw">estimate_pls</span>(<spa
                          <span class="dt">structural_model =</span> mobi_sm,
                          <span class="dt">inner_weights =</span> path_weighting)
 <span class="co">#&gt; Generating the seminr model</span>
-<span class="co">#&gt; All 250 observations are valid.</span>
-<span class="co">#&gt; Models with interactions cannot be estimated as PLS consistent and therefore no adjustment for PLS consistent has been made</span></code></pre></div>
-<div id="consistent-pls-plsc-as-per-dijkstra-and-henseler-2015" class="section level3">
-<h3>Consistent PLS (PLSc as per Dijkstra and Henseler, 2015)</h3>
-<p>NOTE!: Seminr always adjusts for consistent estimates of coefficients for common-factor defined constructs (i.e. those constructs defined as <code>reflective()</code>). Unfortunately, seminr v1.0 does not adjust for PLSc on models with interactions at this point. Thus in models including common-factors and interactions, the coefficient of common-factors will be subject to bias.</p>
+<span class="co">#&gt; All 250 observations are valid.</span></code></pre></div>
+<div id="consistent-pls-plsc-for-common-factors" class="section level3">
+<h3>Consistent PLS (PLSc) for common factors</h3>
+<p>Dijkstra and Henseler (2015) offer an adjustment to generate consistent weight and path estimates of common factors estimated using PLSPM. SEMinR automatically adjusts for consistent estimates of coefficients for common factors defined using <code>reflective()</code>.</p>
+<p>Note: At this point, SEMinR does not adjust for PLSc on models with interactions involving common factors. Thus in models including common-factors and interactions, the coefficient of common-factors will be subject to bias.</p>
 </div>
 </div>
 <div id="bootstrapping-the-model-for-significance" class="section level2">
 <h2>Bootstrapping the model for significance</h2>
-<p>As per Hair et al. (2017) PLS path models can be bootstrapped for significance. To this end, seminr provides a verb for bootstrapping - <code>bootstrap_model()</code>. Notably, bootstrapping can also be meaningfully applied to models containing interaction terms and recalculates the interaction term for every sub-sample. This leads to slightly increased processing times, but provides accurate estimations.</p>
-<p>SEMinR verbs for PLS SEM model bootstrapping:</p>
+<p>SEMinR can conduct high performance bootstrapping.</p>
 <ul>
-<li><code>bootstrap_model()</code></li>
+<li><code>bootstrap_model()</code> bootstraps a SEMinR model previously estimated using <code>estimate_pls()</code></li>
 </ul>
-<p>This verb is used to bootstrap a pre-described seminr model and takes the following parameters:</p>
+<p>This function takes the following parameters:</p>
 <ul>
-<li><code>seminr_model</code>: the seminr model as described by <code>estimate_pls()</code></li>
+<li><code>seminr_model</code>: a SEM model provided by <code>estimate_pls()</code></li>
 <li><code>nboot</code>: the number of bootstrap subsamples to generate</li>
-<li><code>cores</code>: If your pc supports multi-core processing, the number of cores to utilize for parallel processing. The default is NULL in which case seminr will detect the number of available cores and utilize all available cores for maximum performance</li>
+<li><code>cores</code>: If your pc supports multi-core processing, the number of cores to utilize for parallel processing (default is NULL, wherein SEMinR will automatically detect and utilize all available cores)</li>
 </ul>
-<p>For example, we can bootstrap the model described above with <code>nboot = 2000</code> for 2000 bootstraps and utilizing 4 parallel cores with <code>cores = 4</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">boot_mobi_pls &lt;-<span class="st"> </span><span class="kw">bootstrap_model</span>(<span class="dt">seminr_model =</span> mobi_pls,
-                                 <span class="dt">nboot =</span> <span class="dv">2000</span>,
+<p>For example, we can bootstrap the model described above:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># use 2000 bootstraps and utilize 4 parallel cores</span>
+boot_mobi_pls &lt;-<span class="st"> </span><span class="kw">bootstrap_model</span>(<span class="dt">seminr_model =</span> mobi_pls,
+                                 <span class="dt">nboot =</span> <span class="dv">100</span>,
                                  <span class="dt">cores =</span> <span class="dv">4</span>)
 <span class="co">#&gt; Bootstrapping model using seminr...</span></code></pre></div>
+<p>Notably, bootstrapping can also be meaningfully applied to models containing interaction terms and readjusts the interaction term (Henseler and Chin 2010) for every sub-sample. This leads to slightly increased processing times, but provides accurate estimations.</p>
 </div>
 <div id="reporting-the-pls-sem-model" class="section level2">
 <h2>Reporting the PLS SEM Model</h2>
@@ -364,7 +387,7 @@ mobi_pls &lt;-<span class="st"> </span><span class="kw">estimate_pls</span>(<spa
 <h3>Reporting the estimated <code>seminr_model</code></h3>
 <p>There are multiple ways of reporting the estimated model. The <code>estimate_pls()</code> function returns an object of class <code>seminr_model</code>. This can be passed directly to the base R function <code>summary()</code>. This can be used in two primary ways:</p>
 <ol style="list-style-type: decimal">
-<li><code>summary(seminr_model)</code> to report <span class="math inline">\(R^{2}\)</span>, adjusted <span class="math inline">\(R^{2}\)</span>, path coefficients for the structural model, and the construct reliability metrics <span class="math inline">\(rho_{C}\)</span>, AVE, and <span class="math inline">\(rho_{A}\)</span>. (<span class="math inline">\(rho_{A}\)</span>: Dillon-Goldstein’s Rho as per: Dillon and Goldstein, 1987, AVE as per: Fornell and Larcker, 1981, <span class="math inline">\(rho_{A}\)</span> as per: Dijkstra and Henseler, 2015)</li>
+<li><code>summary(seminr_model)</code> to report <span class="math inline">\(R^{2}\)</span>, adjusted <span class="math inline">\(R^{2}\)</span>, path coefficients for the structural model, and the construct reliability metrics AVE, <span class="math inline">\(rho_{A}\)</span> (Dillon and Goldstein 1987), AVE (Fornell and Larcker 1981), and <span class="math inline">\(rho_{C}\)</span> (Dijkstra and Henseler 2015)</li>
 </ol>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(mobi_pls)
 <span class="co">#&gt; </span>
@@ -380,13 +403,13 @@ mobi_pls &lt;-<span class="st"> </span><span class="kw">estimate_pls</span>(<spa
 <span class="co">#&gt; Image.Value             -0.058</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Reliability:</span>
-<span class="co">#&gt;                     rhoC    AVE  rhoA</span>
-<span class="co">#&gt; Image                  . 0.0629 0.745</span>
-<span class="co">#&gt; Expectation            . 0.0379 0.462</span>
-<span class="co">#&gt; Value                  . 0.0446 0.858</span>
-<span class="co">#&gt; Image.Expectation 0.8006 0.2547 0.553</span>
-<span class="co">#&gt; Image.Value       0.0439 0.2263 0.339</span>
-<span class="co">#&gt; Satisfaction           . 0.0547 0.783</span></code></pre></div>
+<span class="co">#&gt;                     rhoC   AVE  rhoA</span>
+<span class="co">#&gt; Image             0.8183 0.478 0.745</span>
+<span class="co">#&gt; Expectation       0.7332 0.481 0.462</span>
+<span class="co">#&gt; Value             0.9179 0.848 0.858</span>
+<span class="co">#&gt; Image.Expectation 0.8006 0.255 0.553</span>
+<span class="co">#&gt; Image.Value       0.0439 0.226 0.339</span>
+<span class="co">#&gt; Satisfaction      0.8715 0.693 0.783</span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li><code>model_summary &lt;- summary(seminr_model)</code> returns an object of class <code>summary.seminr_model</code> which contains the following accessible objects:
 <ul>
@@ -406,23 +429,23 @@ mobi_pls &lt;-<span class="st"> </span><span class="kw">estimate_pls</span>(<spa
 </ol>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(boot_mobi_pls)
 <span class="co">#&gt; </span>
-<span class="co">#&gt;  Bootstrapped resamples: 2000</span>
+<span class="co">#&gt;  Bootstrapped resamples: 100</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Structural Path t-values:</span>
 <span class="co">#&gt;                   Satisfaction</span>
-<span class="co">#&gt; Image                    8.027</span>
-<span class="co">#&gt; Expectation              2.756</span>
-<span class="co">#&gt; Value                    4.484</span>
-<span class="co">#&gt; Image.Expectation        0.966</span>
-<span class="co">#&gt; Image.Value              0.025</span>
+<span class="co">#&gt; Image                    8.218</span>
+<span class="co">#&gt; Expectation              2.669</span>
+<span class="co">#&gt; Value                    4.528</span>
+<span class="co">#&gt; Image.Expectation        0.824</span>
+<span class="co">#&gt; Image.Value              0.000</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Structural Path p-values:</span>
 <span class="co">#&gt;                   Satisfaction</span>
 <span class="co">#&gt; Image                    0.000</span>
-<span class="co">#&gt; Expectation              0.006</span>
+<span class="co">#&gt; Expectation              0.009</span>
 <span class="co">#&gt; Value                    0.000</span>
-<span class="co">#&gt; Image.Expectation        0.334</span>
-<span class="co">#&gt; Image.Value              0.980</span></code></pre></div>
+<span class="co">#&gt; Image.Expectation        0.412</span>
+<span class="co">#&gt; Image.Value              1.000</span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li><code>boot_model_summary &lt;- summary(boot_seminr_model)</code> returns an object of class <code>summary.boot_seminr_model</code> which contains the following accessible objects:
 <ul>
@@ -437,13 +460,13 @@ mobi_pls &lt;-<span class="st"> </span><span class="kw">estimate_pls</span>(<spa
 <h2>References</h2>
 <ul>
 <li>Henseler, J., &amp; Chin, W. W. (2010), A comparison of approaches for the analysis of interaction effects between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1), 82–109. <a href="https://doi.org/10.1080/10705510903439003" class="uri">https://doi.org/10.1080/10705510903439003</a></li>
+<li>Henseler, J., &amp; Fassot, G. (2006). Testing moderating effects in PLS path models. In: Esposito Vinzi, V., Chin,W.W., Henseler, J., &amp; Wang, H. (Eds.), Handbook PLS and Marketing. Berlin, Heidelberg, New York: Springer.</li>
 <li>Lohmöller, J.-B. (1989). Latent variables path modeling with partial least squares. Heidelberg, Germany: Physica- Verlag. Marsh,</li>
 <li>Dillon, W. R, and M. Goldstein. 1987. Multivariate Analysis: Methods, and Applications. Biometrical Journal 29 (6): 750–756.</li>
 <li>Fornell, C. and D. F. Larcker (February 1981). Evaluating structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5)</li>
 <li>Dijkstra, T. K., &amp; Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).</li>
 <li>Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on Partial Least Squares Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.</li>
 </ul>
-</div>
 </div>
 
 
