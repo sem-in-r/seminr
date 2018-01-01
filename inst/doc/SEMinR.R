@@ -5,8 +5,8 @@ library(seminr)
 ## ---- eval=FALSE---------------------------------------------------------
 #  # Distinguish and mix composite or reflective (common-factor) measurement models
 #  measurements <- constructs(
-#    composite("Image",       multi_items("IMAG", 1:5), weights = "B"),
-#    composite("Expectation", multi_items("CUEX", 1:3), weights = "A"),
+#    composite("Image",       multi_items("IMAG", 1:5), weights = mode_B),
+#    composite("Expectation", multi_items("CUEX", 1:3), weights = mode_A),
 #    reflective("Loyalty",    multi_items("CUSL", 1:3))
 #  )
 
@@ -44,24 +44,24 @@ head(mobi)
 
 ## ------------------------------------------------------------------------
 mobi_mm <- constructs(
-  composite("Image",         multi_items("IMAG", 1:5), weights = "B"),
-  composite("Expectation",   multi_items("CUEX", 1:3), weights = "regression"),
-  composite("Quality",       multi_items("PERQ", 1:7), weights = "A"),
-  composite("Value",         multi_items("PERV", 1:2), weights = "correlation"),
+  composite("Image",         multi_items("IMAG", 1:5), weights = mode_B),
+  composite("Expectation",   multi_items("CUEX", 1:3), weights = regression_weights),
+  composite("Quality",       multi_items("PERQ", 1:7), weights = mode_A),
+  composite("Value",         multi_items("PERV", 1:2), weights = correlation_weights),
   reflective("Satisfaction", multi_items("CUSA", 1:3)),
   reflective("Complaints",   single_item("CUSCO")),
   reflective("Loyalty",      multi_items("CUSL", 1:3))
 )
 
 ## ---- eval=FALSE---------------------------------------------------------
-#  composite("Expectation", multi_items("CUEX", 1:3), weights = "A")
+#  composite("Expectation", multi_items("CUEX", 1:3), weights = mode_A)
 #  # is equivalent to:
-#  composite("Expectation", multi_items("CUEX", 1:3), weights = "correlation")
+#  composite("Expectation", multi_items("CUEX", 1:3), weights = correlation_weights)
 
 ## ---- eval=FALSE---------------------------------------------------------
-#  composite("Image", multi_items("IMAG", 1:5), weights = "B")
+#  composite("Image", multi_items("IMAG", 1:5), weights = mode_B)
 #  # is equivalent to:
-#  composite("Image", multi_items("IMAG", 1:5), weights = "regression")
+#  composite("Image", multi_items("IMAG", 1:5), weights = regression_weights)
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  reflective("Satisfaction", multi_items("CUSA", 1:3))
