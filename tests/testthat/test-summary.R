@@ -2,10 +2,10 @@ context("SEMinR correctly returns the summary object for class seminr_model\n")
 
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
-  composite("Image",        multi_items("IMAG", 1:5),weights = "A"),
-  composite("Expectation",  multi_items("CUEX", 1:3),weights = "A"),
-  composite("Value",        multi_items("PERV", 1:2),weights = "A"),
-  composite("Satisfaction", multi_items("CUSA", 1:3),weights = "A")
+  composite("Image",        multi_items("IMAG", 1:5),weights = mode_A),
+  composite("Expectation",  multi_items("CUEX", 1:3),weights = mode_A),
+  composite("Value",        multi_items("PERV", 1:2),weights = mode_A),
+  composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A)
 )
 
 mobi_sm <- relationships(
@@ -53,10 +53,10 @@ context("SEMinR correctly returns the summary object for class boot_seminr_model
 
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
-  composite("Image",        multi_items("IMAG", 1:5),weights = "A"),
-  composite("Expectation",  multi_items("CUEX", 1:3),weights = "A"),
-  composite("Value",        multi_items("PERV", 1:2),weights = "A"),
-  composite("Satisfaction", multi_items("CUSA", 1:3),weights = "A")
+  composite("Image",        multi_items("IMAG", 1:5),weights = mode_A),
+  composite("Expectation",  multi_items("CUEX", 1:3),weights = mode_A),
+  composite("Value",        multi_items("PERV", 1:2),weights = mode_A),
+  composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A)
 )
 
 mobi_sm <- relationships(

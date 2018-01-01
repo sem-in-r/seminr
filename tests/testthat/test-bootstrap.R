@@ -5,10 +5,10 @@ context("SEMinR correctly bootstraps the simple model\n")
 set.seed(123)
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
-  composite("Image",        multi_items("IMAG", 1:5), weights = "A"),
-  composite("Expectation",  multi_items("CUEX", 1:3), weights = "A"),
-  composite("Value",        multi_items("PERV", 1:2), weights = "A"),
-  composite("Satisfaction", multi_items("CUSA", 1:3), weights = "A")
+  composite("Image",        multi_items("IMAG", 1:5), weights = mode_A),
+  composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
+  composite("Value",        multi_items("PERV", 1:2), weights = mode_A),
+  composite("Satisfaction", multi_items("CUSA", 1:3), weights = mode_A)
 )
 
 # structural model: note that name of the interactions factor should be
@@ -65,10 +65,10 @@ context("SEMinR correctly bootstraps the interaction model\n")
 
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
-  composite("Image",        multi_items("IMAG", 1:5), weights = "A"),
-  composite("Expectation",  multi_items("CUEX", 1:3), weights = "A"),
-  composite("Value",        multi_items("PERV", 1:2), weights = "A"),
-  composite("Satisfaction", multi_items("CUSA", 1:3), weights = "A")
+  composite("Image",        multi_items("IMAG", 1:5), weights = correlation_weights),
+  composite("Expectation",  multi_items("CUEX", 1:3), weights = correlation_weights),
+  composite("Value",        multi_items("PERV", 1:2), weights = correlation_weights),
+  composite("Satisfaction", multi_items("CUSA", 1:3), weights = correlation_weights)
 )
 
 # interaction factors must be created after the measurement model is defined

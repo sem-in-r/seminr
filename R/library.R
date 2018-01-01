@@ -5,7 +5,8 @@ measure_mode <- function(latent,mmMatrix) {
 
 # function to get measurement mode of a latent (first item) as a function
 get_measure_mode <- function(latent,mmMatrix) {
-  base::get(mmMatrix[mmMatrix[,"latent"]==latent,"type"][1])
+  ifelse((mmMatrix[mmMatrix[,"latent"]==latent,"type"][1] == "A") |(mmMatrix[mmMatrix[,"latent"]==latent,"type"][1] == "C") , return(mode_A), return(mode_B))
+#  base::get(mmMatrix[mmMatrix[,"latent"]==latent,"type"][1])
 }
 
 # Used in warnings - warning_only_causal_construct()
@@ -103,12 +104,20 @@ standardize_outer_weights <- function(normData, mmVariables, outer_weights) {
   return(t(t(outer_weights) / std_devs))
 }
 
-A <- C <- function(mmMatrix, i, normData, fscores) {
+#' @export
+mode_A  <- function(mmMatrix, i, normData, fscores) {
     return(stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],fscores[,i]))
 }
 
-B <- function(mmMatrix, i,normData, fscores) {
+#' @export
+correlation_weights <- mode_A
+
+#' @export
+mode_B <- function(mmMatrix, i,normData, fscores) {
     return(solve(stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]])) %*%
     stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],
                fscores[,i]))
 }
+
+#' @export
+regression_weights <- mode_B

@@ -64,13 +64,6 @@ reflective <- function(construct_name, item_names) {
   return(c(rbind(construct_names, item_names, "C")))
 }
 
-###### Deprecate causal
-# #' @export
-# causal <- function(construct_name, item_names) {
-#   construct_names <- rep(construct_name, length(item_names))
-#   return(c(rbind(construct_names,item_names,"B")))
-# }
-
 #' Composite construct measurement model specification
 #'
 #' \code{composite} creates the composite measurement model matrix for a specific construct,
@@ -99,12 +92,12 @@ reflective <- function(construct_name, item_names) {
 #'     composite("Value",        multi_items("PERV", 1:2), weights = "B")
 #'   )
 #' @export
-composite <- function(construct_name, item_names, weights = "correlation") {
+composite <- function(construct_name, item_names, weights = correlation_weights) {
   construct_names <- rep(construct_name, length(item_names))
-  if(weights == "correlation" | weights == "A") {
+  if(identical(weights,correlation_weights) | identical(weights,mode_A)) {
     return(c(rbind(construct_names,item_names,"A")))
   }
-  if(weights == "regression" | weights == "B") {
+  if(identical(weights, regression_weights) | identical(weights, mode_B)) {
     return(c(rbind(construct_names,item_names,"B")))
   }
 }
