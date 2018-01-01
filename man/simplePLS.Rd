@@ -29,8 +29,6 @@ structural equation models. \code{seminr} is compatible with simplePLS.
 \code{simplePLS} provides the verb for estimating a pls model.
 }
 \examples{
-data(mobi)
-
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
              reflective("Image",        multi_items("IMAG", 1:5)),
@@ -54,9 +52,6 @@ mobi_sm <- relationships(
 mobi_pls <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
-
-# Estimate modelwith simplePLS
-mobi_pls <- simplePLS(mobi,mobi_sm, mobi_mm)
 
 }
 \seealso{

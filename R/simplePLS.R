@@ -27,8 +27,6 @@
 #'          \code{\link{estimate_pls}} \code{\link{bootstrap_model}}
 #'
 #' @examples
-#' data(mobi)
-#'
 #' #seminr syntax for creating measurement model
 #' mobi_mm <- constructs(
 #'              reflective("Image",        multi_items("IMAG", 1:5)),
@@ -52,9 +50,6 @@
 #' mobi_pls <- estimate_pls(data = mobi,
 #'                            measurement_model = mobi_mm,
 #'                            structural_model = mobi_sm)
-#'
-#' # Estimate modelwith simplePLS
-#' mobi_pls <- simplePLS(mobi,mobi_sm, mobi_mm)
 #'
 #' @export
 simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting, maxIt=300, stopCriterion=7, measurement_mode_scheme){

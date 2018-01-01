@@ -14,8 +14,6 @@
 #' @references Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
 #'
 #' @examples
-#' mobi <- mobi
-#'
 #' #seminr syntax for creating measurement model
 #' mobi_mm <- constructs(
 #'              reflective("Image",        multi_items("IMAG", 1:5)),

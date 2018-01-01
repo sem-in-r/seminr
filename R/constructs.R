@@ -76,8 +76,8 @@ reflective <- function(construct_name, item_names) {
 #' @param construct_name of construct
 #' @param item_names returned by the \code{multi_items} or \code{single_item} functions
 #' @param weights is the relationship between the construct and its items. This can be
-#' specified as "correlation" or "A" for correlation weights(Mode A) or as "regression" or "B" for
-#' regression weights(Mode B). Default is correlation weights.
+#' specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
+#' \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.
 #'
 #' @usage
 #'  composite(construct_name, item_names,weights = "correlation")
@@ -86,10 +86,10 @@ reflective <- function(construct_name, item_names) {
 #'
 #' @examples
 #'   mobi_mm <- constructs(
-#'     composite("Image",        multi_items("IMAG", 1:5), weights = "correlation"),
-#'     composite("Expectation",  multi_items("CUEX", 1:3), weights = "A"),
-#'     composite("Quality",      multi_items("PERQ", 1:7), weights = "regression"),
-#'     composite("Value",        multi_items("PERV", 1:2), weights = "B")
+#'     composite("Image",        multi_items("IMAG", 1:5), weights = correlation_weights),
+#'     composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
+#'     composite("Quality",      multi_items("PERQ", 1:7), weights = regression_weights),
+#'     composite("Value",        multi_items("PERV", 1:2), weights = mode_B)
 #'   )
 #' @export
 composite <- function(construct_name, item_names, weights = correlation_weights) {
@@ -128,10 +128,10 @@ composite <- function(construct_name, item_names, weights = correlation_weights)
 #'
 #' @examples
 #'   mobi_mm <- constructs(
-#'     composite("Image",        multi_items("IMAG", 1:5), weights = "correlation"),
-#'     composite("Expectation",  multi_items("CUEX", 1:3), weights = "A"),
-#'     composite("Quality",      multi_items("PERQ", 1:7), weights = "regression"),
-#'     composite("Value",        multi_items("PERV", 1:2), weights = "B")
+#'     composite("Image",        multi_items("IMAG", 1:5), weights = correlation_weights),
+#'     composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
+#'     composite("Quality",      multi_items("PERQ", 1:7), weights = regression_weights),
+#'     composite("Value",        multi_items("PERV", 1:2), weights = mode_B)
 #'   )
 #' @export
 multi_items <- function(item_name, item_numbers, ...) {
@@ -152,10 +152,10 @@ multi_items <- function(item_name, item_numbers, ...) {
 #'
 #' @examples
 #'   mobi_mm <- constructs(
-#'     composite("Image",        multi_items("IMAG", 1:5), weights = "correlation"),
-#'     composite("Expectation",  multi_items("CUEX", 1:3), weights = "A"),
-#'     composite("Quality",      multi_items("PERQ", 1:7), weights = "regression"),
-#'     composite("Value",        single_item("PERV1"), weights = "A")
+#'     composite("Image",        multi_items("IMAG", 1:5), weights = correlation_weights),
+#'     composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
+#'     composite("Quality",      multi_items("PERQ", 1:7), weights = regression_weights),
+#'     composite("Value",        single_item("PERV1"), weights = mode_A)
 #'   )
 #' @export
 single_item <- function(item) {

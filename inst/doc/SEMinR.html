@@ -247,7 +247,7 @@ boot_estimates &lt;-<span class="st"> </span><span class="kw">bootstrap_model</s
 <span class="co">#&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)</span>
 <span class="co">#&gt;     return(intxns_list)</span>
 <span class="co">#&gt;   }</span>
-<span class="co">#&gt; &lt;environment: 0x10e0f3ea8&gt;</span></code></pre></div>
+<span class="co">#&gt; &lt;environment: 0x10d687a30&gt;</span></code></pre></div>
 <p>Not that these functions themselves return functions that are not resolved until passed as a parameter to the <code>estimate_pls()</code> function for model estimation.</p>
 </div>
 <div id="describe-an-interaction-with-interaction_ortho-or-interaction_scaled" class="section level3">
@@ -433,19 +433,19 @@ boot_mobi_pls &lt;-<span class="st"> </span><span class="kw">bootstrap_model</sp
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Structural Path t-values:</span>
 <span class="co">#&gt;                   Satisfaction</span>
-<span class="co">#&gt; Image                    8.040</span>
-<span class="co">#&gt; Expectation              2.646</span>
-<span class="co">#&gt; Value                    4.950</span>
-<span class="co">#&gt; Image.Expectation        1.056</span>
-<span class="co">#&gt; Image.Value              0.090</span>
+<span class="co">#&gt; Image                    7.736</span>
+<span class="co">#&gt; Expectation              2.852</span>
+<span class="co">#&gt; Value                    3.985</span>
+<span class="co">#&gt; Image.Expectation        1.131</span>
+<span class="co">#&gt; Image.Value              0.051</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Structural Path p-values:</span>
 <span class="co">#&gt;                   Satisfaction</span>
 <span class="co">#&gt; Image                    0.000</span>
-<span class="co">#&gt; Expectation              0.009</span>
+<span class="co">#&gt; Expectation              0.005</span>
 <span class="co">#&gt; Value                    0.000</span>
-<span class="co">#&gt; Image.Expectation        0.294</span>
-<span class="co">#&gt; Image.Value              0.929</span></code></pre></div>
+<span class="co">#&gt; Image.Expectation        0.261</span>
+<span class="co">#&gt; Image.Value              0.959</span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li><code>boot_model_summary &lt;- summary(boot_seminr_model)</code> returns an object of class <code>summary.boot_seminr_model</code> which contains the following accessible objects:
 <ul>
