@@ -3,6 +3,11 @@ measure_mode <- function(latent,mmMatrix) {
   mmMatrix[mmMatrix[,"latent"]==latent,"type"][1]
 }
 
+# function to get measurement mode of a latent (first item) as a function
+get_measure_mode <- function(latent,mmMatrix) {
+  get(mmMatrix[mmMatrix[,"latent"]==latent,"type"][1])
+}
+
 # Used in warnings - warning_only_causal_construct()
 # function to get all the items of a given measurement mode for a given latent
 items_per_mode <- function(latent, mode,mmMatrix) {
@@ -99,15 +104,15 @@ standardize_outer_weights <- function(normData, mmVariables, outer_weights) {
 }
 
 A <- C <- function(outer_weights, mmMatrix, ltVariables, i, normData, fscores) {
-  outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
-    stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
-  return(outer_weights)
+#  outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
+    return(stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],fscores[,i]))
+#  return(outer_weights)
 }
 
 B <- function(outer_weights, mmMatrix, ltVariables,i,normData, fscores) {
-  outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
-    solve(stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]])) %*%
-    stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],
-               fscores[,ltVariables[i]])
-  return(outer_weights)
+#  outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
+    return(solve(stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]])) %*%
+    stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],
+               fscores[,i]))
+#  return(outer_weights)
 }
