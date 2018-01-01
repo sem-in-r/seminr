@@ -123,20 +123,9 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting
     last_outer_weights <- outer_weights
 
     #Update outer_weights
-    #TODO: Refactor this to eliminate passing back outer weights every iteration
-    #TODO: make a named vector for the entire set of measurement functions for composites
-    ####
     for(i in ltVariables) {
-      outer_weights[mmMatrix[mmMatrix[,"latent"]==i, "measurement"],i] <- measurement_mode_scheme[[i]](outer_weights, mmMatrix, ltVariables,i,normData, fscores)
-
+      outer_weights[mmMatrix[mmMatrix[,"latent"]==i, "measurement"],i] <- measurement_mode_scheme[[i]]( mmMatrix, i, normData, fscores)
     }
-    ####
-#    for (i in 1:length(ltVariables))  {
-#      # get function for mode type
-#      outer_weight_scheme <- get(measure_mode(ltVariables[i],mmMatrix))
-#      # Run function and return
-#      outer_weights <- outer_weight_scheme(outer_weights, mmMatrix, ltVariables,i,normData, fscores)
-#    }
 
     #Standarize outer_weights
     outer_weights <- standardize_outer_weights(normData, mmVariables, outer_weights)

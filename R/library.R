@@ -5,7 +5,7 @@ measure_mode <- function(latent,mmMatrix) {
 
 # function to get measurement mode of a latent (first item) as a function
 get_measure_mode <- function(latent,mmMatrix) {
-  get(mmMatrix[mmMatrix[,"latent"]==latent,"type"][1])
+  base::get(mmMatrix[mmMatrix[,"latent"]==latent,"type"][1])
 }
 
 # Used in warnings - warning_only_causal_construct()
@@ -99,20 +99,16 @@ path_coef <- function(smMatrix, fscores,dependant, paths_matrix) {
 standardize_outer_weights <- function(normData, mmVariables, outer_weights) {
   # Standardize the outer weights
   std_devs <- attr(scale((normData[,mmVariables]%*%outer_weights), center = FALSE),"scaled:scale")
-  # divide by matrix bvy std_devs and return
+  # divide matrix by std_devs and return
   return(t(t(outer_weights) / std_devs))
 }
 
-A <- C <- function(outer_weights, mmMatrix, ltVariables, i, normData, fscores) {
-#  outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
+A <- C <- function(mmMatrix, i, normData, fscores) {
     return(stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],fscores[,i]))
-#  return(outer_weights)
 }
 
-B <- function(outer_weights, mmMatrix, ltVariables,i,normData, fscores) {
-#  outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
+B <- function(mmMatrix, i,normData, fscores) {
     return(solve(stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]])) %*%
     stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],
                fscores[,i]))
-#  return(outer_weights)
 }
