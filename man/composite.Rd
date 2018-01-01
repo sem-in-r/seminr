@@ -4,7 +4,7 @@
 \alias{composite}
 \title{Composite construct measurement model specification}
 \usage{
-composite(construct_name, item_names,weights = "correlation")
+composite(construct_name, item_names,weights = correlation_weights)
 }
 \arguments{
 \item{construct_name}{of construct}

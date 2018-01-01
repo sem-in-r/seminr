@@ -78,11 +78,11 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <ul>
 <li>change nboot back to 2000 throughout</li>
 <li>change measurement weighting to functions DONE</li>
-<li>WARNING: for dots in names of columns</li>
-<li>check citations and references</li>
-<li>equivalent R code for single_item</li>
-<li>paths example from single antecedant to single outcome</li>
-<li>check summary reporting of cross-loadings</li>
+<li>WARNING: for dots in names of columns DONE</li>
+<li>check citations and references DONE</li>
+<li>equivalent R code for single_item DONE??</li>
+<li>paths example from single antecedant to single outcome DONE??</li>
+<li>check summary reporting of cross-loadings DONE??</li>
 </ul>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
@@ -96,7 +96,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <ul>
 <li>Automatically <em>adjusts to ensure consistency (PLSc)</em> wherever common factors are involved</li>
 <li>Ajusts for known biases in interaction terms in PLS models (only available in leading commercial solutions)</li>
-<li>Continuously tested against leading PLS path modeling (PLSPM) software such as SmartPLS and ADANCO, as well as other R packages for PLSPM such as sem-pls and matrixpls, to ensure parity of outcomes</li>
+<li>Continuously tested against leading PLS path modeling (PLSPM) software such as <a href="http://www.smartpls.com">SmartPLS</a> and ADANCO (Henseler and Dijkstra, 2015), as well as other R packages for PLSPM such as semPLS (Monecke and Leisch, 2012) and matrixpls (Rönkkö, 2016), to ensure parity of outcomes</li>
 <li><em>High performance</em> multi-core toolkit to bootstrap models in simulations</li>
 </ul>
 <p>Briefly, there are four steps to specifying and estimating a full SEM using SEMinR:</p>
@@ -132,7 +132,7 @@ pls_model &lt;-<span class="st"> </span><span class="kw">estimate_pls</span>(<sp
 <span class="kw">summary</span>(pls_model)
 
 <span class="co"># Use multi-core parallel processing to speed up bootstraps</span>
-boot_estimates &lt;-<span class="st"> </span><span class="kw">bootstrap_model</span>(pls_model, <span class="dt">nboot =</span> <span class="dv">100</span>, <span class="dt">cores =</span> <span class="dv">4</span>)
+boot_estimates &lt;-<span class="st"> </span><span class="kw">bootstrap_model</span>(pls_model, <span class="dt">nboot =</span> <span class="dv">200</span>, <span class="dt">cores =</span> <span class="dv">4</span>)
 <span class="kw">summary</span>(boot_estimates)</code></pre></div>
 <p>SEMinR seeks to combine ease-of-use, flexible model construction, and high-performance. Below, we will cover the details and options of each of the four parts of model construction and estimation demonstrated above.</p>
 </div>
@@ -147,7 +147,7 @@ boot_estimates &lt;-<span class="st"> </span><span class="kw">bootstrap_model</s
 <h2>Data</h2>
 <p>You must load your data into a dataframe from any source you wish (CSV, etc.). Column names must be names of your measurement items.</p>
 <p><em>Important:</em> Avoid dots ‘.’ in your column names (these are reserved for interaction terms).</p>
-<p>For demonstration purposes, we will start with a dataset bundled with the seminr package - the <code>mobi</code> data frame (also found in the <code>sem-pls</code> R package). This dataset comes from a measurement instrument for the European Customer Satisfaction Index (ECSI) adapted to the mobile phone market (Tenenhaus et al. 2005).</p>
+<p>For demonstration purposes, we will start with a dataset bundled with the seminr package - the <code>mobi</code> data frame (also found in the <code>semPLS</code> R package). This dataset comes from a measurement instrument for the European Customer Satisfaction Index (ECSI) adapted to the mobile phone market (Tenenhaus et al. 2005).</p>
 <p>You can see a description and sample of what is in <code>mobi</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(mobi)
 <span class="co">#&gt; [1] 250  24</span>
@@ -175,7 +175,7 @@ boot_estimates &lt;-<span class="st"> </span><span class="kw">bootstrap_model</s
 <li><code>composite()</code> or <code>reflective()</code> define the measurement mode of individual constructs</li>
 <li><code>multi_items()</code> or <code>single_item()</code> define the items of a construct</li>
 </ul>
-<p>These functions should be natural to SEM practitioners and encourages them to explicitly specify their core nature of their measurement models: composite or common-factor (See Sarstedt et al. () and Henseler et al. () for clear definitions).</p>
+<p>These functions should be natural to SEM practitioners and encourages them to explicitly specify their core nature of their measurement models: composite or common-factor (See Sarstedt et al., 2016, and Henseler et al., 2013, for clear definitions).</p>
 <p>Let’s take a closer look at the individual functions.</p>
 <div id="create-measurement-model-matrix-with-constructs" class="section level3">
 <h3>Create measurement model matrix with <code>constructs()</code></h3>
@@ -247,7 +247,7 @@ boot_estimates &lt;-<span class="st"> </span><span class="kw">bootstrap_model</s
 <span class="co">#&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)</span>
 <span class="co">#&gt;     return(intxns_list)</span>
 <span class="co">#&gt;   }</span>
-<span class="co">#&gt; &lt;environment: 0x10d687a30&gt;</span></code></pre></div>
+<span class="co">#&gt; &lt;environment: 0x1104ab3c0&gt;</span></code></pre></div>
 <p>Not that these functions themselves return functions that are not resolved until passed as a parameter to the <code>estimate_pls()</code> function for model estimation.</p>
 </div>
 <div id="describe-an-interaction-with-interaction_ortho-or-interaction_scaled" class="section level3">
@@ -376,8 +376,8 @@ mobi_pls &lt;-<span class="st"> </span><span class="kw">estimate_pls</span>(<spa
 <p>For example, we can bootstrap the model described above:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># use 2000 bootstraps and utilize 4 parallel cores</span>
 boot_mobi_pls &lt;-<span class="st"> </span><span class="kw">bootstrap_model</span>(<span class="dt">seminr_model =</span> mobi_pls,
-                                 <span class="dt">nboot =</span> <span class="dv">100</span>,
-                                 <span class="dt">cores =</span> <span class="dv">4</span>)
+                                 <span class="dt">nboot =</span> <span class="dv">200</span>,
+                                 <span class="dt">cores =</span> <span class="dv">2</span>)
 <span class="co">#&gt; Bootstrapping model using seminr...</span></code></pre></div>
 <p>Notably, bootstrapping can also be meaningfully applied to models containing interaction terms and readjusts the interaction term (Henseler and Chin 2010) for every sub-sample. This leads to slightly increased processing times, but provides accurate estimations.</p>
 </div>
@@ -429,23 +429,23 @@ boot_mobi_pls &lt;-<span class="st"> </span><span class="kw">bootstrap_model</sp
 </ol>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(boot_mobi_pls)
 <span class="co">#&gt; </span>
-<span class="co">#&gt;  Bootstrapped resamples: 100</span>
+<span class="co">#&gt;  Bootstrapped resamples: 200</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Structural Path t-values:</span>
 <span class="co">#&gt;                   Satisfaction</span>
-<span class="co">#&gt; Image                    7.736</span>
-<span class="co">#&gt; Expectation              2.852</span>
-<span class="co">#&gt; Value                    3.985</span>
-<span class="co">#&gt; Image.Expectation        1.131</span>
-<span class="co">#&gt; Image.Value              0.051</span>
+<span class="co">#&gt; Image                    9.126</span>
+<span class="co">#&gt; Expectation              3.046</span>
+<span class="co">#&gt; Value                    4.386</span>
+<span class="co">#&gt; Image.Expectation        0.990</span>
+<span class="co">#&gt; Image.Value              0.026</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Structural Path p-values:</span>
 <span class="co">#&gt;                   Satisfaction</span>
 <span class="co">#&gt; Image                    0.000</span>
-<span class="co">#&gt; Expectation              0.005</span>
+<span class="co">#&gt; Expectation              0.003</span>
 <span class="co">#&gt; Value                    0.000</span>
-<span class="co">#&gt; Image.Expectation        0.261</span>
-<span class="co">#&gt; Image.Value              0.959</span></code></pre></div>
+<span class="co">#&gt; Image.Expectation        0.324</span>
+<span class="co">#&gt; Image.Value              0.979</span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li><code>boot_model_summary &lt;- summary(boot_seminr_model)</code> returns an object of class <code>summary.boot_seminr_model</code> which contains the following accessible objects:
 <ul>
@@ -459,13 +459,19 @@ boot_mobi_pls &lt;-<span class="st"> </span><span class="kw">bootstrap_model</sp
 <div id="references" class="section level2">
 <h2>References</h2>
 <ul>
-<li>Henseler, J., &amp; Chin, W. W. (2010), A comparison of approaches for the analysis of interaction effects between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1), 82–109. <a href="https://doi.org/10.1080/10705510903439003" class="uri">https://doi.org/10.1080/10705510903439003</a></li>
-<li>Henseler, J., &amp; Fassot, G. (2006). Testing moderating effects in PLS path models. In: Esposito Vinzi, V., Chin,W.W., Henseler, J., &amp; Wang, H. (Eds.), Handbook PLS and Marketing. Berlin, Heidelberg, New York: Springer.</li>
-<li>Lohmöller, J.-B. (1989). Latent variables path modeling with partial least squares. Heidelberg, Germany: Physica- Verlag. Marsh,</li>
+<li>Dijkstra, T. K., &amp; Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, MIS Quarterly Vol. 39(X).</li>
 <li>Dillon, W. R, and M. Goldstein. 1987. Multivariate Analysis: Methods, and Applications. Biometrical Journal 29 (6): 750–756.</li>
 <li>Fornell, C. and D. F. Larcker (February 1981). Evaluating structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5)</li>
-<li>Dijkstra, T. K., &amp; Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).</li>
 <li>Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on Partial Least Squares Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.</li>
+<li>Henseler, J., &amp; Fassot, G. (2006). Testing moderating effects in PLS path models. In: Esposito Vinzi, V., Chin,W.W., Henseler, J., &amp; Wang, H. (Eds.), Handbook PLS and Marketing. Berlin, Heidelberg, New York: Springer.</li>
+<li>Henseler, J., &amp; Chin, W. W. (2010), A comparison of approaches for the analysis of interaction effects between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1), 82–109. <a href="https://doi.org/10.1080/10705510903439003" class="uri">https://doi.org/10.1080/10705510903439003</a></li>
+<li>Henseler, J., Dijkstra, T. K., Sarstedt, M., Ringle, C. M., Diamantopoulos, A., Straub, D. W., … Calantone, R. J. (2014). Common Beliefs and Reality About PLS. Organizational Research Methods, 17(2), 182–209. <a href="https://doi.org/10.1177/1094428114526928" class="uri">https://doi.org/10.1177/1094428114526928</a></li>
+<li>Henseler, J. and Dijkstra, T.K. (2015), “ADANCO 2.0”, Composite Modeling, Kleve, available at: www.compositemodeling.com (accessed December 14, 2015).</li>
+<li>Lohmöller, J.-B. (1989). Latent variables path modeling with partial least squares. Heidelberg, Germany: Physica- Verlag. Marsh,</li>
+<li>Monecke, A., &amp; Leisch, F. (2012). semPLS: structural equation modeling using partial least squares. Journal of Statistical Software, 48(3), 1–32.</li>
+<li>Rönkkö, M. (2016). R package matrixpls: Matrix-based partial least squares estimation (version 0.7.0). <a href="http://cran.r-project.org/web/packages/matrixpls/" class="uri">http://cran.r-project.org/web/packages/matrixpls/</a></li>
+<li>Sarstedt, M., Hair, J. F., Ringle, C. M., Thiele, K. O., &amp; Gudergan, S. P. (2016). Estimation issues with PLS and CBSEM: Where the bias lies! Journal of Business Research, 69(10), 3998–4010. <a href="https://doi.org/10.1016/j.jbusres.2016.06.007" class="uri">https://doi.org/10.1016/j.jbusres.2016.06.007</a></li>
+<li>Tenenhaus, M., Vinzi, V. E., Chatelin, Y. M., &amp; Lauro, C. (2005). PLS path modeling. Computational Statistics and Data Analysis, 48(1), 159–205. <a href="https://doi.org/10.1016/j.csda.2004.03.005" class="uri">https://doi.org/10.1016/j.csda.2004.03.005</a></li>
 </ul>
 </div>
 

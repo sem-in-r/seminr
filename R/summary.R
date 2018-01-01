@@ -48,7 +48,7 @@ summary.boot_seminr_model <- function(boot_model, ...) {
 
   # calculate t-values and two-tailed p-values; 0 paths become NaN
   boot_t <- abs(boot_mean / boot_SE)
-  boot_p <- 2*pt(boot_t, df = boot_model$boots-1, lower.tail = FALSE)
+  boot_p <- 2*stats::pt(boot_t, df = boot_model$boots-1, lower.tail = FALSE)
 
   colnames(boot_t) <- endogenous_names
   colnames(boot_p) <- endogenous_names

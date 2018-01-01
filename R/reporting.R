@@ -12,9 +12,6 @@
 #' @param seminr_model The PLS model estimated by simplePLS \code{seminr}. The estimated model
 #'   returned by the \code{estimate_pls} or \code{bootstrap_model} methods.
 #'
-#' @param na.print A \code{character} substituting values not to be printed.
-#'   If not specified, default = "."
-#'
 #' @param digits A \code{numeric} minimum number of significant digits. If not
 #'   specified, default is "2".
 #'
@@ -22,7 +19,7 @@
 #'   specified, all factors are graphed and returned.
 #'
 #' @usage
-#' report_paths(seminr_model, na.print=".", digits=3)
+#' report_paths(seminr_model, digits=3)
 #'
 #' plot_scores(seminr_model, factors=NULL)
 #'

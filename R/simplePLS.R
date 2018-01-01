@@ -19,9 +19,11 @@
 #'
 #' @param stopCriterion The criterion to stop iterating (default is 7).
 #'
+#' @param measurement_mode_scheme A named list of constructs and measurement scheme functions
+#'
 #' @usage
 #' simplePLS(obsData,smMatrix, mmMatrix,inner_weights = path_weighting,
-#'           maxIt=300, stopCriterion=7)
+#'           maxIt=300, stopCriterion=7,measurement_mode_scheme)
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'          \code{\link{estimate_pls}} \code{\link{bootstrap_model}}

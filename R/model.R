@@ -52,13 +52,13 @@
 #'                          measurement_model = mobi_mm,
 #'                          structural_model = mobi_sm)
 #'
-#' print_paths(mobi_pls)
+#' summary(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
 estimate_pls <- function(data, measurement_model, interactions=NULL, structural_model, inner_weights = path_weighting) {
   cat("Generating the seminr model\n")
   warnings(measurement_model, data, structural_model)
-  data <- na.omit(data)
+  data <- stats::na.omit(data)
   rawdata <- data
   if(!is.null(interactions)) {
     # update data with new interaction items

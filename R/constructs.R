@@ -80,7 +80,7 @@ reflective <- function(construct_name, item_names) {
 #' \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.
 #'
 #' @usage
-#'  composite(construct_name, item_names,weights = "correlation")
+#'  composite(construct_name, item_names,weights = correlation_weights)
 #'
 #' @seealso See \code{\link{constructs}}, \code{\link{reflective}}
 #'

@@ -5,7 +5,7 @@
 \title{seminr simplePLS Function}
 \usage{
 simplePLS(obsData,smMatrix, mmMatrix,inner_weights = path_weighting,
-          maxIt=300, stopCriterion=7)
+          maxIt=300, stopCriterion=7,measurement_mode_scheme)
 }
 \arguments{
 \item{obsData}{A \code{dataframe} containing the indicator measurement data.}
@@ -22,6 +22,8 @@ path_weighting is default, alternately path_factorial can be used.}
 \item{maxIt}{The maximum number of iterations to run (default is 300).}
 
 \item{stopCriterion}{The criterion to stop iterating (default is 7).}
+
+\item{measurement_mode_scheme}{A named list of constructs and measurement scheme functions}
 }
 \description{
 The \code{seminr} package provides a natural syntax for researchers to describe PLS

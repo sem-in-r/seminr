@@ -34,7 +34,7 @@ mmMatrix_per_latent <- function(latent, mmMatrix) {
 # Factorial weighting scheme Function to create inner paths matrix
 #' @export
 path_factorial <- function(smMatrix,fscores, dependant, paths_matrix) {
-  inner_paths <- cor(fscores,fscores) * (paths_matrix + t(paths_matrix))
+  inner_paths <- stats::cor(fscores,fscores) * (paths_matrix + t(paths_matrix))
   return(inner_paths)
 }
 
@@ -42,7 +42,7 @@ path_factorial <- function(smMatrix,fscores, dependant, paths_matrix) {
 #' @export
 path_weighting <- function(smMatrix, fscores, dependant, paths_matrix) {
   # correlations for outgoing paths
-  inner_paths <- cor(fscores,fscores) * t(paths_matrix)
+  inner_paths <- stats::cor(fscores,fscores) * t(paths_matrix)
 
   #Regression betas for the incoming paths
   #Iterate and regress the incoming paths

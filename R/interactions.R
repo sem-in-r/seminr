@@ -35,7 +35,7 @@
 #' )
 #'
 #' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
-#' print_paths(mobi_pls)
+#' summary(mobi_pls)
 #'
 #' @export
 interactions <- function(...) {
@@ -57,9 +57,8 @@ interactions <- function(...) {
 #'  # orthogonalization approach as per Henseler & CHin (2010):
 #'  interaction_ortho(factor1, factor2)
 #'
-#' @references Henseler, J., & Chin, W. W. (2010), A comparison of approaches for the analysis of interaction effects
-#'  between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1), 82–109.
-#'  https://doi.org/10.1080/10705510903439003
+#' @references Henseler & Chin (2010), A comparison of approaches for the analysis of interaction effects
+#' between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1),82-109.
 #'
 #' @examples
 #' data(mobi)
@@ -85,7 +84,7 @@ interactions <- function(...) {
 #' )
 #'
 #' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
-#' print_paths(mobi_pls)
+#' summary(mobi_pls)
 #'
 #' @export
 interaction_ortho <- function(factor1, factor2) {
@@ -126,9 +125,8 @@ interaction_ortho <- function(factor1, factor2) {
 #'  # standardized product indicator approach as per Henseler & Chin (2010):
 #'  interaction_scaled("factor1", "factor2")
 #'
-#' @references Henseler, J., & Chin, W. W. (2010), A comparison of approaches for the analysis of interaction effects
-#'  between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1), 82–109.
-#'  https://doi.org/10.1080/10705510903439003
+#' @references Henseler & Chin (2010), A comparison of approaches for the analysis of interaction effects
+#' between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1),82-109.
 #'
 #' @examples
 #' data(mobi)
@@ -154,7 +152,7 @@ interaction_ortho <- function(factor1, factor2) {
 #' )
 #'
 #' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
-#' print_paths(mobi_pls)
+#' summary(mobi_pls)
 #'
 #' @export
 interaction_scaled <- function(factor1, factor2) {
