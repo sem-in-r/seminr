@@ -67,7 +67,7 @@ seminr_model <- estimate_model(data = mobi,
                                interactions = mobi_xm,
                                structural_model = mobi_sm)
 
-print_paths(seminr_model)
+summary(seminr_model)
 
 seminr_model_boot <- bootstrap_model(data = mobi,
                                      measurement_model = mobi_mm,
@@ -75,7 +75,7 @@ seminr_model_boot <- bootstrap_model(data = mobi,
                                      structural_model = mobi_sm,
                                      nboot = 200)
 
-print_paths(seminr_model_boot)
+summary(seminr_model_boot)
 ```
 
 ## Testing

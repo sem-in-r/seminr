@@ -2,10 +2,6 @@
 # using simplePLS consistent.
 library(seminr)
 
-# This example recreates the ECSI model on mobile users found at:
-# https://cran.r-project.org/web/packages/semPLS/vignettes/semPLS-intro.pdf
-mobi <- mobi
-
 # Creating measurement model
 # - note, reflective() is used to specify common-factor reflective constructs
 mobi_mm <- constructs(
@@ -39,7 +35,7 @@ plot_scores(mobi_pls)
 
 # Bootstrap the model
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
-                                 nboot = 500)
+                                 nboot = 2000)
 
 summary(boot_mobi_pls)
 plot_scores(boot_mobi_pls)

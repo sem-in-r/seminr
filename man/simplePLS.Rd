@@ -5,7 +5,7 @@
 \title{seminr simplePLS Function}
 \usage{
 simplePLS(obsData,smMatrix, mmMatrix,inner_weights = path_weighting,
-          maxIt=300, stopCriterion=7)
+          maxIt=300, stopCriterion=7,measurement_mode_scheme)
 }
 \arguments{
 \item{obsData}{A \code{dataframe} containing the indicator measurement data.}
@@ -22,6 +22,8 @@ path_weighting is default, alternately path_factorial can be used.}
 \item{maxIt}{The maximum number of iterations to run (default is 300).}
 
 \item{stopCriterion}{The criterion to stop iterating (default is 7).}
+
+\item{measurement_mode_scheme}{A named list of constructs and measurement scheme functions}
 }
 \description{
 The \code{seminr} package provides a natural syntax for researchers to describe PLS
@@ -29,8 +31,6 @@ structural equation models. \code{seminr} is compatible with simplePLS.
 \code{simplePLS} provides the verb for estimating a pls model.
 }
 \examples{
-data(mobi)
-
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
              reflective("Image",        multi_items("IMAG", 1:5)),
@@ -54,9 +54,6 @@ mobi_sm <- relationships(
 mobi_pls <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
-
-# Estimate modelwith simplePLS
-mobi_pls <- simplePLS(mobi,mobi_sm, mobi_mm)
 
 }
 \seealso{

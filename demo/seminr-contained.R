@@ -1,9 +1,5 @@
 # Demonstration of concise, contained model style
 
-# This example adapts on the ECSI model on mobile users found at:
-# https://cran.r-project.org/web/packages/semPLS/vignettes/semPLS-intro.pdf
-mobi <- mobi
-
 library(seminr)
 
 mobi_pls <- estimate_pls(
@@ -30,7 +26,7 @@ mobi_pls <- estimate_pls(
 
 summary(mobi_pls)
 
-# Bootstrapping our model
+# Bootstrapping the model
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls, nboot = 1000)
 summary(boot_mobi_pls)
 

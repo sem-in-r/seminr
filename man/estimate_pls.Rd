@@ -54,7 +54,7 @@ mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
                          structural_model = mobi_sm)
 
-print_paths(mobi_pls)
+summary(mobi_pls)
 plot_scores(mobi_pls)
 }
 \seealso{

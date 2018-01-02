@@ -18,10 +18,10 @@ multi_items(item_name, item_numbers, ...)
 }
 \examples{
   mobi_mm <- constructs(
-    composite("Image",        multi_items("IMAG", 1:5), weights = "correlation"),
-    composite("Expectation",  multi_items("CUEX", 1:3), weights = "A"),
-    composite("Quality",      multi_items("PERQ", 1:7), weights = "regression"),
-    composite("Value",        multi_items("PERV", 1:2), weights = "B")
+    composite("Image",        multi_items("IMAG", 1:5), weights = correlation_weights),
+    composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
+    composite("Quality",      multi_items("PERQ", 1:7), weights = regression_weights),
+    composite("Value",        multi_items("PERV", 1:2), weights = mode_B)
   )
 }
 \seealso{

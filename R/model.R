@@ -52,13 +52,13 @@
 #'                          measurement_model = mobi_mm,
 #'                          structural_model = mobi_sm)
 #'
-#' print_paths(mobi_pls)
+#' summary(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
 estimate_pls <- function(data, measurement_model, interactions=NULL, structural_model, inner_weights = path_weighting) {
   cat("Generating the seminr model\n")
   warnings(measurement_model, data, structural_model)
-  data <- na.omit(data)
+  data <- stats::na.omit(data)
   rawdata <- data
   if(!is.null(interactions)) {
     # update data with new interaction items
@@ -71,7 +71,7 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
 
     # update measurement model with interaction factors
     measure_interaction <- function(intxn) {
-      composite(intxn$name, names(intxn$data),weights = "A")
+      composite(intxn$name, names(intxn$data),weights = mode_A)
     }
     intxns_mm <- constructs(do.call("c", lapply(intxns_list, measure_interaction)))
     measurement_model <- rbind(measurement_model, intxns_mm)
@@ -80,8 +80,11 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
   # warning if the model is incorrectly specified
   warning_struc_meas_model_complete(structural_model,measurement_model,data)
 
+  # Make a named list of construct measurement_mode functions for simplePLS
+  measurement_mode_scheme <- sapply(unique(c(structural_model[,1],structural_model[,2])), get_measure_mode, measurement_model, USE.NAMES = TRUE)
+
   # Run the model in simplePLS
-  seminr_model = seminr::simplePLS(obsData = data, smMatrix = structural_model, mmMatrix = measurement_model, inner_weights = inner_weights)
+  seminr_model = seminr::simplePLS(obsData = data, smMatrix = structural_model, mmMatrix = measurement_model, inner_weights = inner_weights, measurement_mode_scheme = measurement_mode_scheme)
   seminr_model$data <- data
   seminr_model$mobi_xm <- interactions
   seminr_model$rawdata <- rawdata

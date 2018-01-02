@@ -40,6 +40,6 @@ mobi_sm <- relationships(
 )
 
 mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
-print_paths(mobi_pls)
+summary(mobi_pls)
 
 }

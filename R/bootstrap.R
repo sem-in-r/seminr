@@ -55,7 +55,7 @@
 #' boot_seminr_model <- bootstrap_model(seminr_model = seminr_model,
 #'                                      nboot = 100, cores = 2)
 #'
-#' print_paths(boot_seminr_model)
+#' summary(boot_seminr_model)
 #' @export
 bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
   # Bootstrapping for significance as per Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on

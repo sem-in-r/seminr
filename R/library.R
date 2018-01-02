@@ -3,6 +3,12 @@ measure_mode <- function(latent,mmMatrix) {
   mmMatrix[mmMatrix[,"latent"]==latent,"type"][1]
 }
 
+# function to get measurement mode of a latent (first item) as a function
+get_measure_mode <- function(latent,mmMatrix) {
+  ifelse((mmMatrix[mmMatrix[,"latent"]==latent,"type"][1] == "A") |(mmMatrix[mmMatrix[,"latent"]==latent,"type"][1] == "C") , return(mode_A), return(mode_B))
+#  base::get(mmMatrix[mmMatrix[,"latent"]==latent,"type"][1])
+}
+
 # Used in warnings - warning_only_causal_construct()
 # function to get all the items of a given measurement mode for a given latent
 items_per_mode <- function(latent, mode,mmMatrix) {
@@ -28,7 +34,7 @@ mmMatrix_per_latent <- function(latent, mmMatrix) {
 # Factorial weighting scheme Function to create inner paths matrix
 #' @export
 path_factorial <- function(smMatrix,fscores, dependant, paths_matrix) {
-  inner_paths <- cor(fscores,fscores) * (paths_matrix + t(paths_matrix))
+  inner_paths <- stats::cor(fscores,fscores) * (paths_matrix + t(paths_matrix))
   return(inner_paths)
 }
 
@@ -36,7 +42,7 @@ path_factorial <- function(smMatrix,fscores, dependant, paths_matrix) {
 #' @export
 path_weighting <- function(smMatrix, fscores, dependant, paths_matrix) {
   # correlations for outgoing paths
-  inner_paths <- cor(fscores,fscores) * t(paths_matrix)
+  inner_paths <- stats::cor(fscores,fscores) * t(paths_matrix)
 
   #Regression betas for the incoming paths
   #Iterate and regress the incoming paths
@@ -94,20 +100,24 @@ path_coef <- function(smMatrix, fscores,dependant, paths_matrix) {
 standardize_outer_weights <- function(normData, mmVariables, outer_weights) {
   # Standardize the outer weights
   std_devs <- attr(scale((normData[,mmVariables]%*%outer_weights), center = FALSE),"scaled:scale")
-  # divide by matrix bvy std_devs and return
+  # divide matrix by std_devs and return
   return(t(t(outer_weights) / std_devs))
 }
 
-A <- C <- function(outer_weights, mmMatrix, ltVariables, i, normData, fscores) {
-  outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
-    stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],fscores[,ltVariables[i]])
-  return(outer_weights)
+#' @export
+mode_A  <- function(mmMatrix, i, normData, fscores) {
+    return(stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],fscores[,i]))
 }
 
-B <- function(outer_weights, mmMatrix, ltVariables,i,normData, fscores) {
-  outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i], "measurement"], ltVariables[i]] =
-    solve(stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]])) %*%
-    stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"]],
-               fscores[,ltVariables[i]])
-  return(outer_weights)
+#' @export
+correlation_weights <- mode_A
+
+#' @export
+mode_B <- function(mmMatrix, i,normData, fscores) {
+    return(solve(stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]])) %*%
+    stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],
+               fscores[,i]))
 }
+
+#' @export
+regression_weights <- mode_B

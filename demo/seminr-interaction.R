@@ -1,9 +1,5 @@
 # Simple Style: Seperate declaration of measurement,interactions and structural model.
 
-# This example adapts on the ECSI model on mobile users found at:
-#  https://cran.r-project.org/web/packages/semPLS/vignettes/semPLS-intro.pdf
-mobi <- mobi
-
 library(seminr)
 
 # Creating our measurement model
@@ -35,13 +31,13 @@ mobi_pls <- estimate_pls(data = mobi,
                          interactions = mobi_xm,
                          structural_model = mobi_sm)
 
-print_paths(mobi_pls)
+summary(mobi_pls)
 
 # Bootstrap the model
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
                                  nboot = 500)
 
-print_paths(boot_mobi_pls)
+summary(boot_mobi_pls)
 
 # Second, using the standardized product indicator method as per Henseler & Chin (2010).
 # seminr syntax for creating measurement model
@@ -67,16 +63,15 @@ mobi_sm <- relationships(
 )
 
 # Load data, assemble model, and estimate using simplePLS
-mobi <- mobi
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
                          interactions = mobi_xm,
                          structural_model = mobi_sm)
 
-print_paths(mobi_pls)
+summary(mobi_pls)
 
 # Bootstrap the model
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
                                  nboot = 500)
 
-print_paths(boot_mobi_pls)
+summary(boot_mobi_pls)

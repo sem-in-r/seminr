@@ -19,16 +19,16 @@
 #'
 #' @param stopCriterion The criterion to stop iterating (default is 7).
 #'
+#' @param measurement_mode_scheme A named list of constructs and measurement scheme functions
+#'
 #' @usage
 #' simplePLS(obsData,smMatrix, mmMatrix,inner_weights = path_weighting,
-#'           maxIt=300, stopCriterion=7)
+#'           maxIt=300, stopCriterion=7,measurement_mode_scheme)
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'          \code{\link{estimate_pls}} \code{\link{bootstrap_model}}
 #'
 #' @examples
-#' data(mobi)
-#'
 #' #seminr syntax for creating measurement model
 #' mobi_mm <- constructs(
 #'              reflective("Image",        multi_items("IMAG", 1:5)),
@@ -53,11 +53,8 @@
 #'                            measurement_model = mobi_mm,
 #'                            structural_model = mobi_sm)
 #'
-#' # Estimate modelwith simplePLS
-#' mobi_pls <- simplePLS(mobi,mobi_sm, mobi_mm)
-#'
 #' @export
-simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting, maxIt=300, stopCriterion=7){
+simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting, maxIt=300, stopCriterion=7, measurement_mode_scheme){
 
   #Create list of Measurements Variables
   mmVariables <- mmMatrix[,"measurement"]
@@ -123,13 +120,8 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting
     last_outer_weights <- outer_weights
 
     #Update outer_weights
-    #TODO: Refactor this to eliminate passing back outer weights every iteration
-    #TODO: make a named vector for the entire set of measurement functions for composites
-    for (i in 1:length(ltVariables))  {
-      # get function for mode type
-      outer_weight_scheme <- get(measure_mode(ltVariables[i],mmMatrix))
-      # Run function and return
-      outer_weights <- outer_weight_scheme(outer_weights, mmMatrix, ltVariables,i,normData, fscores)
+    for(i in ltVariables) {
+      outer_weights[mmMatrix[mmMatrix[,"latent"]==i, "measurement"],i] <- measurement_mode_scheme[[i]]( mmMatrix, i, normData, fscores)
     }
 
     #Standarize outer_weights
