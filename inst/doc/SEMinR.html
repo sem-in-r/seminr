@@ -77,12 +77,8 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p><em>TODO</em>:</p>
 <ul>
 <li>change nboot back to 2000 throughout</li>
-<li>change measurement weighting to functions DONE</li>
-<li>WARNING: for dots in names of columns DONE</li>
-<li>check citations and references DONE</li>
-<li>equivalent R code for single_item DONE??</li>
-<li>paths example from single antecedant to single outcome DONE??</li>
-<li>check summary reporting of cross-loadings DONE??</li>
+<li>check smartpls reference on smartpls website</li>
+<li>check summary reporting of cross-loadings and validities (maybe flatten?)</li>
 </ul>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
@@ -247,7 +243,7 @@ boot_estimates &lt;-<span class="st"> </span><span class="kw">bootstrap_model</s
 <span class="co">#&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)</span>
 <span class="co">#&gt;     return(intxns_list)</span>
 <span class="co">#&gt;   }</span>
-<span class="co">#&gt; &lt;environment: 0x1104ab3c0&gt;</span></code></pre></div>
+<span class="co">#&gt; &lt;environment: 0x1121d4c30&gt;</span></code></pre></div>
 <p>Not that these functions themselves return functions that are not resolved until passed as a parameter to the <code>estimate_pls()</code> function for model estimation.</p>
 </div>
 <div id="describe-an-interaction-with-interaction_ortho-or-interaction_scaled" class="section level3">
@@ -433,19 +429,19 @@ boot_mobi_pls &lt;-<span class="st"> </span><span class="kw">bootstrap_model</sp
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Structural Path t-values:</span>
 <span class="co">#&gt;                   Satisfaction</span>
-<span class="co">#&gt; Image                    9.126</span>
-<span class="co">#&gt; Expectation              3.046</span>
-<span class="co">#&gt; Value                    4.386</span>
-<span class="co">#&gt; Image.Expectation        0.990</span>
-<span class="co">#&gt; Image.Value              0.026</span>
+<span class="co">#&gt; Image                    8.568</span>
+<span class="co">#&gt; Expectation              2.768</span>
+<span class="co">#&gt; Value                    4.778</span>
+<span class="co">#&gt; Image.Expectation        1.039</span>
+<span class="co">#&gt; Image.Value              0.016</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Structural Path p-values:</span>
 <span class="co">#&gt;                   Satisfaction</span>
 <span class="co">#&gt; Image                    0.000</span>
-<span class="co">#&gt; Expectation              0.003</span>
+<span class="co">#&gt; Expectation              0.006</span>
 <span class="co">#&gt; Value                    0.000</span>
-<span class="co">#&gt; Image.Expectation        0.324</span>
-<span class="co">#&gt; Image.Value              0.979</span></code></pre></div>
+<span class="co">#&gt; Image.Expectation        0.300</span>
+<span class="co">#&gt; Image.Value              0.987</span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li><code>boot_model_summary &lt;- summary(boot_seminr_model)</code> returns an object of class <code>summary.boot_seminr_model</code> which contains the following accessible objects:
 <ul>

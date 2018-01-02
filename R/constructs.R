@@ -94,6 +94,8 @@ reflective <- function(construct_name, item_names) {
 #' @export
 composite <- function(construct_name, item_names, weights = correlation_weights) {
   construct_names <- rep(construct_name, length(item_names))
+  # TODO remove the duplicated conditional
+  # TODO possibly remove the construct_names object as the construct name should be coerced to fitr the matrix
   if(identical(weights,correlation_weights) | identical(weights,mode_A)) {
     return(c(rbind(construct_names,item_names,"A")))
   }

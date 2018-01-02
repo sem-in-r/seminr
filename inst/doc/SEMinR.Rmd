@@ -12,12 +12,8 @@ vignette: >
 *TODO*:
 
 - change nboot back to 2000 throughout
-- change measurement weighting to functions DONE
-- WARNING: for dots in names of columns DONE
-- check citations and references DONE
-- equivalent R code for single_item DONE??
-- paths example from single antecedant to single outcome DONE??
-- check summary reporting of cross-loadings DONE??
+- check smartpls reference on smartpls website
+- check summary reporting of cross-loadings and validities (maybe flatten?)
 
 ## Introduction
 

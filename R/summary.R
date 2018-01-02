@@ -1,17 +1,17 @@
 # summary function for seminr
 #' @export
-summary.seminr_model <- function(model, na.print=".", digits=3, ...) {
-  stopifnot(inherits(model, "seminr_model"))
-  path_reports <- report_paths(model, digits)
-  metrics <- evaluate_model(model)
-  iterations <- model$iterations
+summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
+  stopifnot(inherits(object, "seminr_model"))
+  path_reports <- report_paths(object, digits)
+  metrics <- evaluate_model(object)
+  iterations <- object$iterations
 
   model_summary <- list(iterations=iterations,
                         paths=path_reports,
                         metrics=metrics,
-                        loadings=model$outer_loadings,
+                        loadings=object$outer_loadings,
                         cross_loadings=metrics$Validity$`Cross-Loadings`,
-                        weights=model$outer_weights,
+                        weights=object$outer_weights,
                         reliability=metrics$Reliability)
   class(model_summary) <- "summary.seminr_model"
   model_summary
@@ -19,25 +19,25 @@ summary.seminr_model <- function(model, na.print=".", digits=3, ...) {
 
 # print summary function for seminr
 #' @export
-print.summary.seminr_model <- function(summarized, na.print=".", digits=3, ...) {
-  cat("\n", sprintf("Total Iterations: %s", summarized$iterations))
+print.summary.seminr_model <- function(x, na.print=".", digits=3, ...) {
+  cat("\n", sprintf("Total Iterations: %s", x$iterations))
 
   cat("\nPath Coefficients:\n")
-  print(summarized$paths, na.print = na.print, digits=digits)
+  print(x$paths, na.print = na.print, digits=digits)
 
   cat("\nReliability:\n")
-  print(summarized$reliability, na.print = na.print, digits=digits)
+  print(x$reliability, na.print = na.print, digits=digits)
 
   cat("\n")
-  invisible(summarized)
+  invisible(x)
 }
 
 # Summary for bootstrapped seminr model
 #' @export
-summary.boot_seminr_model <- function(boot_model, ...) {
-  stopifnot(inherits(boot_model, "boot_seminr_model"))
-  boot_matrix <- boot_model$bootstrapMatrix
-  n <- nrow(boot_model$data)
+summary.boot_seminr_model <- function(object, ...) {
+  stopifnot(inherits(object, "boot_seminr_model"))
+  boot_matrix <- object$bootstrapMatrix
+  n <- nrow(object$data)
 
   # REFACTOR: Extract endogenous column names, means, and SEs from boot_matrix
   num_endogenous <- ncol(boot_matrix) / 3
@@ -48,14 +48,14 @@ summary.boot_seminr_model <- function(boot_model, ...) {
 
   # calculate t-values and two-tailed p-values; 0 paths become NaN
   boot_t <- abs(boot_mean / boot_SE)
-  boot_p <- 2*stats::pt(boot_t, df = boot_model$boots-1, lower.tail = FALSE)
+  boot_p <- 2*stats::pt(boot_t, df = object$boots-1, lower.tail = FALSE)
 
   colnames(boot_t) <- endogenous_names
   colnames(boot_p) <- endogenous_names
   boot_t[is.nan(boot_t)] <- NA
   boot_p[is.nan(boot_p)] <- NA
 
-  boot_summary <- list(nboot = boot_model$boots, t_values = boot_t, p_values = boot_p)
+  boot_summary <- list(nboot = object$boots, t_values = boot_t, p_values = boot_p)
   class(boot_summary) <- "summary.boot_seminr_model"
   boot_summary
 }
@@ -68,15 +68,15 @@ print_matrix <- function(pmatrix, na.print=".", digits=3) {
 
 # Print for summary of bootstrapped seminr model
 #' @export
-print.summary.boot_seminr_model <- function(summarized, na.print=".", digits=3, ...) {
-  cat("\n", sprintf("Bootstrapped resamples: %s", summarized$nboot))
+print.summary.boot_seminr_model <- function(x, na.print=".", digits=3, ...) {
+  cat("\n", sprintf("Bootstrapped resamples: %s", x$nboot))
 
   cat("\n\nStructural Path t-values:\n")
-  print_matrix(summarized$t_values, na.print, digits)
+  print_matrix(x$t_values, na.print, digits)
 
   cat("\nStructural Path p-values:\n")
-  print_matrix(summarized$p_values, na.print, digits)
+  print_matrix(x$p_values, na.print, digits)
 
   cat("\n")
-  invisible(summarized)
+  invisible(x)
 }
