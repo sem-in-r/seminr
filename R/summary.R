@@ -8,7 +8,6 @@ summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
 
   model_summary <- list(iterations=iterations,
                         paths=path_reports,
-                        metrics=metrics,
                         loadings=object$outer_loadings,
                         cross_loadings=metrics$Validity$`Cross-Loadings`,
                         weights=object$outer_weights,
