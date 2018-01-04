@@ -3,7 +3,18 @@
 SEMinR
 ======
 
-The `seminr` package provides a natural syntax for researchers to describe PLS structural equation models.
+SEMinR brings many advancements to creating and estimating structural equation models (SEM) using Partial Least Squares Path Modeling (PLS-PM):
+
+-   A *natural* feeling, *domain-specific* language to build and estimate structural equation models in R
+-   Uses *variance-based PLS estimation* to model both *composite* and *common-factor* constructs
+-   *High-level functions* to quickly specify interactions and complicated structural models
+
+SEMinR follows the latest best-practices in methodological literature:
+
+-   Automatically *adjusts PLS estimates to ensure consistency (PLSc)* wherever common factors are involved
+-   Ajusts for known biases in interaction terms in PLS models
+-   Continuously tested against leading PLSPM software to ensure parity of outcomes: SmartPLS (Ringle et al., 2015) and ADANCO (Henseler and Dijkstra, 2015), as well as other R packages such as semPLS (Monecke and Leisch, 2012) and matrixpls (Rönkkö, 2016)
+-   *High performance, multi-core* bootstrapping function
 
 Documentation
 -------------
@@ -15,79 +26,55 @@ Demo code for use of Seminr can be found in the [seminr/demo/](https://github.co
 Installation
 ------------
 
-You can install seminr from github with:
+You can install SEMinR with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("ISS-Analytics/seminr")
+install.packages("seminr")
 ```
 
 Usage
 -----
 
-Seminr can be used to create a plsm model, to estimate the model and to perform bootstrapping.
+Briefly, there are four steps to specifying and estimating a structural equation model using SEMinR:
+
+1.  Describe measurement model for each construct and its items:
 
 ``` r
-# seminr syntax for creating measurement model
-mobi_mm <- measure(
-  reflective("Image",        multi_items("IMAG", 1:5)),
-  reflective("Expectation",  multi_items("CUEX", 1:3)),
-  reflective("Value",        multi_items("PERV", 1:2)),
-  reflective("Satisfaction", multi_items("CUSA", 1:3))
+# Distinguish and mix composite or reflective (common-factor) measurement models
+measurements <- constructs(
+  composite("Image",       multi_items("IMAG", 1:5), weights = mode_B),
+  composite("Expectation", multi_items("CUEX", 1:3), weights = mode_A),
+  reflective("Loyalty",    multi_items("CUSL", 1:3))
 )
-
-# interaction factors must be created after the measurement model is defined
-mobi_xm <- interact(
-  interaction_combo("Image", "Expectation"),
-  interaction_combo("Image", "Value")
-)
-
-# structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
-mobi_sm <- structure(
-  paths(to = "Satisfaction",
-        from = c("Image", "Expectation", "Value",
-                 "Image.Expectation", "Image.Value"))
-)
-
-# Load data, assemble model, and estimate using semPLS
-data("mobi", package = "semPLS")
-seminr_model <- create_model(data = mobi,
-                             measurement_model = mobi_mm,
-                             interaction = mobi_xm,
-                             structural_model = mobi_sm)
-#> Generating the plsm model
-
-mobi_pls <- estimate_model(seminr_model, nboot = 200)
-#> Estimating model using semPLS::sempls...
-print_paths(mobi_pls)
-#>                   Satisfaction
-#> R^2                       0.60
-#> Expectation               0.47
-#> Image                     0.80
-#> Image.Expectation        -0.52
-#> Image.Value              -0.16
-#> Value                     0.43
-#>                                   Estimate Bootstrapped Estimate
-#> Expectation -> Satisfaction           0.47                  0.40
-#> Image -> Satisfaction                 0.80                  0.77
-#> Image.Expectation -> Satisfaction    -0.52                 -0.40
-#> Image.Value -> Satisfaction          -0.16                 -0.25
-#> Value -> Satisfaction                 0.43                  0.51
-#>                                   Standard Error
-#> Expectation -> Satisfaction                 0.31
-#> Image -> Satisfaction                       0.19
-#> Image.Expectation -> Satisfaction           0.51
-#> Image.Value -> Satisfaction                 0.47
-#> Value -> Satisfaction                       0.33
 ```
 
-Testing
--------
-
-To test:
+1.  Specify any interactions between constructs:
 
 ``` r
-require(devtools)
-devtools::test()
+# Easily create orthogonalized or scaled interactions between constructs
+intxns <- interactions(
+  interaction_ortho("Image", "Expectation")
+)
+```
+
+1.  Describe the structural model of causal relationships between constructs (and interactions):
+
+``` r
+# Quickly create multiple paths "from" and "to" sets of constructs
+structure <- relationships(
+  paths(from = c("Image", "Expectation", "Image.Expectation"), 
+        to = "Loyalty")
+)
+```
+
+1.  Put the above elements together to estimate and bootstrap the model:
+
+``` r
+# Dynamically compose SEM models from individual parts
+pls_model <- estimate_pls(data = mobi, measurements, intxns, structure)
+summary(pls_model)
+
+# Use multi-core parallel processing to speed up bootstraps
+boot_estimates <- bootstrap_model(pls_model, nboot = 1000, cores = 2)
+summary(boot_estimates)
 ```

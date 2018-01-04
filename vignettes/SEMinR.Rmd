@@ -361,7 +361,7 @@ This function takes the following parameters:
 For example, we can bootstrap the model described above:
 
 ```{r}
-# use 1000 bootstraps and utilize 4 parallel cores
+# use 1000 bootstraps and utilize 2 parallel cores
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
                                  nboot = 1000,
                                  cores = 2)
