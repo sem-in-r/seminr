@@ -419,6 +419,6 @@ using partial least squares path modeling. Structural Equation Modeling, 17(1), 
 Marsh,
 * Monecke, A., & Leisch, F. (2012). semPLS: structural equation modeling using partial least squares. Journal of Statistical Software, 48(3), 1–32.
 * Ringle, C. M., Wende, S., & Becker, J-M. (2015). SmartPLS 3. Bönningstedt: SmartPLS. Retrieved from http://www.smartpls.com
-* Rönkkö, M. (2016). R package matrixpls: Matrix-based partial least squares estimation (version 0.7.0). http://cran.r-project.org/web/packages/matrixpls/ 
+* Rönkkö, M. (2016). R package matrixpls: Matrix-based partial least squares estimation (version 0.7.0). https://CRAN.R-project.org/package=matrixpls
 * Sarstedt, M., Hair, J. F., Ringle, C. M., Thiele, K. O., & Gudergan, S. P. (2016). Estimation issues with PLS and CBSEM: Where the bias lies! Journal of Business Research, 69(10), 3998–4010. https://doi.org/10.1016/j.jbusres.2016.06.007
 * Tenenhaus, M., Vinzi, V. E., Chatelin, Y. M., & Lauro, C. (2005). PLS path modeling. Computational Statistics and Data Analysis, 48(1), 159–205. https://doi.org/10.1016/j.csda.2004.03.005

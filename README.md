@@ -78,3 +78,9 @@ summary(pls_model)
 boot_estimates <- bootstrap_model(pls_model, nboot = 1000, cores = 2)
 summary(boot_estimates)
 ```
+
+Authors
+-------
+
+-   Soumya Ray
+-   Nicholas Danks
