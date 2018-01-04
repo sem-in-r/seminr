@@ -12,7 +12,6 @@
 
 <meta name="author" content="Soumya Ray &amp; Nicholas Danks" />
 
-<meta name="date" content="2018-01-12" />
 
 <title>SEMinR</title>
 
@@ -70,32 +69,26 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">SEMinR</h1>
 <h4 class="author"><em>Soumya Ray &amp; Nicholas Danks</em></h4>
-<h4 class="date"><em>January 12, 2018</em></h4>
+<h4 class="date"><em>January 3, 2018</em></h4>
 
 
 
-<p><em>TODO</em>:</p>
-<ul>
-<li>change nboot back to 2000 throughout</li>
-<li>check smartpls reference on smartpls website</li>
-<li>check summary reporting of cross-loadings and validities (maybe flatten?)</li>
-</ul>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>SEMinR brings many advancements to creating and estimating structural equation models (SEM):</p>
+<p>SEMinR brings many advancements to creating and estimating structural equation models (SEM) using Partial Least Squares Path Modeling (PLS-PM):</p>
 <ul>
 <li>A <em>natural</em> feeling, <em>domain-specific</em> language to build and estimate structural equation models in R</li>
 <li>Uses <em>variance-based PLS estimation</em> to model both <em>composite</em> and <em>common-factor</em> constructs</li>
-<li><em>High-level functions</em> to quickly specify complex measurements (including interactions) and complicated structural models</li>
+<li><em>High-level functions</em> to quickly specify interactions and complicated structural models</li>
 </ul>
 <p>SEMinR follows the latest best-practices in methodological literature:</p>
 <ul>
-<li>Automatically <em>adjusts to ensure consistency (PLSc)</em> wherever common factors are involved</li>
-<li>Ajusts for known biases in interaction terms in PLS models (only available in leading commercial solutions)</li>
-<li>Continuously tested against leading PLS path modeling (PLSPM) software such as <a href="http://www.smartpls.com">SmartPLS</a> and ADANCO (Henseler and Dijkstra, 2015), as well as other R packages for PLSPM such as semPLS (Monecke and Leisch, 2012) and matrixpls (Rönkkö, 2016), to ensure parity of outcomes</li>
-<li><em>High performance</em> multi-core toolkit to bootstrap models in simulations</li>
+<li>Automatically <em>adjusts PLS estimates to ensure consistency (PLSc)</em> wherever common factors are involved</li>
+<li>Ajusts for known biases in interaction terms in PLS models</li>
+<li>Continuously tested against leading PLSPM software to ensure parity of outcomes: SmartPLS (Ringle et al., 2015) and ADANCO (Henseler and Dijkstra, 2015), as well as other R packages such as semPLS (Monecke and Leisch, 2012) and matrixpls (Rönkkö, 2016)</li>
+<li><em>High performance, multi-core</em> bootstrapping function</li>
 </ul>
-<p>Briefly, there are four steps to specifying and estimating a full SEM using SEMinR:</p>
+<p>Briefly, there are four steps to specifying and estimating a structural equation model using SEMinR:</p>
 <ol style="list-style-type: decimal">
 <li>Describe measurement model for each construct and its items:</li>
 </ol>
@@ -128,7 +121,7 @@ pls_model &lt;-<span class="st"> </span><span class="kw">estimate_pls</span>(<sp
 <span class="kw">summary</span>(pls_model)
 
 <span class="co"># Use multi-core parallel processing to speed up bootstraps</span>
-boot_estimates &lt;-<span class="st"> </span><span class="kw">bootstrap_model</span>(pls_model, <span class="dt">nboot =</span> <span class="dv">200</span>, <span class="dt">cores =</span> <span class="dv">4</span>)
+boot_estimates &lt;-<span class="st"> </span><span class="kw">bootstrap_model</span>(pls_model, <span class="dt">nboot =</span> <span class="dv">2000</span>, <span class="dt">cores =</span> <span class="dv">4</span>)
 <span class="kw">summary</span>(boot_estimates)</code></pre></div>
 <p>SEMinR seeks to combine ease-of-use, flexible model construction, and high-performance. Below, we will cover the details and options of each of the four parts of model construction and estimation demonstrated above.</p>
 </div>
@@ -243,7 +236,7 @@ boot_estimates &lt;-<span class="st"> </span><span class="kw">bootstrap_model</s
 <span class="co">#&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)</span>
 <span class="co">#&gt;     return(intxns_list)</span>
 <span class="co">#&gt;   }</span>
-<span class="co">#&gt; &lt;environment: 0x1121d4c30&gt;</span></code></pre></div>
+<span class="co">#&gt; &lt;environment: 0x10c1fcfc8&gt;</span></code></pre></div>
 <p>Not that these functions themselves return functions that are not resolved until passed as a parameter to the <code>estimate_pls()</code> function for model estimation.</p>
 </div>
 <div id="describe-an-interaction-with-interaction_ortho-or-interaction_scaled" class="section level3">
@@ -372,7 +365,7 @@ mobi_pls &lt;-<span class="st"> </span><span class="kw">estimate_pls</span>(<spa
 <p>For example, we can bootstrap the model described above:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># use 2000 bootstraps and utilize 4 parallel cores</span>
 boot_mobi_pls &lt;-<span class="st"> </span><span class="kw">bootstrap_model</span>(<span class="dt">seminr_model =</span> mobi_pls,
-                                 <span class="dt">nboot =</span> <span class="dv">200</span>,
+                                 <span class="dt">nboot =</span> <span class="dv">2000</span>,
                                  <span class="dt">cores =</span> <span class="dv">2</span>)
 <span class="co">#&gt; Bootstrapping model using seminr...</span></code></pre></div>
 <p>Notably, bootstrapping can also be meaningfully applied to models containing interaction terms and readjusts the interaction term (Henseler and Chin 2010) for every sub-sample. This leads to slightly increased processing times, but provides accurate estimations.</p>
@@ -383,7 +376,7 @@ boot_mobi_pls &lt;-<span class="st"> </span><span class="kw">bootstrap_model</sp
 <h3>Reporting the estimated <code>seminr_model</code></h3>
 <p>There are multiple ways of reporting the estimated model. The <code>estimate_pls()</code> function returns an object of class <code>seminr_model</code>. This can be passed directly to the base R function <code>summary()</code>. This can be used in two primary ways:</p>
 <ol style="list-style-type: decimal">
-<li><code>summary(seminr_model)</code> to report <span class="math inline">\(R^{2}\)</span>, adjusted <span class="math inline">\(R^{2}\)</span>, path coefficients for the structural model, and the construct reliability metrics AVE, <span class="math inline">\(rho_{A}\)</span> (Dillon and Goldstein 1987), AVE (Fornell and Larcker 1981), and <span class="math inline">\(rho_{C}\)</span> (Dijkstra and Henseler 2015)</li>
+<li><code>summary(seminr_model)</code> to report <span class="math inline">\(R^{2}\)</span>, adjusted <span class="math inline">\(R^{2}\)</span>, path coefficients for the structural model, and the construct reliability metrics <span class="math inline">\(rho_{C}\)</span> (Dillon and Goldstein 1987), AVE (Fornell and Larcker 1981), and <span class="math inline">\(rho_{A}\)</span> (Dijkstra and Henseler 2015)</li>
 </ol>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(mobi_pls)
 <span class="co">#&gt; </span>
@@ -411,7 +404,8 @@ boot_mobi_pls &lt;-<span class="st"> </span><span class="kw">bootstrap_model</sp
 <ul>
 <li><code>model_summary$iterations</code> reports the number of iterations to converge on a stable model</li>
 <li><code>model_summary$paths</code> reports the matrix of path coefficients, <span class="math inline">\(R^{2}\)</span>, and adjusted <span class="math inline">\(R^{2}\)</span></li>
-<li><code>model_summary$metrics</code> reports the reliability and cross-loadings of the model</li>
+<li><code>model_summary$reliability</code> reports composite reliability (<span class="math inline">\(rho_{C}\)</span>), average variance extracted (AVE), and <span class="math inline">\(rho_{A}\)</span></li>
+<li><code>model_summary$cross_loadings</code> reports all possible loadings between contructs and items</li>
 <li><code>model_summary$loadings</code> reports the estimated loadings of the measurement model</li>
 <li><code>model_summary$weights</code> reports the estimated weights of the measurement model</li>
 </ul></li>
@@ -425,23 +419,23 @@ boot_mobi_pls &lt;-<span class="st"> </span><span class="kw">bootstrap_model</sp
 </ol>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(boot_mobi_pls)
 <span class="co">#&gt; </span>
-<span class="co">#&gt;  Bootstrapped resamples: 200</span>
+<span class="co">#&gt;  Bootstrapped resamples: 2000</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Structural Path t-values:</span>
 <span class="co">#&gt;                   Satisfaction</span>
-<span class="co">#&gt; Image                    8.568</span>
-<span class="co">#&gt; Expectation              2.768</span>
-<span class="co">#&gt; Value                    4.778</span>
-<span class="co">#&gt; Image.Expectation        1.039</span>
-<span class="co">#&gt; Image.Value              0.016</span>
+<span class="co">#&gt; Image                    8.607</span>
+<span class="co">#&gt; Expectation              2.772</span>
+<span class="co">#&gt; Value                    4.590</span>
+<span class="co">#&gt; Image.Expectation        1.006</span>
+<span class="co">#&gt; Image.Value              0.040</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Structural Path p-values:</span>
 <span class="co">#&gt;                   Satisfaction</span>
 <span class="co">#&gt; Image                    0.000</span>
 <span class="co">#&gt; Expectation              0.006</span>
 <span class="co">#&gt; Value                    0.000</span>
-<span class="co">#&gt; Image.Expectation        0.300</span>
-<span class="co">#&gt; Image.Value              0.987</span></code></pre></div>
+<span class="co">#&gt; Image.Expectation        0.315</span>
+<span class="co">#&gt; Image.Value              0.968</span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li><code>boot_model_summary &lt;- summary(boot_seminr_model)</code> returns an object of class <code>summary.boot_seminr_model</code> which contains the following accessible objects:
 <ul>
@@ -465,6 +459,7 @@ boot_mobi_pls &lt;-<span class="st"> </span><span class="kw">bootstrap_model</sp
 <li>Henseler, J. and Dijkstra, T.K. (2015), “ADANCO 2.0”, Composite Modeling, Kleve, available at: www.compositemodeling.com (accessed December 14, 2015).</li>
 <li>Lohmöller, J.-B. (1989). Latent variables path modeling with partial least squares. Heidelberg, Germany: Physica- Verlag. Marsh,</li>
 <li>Monecke, A., &amp; Leisch, F. (2012). semPLS: structural equation modeling using partial least squares. Journal of Statistical Software, 48(3), 1–32.</li>
+<li>Ringle, C. M., Wende, S., &amp; Becker, J-M. (2015). SmartPLS 3. Bönningstedt: SmartPLS. Retrieved from <a href="http://www.smartpls.com" class="uri">http://www.smartpls.com</a></li>
 <li>Rönkkö, M. (2016). R package matrixpls: Matrix-based partial least squares estimation (version 0.7.0). <a href="http://cran.r-project.org/web/packages/matrixpls/" class="uri">http://cran.r-project.org/web/packages/matrixpls/</a></li>
 <li>Sarstedt, M., Hair, J. F., Ringle, C. M., Thiele, K. O., &amp; Gudergan, S. P. (2016). Estimation issues with PLS and CBSEM: Where the bias lies! Journal of Business Research, 69(10), 3998–4010. <a href="https://doi.org/10.1016/j.jbusres.2016.06.007" class="uri">https://doi.org/10.1016/j.jbusres.2016.06.007</a></li>
 <li>Tenenhaus, M., Vinzi, V. E., Chatelin, Y. M., &amp; Lauro, C. (2005). PLS path modeling. Computational Statistics and Data Analysis, 48(1), 159–205. <a href="https://doi.org/10.1016/j.csda.2004.03.005" class="uri">https://doi.org/10.1016/j.csda.2004.03.005</a></li>

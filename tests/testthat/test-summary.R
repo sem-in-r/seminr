@@ -22,7 +22,7 @@ summary_object <- summary(seminr_model)
 # Remove HTMT
 #htmt <- summary_object$metrics$Validity$HTMT
 cross_loadings <- summary_object$cross_loadings
-reliability <- summary_object$metrics$Reliability
+reliability <- summary_object$reliability
 
 ## Output originally created using following lines
 # write.csv(summary_object$metrics$Validity$HTMT, file = "tests/fixtures/htmt.csv")

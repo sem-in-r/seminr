@@ -1,8 +1,7 @@
 .Rproj.user/
 .Rhistory
 .RData
-delete this working file.R
-engage_2.csv
 .Rproj.user
 _*
-.*
+.DS*
+.R*

@@ -29,7 +29,7 @@ library(seminr)
 #  summary(pls_model)
 #  
 #  # Use multi-core parallel processing to speed up bootstraps
-#  boot_estimates <- bootstrap_model(pls_model, nboot = 200, cores = 4)
+#  boot_estimates <- bootstrap_model(pls_model, nboot = 2000, cores = 4)
 #  summary(boot_estimates)
 
 ## ---- eval=FALSE---------------------------------------------------------
@@ -155,7 +155,7 @@ mobi_pls <- estimate_pls(data = mobi,
 ## ------------------------------------------------------------------------
 # use 2000 bootstraps and utilize 4 parallel cores
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
-                                 nboot = 200,
+                                 nboot = 2000,
                                  cores = 2)
 
 ## ------------------------------------------------------------------------

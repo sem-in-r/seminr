@@ -1,19 +1,13 @@
 ---
 title: "SEMinR"
 author: "Soumya Ray & Nicholas Danks"
-date: "January 12, 2018"
+date: "January 3, 2018"
 output: rmarkdown::html_vignette 
 vignette: >
   %\VignetteIndexEntry{SEMinR}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
-
-*TODO*:
-
-- change nboot back to 2000 throughout
-- check smartpls reference on smartpls website
-- check summary reporting of cross-loadings and validities (maybe flatten?)
 
 ## Introduction
 
@@ -22,20 +16,20 @@ knitr::opts_chunk$set(collapse = T, comment = "#>")
 library(seminr)
 ```
 
-SEMinR brings many advancements to creating and estimating structural equation models (SEM):
+SEMinR brings many advancements to creating and estimating structural equation models (SEM) using Partial Least Squares Path Modeling (PLS-PM):
 
 * A _natural_ feeling, _domain-specific_ language to build and estimate structural equation models in R
 * Uses _variance-based PLS estimation_ to model both _composite_ and _common-factor_ constructs
-* _High-level functions_ to quickly specify complex measurements (including interactions) and complicated structural models
+* _High-level functions_ to quickly specify interactions and complicated structural models
 
 SEMinR follows the latest best-practices in methodological literature:
 
-* Automatically _adjusts to ensure consistency (PLSc)_ wherever common factors are involved
-* Ajusts for known biases in interaction terms in PLS models (only available in leading commercial solutions)
-* Continuously tested against leading PLS path modeling (PLSPM) software such as [SmartPLS](http://www.smartpls.com) and ADANCO (Henseler and Dijkstra, 2015), as well as other R packages for PLSPM such as semPLS (Monecke and Leisch, 2012) and matrixpls (Rönkkö, 2016), to ensure parity of outcomes
-* _High performance_ multi-core toolkit to bootstrap models in simulations
+* Automatically _adjusts PLS estimates to ensure consistency (PLSc)_ wherever common factors are involved
+* Ajusts for known biases in interaction terms in PLS models
+* Continuously tested against leading PLSPM software to ensure parity of outcomes: SmartPLS (Ringle et al., 2015) and ADANCO (Henseler and Dijkstra, 2015), as well as other R packages such as semPLS (Monecke and Leisch, 2012) and matrixpls (Rönkkö, 2016)
+* _High performance, multi-core_ bootstrapping function
 
-Briefly, there are four steps to specifying and estimating a full SEM using SEMinR:
+Briefly, there are four steps to specifying and estimating a structural equation model using SEMinR:
 
 1. Describe measurement model for each construct and its items:
 ```{r, eval=FALSE}
@@ -71,7 +65,7 @@ pls_model <- estimate_pls(data = mobi, measurements, intxns, structure)
 summary(pls_model)
 
 # Use multi-core parallel processing to speed up bootstraps
-boot_estimates <- bootstrap_model(pls_model, nboot = 200, cores = 4)
+boot_estimates <- bootstrap_model(pls_model, nboot = 1000, cores = 2)
 summary(boot_estimates)
 ```
 
@@ -367,9 +361,9 @@ This function takes the following parameters:
 For example, we can bootstrap the model described above:
 
 ```{r}
-# use 2000 bootstraps and utilize 4 parallel cores
+# use 1000 bootstraps and utilize 2 parallel cores
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
-                                 nboot = 200,
+                                 nboot = 1000,
                                  cores = 2)
 ```
 
@@ -381,7 +375,7 @@ Notably, bootstrapping can also be meaningfully applied to models containing int
 
 There are multiple ways of reporting the estimated model. The `estimate_pls()` function returns an object of class `seminr_model`. This can be passed directly to the base R function `summary()`. This can be used in two primary ways:   
 
-1. `summary(seminr_model)` to report $R^{2}$, adjusted $R^{2}$, path coefficients for the structural model, and the construct reliability metrics AVE, $rho_{A}$ (Dillon and Goldstein 1987), AVE (Fornell and Larcker 1981), and $rho_{C}$ (Dijkstra and Henseler 2015)
+1. `summary(seminr_model)` to report $R^{2}$, adjusted $R^{2}$, path coefficients for the structural model, and the construct reliability metrics $rho_{C}$ (Dillon and Goldstein 1987), AVE (Fornell and Larcker 1981), and $rho_{A}$ (Dijkstra and Henseler 2015)
 
 ```{r}
 summary(mobi_pls)
@@ -390,7 +384,8 @@ summary(mobi_pls)
 2. `model_summary <- summary(seminr_model)` returns an object of class `summary.seminr_model` which contains the following accessible objects:
     + `model_summary$iterations` reports the number of iterations to converge on a stable model
     + `model_summary$paths` reports the matrix of path coefficients, $R^{2}$, and adjusted $R^{2}$
-    + `model_summary$metrics` reports the reliability and cross-loadings of the model
+    + `model_summary$reliability` reports composite reliability ($rho_{C}$), average variance extracted (AVE), and $rho_{A}$
+    + `model_summary$cross_loadings` reports all possible loadings between contructs and items
     + `model_summary$loadings` reports the estimated loadings of the measurement model
     + `model_summary$weights` reports the estimated weights of the measurement model
 
@@ -423,6 +418,7 @@ using partial least squares path modeling. Structural Equation Modeling, 17(1), 
 * Lohmöller, J.-B. (1989). Latent variables path modeling with partial least squares. Heidelberg, Germany: Physica- Verlag.
 Marsh,
 * Monecke, A., & Leisch, F. (2012). semPLS: structural equation modeling using partial least squares. Journal of Statistical Software, 48(3), 1–32.
-* Rönkkö, M. (2016). R package matrixpls: Matrix-based partial least squares estimation (version 0.7.0). http://cran.r-project.org/web/packages/matrixpls/ 
+* Ringle, C. M., Wende, S., & Becker, J-M. (2015). SmartPLS 3. Bönningstedt: SmartPLS. Retrieved from http://www.smartpls.com
+* Rönkkö, M. (2016). R package matrixpls: Matrix-based partial least squares estimation (version 0.7.0). https://CRAN.R-project.org/package=matrixpls
 * Sarstedt, M., Hair, J. F., Ringle, C. M., Thiele, K. O., & Gudergan, S. P. (2016). Estimation issues with PLS and CBSEM: Where the bias lies! Journal of Business Research, 69(10), 3998–4010. https://doi.org/10.1016/j.jbusres.2016.06.007
 * Tenenhaus, M., Vinzi, V. E., Chatelin, Y. M., & Lauro, C. (2005). PLS path modeling. Computational Statistics and Data Analysis, 48(1), 159–205. https://doi.org/10.1016/j.csda.2004.03.005
