@@ -1,21 +1,15 @@
-# This example recreates the ECSI model on mobile users found at:
-# https://cran.r-project.org/web/packages/semPLS/vignettes/semPLS-intro.pdf
+# Demonstration of concise, contained model style
 
-# Shows an example of contained model style
 library(seminr)
-# Contained Style: all model specifications are put together and estimated using
-# simplePLS.
-
-mobi <- mobi
 
 mobi_pls <- estimate_pls(
   data = mobi,
 
   constructs(
-    reflective("Image", multi_items("IMAG", 1:5)),
-    reflective("Expectation", multi_items("CUEX", 1:3)),
-    reflective("Value", multi_items("PERV", 1:2)),
-    reflective("Satisfaction", multi_items("CUSA", 1:3))
+    composite("Image", multi_items("IMAG", 1:5)),
+    composite("Expectation", multi_items("CUEX", 1:3)),
+    composite("Value", multi_items("PERV", 1:2)),
+    composite("Satisfaction", multi_items("CUSA", 1:3))
   ),
 
   interactions(
@@ -30,11 +24,9 @@ mobi_pls <- estimate_pls(
   )
 )
 
-print_paths(mobi_pls)
+summary(mobi_pls)
 
-mobi_pls <- bootstrap_model(
-  seminr_model = mobi_pls,
-  nboot = 500
-)
-print_paths(mobi_pls)
+# Bootstrapping the model
+boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls, nboot = 1000)
+summary(boot_mobi_pls)
 

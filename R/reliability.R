@@ -3,17 +3,17 @@
 #' The \code{rhoA} function calculates the rhoA reliability indices for each construct. For
 #' formative constructs, the index is set to 1.
 #'
-#' @param seminr.model A \code{seminr.model} containing the estimated seminr model.
+#' @param seminr_model A \code{seminr_model} containing the estimated seminr model.
 #'
 #' @usage
-#' rhoA(seminr.model)
+#' rhoA(seminr_model)
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'          \code{\link{bootstrap_model}}
 #'
-#' @examples
-#' mobi <- mobi
+#' @references Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
 #'
+#' @examples
 #' #seminr syntax for creating measurement model
 #' mobi_mm <- constructs(
 #'              reflective("Image",        multi_items("IMAG", 1:5)),
@@ -40,14 +40,16 @@
 #'
 #' rhoA(mobi_pls)
 #' @export
-rhoA <- function(seminr.model) {
+rhoA <- function(seminr_model) {
+  #Function to implement rhoA as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+
   # get latent variable scores and weights for each latent
-  latentscores <- seminr.model$fscores
-  weights <- seminr.model$outer_weights
+  latentscores <- seminr_model$fscores
+  weights <- seminr_model$outer_weights
   # get the mmMatrix and smMatrix
-  mmMatrix <- seminr.model$mmMatrix
-  smMatrix <- seminr.model$smMatrix
-  obsData <- seminr.model$data
+  mmMatrix <- seminr_model$mmMatrix
+  smMatrix <- seminr_model$smMatrix
+  obsData <- seminr_model$data
   # Create rhoA holder matrix
   rho <- matrix(,nrow = ncol(latentscores),ncol = 1,dimnames = list(colnames(latentscores),c("rhoA")))
 

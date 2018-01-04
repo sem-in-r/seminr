@@ -5,10 +5,10 @@ context("SEMinR correctly estimates the model using path weighting scheme\n")
 
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
-  composite("Image",        multi_items("IMAG", 1:5),weights = "A"),
-  composite("Expectation",  multi_items("CUEX", 1:3),weights = "A"),
-  composite("Value",        multi_items("PERV", 1:2),weights = "A"),
-  composite("Satisfaction", multi_items("CUSA", 1:3),weights = "A")
+  composite("Image",        multi_items("IMAG", 1:5),weights = mode_A),
+  composite("Expectation",  multi_items("CUEX", 1:3),weights = mode_A),
+  composite("Value",        multi_items("PERV", 1:2),weights = mode_A),
+  composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A)
 )
 
 
@@ -21,7 +21,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path.weighting)
+seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path_weighting)
 
 
 # Load outputs
@@ -36,7 +36,7 @@ weight <- seminr_model$outer_weights
 
 # Load controls
 coefficients_control <- as.matrix(read.csv("../fixtures/inner_weights_coefficients.csv", row.names = 1))
-factor_scores_control <- as.matrix(read.csv("../fixtures/inner_weights_factorscores.csv")[,2:5])
+factor_scores_control <- as.matrix(read.csv("../fixtures/inner_weights_factorscores.csv", row.names = 1))
 weight_control <- as.matrix(read.csv("../fixtures/inner_weights_weights.csv", row.names=1))
 
 # Testing
@@ -60,10 +60,10 @@ context("SEMinR correctly estimates the model using factorial scheme\n")
 
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
-  composite("Image",        multi_items("IMAG", 1:5),weights = "A"),
-  composite("Expectation",  multi_items("CUEX", 1:3),weights = "A"),
-  composite("Value",        multi_items("PERV", 1:2),weights = "A"),
-  composite("Satisfaction", multi_items("CUSA", 1:3),weights = "A")
+  composite("Image",        multi_items("IMAG", 1:5),weights = mode_A),
+  composite("Expectation",  multi_items("CUEX", 1:3),weights = mode_A),
+  composite("Value",        multi_items("PERV", 1:2),weights = mode_A),
+  composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A)
 )
 
 
@@ -76,7 +76,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path.factorial)
+seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path_factorial)
 
 
 # Load outputs
@@ -91,7 +91,7 @@ weight <- seminr_model$outer_weights
 
 # Load controls
 coefficients_control <- as.matrix(read.csv("../fixtures/factorial_coefficients.csv", row.names = 1))
-factor_scores_control <- as.matrix(read.csv("../fixtures/factorial_factorscores.csv")[,2:5])
+factor_scores_control <- as.matrix(read.csv("../fixtures/factorial_factorscores.csv", row.names = 1))
 weight_control <- as.matrix(read.csv("../fixtures/factorial_weights.csv", row.names=1))
 
 # Testing

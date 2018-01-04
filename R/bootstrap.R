@@ -19,6 +19,9 @@
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'
+#' @references Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on Partial Least Squares
+#'  Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.
+#'
 #' @examples
 #' data(mobi)
 #' # seminr syntax for creating measurement model
@@ -43,19 +46,21 @@
 #'                  "Image.Expectation", "Image.Value"))
 #' )
 #'
-#' seminr.model <- estimate_pls(data = mobi,
+#' seminr_model <- estimate_pls(data = mobi,
 #'                              measurement_model = mobi_mm,
 #'                              interactions = mobi_xm,
 #'                              structural_model = mobi_sm)
 #'
 #' # Load data, assemble model, and bootstrap using simplePLS
-#' boot.seminr.model <- bootstrap_model(seminr_model = seminr.model,
+#' boot_seminr_model <- bootstrap_model(seminr_model = seminr_model,
 #'                                      nboot = 100, cores = 2)
 #'
-#' print_paths(boot.seminr.model)
+#' summary(boot_seminr_model)
 #' @export
 bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
-  cat("Bootstrapping model using simplePLS...\n")
+  # Bootstrapping for significance as per Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on
+  # Partial Least Squares Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.
+  cat("Bootstrapping model using seminr...\n")
 
   # prepare parameters for cluster export (model parameters)
   interactions = seminr_model$mobi_xm
@@ -120,5 +125,6 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
     parallel::stopCluster(cl)
   }
   seminr_model$boots <- nboot
+  class(seminr_model) <- "boot_seminr_model"
   return(seminr_model)
 }

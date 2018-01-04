@@ -4,18 +4,16 @@
 \alias{rhoA}
 \title{seminr rhoA Function}
 \usage{
-rhoA(seminr.model)
+rhoA(seminr_model)
 }
 \arguments{
-\item{seminr.model}{A \code{seminr.model} containing the estimated seminr model.}
+\item{seminr_model}{A \code{seminr_model} containing the estimated seminr model.}
 }
 \description{
 The \code{rhoA} function calculates the rhoA reliability indices for each construct. For
 formative constructs, the index is set to 1.
 }
 \examples{
-mobi <- mobi
-
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
              reflective("Image",        multi_items("IMAG", 1:5)),
@@ -41,6 +39,9 @@ mobi_pls <- estimate_pls(data = mobi,
                            structural_model = mobi_sm)
 
 rhoA(mobi_pls)
+}
+\references{
+Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
 }
 \seealso{
 \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}

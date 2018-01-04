@@ -1,79 +1,96 @@
 ## ---- echo = FALSE, message = FALSE--------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 library(seminr)
-data("mobi", package = "semPLS")
+
+## ---- eval=FALSE---------------------------------------------------------
+#  # Distinguish and mix composite or reflective (common-factor) measurement models
+#  measurements <- constructs(
+#    composite("Image",       multi_items("IMAG", 1:5), weights = mode_B),
+#    composite("Expectation", multi_items("CUEX", 1:3), weights = mode_A),
+#    reflective("Loyalty",    multi_items("CUSL", 1:3))
+#  )
+
+## ---- eval=FALSE---------------------------------------------------------
+#  # Easily create orthogonalized or scaled interactions between constructs
+#  intxns <- interactions(
+#    interaction_ortho("Image", "Expectation")
+#  )
+
+## ---- eval=FALSE---------------------------------------------------------
+#  # Quickly create multiple paths "from" and "to" sets of constructs
+#  structure <- relationships(
+#    paths(from = c("Image", "Expectation", "Image.Expectation"),
+#          to = "Loyalty")
+#  )
+
+## ---- eval=FALSE---------------------------------------------------------
+#  # Dynamically compose SEM models from individual parts
+#  pls_model <- estimate_pls(data = mobi, measurements, intxns, structure)
+#  summary(pls_model)
+#  
+#  # Use multi-core parallel processing to speed up bootstraps
+#  boot_estimates <- bootstrap_model(pls_model, nboot = 2000, cores = 4)
+#  summary(boot_estimates)
+
+## ---- eval=FALSE---------------------------------------------------------
+#  install.packages("seminr")
+
+## ---- eval=FALSE---------------------------------------------------------
+#  library(seminr)
 
 ## ------------------------------------------------------------------------
-data("mobi", package = "semPLS")
 dim(mobi)
 head(mobi)
 
 ## ------------------------------------------------------------------------
-multi_items("IMAG", 1:5)
+mobi_mm <- constructs(
+  composite("Image",         multi_items("IMAG", 1:5), weights = mode_B),
+  composite("Expectation",   multi_items("CUEX", 1:3), weights = regression_weights),
+  composite("Quality",       multi_items("PERQ", 1:7), weights = mode_A),
+  composite("Value",         multi_items("PERV", 1:2), weights = correlation_weights),
+  reflective("Satisfaction", multi_items("CUSA", 1:3)),
+  reflective("Complaints",   single_item("CUSCO")),
+  reflective("Loyalty",      multi_items("CUSL", 1:3))
+)
+
+## ---- eval=FALSE---------------------------------------------------------
+#  composite("Expectation", multi_items("CUEX", 1:3), weights = mode_A)
+#  # is equivalent to:
+#  composite("Expectation", multi_items("CUEX", 1:3), weights = correlation_weights)
+
+## ---- eval=FALSE---------------------------------------------------------
+#  composite("Image", multi_items("IMAG", 1:5), weights = mode_B)
+#  # is equivalent to:
+#  composite("Image", multi_items("IMAG", 1:5), weights = regression_weights)
 
 ## ---- eval = FALSE-------------------------------------------------------
+#  reflective("Satisfaction", multi_items("CUSA", 1:3))
+
+## ---- eval=FALSE---------------------------------------------------------
+#  multi_items("IMAG", 1:5)
+#  # which is equivalent to the R vector:
 #  c("IMAG1", "IMAG2", "IMAG3", "IMAG4", "IMAG5")
 
-## ------------------------------------------------------------------------
-reflective("Image", multi_items("IMAG", 1:5))
+## ---- eval=FALSE---------------------------------------------------------
+#  single_item("CUSCO")
+#  # which is equivalent to the R character string:
+#  "CUSCO"
 
 ## ------------------------------------------------------------------------
-causal("Image", multi_items("IMAG", 1:5))
-
-## ---- eval = FALSE-------------------------------------------------------
-#  c("Image", "IMAG1", "Image", "IMAG2", "Image", "IMAG3", "Image", "IMAG4", "Image", "IMAG5")
-
-## ---- eval = FALSE-------------------------------------------------------
-#  c("IMAG1", "Image", "IMAG2", "Image", "IMAG3", "Image", "IMAG4", "Image", "IMAG5", "Image")
-
-## ------------------------------------------------------------------------
-mobi_mm <- constructs(
-  reflective("Image",        multi_items("IMAG", 1:5)),
-  reflective("Expectation",  multi_items("CUEX", 1:3)),
-  reflective("Quality",      multi_items("PERQ", 1:7)),
-  reflective("Value",        multi_items("PERV", 1:2)),
-  causal("Satisfaction",    multi_items("CUSA", 1:3)),
-  causal("Complaints",      single_item("CUSCO")),
-  causal("Loyalty",         multi_items("CUSL", 1:3))
+mobi_xm <- interactions(
+  interaction_ortho("Image", "Expectation"),
+  interaction_ortho("Image", "Value")
 )
 
 ## ------------------------------------------------------------------------
-mobi_mm
+mobi_xm
 
 ## ---- eval = FALSE-------------------------------------------------------
-#  mobi_mm <- matrix(c("Image","IMAG1",
-#                      "Image","IMAG2",
-#                      "Image","IMAG3",
-#                      "Image","IMAG4",
-#                      "Image","IMAG5",
-#                      "Expectation","CUEX1",
-#                      "Expectation","CUEX2",
-#                      "Expectation","CUEX3",
-#                      "Quality", "PERQ1",
-#                      "Quality", "PERQ2",
-#                      "Quality", "PERQ3",
-#                      "Quality", "PERQ4",
-#                      "Quality", "PERQ5",
-#                      "Quality", "PERQ6",
-#                      "Quality", "PERQ7",
-#                      "Value","PERV1",
-#                      "Value","PERV2",
-#                      "CUSA1", "Satisfaction",
-#                      "CUSA2", "Satisfaction",
-#                      "CUSA3", "Satisfaction",
-#                      "CUSCO", "Complaints",
-#                      "CUSL1", "Loyalty",
-#                      "CUSL2", "Loyalty",
-#                      "CUSL3", "Loyalty"),nrow=24,ncol=2,byrow =TRUE,
-#                     dimnames = list(1:24,c("source","target")))
-
-## ------------------------------------------------------------------------
-paths(from = "Image", to = c("Expectation", "Satisfaction", "Loyalty"))
-paths(from = "Value", to = c("Satisfaction"))
-
-## ---- eval = FALSE-------------------------------------------------------
-#  c("Image", "Expectation", "Image", "Satisfaction", "Image", "Loyalty")
-#  c("Value","Satisfaction")
+#  # Orgthogonalized interaction between "Image" x "Expectation"
+#  interaction_ortho("Image", "Expectation")
+#  
+#  # Scaled (mean-centered, standardized) interaction between "Image" x "Value"
+#  interaction_scaled("Image", "Value")
 
 ## ------------------------------------------------------------------------
 mobi_sm <- relationships(
@@ -85,73 +102,65 @@ mobi_sm <- relationships(
   paths(from = "Complaints",   to = "Loyalty")
 )
 
-## ------------------------------------------------------------------------
-mobi_sm
+## ---- eval=FALSE---------------------------------------------------------
+#  # "Image" -> "Expectation"
+#  paths(from = "Image", to = "Expectation")
 
-## ---- eval = FALSE-------------------------------------------------------
-#  mobi_sm <- matrix(c("Image","Expectation",
-#                      "Image","Satisfaction",
-#                      "Image","Loyalty",
-#                      "Expectation","Quality",
-#                      "Expectation","Value",
-#                      "Expectation","Satisfaction",
-#                      "Quality","Value",
-#                      "Quality","Satisfaction",
-#                      "Value", "Satisfaction",
-#                      "Satisfaction", "Complaints",
-#                      "Satisfaction", "Loyalty",
-#                      "Complaints", "Loyalty"),nrow=12,ncol=2,byrow =TRUE,
-#                     dimnames = list(1:12,c("source","target")))
+## ---- eval=FALSE---------------------------------------------------------
+#  # "Image" -> "Expectation"
+#  # "Image" -> "Satisfaction"
+#  paths(from = "Image", to = c("Expectation", "Satisfaction"))
 
-## ---- eval = FALSE-------------------------------------------------------
-#  interaction_combo("Image", "Expectation")
-#  interaction_combo("Image", "Value")
+## ---- eval=FALSE---------------------------------------------------------
+#  # "Image" -> "Satisfaction"
+#  # "Expectation" -> "Satisfaction"
+#  paths(from = c("Image", "Expectation"), to = "Satisfaction")
 
-## ------------------------------------------------------------------------
-mobi_xm <- interactions(
-  interaction_combo("Image", "Expectation"),
-  interaction_combo("Image", "Value")
-)
+## ---- eval=FALSE---------------------------------------------------------
+#  # "Expectation" -> "Value"
+#  # "Expectation" -> "Satisfaction"
+#  # "Quality" -> "Value"
+#  # "Quality" -> "Satisfaction"
+#  paths(from = c("Expectation", "Quality"), to = c("Value", "Satisfaction"))
 
 ## ------------------------------------------------------------------------
-mobi_xm
-
-## ------------------------------------------------------------------------
-# seminr syntax for creating measurement model
+# define measurement model
 mobi_mm <- constructs(
-  reflective("Image",        multi_items("IMAG", 1:5)),
-  reflective("Expectation",  multi_items("CUEX", 1:3)),
-  reflective("Value",        multi_items("PERV", 1:2)),
-  reflective("Satisfaction", multi_items("CUSA", 1:3))
+  composite("Image",        multi_items("IMAG", 1:5)),
+  composite("Expectation",  multi_items("CUEX", 1:3)),
+  composite("Value",        multi_items("PERV", 1:2)),
+  composite("Satisfaction", multi_items("CUSA", 1:3))
 )
 
-# interaction factors must be created after the measurement model is defined
+# specify interactions among constructs
 mobi_xm <- interactions(
-  interaction_combo("Image", "Expectation"),
-  interaction_combo("Image", "Value")
+  interaction_ortho("Image", "Expectation"),
+  interaction_ortho("Image", "Value")
 )
 
-# structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
+# define structural model
+# note: interactions factor should be named by its main factors joined by a '.'
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
                  "Image.Expectation", "Image.Value"))
 )
-plsm_model <- model(data = mobi,
-                    measurement_model = mobi_mm,
-                    interactions = mobi_xm,
-                    structural_model = mobi_sm)
 
-mobi_pls <- estimate(plsm_model)
+mobi_pls <- estimate_pls(data = mobi,
+                         measurement_model = mobi_mm,
+                         interactions = mobi_xm,
+                         structural_model = mobi_sm,
+                         inner_weights = path_weighting)
 
 ## ------------------------------------------------------------------------
-plsm_model <- model(data = mobi,
-                    measurement_model = mobi_mm,
-                    interactions = mobi_xm,
-                    structural_model = mobi_sm)
-mobi_pls <- estimate(plsm_model)
-mobi_pls
-print_paths(mobi_pls)
-plot_scores(mobi_pls)
+# use 2000 bootstraps and utilize 4 parallel cores
+boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
+                                 nboot = 2000,
+                                 cores = 2)
+
+## ------------------------------------------------------------------------
+summary(mobi_pls)
+
+## ------------------------------------------------------------------------
+summary(boot_mobi_pls)
 

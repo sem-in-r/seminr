@@ -5,8 +5,8 @@ context("Measurement model specification")
 mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Quality",      single_item("PERQ1")),
-  composite("Satisfaction",  multi_items("CUSA", 1:3),weights = "regression"),
-  composite("Complaints",    single_item("CUSCO"),weights = "correlation")
+  composite("Satisfaction",  multi_items("CUSA", 1:3),weights = regression_weights),
+  composite("Complaints",    single_item("CUSCO"),weights = correlation_weights)
 )
 
 # Testing

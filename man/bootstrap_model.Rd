@@ -46,16 +46,20 @@ mobi_sm <- relationships(
                  "Image.Expectation", "Image.Value"))
 )
 
-seminr.model <- estimate_pls(data = mobi,
+seminr_model <- estimate_pls(data = mobi,
                              measurement_model = mobi_mm,
                              interactions = mobi_xm,
                              structural_model = mobi_sm)
 
 # Load data, assemble model, and bootstrap using simplePLS
-boot.seminr.model <- bootstrap_model(seminr_model = seminr.model,
+boot_seminr_model <- bootstrap_model(seminr_model = seminr_model,
                                      nboot = 100, cores = 2)
 
-print_paths(boot.seminr.model)
+summary(boot_seminr_model)
+}
+\references{
+Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on Partial Least Squares
+ Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.
 }
 \seealso{
 \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
