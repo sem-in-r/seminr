@@ -47,7 +47,7 @@ install.packages("seminr")
 
 Briefly, there are four steps to specifying and estimating a structural equation model using SEMinR:
 
-1. Describe measurement model for each construct and its items:
+1 Describe measurement model for each construct and its items:
 ```{r, eval=FALSE}
 # Distinguish and mix composite or reflective (common-factor) measurement models
 measurements <- constructs(
@@ -57,7 +57,7 @@ measurements <- constructs(
 )
 ```
 
-2. Specify any interactions between constructs:
+2 Specify any interactions between constructs:
 ```{r, eval=FALSE}
 # Easily create orthogonalized or scaled interactions between constructs
 intxns <- interactions(
@@ -65,7 +65,7 @@ intxns <- interactions(
 )
 ```
 
-3. Describe the structural model of causal relationships between constructs (and interactions):
+3 Describe the structural model of causal relationships between constructs (and interactions):
 ```{r, eval=FALSE}
 # Quickly create multiple paths "from" and "to" sets of constructs
 structure <- relationships(
@@ -74,7 +74,7 @@ structure <- relationships(
 )
 ```
 
-4. Put the above elements together to estimate and bootstrap the model:
+4 Put the above elements together to estimate and bootstrap the model:
 ```{r, eval=FALSE}
 # Dynamically compose SEM models from individual parts
 pls_model <- estimate_pls(data = mobi, measurements, intxns, structure)

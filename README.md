@@ -37,7 +37,7 @@ Usage
 
 Briefly, there are four steps to specifying and estimating a structural equation model using SEMinR:
 
-1.  Describe measurement model for each construct and its items:
+1 Describe measurement model for each construct and its items:
 
 ``` r
 # Distinguish and mix composite or reflective (common-factor) measurement models
@@ -48,7 +48,7 @@ measurements <- constructs(
 )
 ```
 
-1.  Specify any interactions between constructs:
+2 Specify any interactions between constructs:
 
 ``` r
 # Easily create orthogonalized or scaled interactions between constructs
@@ -57,7 +57,7 @@ intxns <- interactions(
 )
 ```
 
-1.  Describe the structural model of causal relationships between constructs (and interactions):
+3 Describe the structural model of causal relationships between constructs (and interactions):
 
 ``` r
 # Quickly create multiple paths "from" and "to" sets of constructs
@@ -67,7 +67,7 @@ structure <- relationships(
 )
 ```
 
-1.  Put the above elements together to estimate and bootstrap the model:
+4 Put the above elements together to estimate and bootstrap the model:
 
 ``` r
 # Dynamically compose SEM models from individual parts
