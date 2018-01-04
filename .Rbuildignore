@@ -8,3 +8,4 @@
 ^README-.*\.png$
 ^SEMinR\.Rproj$
 ^USAGE\.md$
+^\.travis\.yml$
