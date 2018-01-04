@@ -3,6 +3,10 @@ language: r
 os:
   - linux
   - osx
-  - windows10
 
 cache: packages
+
+# safelist
+branches:
+  only:
+  - develop

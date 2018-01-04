@@ -99,7 +99,7 @@ calculate_loadings <- function(weights_matrix,fscores, normData) {
 # Function to adjust for the interaction
 # Adjustment of the SD of the interaction term as per Henseler, J., & Chin, W. W. (2010),
 # A comparison of approaches for the analysis of interaction effects between latent variables
-# using partial least squares path modeling. Structural Equation Modeling, 17(1), 82–109. https://doi.org/10.1080/10705510903439003
+# using partial least squares path modeling. Structural Equation Modeling, 17(1), 82-109. https://doi.org/10.1080/10705510903439003
 adjust_interaction <- function(ltVariables, mmMatrix, outer_loadings, fscores, obsData){
   for(latent in ltVariables) {
     adjustment <- 0
