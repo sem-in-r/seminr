@@ -1,6 +1,6 @@
 Package: seminr
 Type: Package
-Title: Natural, Friendly, Domain-Specific Language for Building PLS Structural Equation Models
+Title: Domain-Specific Language for Building PLS Structural Equation Models
 Version: 0.3.1
 Date: 2018-01-03
 Authors@R: c(person("Soumya", "Ray",
@@ -8,8 +8,10 @@ Authors@R: c(person("Soumya", "Ray",
              person("Nicholas", "Danks",
               email = "nicholasdanks@hotmail.com", role = c("aut","cre")))
 Description: A powerful, easy to write and easy to modify syntax for
-    specifying and estimating PLS path models using the latest estimation methods
-    for Consistent PLS, interactions and bootstrapping utilizing parallel processing. 
+    specifying and estimating Partial Least Squares (PLS) path models allowing for the latest estimation methods
+    for Consistent PLS as per Dijkstra & Henseler (2015, MISQ 39(2): 297-316), adjusted interactions as per 
+    Henseler & Chin (2010) <doi:10.1080/10705510903439003> and bootstrapping utilizing 
+    parallel processing as per Hair et al. (2017, ISBN:978-1483377445). 
 Imports:
     parallel
 License: GPL-3
