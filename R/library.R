@@ -120,7 +120,7 @@ adjust_interaction <- function(ltVariables, mmMatrix, outer_loadings, construct_
 }
 
 
-path_coef <- function(smMatrix, construct_scores,dependant, paths_matrix) {
+estimate_path_coef <- function(smMatrix, construct_scores,dependant, paths_matrix) {
   #Regression betas for the incoming paths
   #Iterate and regress the incoming paths
   for (i in 1:length(dependant))  {
