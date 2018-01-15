@@ -9,7 +9,7 @@ This document highlights the diffent types of `seminr` syntax for particular use
 
 ### Measurement mode: reflective vs. formative
 
-You can specify formative or reflective factors:
+You can specify formative or reflective constructs:
 ``` r
 simple_mm <- measure(
   reflective("Expectation", multi_items("CUEX", 1:3)),

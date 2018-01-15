@@ -39,7 +39,7 @@ rhoC_AVE <- function(seminr_model){
 # rhoA as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
 rho_A <- function(seminr_model) {
   # get latent variable scores and weights for each latent
-  latentscores <- seminr_model$fscores
+  latentscores <- seminr_model$construct_scores
   weights <- seminr_model$outer_weights
   # get the mmMatrix and smMatrix
   mmMatrix <- seminr_model$mmMatrix
@@ -98,7 +98,7 @@ validity <- function(seminr_model) {
 }
 
 cross_loadings <- function(seminr_model) {
-  return(stats::cor(seminr_model$data[,seminr_model$mmVariables],seminr_model$fscores))
+  return(stats::cor(seminr_model$data[,seminr_model$mmVariables],seminr_model$construct_scores))
 }
 
 # HTMT as per Henseler, J., Ringle, C. M., & Sarstedt, M. (2014). A new criterion for assessing discriminant validity in
@@ -136,19 +136,19 @@ HTMT <- function(seminr_model) {
 ## Construct FIT ---------------------
 
 # BIC function using rsq, SST, n pk
-BIC_func <- function(rsq, pk, N, fscore){
-  SSerrk <- (1-rsq)*(stats::var(fscore)*(N-1))
+BIC_func <- function(rsq, pk, N, construct_score){
+  SSerrk <- (1-rsq)*(stats::var(construct_score)*(N-1))
   N*log(SSerrk/N) + (pk+1)*log(N)
 }
 
 # AIC function using rsq, SST, n pk
-AIC_func <- function(rsq, pk, N, fscore){
-  SSerrk <- (1-rsq)*(stats::var(fscore)*(N-1))
+AIC_func <- function(rsq, pk, N, construct_score){
+  SSerrk <- (1-rsq)*(stats::var(construct_score)*(N-1))
   2*(pk+1)+N*log(SSerrk/N)
 }
 
 # calculating insample metrics
-calc_insample <- function(obsData, fscores, smMatrix, dependant, fscore_cors) {
+calc_insample <- function(obsData, construct_scores, smMatrix, dependant, construct_score_cors) {
   # matrix includes BIC
   # Remove BIC for now
   #insample <- matrix(,nrow=3,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq","BIC"),dependant))
@@ -161,13 +161,13 @@ calc_insample <- function(obsData, fscores, smMatrix, dependant, fscore_cors) {
     independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
 
     #Calculate insample for endogenous
-    #    fscore_cors <- stats::cor(fscores)
-    r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
+    #    construct_score_cors <- stats::cor(construct_scores)
+    r_sq <- 1 - 1/solve(construct_score_cors[c(independant,dependant[i]),c(independant,dependant[i])])
     insample[1,i] <- r_sq[dependant[i],dependant[i]]
     insample[2,i] <- 1 - (1 - insample[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
     # Calculate the BIC for the endogenous
     # Remove BIC for now
-    #insample[3,i] <- BIC_func(r_sq[dependant[i],dependant[i]],length(independant),nrow(obsData),fscores[,dependant[i]])
+    #insample[3,i] <- BIC_func(r_sq[dependant[i],dependant[i]],length(independant),nrow(obsData),construct_scores[,dependant[i]])
   }
   return(insample)
 }

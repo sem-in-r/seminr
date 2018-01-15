@@ -100,28 +100,28 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting
   #Iterative Process Starts here
   for (iterations in 0:maxIt)  {
 
-    #Estimate Factor Scores from Outter Path
-    #? fscores <- normData%*%outer_weights
-    fscores <- normData[,mmVariables]%*%outer_weights
+    #Estimate construct Scores from Outter Path
+    #? construct_scores <- normData%*%outer_weights
+    construct_scores <- normData[,mmVariables]%*%outer_weights
 
-    #Standardize Factor Scores
-    fscores <- scale(fscores,TRUE,TRUE)
+    #Standardize construct Scores
+    construct_scores <- scale(construct_scores,TRUE,TRUE)
 
     #Estimate inner paths using weighting scheme - factorial or path-weighting
-    inner_paths <- inner_weights(smMatrix, fscores, dependant, paths_matrix)
+    inner_paths <- inner_weights(smMatrix, construct_scores, dependant, paths_matrix)
 
-    #Estimate Factor Scores from Inner Path
-    fscores<-fscores%*%inner_paths
+    #Estimate construct Scores from Inner Path
+    construct_scores<-construct_scores%*%inner_paths
 
-    #Standarize Factor Scores
-    fscores <- scale(fscores,TRUE,TRUE)
+    #Standarize construct Scores
+    construct_scores <- scale(construct_scores,TRUE,TRUE)
 
     #Save last outer_weights
     last_outer_weights <- outer_weights
 
     #Update outer_weights
     for(i in ltVariables) {
-      outer_weights[mmMatrix[mmMatrix[,"latent"]==i, "measurement"],i] <- measurement_mode_scheme[[i]]( mmMatrix, i, normData, fscores)
+      outer_weights[mmMatrix[mmMatrix[,"latent"]==i, "measurement"],i] <- measurement_mode_scheme[[i]]( mmMatrix, i, normData, construct_scores)
     }
 
     #Standarize outer_weights
@@ -134,23 +134,23 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting
 
   } #Finish Iterative Process
 
-  #Estimate Factor Scores from Outter Path
-  fscores <- normData[,mmVariables]%*%outer_weights
+  #Estimate construct Scores from Outter Path
+  construct_scores <- normData[,mmVariables]%*%outer_weights
 
   #Calculate Outer Loadings
-  outer_loadings <- calculate_loadings(weights_matrix,fscores, normData)
+  outer_loadings <- calculate_loadings(weights_matrix,construct_scores, normData)
 
   # interaction adjustment
-  fscores <- adjust_interaction(ltVariables, mmMatrix, outer_loadings, fscores, obsData)
+  construct_scores <- adjust_interaction(ltVariables, mmMatrix, outer_loadings, construct_scores, obsData)
 
   #Calculate Outer Loadings
-  outer_loadings <- calculate_loadings(weights_matrix,fscores, normData)
+  outer_loadings <- calculate_loadings(weights_matrix,construct_scores, normData)
 
   #Calculate and assign path coefficients
-  path_coef <- path_coef(smMatrix, fscores,dependant, paths_matrix)
+  path_coef <- path_coef(smMatrix, construct_scores,dependant, paths_matrix)
 
   #Calculate and assign rSquared
-  rSquared <- calc_insample(obsData, fscores, smMatrix, dependant,stats::cor(fscores))
+  rSquared <- calc_insample(obsData, construct_scores, smMatrix, dependant,stats::cor(construct_scores))
 
   #Prepare return Object
   plsModel <- list(meanData = meanData,
@@ -164,7 +164,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting
                    path_coef = path_coef,
                    iterations = iterations,
                    weightDiff = weightDiff,
-                   fscores = fscores,
+                   construct_scores = construct_scores,
                    rSquared = rSquared,
                    inner_weights = inner_weights)
 

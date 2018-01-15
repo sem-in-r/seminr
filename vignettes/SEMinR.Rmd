@@ -24,7 +24,7 @@ SEMinR brings many advancements to creating and estimating structural equation m
 
 SEMinR follows the latest best-practices in methodological literature:
 
-* Automatically _adjusts PLS estimates to ensure consistency (PLSc)_ wherever common factors are involved
+* Automatically _adjusts PLS estimates to ensure consistency (PLSc)_ wherever common-factors are involved
 * Ajusts for known biases in interaction terms in PLS models
 * Continuously tested against leading PLSPM software to ensure parity of outcomes: SmartPLS (Ringle et al., 2015) and ADANCO (Henseler and Dijkstra, 2015), as well as other R packages such as semPLS (Monecke and Leisch, 2012) and matrixpls (Rönkkö, 2016)
 * _High performance, multi-core_ bootstrapping function
@@ -178,7 +178,7 @@ single_item("CUSCO")
 "CUSCO"
 ```
 
-It is important to note that a single-item constructs can be defined as either composite mode A or reflective common-factor, but they are essentially composites whose factors scores are determined.
+It is important to note that a single-item constructs can be defined as either composite mode A or reflective common-factor, but they are essentially composites whose construct scores are determined.
 
 ## Interaction terms
 
@@ -326,7 +326,7 @@ mobi_xm <- interactions(
 )
 
 # define structural model
-# note: interactions factor should be named by its main factors joined by a '.'
+# note: interactions cobnstruct should be named by its main constructs joined by a '.'
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
@@ -340,11 +340,11 @@ mobi_pls <- estimate_pls(data = mobi,
                          inner_weights = path_weighting)
 ```
 
-### Consistent PLS (PLSc) for common factors
+### Consistent PLS (PLSc) for common-factors
 
-Dijkstra and Henseler (2015) offer an adjustment to generate consistent weight and path estimates of common factors estimated using PLSPM. SEMinR automatically adjusts for consistent estimates of coefficients for common factors defined using `reflective()`.
+Dijkstra and Henseler (2015) offer an adjustment to generate consistent weight and path estimates of common factors estimated using PLSPM. SEMinR automatically adjusts for consistent estimates of coefficients for common-factors defined using `reflective()`.
 
-Note: At this point, SEMinR does not adjust for PLSc on models with interactions involving common factors. Thus in models including common-factors and interactions, the coefficient of common-factors will be subject to bias.
+Note: At this point, SEMinR does not adjust for PLSc on models with interactions involving common-factors. Thus in models including common-factors and interactions, the coefficient of common-factors will be subject to bias.
 
 ## Bootstrapping the model for significance
 

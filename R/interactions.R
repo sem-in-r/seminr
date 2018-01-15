@@ -1,6 +1,6 @@
 #' Interaction Functions
 #'
-#' \code{interactions} creates interaction measurement items by multipying all combination of factor items.
+#' \code{interactions} creates interaction measurement items by multipying all combination of construct items.
 #'
 #' This function automatically generates interaction measurement items for a PLS SEM.
 #'
@@ -26,8 +26,8 @@
 #'   interaction_ortho("Image", "Value")
 #' )
 #'
-#' #  structural model: note that name of the interactions factor should be
-#' #  the names of its two main factors joined by a '.' in between.
+#' #  structural model: note that name of the interactions construct should be
+#' #  the names of its two main constructs joined by a '.' in between.
 #' mobi_sm <- relationships(
 #'   paths(to = "Satisfaction",
 #'         from = c("Image", "Expectation", "Value",
@@ -50,12 +50,12 @@ interactions <- function(...) {
 #'
 #' This function automatically generates interaction measurement items for a PLS SEM using the orthogonalized approach..
 #'
-#' @param factor1 The first factor which is subject to the interaction.
-#' @param factor2 The second factor which is subject to the interaction.
+#' @param construct1 The first construct which is subject to the interaction.
+#' @param construct2 The second construct which is subject to the interaction.
 #'
 #' @usage
 #'  # orthogonalization approach as per Henseler & CHin (2010):
-#'  interaction_ortho(factor1, factor2)
+#'  interaction_ortho(construct1, construct2)
 #'
 #' @references Henseler & Chin (2010), A comparison of approaches for the analysis of interaction effects
 #' between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1),82-109.
@@ -75,8 +75,8 @@ interactions <- function(...) {
 #'   interaction_ortho("Image", "Value")
 #' )
 #'
-#' #  structural model: note that name of the interactions factor should be
-#' #  the names of its two main factors joined by a '.' in between.
+#' #  structural model: note that name of the interactions construct should be
+#' #  the names of its two main constructs joined by a '.' in between.
 #' mobi_sm <- relationships(
 #'   paths(to = "Satisfaction",
 #'         from = c("Image", "Expectation", "Value",
@@ -87,11 +87,11 @@ interactions <- function(...) {
 #' summary(mobi_pls)
 #'
 #' @export
-interaction_ortho <- function(factor1, factor2) {
+interaction_ortho <- function(construct1, construct2) {
   function(data, mm) {
-    interaction_name <- paste(factor1, factor2, sep=".")
-    iv1_items <- mm[mm[, "latent"] == factor1, ][, "measurement"]
-    iv2_items <- mm[mm[, "latent"] == factor2, ][, "measurement"]
+    interaction_name <- paste(construct1, construct2, sep=".")
+    iv1_items <- mm[mm[, "latent"] == construct1, ][, "measurement"]
+    iv2_items <- mm[mm[, "latent"] == construct2, ][, "measurement"]
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
@@ -118,12 +118,12 @@ interaction_ortho <- function(factor1, factor2) {
 #'
 #' This function automatically generates interaction measurement items for a PLS SEM using scaled product indicator approach.
 #'
-#' @param factor1 The first factor which is subject to the interaction.
-#' @param factor2 The second factor which is subject to the interaction.
+#' @param construct1 The first construct which is subject to the interaction.
+#' @param construct2 The second construct which is subject to the interaction.
 #'
 #' @usage
 #'  # standardized product indicator approach as per Henseler & Chin (2010):
-#'  interaction_scaled("factor1", "factor2")
+#'  interaction_scaled("construct1", "construct2")
 #'
 #' @references Henseler & Chin (2010), A comparison of approaches for the analysis of interaction effects
 #' between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1),82-109.
@@ -143,8 +143,8 @@ interaction_ortho <- function(factor1, factor2) {
 #'   interaction_scaled("Image", "Value")
 #' )
 #'
-#' #  structural model: note that name of the interactions factor should be
-#' #  the names of its two main factors joined by a '.' in between.
+#' #  structural model: note that name of the interactions construct should be
+#' #  the names of its two main constructs joined by a '.' in between.
 #' mobi_sm <- relationships(
 #'   paths(to = "Satisfaction",
 #'         from = c("Image", "Expectation", "Value",
@@ -155,11 +155,11 @@ interaction_ortho <- function(factor1, factor2) {
 #' summary(mobi_pls)
 #'
 #' @export
-interaction_scaled <- function(factor1, factor2) {
+interaction_scaled <- function(construct1, construct2) {
   function(data, mm) {
-    interaction_name <- paste(factor1, factor2, sep=".")
-    iv1_items <- mm[mm[, "latent"] == factor1, ][, "measurement"]
-    iv2_items <- mm[mm[, "latent"] == factor2, ][, "measurement"]
+    interaction_name <- paste(construct1, construct2, sep=".")
+    iv1_items <- mm[mm[, "latent"] == construct1, ][, "measurement"]
+    iv2_items <- mm[mm[, "latent"] == construct2, ][, "measurement"]
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))

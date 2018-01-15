@@ -29,7 +29,7 @@ library(seminr)
 #  summary(pls_model)
 #  
 #  # Use multi-core parallel processing to speed up bootstraps
-#  boot_estimates <- bootstrap_model(pls_model, nboot = 2000, cores = 4)
+#  boot_estimates <- bootstrap_model(pls_model, nboot = 1000, cores = 2)
 #  summary(boot_estimates)
 
 ## ---- eval=FALSE---------------------------------------------------------
@@ -139,7 +139,7 @@ mobi_xm <- interactions(
 )
 
 # define structural model
-# note: interactions factor should be named by its main factors joined by a '.'
+# note: interactions cobnstruct should be named by its main constructs joined by a '.'
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
@@ -153,9 +153,9 @@ mobi_pls <- estimate_pls(data = mobi,
                          inner_weights = path_weighting)
 
 ## ------------------------------------------------------------------------
-# use 2000 bootstraps and utilize 4 parallel cores
+# use 1000 bootstraps and utilize 2 parallel cores
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
-                                 nboot = 2000,
+                                 nboot = 1000,
                                  cores = 2)
 
 ## ------------------------------------------------------------------------

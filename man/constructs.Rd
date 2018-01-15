@@ -11,11 +11,11 @@ constructs(...)
 \code{reflective()}, or \code{composite()} methods.}
 }
 \description{
-\code{constructs} creates the factors from measurement items by assigning the
-relevant items to each factor and specifying reflective or formative (composite/causal) measurement models
+\code{constructs} creates the constructs from measurement items by assigning the
+relevant items to each construct and specifying reflective or formative (composite/causal) measurement models
 }
 \details{
-This function conveniently maps measurement items to factors using
+This function conveniently maps measurement items to constructs using
 root name, numbers, and affixes with explicit definition of formative
 or reflective relationships
 }

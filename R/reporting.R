@@ -1,12 +1,12 @@
 #' Functions for reporting the Path Coefficients and R2 of endogenous constructs
-#' and for generating a scatterplot matrix of factor scores.
+#' and for generating a scatterplot matrix of construct scores.
 #'
 #' \code{report_paths} generates an easy to read table reporting path coefficients
 #'   and R2 values for endogenous constructs.\code{plot_scores} generates a
-#'   scatterplot matrix of each factor's scores against every other factor's scores.
+#'   scatterplot matrix of each construct's scores against every other construct's scores.
 #'
 #' These functions generate an easy to read table reporting path coefficients
-#'   and R2 values for endogenous constructs or a scatterplot matrix of factor
+#'   and R2 values for endogenous constructs or a scatterplot matrix of construct
 #'   scores.
 #'
 #' @param seminr_model The PLS model estimated by simplePLS \code{seminr}. The estimated model
@@ -15,13 +15,13 @@
 #' @param digits A \code{numeric} minimum number of significant digits. If not
 #'   specified, default is "2".
 #'
-#' @param factors a \code{list} indicating which factors to report. If not
-#'   specified, all factors are graphed and returned.
+#' @param constructs a \code{list} indicating which constructs to report. If not
+#'   specified, all constructs are graphed and returned.
 #'
 #' @usage
 #' report_paths(seminr_model, digits=3)
 #'
-#' plot_scores(seminr_model, factors=NULL)
+#' plot_scores(seminr_model, constructs=NULL)
 #'
 #' @examples
 #' data(mobi)
@@ -34,8 +34,8 @@
 #'   composite("Satisfaction", multi_items("CUSA", 1:3))
 #' )
 #'
-#' #  structural model: note that name of the interactions factor should be
-#' #  the names of its two main factors joined by a '.' in between.
+#' #  structural model: note that name of the interactions construct should be
+#' #  the names of its two main constructs joined by a '.' in between.
 #' mobi_sm <- relationships(
 #'   paths(to = "Satisfaction",
 #'         from = c("Image", "Expectation", "Value"))
@@ -98,10 +98,10 @@ report_bootstrapped_paths <- function(seminr_model, na.print=".", digits=3) {
 }
 
 #' @export
-plot_scores <- function(seminr_model, factors=NULL) {
+plot_scores <- function(seminr_model, constructs=NULL) {
 #  if (class(seminr_model)[1] == 'plsModel') seminr_model <- seminr_model
-  if (missing(factors)) factors <- seminr_model$ltVariables
+  if (missing(constructs)) constructs <- seminr_model$ltVariables
 
-  graphics::plot(as.data.frame(seminr_model$fscores[, factors]), pch = 16,
+  graphics::plot(as.data.frame(seminr_model$construct_scores[, constructs]), pch = 16,
        col = grDevices::rgb(0.5, 0.5, 0.5, alpha = 0.6))
 }
