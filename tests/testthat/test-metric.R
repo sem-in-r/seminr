@@ -12,8 +12,8 @@ mobi_mm <- constructs(
 )
 
 
-# structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
+# structural model: note that name of the interactions construct should be
+#  the names of its two main constructs joined by a '.' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",  from = c("Image", "Expectation", "Value"))
 )

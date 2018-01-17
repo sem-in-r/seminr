@@ -1,9 +1,9 @@
 #' Measurement functions
 #'
-#' \code{constructs} creates the factors from measurement items by assigning the
-#' relevant items to each factor and specifying reflective or formative (composite/causal) measurement models
+#' \code{constructs} creates the constructs from measurement items by assigning the
+#' relevant items to each construct and specifying reflective or formative (composite/causal) measurement models
 #'
-#' This function conveniently maps measurement items to factors using
+#' This function conveniently maps measurement items to constructs using
 #' root name, numbers, and affixes with explicit definition of formative
 #' or reflective relationships
 #'
@@ -34,10 +34,10 @@ constructs <- function(...) {
 #' Reflective construct measurement model specification
 #'
 #' \code{reflective} creates the reflective measurement model matrix for a specific common-factor,
-#' specifying the relevant items of the factor and assigning the relationship of reflective.
+#' specifying the relevant items of the construct and assigning the relationship of reflective.
 #' By definition this construct will be estimated by PLS consistent.
 #'
-#' This function conveniently maps reflectively defined measurement items to a factor and is estimated
+#' This function conveniently maps reflectively defined measurement items to a construct and is estimated
 #' using PLS consistent.
 #'
 #' @param construct_name of construct

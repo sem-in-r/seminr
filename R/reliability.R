@@ -44,7 +44,7 @@ rhoA <- function(seminr_model) {
   #Function to implement rhoA as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
 
   # get latent variable scores and weights for each latent
-  latentscores <- seminr_model$fscores
+  latentscores <- seminr_model$construct_scores
   weights <- seminr_model$outer_weights
   # get the mmMatrix and smMatrix
   mmMatrix <- seminr_model$mmMatrix

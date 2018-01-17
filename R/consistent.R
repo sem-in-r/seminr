@@ -1,8 +1,8 @@
 #' seminr PLSc Function
 #'
 #' The \code{PLSc} function calculates the consistent PLS path coefficients and loadings for
-#' a common factor model. It returns a \code{seminr_model} containing the adjusted and consistent
-#' path coefficients and loadings for common factor models and composite models.
+#' a common-factor model. It returns a \code{seminr_model} containing the adjusted and consistent
+#' path coefficients and loadings for common-factor models and composite models.
 #'
 #' @param seminr_model A \code{seminr_model} containing the estimated seminr model.
 #'
@@ -51,13 +51,13 @@ PLSc <- function(seminr_model) {
   path_coef <- seminr_model$path_coef
   loadings <- seminr_model$outer_loadings
   rSquared <- seminr_model$rSquared
-  fscores <- seminr_model$fscores
+  construct_scores <- seminr_model$construct_scores
 
   # Calculate rhoA for adjustments and adjust the correlation matrix
   rho <- rhoA(seminr_model)
   adjustment <- sqrt(rho %*% t(rho))
   diag(adjustment) <- 1
-  adj_fscore_cors <- stats::cor(seminr_model$fscores) / adjustment
+  adj_construct_score_cors <- stats::cor(seminr_model$construct_scores) / adjustment
 
   # iterate over endogenous latents and adjust path coefficients and R-squared
   for (i in unique(smMatrix[,"target"]))  {
@@ -66,8 +66,8 @@ PLSc <- function(seminr_model) {
     exogenous<-smMatrix[smMatrix[,"target"]==i,"source"]
 
     #Solve the system of equations
-    results <- solve(adj_fscore_cors[exogenous,exogenous],
-                    adj_fscore_cors[exogenous,i])
+    results <- solve(adj_construct_score_cors[exogenous,exogenous],
+                    adj_construct_score_cors[exogenous,i])
     # Assign the path names
     names(results) <- exogenous
 
@@ -76,7 +76,7 @@ PLSc <- function(seminr_model) {
   }
 
   #calculate insample metrics
-  rSquared <- calc_insample(seminr_model$data, fscores, smMatrix, unique(smMatrix[,"target"]),adj_fscore_cors)
+  rSquared <- calc_insample(seminr_model$data, construct_scores, smMatrix, unique(smMatrix[,"target"]),adj_construct_score_cors)
 
   # get all common-factor latents (Mode A Consistent) in a vector
   reflective <- unique(mmMatrix[mmMatrix[,"type"]=="C", "latent"])
