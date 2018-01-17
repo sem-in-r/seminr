@@ -88,11 +88,11 @@ p_values_control <- as.matrix(read.csv("../fixtures/pvalues.csv", row.names = 1)
 test_that("Seminr estimates the t-values correctly", {
   diff <- abs(t_values[,1] / t_values_control[,1])
   expect_gt(diff[[1]], 0.9)
-  expect_lt(diff[[1]], 1.1)
+  expect_lt(diff[[1]], 1.2)
   expect_gt(diff[[2]], 0.9)
-  expect_lt(diff[[2]], 1.1)
+  expect_lt(diff[[2]], 1.2)
   expect_gt(diff[[3]], 0.9)
-  expect_lt(diff[[3]], 1.1)
+  expect_lt(diff[[3]], 1.2)
 
 })
 
