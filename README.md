@@ -3,6 +3,8 @@
 SEMinR
 ======
 
+![Build Status](https://travis-ci.org/sem-in-r/seminr.svg?branch=master)
+
 SEMinR brings many advancements to creating and estimating structural equation models (SEM) using Partial Least Squares Path Modeling (PLS-PM):
 
 -   A *natural* feeling, *domain-specific* language to build and estimate structural equation models in R
