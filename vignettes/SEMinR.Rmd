@@ -178,7 +178,7 @@ single_item("CUSCO")
 "CUSCO"
 ```
 
-It is important to note that a single-item constructs can be defined as either composite mode A or reflective common-factor, but they are essentially composites whose construct scores are determined.
+It is important to note that a single-item constructs can be defined as either composite mode A or reflective common-factor, but single-item constructs are essentially composites whose construct scores are determined.
 
 ## Interaction terms
 
@@ -388,9 +388,9 @@ summary(mobi_pls)
     + `model_summary$cross_loadings` reports all possible loadings between contructs and items
     + `model_summary$loadings` reports the estimated loadings of the measurement model
     + `model_summary$weights` reports the estimated weights of the measurement model
-    + `model_summary$composite_scores` reports the construct scores of composites. 
+    + `model_summary$composite_scores` reports the construct scores of composites
 
-Please note that common-factor scores are indeterminable and therefore construct scores for common-factors are not reported (Hair et al.,2011).
+Please note that common-factor scores are indeterminable and therefore construct scores for common factors are not reported (Hair et al.,2011).
 
 ### Reporting the bootstrapped `boot_seminr_model` 
 
