@@ -193,3 +193,7 @@ mode_B <- function(mmMatrix, i,normData, construct_scores) {
 }
 #' @export
 regression_weights <- mode_B
+
+return_only_composite_scores <- function(object){
+  object$construct_scores[,(unique(object$mmMatrix[which(object$mmMatrix[,3]=="A"),1],object$mmMatrix[which(object$mmMatrix[,3]=="B"),1] ))]
+}
