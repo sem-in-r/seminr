@@ -9,6 +9,10 @@ vignette: >
   \usepackage[utf8]{inputenc}
 ---
 
+```{r echo=FALSE, out.width='25%'}
+knitr::include_graphics('SEMinR_logo.jpg')
+```
+
 ## Introduction
 
 ```{r, echo = FALSE, message = FALSE}
