@@ -19,8 +19,8 @@ rhoC_AVE <- function(seminr_model){
   colnames(dgr) <- c("rhoC", "AVE")
   for(i in seminr_model$ltVariables){
     x <- seminr_model$outer_loadings[, i]
+    ind <- which(x!=0)
     if(measure_mode(i,seminr_model$mmMatrix)=="B"| measure_mode(i,seminr_model$mmMatrix)=="A"){
-      ind <- which(x!=0)
       if(length(ind)==1){
         dgr[i,1:2] <- 1
       } else {
@@ -29,6 +29,7 @@ rhoC_AVE <- function(seminr_model){
        dgr[i,2] <- sum(x^2)/length(x)
       }
     } else {
+      x <- x[ind]
       dgr[i,1] <- NA
       dgr[i,2] <- sum(x^2)/length(x)
     }
