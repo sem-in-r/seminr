@@ -2,7 +2,7 @@
 title: "SEMinR"
 author: "Soumya Ray & Nicholas Danks"
 date: "January 3, 2018"
-output: pdf_document 
+output: html_document 
 vignette: >
   %\VignetteIndexEntry{SEMinR}
   %\VignetteEngine{knitr::rmarkdown}
