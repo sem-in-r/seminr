@@ -2,7 +2,7 @@ evaluate_model <- function(seminr_model) {
   rel <- reliability(seminr_model)
   val <- validity(seminr_model)
   out <- list(rel,val)
-  names(out) <- c("Reliability","Validity")
+  names(out) <- c("reliability","validity")
   return(out)
 }
 
@@ -86,16 +86,13 @@ reliability <- function(seminr_model) {
 }
 
 ## Validity ---------------------
-
 validity <- function(seminr_model) {
-  cl <- cross_loadings(seminr_model)
-# Remove HTMT
-#  htmt <- HTMT(seminr_model)
-#  out <- list(cl,htmt)
-  out <- list(cl)
-#  names(out) <- c("Cross-Loadings", "HTMT")
-  names(out) <- "Cross-Loadings"
-  return(out)
+  list(
+    # htmt            = HTMT(seminr_model),
+    cross_loadings  = cross_loadings(seminr_model),
+    item_vifs       = item_vifs(seminr_model),
+    antecedent_vifs = antecedent_vifs(seminr_model)
+  )
 }
 
 cross_loadings <- function(seminr_model) {
@@ -171,44 +168,4 @@ calc_insample <- function(obsData, construct_scores, smMatrix, dependant, constr
     #insample[3,i] <- BIC_func(r_sq[dependant[i],dependant[i]],length(independant),nrow(obsData),construct_scores[,dependant[i]])
   }
   return(insample)
-}
-
-# Function to apply over manifests of a latent and return VIF values
-# TODO: make available to use generically elsewhere in/out of seminr?
-compute_vif <- function(target, predictors, model_data) {
-  r_squared <- summary(stats::lm(paste(target," ~."), data = as.data.frame(model_data[,predictors])))$r.squared
-  1/(1 - r_squared)
-}
-
-# Gets item names for a given construct in a model
-# TODO: make available to use generically elsewhere in/out of seminr?
-items_of_construct <- function(construct, model) {
-  model$mmMatrix[model$mmMatrix[,1] == construct, 2]
-}
-
-# Get antecedent construct names for a give construct in a model
-# TODO: make available to use generically elsewhere in/out of seminr?
-antecedents_of_construct <- function(construct, model) {
-  model$smMatrix[model$smMatrix[,2] == construct, 1]
-}
-
-# calculating VIF
-VIF <- function(seminr_model) {
-  # Gets VIF for independent variables of a construct
-  independent_vifs <- function(construct, find_independents, data) {
-    independents <- find_independents(construct, seminr_model)
-    vifs <- if (length(independents) > 1)
-      sapply(independents, compute_vif, independents, data)
-    else structure(1, names = independents)
-  }
-
-  all_constructs <- seminr_model$ltVariables
-  item_vifs <- sapply(all_constructs, independent_vifs,
-                      items_of_construct, data = seminr_model$data)
-
-  endogenous_constructs <- unique(seminr_model$smMatrix[,2])
-  antecedent_vifs <- sapply(endogenous_constructs, independent_vifs,
-                            antecedents_of_construct, data = seminr_model$construct_scores)
-
-  list(items = item_vifs, antecedents = antecedent_vifs)
 }
