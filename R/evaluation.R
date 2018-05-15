@@ -175,25 +175,29 @@ calc_insample <- function(obsData, construct_scores, smMatrix, dependant, constr
 
 # calculating VIF
 VIF <- function(seminr_model) {
-  # Outer Model
   # Function to apply over manifests of a latent and return VIF values
-  latent_VIF <- function(target, manifests) {
-    obj <- summary(stats::lm(paste(target," ~."), data = seminr_model$data[,manifests]))$r.squared
-    1/(1-obj)
+  # TODO: make available to use generically elsewhere in/out of seminr?
+  compute_vif <- function(target, predictors, model_data) {
+    r_squared <- summary(stats::lm(paste(target," ~."), data = model_data[,predictors]))$r.squared
+    1/(1-r_squared)
   }
 
-  # Function to apply over latents and call latent_VIF on items of latent
-  manifest_VIF <- function(latent) {
-    targets <- seminr_model$mmMatrix[seminr_model$mmMatrix[,1]==latent,2]
-    if (length(targets) > 1) {
-      sapply(targets, latent_VIF, targets)
-    } else {
-      1
-    }
+  # Gets item names for a given construct in a model
+  # TODO: make available to use generically elsewhere in/out of seminr?
+  items_for_construct <- function(construct, model) {
+    model$mmMatrix[model$mmMatrix[,1]==construct, 2]
   }
+
+  # Outer Model
+  # Gets VIF for items of a construct
+  item_vifs <- function(construct) {
+    items <- items_for_construct(construct, seminr_model)
+    vifs <- if (length(items) > 1) sapply(items, compute_vif, items, seminr_model$data) else 1
+  }
+
   # Collect latents and apply
   latents <- seminr_model$ltVariables
-  outer_model <- unlist(sapply(latents, manifest_VIF))
+  outer_model <- sapply(latents, item_vifs)
 
   # Function to apply over antecedents of a latent and return VIF values
   antecedents_VIF <- function(target, antecedents) {
@@ -212,7 +216,6 @@ VIF <- function(seminr_model) {
     }
   }
   inner_model <- unlist(sapply(endogenous_vars, collect_antecedents))
-  list(outer_model,
-       inner_model)
-  }
+  list(items=outer_model, inner_model)
+}
 
