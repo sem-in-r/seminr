@@ -2,12 +2,16 @@
 title: "SEMinR"
 author: "Soumya Ray & Nicholas Danks"
 date: "January 3, 2018"
-output: rmarkdown::html_vignette 
+output: html_document 
 vignette: >
   %\VignetteIndexEntry{SEMinR}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
+
+```{r echo=FALSE, out.width='25%'}
+knitr::include_graphics('SEMinR_logo.jpg')
+```
 
 ## Introduction
 

@@ -1,3 +1,6 @@
+## ----echo=FALSE, out.width='25%'-----------------------------------------
+knitr::include_graphics('SEMinR_logo.jpg')
+
 ## ---- echo = FALSE, message = FALSE--------------------------------------
 knitr::opts_chunk$set(collapse = T, comment = "#>")
 library(seminr)
