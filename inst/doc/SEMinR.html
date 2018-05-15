@@ -287,7 +287,7 @@ c(&quot;IMAG1&quot;, &quot;IMAG2&quot;, &quot;IMAG3&quot;, &quot;IMAG4&quot;, &q
 #&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)
 #&gt;     return(intxns_list)
 #&gt;   }
-#&gt; &lt;environment: 0x10fcc5d40&gt;</code></pre>
+#&gt; &lt;environment: 0x10f57bc00&gt;</code></pre>
 <p>Not that these functions themselves return functions that are not resolved until passed as a parameter to the <code>estimate_pls()</code> function for model estimation.</p>
 </div>
 <div id="describe-an-interaction-with-interaction_ortho-or-interaction_scaled" class="section level3">
@@ -476,19 +476,19 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 #&gt; 
 #&gt; Structural Path t-values:
 #&gt;                   Satisfaction
-#&gt; Image                    8.166
-#&gt; Expectation              2.721
-#&gt; Value                    4.470
-#&gt; Image.Expectation        1.055
-#&gt; Image.Value              0.079
+#&gt; Image                    8.601
+#&gt; Expectation              2.781
+#&gt; Value                    4.800
+#&gt; Image.Expectation        1.043
+#&gt; Image.Value              0.014
 #&gt; 
 #&gt; Structural Path p-values:
 #&gt;                   Satisfaction
 #&gt; Image                    0.000
-#&gt; Expectation              0.007
+#&gt; Expectation              0.006
 #&gt; Value                    0.000
-#&gt; Image.Expectation        0.292
-#&gt; Image.Value              0.937</code></pre>
+#&gt; Image.Expectation        0.297
+#&gt; Image.Value              0.988</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li><code>boot_model_summary &lt;- summary(boot_seminr_model)</code> returns an object of class <code>summary.boot_seminr_model</code> which contains the following accessible objects:
 <ul>

@@ -178,7 +178,7 @@ VIF <- function(seminr_model) {
   # Outer Model
   # Function to apply over manifests of a latent and return VIF values
   latent_VIF <- function(target, manifests) {
-    obj <- summary(lm(paste(target," ~."), data = seminr_model$data[,manifests]))$r.squared
+    obj <- summary(stats::lm(paste(target," ~."), data = seminr_model$data[,manifests]))$r.squared
     1/(1-obj)
   }
 
@@ -197,7 +197,7 @@ VIF <- function(seminr_model) {
 
   # Function to apply over antecedents of a latent and return VIF values
   antecedents_VIF <- function(target, antecedents) {
-    obj <- summary(lm(paste(target," ~."), data = as.data.frame(seminr_model$construct_scores[,antecedents])))$r.squared
+    obj <- summary(stats::lm(paste(target," ~."), data = as.data.frame(seminr_model$construct_scores[,antecedents])))$r.squared
     1/(1-obj)
   }
 
