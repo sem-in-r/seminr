@@ -2,7 +2,7 @@ evaluate_model <- function(seminr_model) {
   rel <- reliability(seminr_model)
   val <- validity(seminr_model)
   out <- list(rel,val)
-  names(out) <- c("Reliability","Validity")
+  names(out) <- c("reliability","validity")
   return(out)
 }
 
@@ -86,16 +86,13 @@ reliability <- function(seminr_model) {
 }
 
 ## Validity ---------------------
-
 validity <- function(seminr_model) {
-  cl <- cross_loadings(seminr_model)
-# Remove HTMT
-#  htmt <- HTMT(seminr_model)
-#  out <- list(cl,htmt)
-  out <- list(cl)
-#  names(out) <- c("Cross-Loadings", "HTMT")
-  names(out) <- "Cross-Loadings"
-  return(out)
+  list(
+    # htmt            = HTMT(seminr_model),
+    cross_loadings  = cross_loadings(seminr_model),
+    item_vifs       = item_vifs(seminr_model),
+    antecedent_vifs = antecedent_vifs(seminr_model)
+  )
 }
 
 cross_loadings <- function(seminr_model) {
@@ -172,47 +169,3 @@ calc_insample <- function(obsData, construct_scores, smMatrix, dependant, constr
   }
   return(insample)
 }
-
-# calculating VIF
-VIF <- function(seminr_model) {
-  # Outer Model
-  # Function to apply over manifests of a latent and return VIF values
-  latent_VIF <- function(target, manifests) {
-    obj <- summary(stats::lm(paste(target," ~."), data = seminr_model$data[,manifests]))$r.squared
-    1/(1-obj)
-  }
-
-  # Function to apply over latents and call latent_VIF on items of latent
-  manifest_VIF <- function(latent) {
-    targets <- seminr_model$mmMatrix[seminr_model$mmMatrix[,1]==latent,2]
-    if (length(targets) > 1) {
-      sapply(targets, latent_VIF, targets)
-    } else {
-      1
-    }
-  }
-  # Collect latents and apply
-  latents <- seminr_model$ltVariables
-  outer_model <- unlist(sapply(latents, manifest_VIF))
-
-  # Function to apply over antecedents of a latent and return VIF values
-  antecedents_VIF <- function(target, antecedents) {
-    obj <- summary(stats::lm(paste(target," ~."), data = as.data.frame(seminr_model$construct_scores[,antecedents])))$r.squared
-    1/(1-obj)
-  }
-
-  # inner Model
-  endogenous_vars <- unique(seminr_model$smMatrix[,2])
-  collect_antecedents <- function(endogenous) {
-    antecedents <- seminr_model$smMatrix[seminr_model$smMatrix[,2]==endogenous,1]
-    if (length(antecedents) > 1) {
-      sapply(antecedents, antecedents_VIF, antecedents)
-    } else {
-      1
-    }
-  }
-  inner_model <- unlist(sapply(endogenous_vars, collect_antecedents))
-  list(outer_model,
-       inner_model)
-  }
-
