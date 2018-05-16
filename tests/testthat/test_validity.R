@@ -1,5 +1,6 @@
 context("SEMinR correctly returns validity metrics in summary for class seminr_model\n")
 
+## Setup model ----
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5),weights = mode_A),
@@ -8,37 +9,56 @@ mobi_mm <- constructs(
   composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A)
 )
 
-mobi_sm <- relationships(
+# Single endogenous construct model (should still return a list of antecedents in results)
+mobi_sm1 <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value"))
 )
 
+# Multiple endogenous constructs model
+mobi_sm2 <- relationships(
+  paths(to = "Satisfaction",
+        from = c("Image", "Expectation", "Value")),
+  paths(to = "Value",
+        from = c("Image", "Expectation"))
+)
+
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path_weighting)
-summary_object <- summary(seminr_model)
+model1 <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm1, inner_weights = path_weighting)
+model2 <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm2, inner_weights = path_weighting)
+
+summary1 <- summary(model1)
+summary2 <- summary(model2)
 
 flatten_vifs <- function(vif_results) {
   as.data.frame(t(unlist(vif_results)))
 }
 
-flat_vif_items <- flatten_vifs(summary_object$vif_items)
-flat_vif_antecedents <- flatten_vifs(summary_object$vif_antecedents)
+flat_vif_items1 <- flatten_vifs(summary1$vif_items)
+flat_vif_antecedents1 <- flatten_vifs(summary1$vif_antecedents)
+flat_vif_antecedents2 <- flatten_vifs(summary1$vif_antecedents)
 
-## Create Fixtures
-# write.csv(flat_vif_items, "tests/fixtures/vifs/flat_item_vifs.csv", row.names = FALSE)
-# write.csv(flat_vif_antecedents, "tests/fixtures/vifs/flat_vif_antecedents.csv", row.names = FALSE)
+## Create Original Fixtures ----
+# write.csv(flat_vif_items1, "tests/fixtures/vifs/flat_item_vifs1.csv", row.names = FALSE)
+# write.csv(flat_vif_antecedents1, "tests/fixtures/vifs/flat_vif_antecedents1.csv", row.names = FALSE)
+# write.csv(flat_vif_antecedents2, "tests/fixtures/vifs/flat_vif_antecedents2.csv", row.names = FALSE)
 
-# Read Fixtures
-correct_item_vifs <- read.csv("../fixtures/vifs/flat_item_vifs.csv")
-correct_vif_antecedents <- read.csv("../fixtures/vifs/flat_vif_antecedents.csv")
+## Load Fixtures ----
+correct_item_vifs1 <- read.csv("../fixtures/vifs/flat_item_vifs1.csv")
+correct_vif_antecedents1 <- read.csv("../fixtures/vifs/flat_vif_antecedents1.csv")
+correct_vif_antecedents2 <- read.csv("../fixtures/vifs/flat_vif_antecedents2.csv")
 
 
-## Tests
-test_that("Seminr computs the item VIFs correctly", {
-  expect_equal(flat_vif_items, correct_item_vifs)
+## Tests ----
+test_that("Seminr computes the item VIFs correctly", {
+  expect_equal(flat_vif_items1, correct_item_vifs1)
 })
 
-test_that("Seminr computs the item VIFs correctly", {
-  expect_equal(flat_vif_items, correct_item_vifs)
+test_that("Seminr computes the antecedent VIFs correctly for single endogenous variable", {
+  expect_equal(flat_vif_antecedents1, correct_vif_antecedents1)
+})
+
+test_that("Seminr computes the antecedent VIFs correctly for multiple endogenous variables", {
+  expect_equal(flat_vif_antecedents2, correct_vif_antecedents2)
 })
