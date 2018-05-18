@@ -1,8 +1,5 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-SEMinR
-======
-
 <img src="vignettes/SEMinR_logo.jpg" width="25%" />
 
 ![Build Status](https://travis-ci.org/sem-in-r/seminr.svg?branch=master)
