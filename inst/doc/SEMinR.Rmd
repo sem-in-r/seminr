@@ -393,6 +393,8 @@ summary(mobi_pls)
     + `model_summary$loadings` reports the estimated loadings of the measurement model
     + `model_summary$weights` reports the estimated weights of the measurement model
     + `model_summary$composite_scores` reports the construct scores of composites
+    + `model_summary$vif_items` reports the Variance Inflation Factor (VIF) for the measurement model
+    + `model_summary$vif_antecedents` report the Variance Inflation Factor (VIF) for the structural model
 
 Please note that common-factor scores are indeterminable and therefore construct scores for common factors are not reported (Hair et al.,2011).
 
