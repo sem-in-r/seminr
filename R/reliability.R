@@ -42,32 +42,32 @@
 #' @export
 # rho_A as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
 rho_A <- function(seminr_model) {
-  # get latent variable scores and weights for each latent
-  latentscores <- seminr_model$construct_scores
+  # get construct variable scores and weights for each construct
+  constructscores <- seminr_model$construct_scores
   weights <- seminr_model$outer_weights
   # get the mmMatrix and smMatrix
   mmMatrix <- seminr_model$mmMatrix
   smMatrix <- seminr_model$smMatrix
   obsData <- seminr_model$data
   # Create rho_A holder matrix
-  rho <- matrix(,nrow = ncol(latentscores),ncol = 1,dimnames = list(colnames(latentscores),c("rhoA")))
+  rho <- matrix(,nrow = ncol(constructscores),ncol = 1,dimnames = list(colnames(constructscores),c("rhoA")))
 
   for (i in rownames(rho))  {
     #If the measurement model is Formative assign rhoA = 1
-    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="B"){
+    if(mmMatrix[mmMatrix[,"construct"]==i,"type"][1]=="B"){
       rho[i,1] <- 1
     }
     #If the measurement model is Reflective Calculate RhoA
-    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="C" | mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="A"){
-      #if the latent is a single item rhoA = 1
-      if(nrow(mmMatrix_per_latent(i,mmMatrix)) == 1) {
+    if(mmMatrix[mmMatrix[,"construct"]==i,"type"][1]=="C" | mmMatrix[mmMatrix[,"construct"]==i,"type"][1]=="A"){
+      #if the construct is a single item rhoA = 1
+      if(nrow(mmMatrix_per_construct(i,mmMatrix)) == 1) {
         rho[i,1] <- 1
       } else {
-        # get the weights for the latent
-        w <- as.matrix(weights[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i])
+        # get the weights for the construct
+        w <- as.matrix(weights[mmMatrix[mmMatrix[,"construct"]==i,"measurement"],i])
 
         # Get empirical covariance matrix of lv indicators (S)
-        indicators <- scale(obsData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],TRUE,TRUE)
+        indicators <- scale(obsData[,mmMatrix[mmMatrix[,"construct"]==i,"measurement"]],TRUE,TRUE)
         S <- stats::cov(indicators,indicators)
         diag(S) <- 0
 
@@ -90,10 +90,10 @@ rho_A <- function(seminr_model) {
 # Average Variance Extracted as per:  Fornell, C. and D. F. Larcker (February 1981). Evaluating
 # structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5
 rhoC_AVE <- function(seminr_model){
-  dgr <- matrix(NA, nrow=length(seminr_model$ltVariables), ncol=2)
-  rownames(dgr) <- seminr_model$ltVariables
+  dgr <- matrix(NA, nrow=length(seminr_model$constructs), ncol=2)
+  rownames(dgr) <- seminr_model$constructs
   colnames(dgr) <- c("rhoC", "AVE")
-  for(i in seminr_model$ltVariables){
+  for(i in seminr_model$constructs){
     x <- seminr_model$outer_loadings[, i]
     ind <- which(x!=0)
     if(measure_mode(i,seminr_model$mmMatrix)=="B"| measure_mode(i,seminr_model$mmMatrix)=="A"){

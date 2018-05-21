@@ -32,12 +32,12 @@ cross_loadings <- function(seminr_model) {
 # variance-based structural equation modeling. Journal of the Academy of Marketing Science, 43(1), 115-135.
 # https://doi.org/10.1007/s11747-014-0403-8
 HTMT <- function(seminr_model) {
-  HTMT <- matrix(, nrow=length(seminr_model$ltVariables), ncol=length(seminr_model$ltVariables),
-                 dimnames = list(seminr_model$ltVariables,seminr_model$ltVariables))
-  for (latenti in seminr_model$ltVariables[1:(length(seminr_model$ltVariables)-1)]) {
-    for (latentj in seminr_model$ltVariables[(which(seminr_model$ltVariables == latenti)+1):length(seminr_model$ltVariables)]) {
-      manifesti <- seminr_model$mmVariables[seminr_model$mmMatrix[,1] == latenti]
-      manifestj <- seminr_model$mmVariables[seminr_model$mmMatrix[,1] == latentj]
+  HTMT <- matrix(, nrow=length(seminr_model$constructs), ncol=length(seminr_model$constructs),
+                 dimnames = list(seminr_model$constructs,seminr_model$constructs))
+  for (constructi in seminr_model$constructs[1:(length(seminr_model$constructs)-1)]) {
+    for (constructj in seminr_model$constructs[(which(seminr_model$constructs == constructi)+1):length(seminr_model$constructs)]) {
+      manifesti <- seminr_model$mmVariables[seminr_model$mmMatrix[,1] == constructi]
+      manifestj <- seminr_model$mmVariables[seminr_model$mmMatrix[,1] == constructj]
       item_correlation_matrix <- stats::cor(seminr_model$data[,manifesti],seminr_model$data[,manifestj])
       HTHM <- mean(item_correlation_matrix)
       if(length(manifesti)>1 ) {
@@ -54,7 +54,7 @@ HTMT <- function(seminr_model) {
       } else {
         MTHM <- sqrt(1 * MTHM)
       }
-      HTMT[latenti,latentj] <- HTHM / MTHM
+      HTMT[constructi,constructj] <- HTHM / MTHM
     }
   }
   return(HTMT)

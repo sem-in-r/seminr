@@ -51,16 +51,16 @@
 report_paths <- function(seminr_model, digits=3) {
   endogenous <- unique(seminr_model$smMatrix[,"target"])
   exogenous <- unique(seminr_model$smMatrix[,"source"])
-  latent <- seminr_model$ltVariables
+  construct <- seminr_model$constructs
 
   # create matrix of relevant path coefficients and NAs otherewise
-  path_matrix <- matrix(nrow = length(latent), ncol = length(latent), dimnames = list(latent, latent))
+  path_matrix <- matrix(nrow = length(construct), ncol = length(construct), dimnames = list(construct, construct))
   path_matrix[seminr_model$path_coef != 0] <- seminr_model$path_coef[seminr_model$path_coef != 0]
 
   # add R Squared row
   # Remove BIC for now
-  #r_sq <- matrix(nrow = 3, ncol = length(latent), dimnames = list(c("R^2", "AdjR^2", "BIC"), latent))
-  r_sq <- matrix(nrow = 2, ncol = length(latent), dimnames = list(c("R^2", "AdjR^2"), latent))
+  #r_sq <- matrix(nrow = 3, ncol = length(construct), dimnames = list(c("R^2", "AdjR^2", "BIC"), construct))
+  r_sq <- matrix(nrow = 2, ncol = length(construct), dimnames = list(c("R^2", "AdjR^2"), construct))
   r_sq[,colnames(seminr_model$rSquared)] <- seminr_model$rSquared
   path_matrix <- rbind(r_sq, path_matrix)
 
@@ -100,7 +100,7 @@ report_bootstrapped_paths <- function(seminr_model, na.print=".", digits=3) {
 #' @export
 plot_scores <- function(seminr_model, constructs=NULL) {
 #  if (class(seminr_model)[1] == 'plsModel') seminr_model <- seminr_model
-  if (missing(constructs)) constructs <- seminr_model$ltVariables
+  if (missing(constructs)) constructs <- seminr_model$constructs
 
   graphics::plot(as.data.frame(seminr_model$construct_scores[, constructs]), pch = 16,
        col = grDevices::rgb(0.5, 0.5, 0.5, alpha = 0.6))

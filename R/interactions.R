@@ -90,8 +90,8 @@ interactions <- function(...) {
 interaction_ortho <- function(construct1, construct2) {
   function(data, mm) {
     interaction_name <- paste(construct1, construct2, sep=".")
-    iv1_items <- mm[mm[, "latent"] == construct1, ][, "measurement"]
-    iv2_items <- mm[mm[, "latent"] == construct2, ][, "measurement"]
+    iv1_items <- mm[mm[, "construct"] == construct1, ][, "measurement"]
+    iv2_items <- mm[mm[, "construct"] == construct2, ][, "measurement"]
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
@@ -158,8 +158,8 @@ interaction_ortho <- function(construct1, construct2) {
 interaction_scaled <- function(construct1, construct2) {
   function(data, mm) {
     interaction_name <- paste(construct1, construct2, sep=".")
-    iv1_items <- mm[mm[, "latent"] == construct1, ][, "measurement"]
-    iv2_items <- mm[mm[, "latent"] == construct2, ][, "measurement"]
+    iv1_items <- mm[mm[, "construct"] == construct1, ][, "measurement"]
+    iv2_items <- mm[mm[, "construct"] == construct2, ][, "measurement"]
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))

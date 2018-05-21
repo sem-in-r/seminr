@@ -2,19 +2,19 @@
 # DEPRECATED
 # TODO: Decide if we need to warn about this or just disregard and model
 warning_only_causal_construct <- function(mmMatrix) {
-  latents <- unique(mmMatrix[,1])
-  for(latent in latents) {
-    if(length(items_per_mode(latent,"B",mmMatrix)) == nrow(mmMatrix_per_latent(latent,mmMatrix))) {
-      warning(c(latent," is purely defined as a causal mode B construct.\n"))
+  constructs <- unique(mmMatrix[,1])
+  for(construct in constructs) {
+    if(length(items_per_mode(construct,"B",mmMatrix)) == nrow(mmMatrix_per_construct(construct,mmMatrix))) {
+      warning(c(construct," is purely defined as a causal mode B construct.\n"))
     }
   }
 }
 
 warning_single_item_formative <- function(mmMatrix) {
-  ltVariables <- unique(mmMatrix[,1])
-  for(latent in ltVariables) {
-    if(nrow(mmMatrix_per_latent(latent,mmMatrix)) == 1 && mmMatrix_per_latent(latent,mmMatrix)[,3] == "B") {
-      stop("You cannot define a single item latent as mode B")
+  constructs <- unique(mmMatrix[,1])
+  for(construct in constructs) {
+    if(nrow(mmMatrix_per_construct(construct,mmMatrix)) == 1 && mmMatrix_per_construct(construct,mmMatrix)[,3] == "B") {
+      stop("You cannot define a single item construct as mode B")
     }
   }
 }
@@ -34,18 +34,18 @@ warning_missing_data <- function(data, mmMatrix) {
 }
 
 warning_struc_meas_model_complete <- function(smMatrix, mmMatrix, data) {
-  latent <- unique(as.vector(smMatrix))
-  latentmm <- unique(as.vector(mmMatrix[,1]))
-  if(any(latent %in% colnames(data))) {
-    stop("The latent variables cannot share names with the manifest variables.")
+  construct <- unique(as.vector(smMatrix))
+  constructmm <- unique(as.vector(mmMatrix[,1]))
+  if(any(construct %in% colnames(data))) {
+    stop("The construct variables cannot share names with the manifest variables.")
   }
-  manifest <- sort(setdiff(as.vector(mmMatrix[,1:2]), latent))
+  manifest <- sort(setdiff(as.vector(mmMatrix[,1:2]), construct))
 
   if(!all(manifest %in% colnames(data))) {
     stop("The manifest variables must occur as columns in the data.")
   }
-  if(!all(latent %in% latentmm)) {
-    stop("The latent variables described in the structural model must occur in the measurement model.")
+  if(!all(construct %in% constructmm)) {
+    stop("The construct variables described in the structural model must occur in the measurement model.")
   }
 }
 

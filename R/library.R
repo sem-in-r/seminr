@@ -1,34 +1,34 @@
-# function to get measurement mode of a latent (first item)
-measure_mode <- function(latent,mmMatrix) {
-  mmMatrix[mmMatrix[,"latent"]==latent,"type"][1]
+# function to get measurement mode of a construct (first item)
+measure_mode <- function(construct,mmMatrix) {
+  mmMatrix[mmMatrix[,"construct"]==construct,"type"][1]
 }
 
-# function to get measurement mode of a latent (first item) as a function
-get_measure_mode <- function(latent,mmMatrix) {
-  ifelse((mmMatrix[mmMatrix[,"latent"]==latent,"type"][1] == "A") |(mmMatrix[mmMatrix[,"latent"]==latent,"type"][1] == "C") , return(mode_A), return(mode_B))
-#  base::get(mmMatrix[mmMatrix[,"latent"]==latent,"type"][1])
+# function to get measurement mode of a construct (first item) as a function
+get_measure_mode <- function(construct,mmMatrix) {
+  ifelse((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "A") |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "C") , return(mode_A), return(mode_B))
+#  base::get(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1])
 }
 
 # Used in warnings - warning_only_causal_construct()
-# function to get all the items of a given measurement mode for a given latent
-items_per_mode <- function(latent, mode,mmMatrix) {
-  latentmatrix <- mmMatrix[mmMatrix[,"latent"]==latent,c("measurement","type")]
-  # If single item latent
-  if (class(latentmatrix) == "character") {
-    latentmatrix = t(as.matrix(latentmatrix))
+# function to get all the items of a given measurement mode for a given construct
+items_per_mode <- function(construct, mode,mmMatrix) {
+  constructmatrix <- mmMatrix[mmMatrix[,"construct"]==construct,c("measurement","type")]
+  # If single item construct
+  if (class(constructmatrix) == "character") {
+    constructmatrix = t(as.matrix(constructmatrix))
   }
-  return(latentmatrix[latentmatrix[,"type"] == mode,"measurement"])
+  return(constructmatrix[constructmatrix[,"type"] == mode,"measurement"])
 }
 
 # Used in warnings - warning_only_causal_construct() and warning_single_item_formative()
-# function to subset and return the mmMatrix for a latent
-mmMatrix_per_latent <- function(latent, mmMatrix) {
-  latentmatrix <- mmMatrix[mmMatrix[,"latent"]==latent,c("latent","measurement","type")]
-  # If single item latent
-  if (class(latentmatrix) == "character") {
-    latentmatrix = t(as.matrix(latentmatrix))
+# function to subset and return the mmMatrix for a construct
+mmMatrix_per_construct <- function(construct, mmMatrix) {
+  constructmatrix <- mmMatrix[mmMatrix[,"construct"]==construct,c("construct","measurement","type")]
+  # If single item construct
+  if (class(constructmatrix) == "character") {
+    constructmatrix = t(as.matrix(constructmatrix))
   }
-  return(latentmatrix)
+  return(constructmatrix)
 }
 
 #' Inner weighting scheme functions to estimate inner paths matrix
@@ -100,19 +100,19 @@ calculate_loadings <- function(weights_matrix,construct_scores, normData) {
 # Adjustment of the SD of the interaction term as per Henseler, J., & Chin, W. W. (2010),
 # A comparison of approaches for the analysis of interaction effects between latent variables
 # using partial least squares path modeling. Structural Equation Modeling, 17(1), 82-109. https://doi.org/10.1080/10705510903439003
-adjust_interaction <- function(ltVariables, mmMatrix, outer_loadings, construct_scores, obsData){
-  for(latent in ltVariables) {
+adjust_interaction <- function(constructs, mmMatrix, outer_loadings, construct_scores, obsData){
+  for(construct in constructs) {
     adjustment <- 0
     denom <- 0
-    if(grepl("\\.", latent)) {
-      list <- mmMatrix[mmMatrix[,"latent"]==latent,"measurement"]
+    if(grepl("\\.", construct)) {
+      list <- mmMatrix[mmMatrix[,"construct"]==construct,"measurement"]
 
       for (item in list){
-        adjustment <- adjustment + stats::sd(obsData[,item])*abs(as.numeric(outer_loadings[item,latent]))
-        denom <- denom + abs(outer_loadings[item,latent])
+        adjustment <- adjustment + stats::sd(obsData[,item])*abs(as.numeric(outer_loadings[item,construct]))
+        denom <- denom + abs(outer_loadings[item,construct])
       }
       adjustment <- adjustment/denom
-      construct_scores[,latent] <- construct_scores[,latent]*adjustment
+      construct_scores[,construct] <- construct_scores[,construct]*adjustment
     }
   }
   return(construct_scores)
@@ -161,7 +161,7 @@ standardize_outer_weights <- function(normData, mmVariables, outer_weights) {
 #'
 #' @export
 mode_A  <- function(mmMatrix, i, normData, construct_scores) {
-    return(stats::cov(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],construct_scores[,i]))
+    return(stats::cov(normData[,mmMatrix[mmMatrix[,"construct"]==i,"measurement"]],construct_scores[,i]))
 }
 #' @export
 correlation_weights <- mode_A
@@ -187,8 +187,8 @@ correlation_weights <- mode_A
 #'
 #' @export
 mode_B <- function(mmMatrix, i,normData, construct_scores) {
-    return(solve(stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]])) %*%
-    stats::cor(normData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],
+    return(solve(stats::cor(normData[,mmMatrix[mmMatrix[,"construct"]==i,"measurement"]])) %*%
+    stats::cor(normData[,mmMatrix[mmMatrix[,"construct"]==i,"measurement"]],
                construct_scores[,i]))
 }
 #' @export
