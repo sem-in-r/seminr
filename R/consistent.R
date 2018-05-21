@@ -53,8 +53,8 @@ PLSc <- function(seminr_model) {
   rSquared <- seminr_model$rSquared
   construct_scores <- seminr_model$construct_scores
 
-  # Calculate rhoA for adjustments and adjust the correlation matrix
-  rho <- rhoA(seminr_model)
+  # Calculate rho_A for adjustments and adjust the correlation matrix
+  rho <- rho_A(seminr_model)
   adjustment <- sqrt(rho %*% t(rho))
   diag(adjustment) <- 1
   adj_construct_score_cors <- stats::cor(seminr_model$construct_scores) / adjustment

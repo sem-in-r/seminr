@@ -1,12 +1,12 @@
-#' seminr rhoA Function
+#' seminr rho_A Function
 #'
-#' The \code{rhoA} function calculates the rhoA reliability indices for each construct. For
+#' The \code{rho_A} function calculates the rho_A reliability indices for each construct. For
 #' formative constructs, the index is set to 1.
 #'
 #' @param seminr_model A \code{seminr_model} containing the estimated seminr model.
 #'
 #' @usage
-#' rhoA(seminr_model)
+#' rho_A(seminr_model)
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'          \code{\link{bootstrap_model}}
@@ -38,11 +38,10 @@
 #'                            measurement_model = mobi_mm,
 #'                            structural_model = mobi_sm)
 #'
-#' rhoA(mobi_pls)
+#' rho_A(mobi_pls)
 #' @export
-rhoA <- function(seminr_model) {
-  #Function to implement rhoA as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
-
+# rho_A as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+rho_A <- function(seminr_model) {
   # get latent variable scores and weights for each latent
   latentscores <- seminr_model$construct_scores
   weights <- seminr_model$outer_weights
@@ -50,7 +49,7 @@ rhoA <- function(seminr_model) {
   mmMatrix <- seminr_model$mmMatrix
   smMatrix <- seminr_model$smMatrix
   obsData <- seminr_model$data
-  # Create rhoA holder matrix
+  # Create rho_A holder matrix
   rho <- matrix(,nrow = ncol(latentscores),ncol = 1,dimnames = list(colnames(latentscores),c("rhoA")))
 
   for (i in rownames(rho))  {
@@ -58,11 +57,8 @@ rhoA <- function(seminr_model) {
     if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="B"){
       rho[i,1] <- 1
     }
-    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="A"){
-      rho[i,1] <- 1
-    }
     #If the measurement model is Reflective Calculate RhoA
-    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="C"){
+    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="C" | mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="A"){
       #if the latent is a single item rhoA = 1
       if(nrow(mmMatrix_per_latent(i,mmMatrix)) == 1) {
         rho[i,1] <- 1
@@ -86,4 +82,33 @@ rhoA <- function(seminr_model) {
   }
   return(rho)
 }
-# End rhoA function
+# End rho_A function
+
+# RhoC and AVE
+# Dillon-Goldstein's Rho as per: Dillon, W. R, and M. Goldstein. 1987. Multivariate Analysis: Methods
+# and Applications. Biometrical Journal 29 (6).
+# Average Variance Extracted as per:  Fornell, C. and D. F. Larcker (February 1981). Evaluating
+# structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5
+rhoC_AVE <- function(seminr_model){
+  dgr <- matrix(NA, nrow=length(seminr_model$ltVariables), ncol=2)
+  rownames(dgr) <- seminr_model$ltVariables
+  colnames(dgr) <- c("rhoC", "AVE")
+  for(i in seminr_model$ltVariables){
+    x <- seminr_model$outer_loadings[, i]
+    ind <- which(x!=0)
+    if(measure_mode(i,seminr_model$mmMatrix)=="B"| measure_mode(i,seminr_model$mmMatrix)=="A"){
+      if(length(ind)==1){
+        dgr[i,1:2] <- 1
+      } else {
+        x <- x[ind]
+        dgr[i,1] <- sum(x)^2 / (sum(x)^2 + sum(1-x^2))
+        dgr[i,2] <- sum(x^2)/length(x)
+      }
+    } else {
+      x <- x[ind]
+      dgr[i,1] <- NA
+      dgr[i,2] <- sum(x^2)/length(x)
+    }
+  }
+  return(dgr)
+}

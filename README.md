@@ -2,7 +2,7 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <img src="vignettes/SEMinR_logo.jpg" width="25%" />
 
-![Build Status](https://travis-ci.org/sem-in-r/seminr.svg?branch=master)
+![Build Status](https://travis-ci.org/sem-in-r/seminr.svg?branch=develop)
 
 SEMinR brings many advancements to creating and estimating structural equation models (SEM) using Partial Least Squares Path Modeling (PLS-PM):
 

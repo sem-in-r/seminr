@@ -1,4 +1,4 @@
-context("SEMinR correctly estimates rhoA for the simple model\n")
+context("SEMinR correctly estimates rho_A for the simple model\n")
 
 # Test cases
 ## Simple case
@@ -23,7 +23,7 @@ seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_w
 
 
 # Load outputs
-rho <- rhoA(seminr_model)
+rho <- rho_A(seminr_model)
 
 ## Output originally created using following lines
 # write.csv(rho, file = "tests/fixtures/rho1.csv")
@@ -69,17 +69,17 @@ mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm,inner_weights = path_factorial)
 
 # Load outputs
-rho <- rhoA(seminr_model)
+rho <- rho_A(seminr_model)
 
 ## Output originally created using following lines
-# write.csv(rho, file = "tests/fixtures/rho2.csv")
+## write.csv(rho, file = "tests/fixtures/rho2.csv")
 
 # Load controls
 rho_control <- as.matrix(read.csv("../fixtures/rho2.csv", row.names = 1))
 
 # Testing
 
-test_that("Seminr estimates rhoA correctly\n", {
+test_that("Seminr estimates rho_A correctly\n", {
   expect_equal(rho, rho_control)
 })
 
