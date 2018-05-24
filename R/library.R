@@ -197,3 +197,34 @@ regression_weights <- mode_B
 return_only_composite_scores <- function(object){
   object$construct_scores[,(unique(object$mmMatrix[which(object$mmMatrix[,3]=="A"),1],object$mmMatrix[which(object$mmMatrix[,3]=="B"),1] ))]
 }
+
+# Function to return the total effects of a model
+total_effects <- function(path_coef) {
+  output <- path_coef
+  paths <- path_coef
+  while (sum(paths) > 0) {
+    paths <- paths %*% path_coef
+    output <- output + paths
+  }
+  return(output)
+}
+
+# Function to calculate the error covariance matrix of a PLS model
+error_cov_matrix <- function(seminr_model) {
+  # 1 calculate ESTIMATED item scores
+  est_item_scores <- seminr_model$construct_scores %*% t(seminr_model$outer_loadings)
+
+  # 2 collect actual std items scores (and sort)
+  std_item_scores <- scale(seminr_model$data)[,colnames(est_item_scores)]
+
+  # 3 collect item errors
+  error_item_scores <- std_item_scores - est_item_scores
+
+  # 4 get item error scores to actual scores cov matrix
+  error_cov <- stats::cov(error_item_scores,std_item_scores)
+
+  #5 get error covariances only for within block
+  error_cov[(seminr_model$outer_loadings%*% t(seminr_model$outer_loadings)) == 0] <- 0
+
+  return(error_cov)
+}

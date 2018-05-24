@@ -63,20 +63,8 @@ rho_A <- function(seminr_model) {
       if(nrow(mmMatrix_per_construct(i,mmMatrix)) == 1) {
         rho[i,1] <- 1
       } else {
-        # get the weights for the construct
-        w <- as.matrix(weights[mmMatrix[mmMatrix[,"construct"]==i,"measurement"],i])
-
-        # Get empirical covariance matrix of lv indicators (S)
-        indicators <- scale(obsData[,mmMatrix[mmMatrix[,"construct"]==i,"measurement"]],TRUE,TRUE)
-        S <- stats::cov(indicators,indicators)
-        diag(S) <- 0
-
-        # Get AA matrix without diagonal
-        AAnondiag <- w %*% t(w)
-        diag(AAnondiag) <- 0
-
         # Calculate rhoA
-        rho[i,1] <- (t(w) %*% w)^2 * ((t(w) %*% (S) %*% w)/(t(w) %*% AAnondiag %*% w))
+        rho[i,1] <- compute_construct_rhoA(weights,mmMatrix,construct = i, obsData)
       }
     }
   }

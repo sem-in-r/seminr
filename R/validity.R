@@ -25,3 +25,35 @@ antecedent_vifs <- function(seminr_model) {
                             antecedents_of_construct, seminr_model,
                             data = seminr_model$construct_scores)
 }
+
+# HTMT as per Henseler, J., Ringle, C. M., & Sarstedt, M. (2014). A new criterion for assessing discriminant validity in
+# variance-based structural equation modeling. Journal of the Academy of Marketing Science, 43(1), 115-135.
+# https://doi.org/10.1007/s11747-014-0403-8
+HTMT <- function(seminr_model) {
+  HTMT <- matrix(, nrow=length(seminr_model$constructs), ncol=length(seminr_model$constructs),
+                 dimnames = list(seminr_model$constructs,seminr_model$constructs))
+  for (constructi in seminr_model$constructs[1:(length(seminr_model$constructs)-1)]) {
+    for (constructj in seminr_model$constructs[(which(seminr_model$constructs == constructi)+1):length(seminr_model$constructs)]) {
+      manifesti <- seminr_model$mmVariables[seminr_model$mmMatrix[,1] == constructi]
+      manifestj <- seminr_model$mmVariables[seminr_model$mmMatrix[,1] == constructj]
+      item_correlation_matrix <- stats::cor(seminr_model$data[,manifesti],seminr_model$data[,manifestj])
+      HTHM <- mean(item_correlation_matrix)
+      if(length(manifesti)>1 ) {
+        cor_matrix <- stats::cor(seminr_model$data[,manifesti],seminr_model$data[,manifesti])
+        diag(cor_matrix) <- 0
+        MTHM <- (2/(length(manifesti)*(length(manifesti)-1)))*(sum(cor_matrix[!lower.tri(cor_matrix)]))
+      } else {
+        MTHM <- 1
+      }
+      if(length(manifestj)>1) {
+        cor_matrix2 <- stats::cor(seminr_model$data[,manifestj],seminr_model$data[,manifestj])
+        diag(cor_matrix2) <- 0
+        MTHM <- sqrt(MTHM * (2/(length(manifestj)*(length(manifestj)-1)))*(sum(cor_matrix2[!lower.tri(cor_matrix2)])))
+      } else {
+        MTHM <- sqrt(1 * MTHM)
+      }
+      HTMT[constructi,constructj] <- HTHM / MTHM
+    }
+  }
+  return(HTMT)
+}
