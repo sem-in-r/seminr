@@ -2,6 +2,6 @@
 Image,0,0,0,0,0,0.454398504
 Expectation,0,0,0,0,0,0.166016744
 Value,0,0,0,0,0,0.307410052
-Image.Expectation,0,0,0,0,0,-0.142491512
-Image.Value,0,0,0,0,0,-0.057907687
+Image*Expectation,0,0,0,0,0,-0.142491512
+Image*Value,0,0,0,0,0,-0.057907687
 Satisfaction,0,0,0,0,0,0

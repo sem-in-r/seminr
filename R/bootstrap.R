@@ -43,7 +43,7 @@
 #' mobi_sm <- relationships(
 #'   paths(to = "Satisfaction",
 #'         from = c("Image", "Expectation", "Value",
-#'                  "Image.Expectation", "Image.Value"))
+#'                  "Image*Expectation", "Image*Value"))
 #' )
 #'
 #' seminr_model <- estimate_pls(data = mobi,

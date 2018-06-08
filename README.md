@@ -63,7 +63,7 @@ intxns <- interactions(
 ``` r
 # Quickly create multiple paths "from" and "to" sets of constructs
 structure <- relationships(
-  paths(from = c("Image", "Expectation", "Image.Expectation"), 
+  paths(from = c("Image", "Expectation", "Image*Expectation"), 
         to = "Loyalty")
 )
 ```

@@ -57,7 +57,7 @@ intxns <- interactions(
 ```{r, eval=FALSE}
 # Quickly create multiple paths "from" and "to" sets of constructs
 structure <- relationships(
-  paths(from = c("Image", "Expectation", "Image.Expectation"), 
+  paths(from = c("Image", "Expectation", "Image*Expectation"), 
         to = "Loyalty")
 )
 ```
@@ -91,7 +91,7 @@ library(seminr)
 
 You must load your data into a dataframe from any source you wish (CSV, etc.). Column names must be names of your measurement items.
 
-*Important:* Avoid dots '.' in your column names (these are reserved for interaction terms).
+*Important:* Avoid stars '*' in your column names (these are reserved for interaction terms).
 
 For demonstration purposes, we will start with a dataset bundled with the seminr package - the `mobi` data frame (also found  in the `semPLS` R package). This dataset comes from a measurement instrument for the European Customer Satisfaction Index (ECSI) adapted to the mobile phone market (Tenenhaus et al. 2005).
 
@@ -233,7 +233,7 @@ interaction_scaled("Image", "Value")
 
 These functions themselves return functions that are not resolved but passed as parameters to the `interactions()` function discussed above.
 
-**Important Note:** SEMinR syntax uses a dot "." as a naming convention for the interaction construct. Thus, the "Image" + "Expectation" interaction is called "Image.Expectation" in the structural model below. Please refrain from using a dot "." in the naming of non-interaction constructs.
+**Important Note:** SEMinR syntax uses a star "*" as a naming convention for the interaction construct. Thus, the "Image" + "Expectation" interaction is called "Image.Expectation" in the structural model below. Please refrain from using a star "*" in the naming of non-interaction constructs.
 
 ## Structural model description 
 
@@ -330,11 +330,11 @@ mobi_xm <- interactions(
 )
 
 # define structural model
-# note: interactions cobnstruct should be named by its main constructs joined by a '.'
+# note: interactions cobnstruct should be named by its main constructs joined by a '*'
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
-                 "Image.Expectation", "Image.Value"))
+                 "Image*Expectation", "Image*Value"))
 )
 
 mobi_pls <- estimate_pls(data = mobi,

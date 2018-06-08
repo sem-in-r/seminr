@@ -104,7 +104,7 @@ adjust_interaction <- function(constructs, mmMatrix, outer_loadings, construct_s
   for(construct in constructs) {
     adjustment <- 0
     denom <- 0
-    if(grepl("\\.", construct)) {
+    if(grepl("\\*", construct)) {
       list <- mmMatrix[mmMatrix[,"construct"]==construct,"measurement"]
 
       for (item in list){
