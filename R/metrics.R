@@ -2,7 +2,7 @@
 
 # Function to apply over manifests of a construct and return VIF values
 compute_vif <- function(target, predictors, model_data) {
-  independents_regr <- stats::lm(paste(target," ~."),
+  independents_regr <- stats::lm(paste("`",target,"` ~.",sep = ""),
                                  data = as.data.frame(model_data[,predictors]))
 
   r_squared <- summary(independents_regr)$r.squared
