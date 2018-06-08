@@ -27,11 +27,11 @@
 #' )
 #'
 #' #  structural model: note that name of the interactions construct should be
-#' #  the names of its two main constructs joined by a '.' in between.
+#' #  the names of its two main constructs joined by a '*' in between.
 #' mobi_sm <- relationships(
 #'   paths(to = "Satisfaction",
 #'         from = c("Image", "Expectation", "Value",
-#'                  "Image.Expectation", "Image.Value"))
+#'                  "Image*Expectation", "Image*Value"))
 #' )
 #'
 #' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
@@ -76,11 +76,11 @@ interactions <- function(...) {
 #' )
 #'
 #' #  structural model: note that name of the interactions construct should be
-#' #  the names of its two main constructs joined by a '.' in between.
+#' #  the names of its two main constructs joined by a '*' in between.
 #' mobi_sm <- relationships(
 #'   paths(to = "Satisfaction",
 #'         from = c("Image", "Expectation", "Value",
-#'                  "Image.Expectation", "Image.Value"))
+#'                  "Image*Expectation", "Image*Value"))
 #' )
 #'
 #' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
@@ -89,7 +89,7 @@ interactions <- function(...) {
 #' @export
 interaction_ortho <- function(construct1, construct2) {
   function(data, mm) {
-    interaction_name <- paste(construct1, construct2, sep=".")
+    interaction_name <- paste(construct1, construct2, sep="*")
     iv1_items <- mm[mm[, "construct"] == construct1, ][, "measurement"]
     iv2_items <- mm[mm[, "construct"] == construct2, ][, "measurement"]
 
@@ -114,7 +114,7 @@ interaction_ortho <- function(construct1, construct2) {
   }
 }
 
-#' \code{interaction_scaled} creates interaction measurement items by scaled product indicator approach..
+#' \code{interaction_scaled} creates interaction measurement items by scaled product indicator approach.
 #'
 #' This function automatically generates interaction measurement items for a PLS SEM using scaled product indicator approach.
 #'
@@ -157,7 +157,7 @@ interaction_ortho <- function(construct1, construct2) {
 #' @export
 interaction_scaled <- function(construct1, construct2) {
   function(data, mm) {
-    interaction_name <- paste(construct1, construct2, sep=".")
+    interaction_name <- paste(construct1, construct2, sep="*")
     iv1_items <- mm[mm[, "construct"] == construct1, ][, "measurement"]
     iv2_items <- mm[mm[, "construct"] == construct2, ][, "measurement"]
 

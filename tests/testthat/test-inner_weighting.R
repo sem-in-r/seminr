@@ -13,7 +13,7 @@ mobi_mm <- constructs(
 
 
 # structural model: note that name of the interactions  should be
-#  the names of its two main s joined by a '.' in between.
+#  the names of its two main s joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value"))

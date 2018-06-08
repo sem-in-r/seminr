@@ -1,7 +1,7 @@
-"","Image","Expectation","Value","Image.Expectation","Image.Value","Satisfaction"
-"Image",0,0,0,0,0,0.454398503507601
-"Expectation",0,0,0,0,0,0.166016744043666
-"Value",0,0,0,0,0,0.307410052136583
-"Image.Expectation",0,0,0,0,0,-0.142491511653934
-"Image.Value",0,0,0,0,0,-0.0579076873169468
-"Satisfaction",0,0,0,0,0,0
+,Image,Expectation,Value,Image*Expectation,Image*Value,Satisfaction
+Image,0,0,0,0,0,0.454398504
+Expectation,0,0,0,0,0,0.166016744
+Value,0,0,0,0,0,0.307410052
+Image.Expectation,0,0,0,0,0,-0.142491512
+Image.Value,0,0,0,0,0,-0.057907687
+Satisfaction,0,0,0,0,0,0
