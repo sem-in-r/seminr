@@ -20,7 +20,7 @@ warning_single_item_formative <- function(mmMatrix) {
 }
 
 warning_missing_data <- function(data, mmMatrix) {
-  data <- data[, mmMatrix[which(!grepl("\\.", mmMatrix[,2])),2]]
+  data <- data[, mmMatrix[which(!grepl("\\*", mmMatrix[,2])),2]]
   N <- nrow(data)
   missing_values <- which(stats::complete.cases(data)==FALSE)
   if(length(missing_values)==0){
@@ -51,8 +51,8 @@ warning_struc_meas_model_complete <- function(smMatrix, mmMatrix, data) {
 
 # Warning for a dot used in columns of data prior to generating interactions
 warning_periods_in_col_names <- function(data) {
-  if(TRUE %in% grepl("\\.", colnames(data))) {
-    stop("The names of columns in the data may not contain periods(.)")
+  if(TRUE %in% grepl("\\*", colnames(data))) {
+    stop("The names of columns in the data may not contain stars(*)")
   }
 }
 

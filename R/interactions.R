@@ -102,6 +102,7 @@ interaction_ortho <- function(construct1, construct2) {
 
     multiples_list <- lapply(iv1_data, mult)
     interaction_data <- do.call("cbind", multiples_list)
+    colnames(interaction_data) <- gsub("\\.", "\\*", colnames(interaction_data))
 
     # Create formula
     frmla <- stats::as.formula(paste("interaction_data[,i]",paste(as.vector(c(iv1_items,iv2_items)), collapse ="+"), sep = " ~ "))
@@ -170,6 +171,7 @@ interaction_scaled <- function(construct1, construct2) {
 
     multiples_list <- lapply(iv1_data, mult)
     interaction_data <- do.call("cbind", multiples_list)
+    colnames(interaction_data) <- gsub("\\.", "\\*", colnames(interaction_data))
 
     return(list(name = interaction_name, data = interaction_data))
   }
