@@ -58,73 +58,106 @@
 #' summary(boot_seminr_model)
 #' @export
 bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
-  # Bootstrapping for significance as per Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on
-  # Partial Least Squares Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.
-  cat("Bootstrapping model using seminr...\n")
+  ##### ----
+  out <- tryCatch(
+    {
+      # Just to highlight: if you want to use more than one
+      # R expression in the "try" part then you'll have to
+      # use curly brackets.
+      # 'tryCatch()' will return the last evaluated expression
+      # in case the "try" part was completed successfully
+      # Bootstrapping for significance as per Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on
+      # Partial Least Squares Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.
+      cat("Bootstrapping model using seminr...\n")
 
-  # prepare parameters for cluster export (model parameters)
-  interactions = seminr_model$mobi_xm
-  d <- seminr_model$rawdata
-  measurement_model <- seminr_model$mmMatrix
-  structural_model <- seminr_model$smMatrix
-  inner_weights <- seminr_model$inner_weights
+      # prepare parameters for cluster export (model parameters)
+      interactions = seminr_model$mobi_xm
+      d <- seminr_model$rawdata
+      measurement_model <- seminr_model$mmMatrix
+      structural_model <- seminr_model$smMatrix
+      inner_weights <- seminr_model$inner_weights
 
-  if (nboot > 0) {
-    # Initialize the cluster
-    ifelse(is.null(cores), cl <- parallel::makeCluster(parallel::detectCores()), cl <- parallel::makeCluster(cores))
+      if (nboot > 0) {
+        # Initialize the cluster
+        suppressWarnings(ifelse(is.null(cores), cl <- parallel::makeCluster(parallel::detectCores()), cl <- parallel::makeCluster(cores)))
 
-    # Initialize the Estimates Matrix
-    bootstrapMatrix <- seminr_model$path_coef
-    cols <- ncol(bootstrapMatrix)
-    rows <- nrow(bootstrapMatrix)
+        # Initialize the Estimates Matrix
+        bootstrapMatrix <- seminr_model$path_coef
+        cols <- ncol(bootstrapMatrix)
+        rows <- nrow(bootstrapMatrix)
 
-    # Function to generate random samples with replacement
-    getRandomIndex <- function(d) {return(sample.int(nrow(d),replace = TRUE))}
+        # Function to generate random samples with replacement
+        getRandomIndex <- function(d) {return(sample.int(nrow(d),replace = TRUE))}
 
-    # Export variables and functions to cluster
-    parallel::clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model","inner_weights","getRandomIndex","d"), envir=environment())
+        # Export variables and functions to cluster
+        parallel::clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model","inner_weights","getRandomIndex","d"), envir=environment())
 
-    # Function to get PLS estimate results
-    getEstimateResults <- function(i, d = d) {
-      return(seminr::estimate_pls(data = d[getRandomIndex(d),],
-                          measurement_model,interactions,structural_model,inner_weights)$path_coef)
-    }
+        # Function to get PLS estimate results
+        getEstimateResults <- function(i, d = d) {
+          return(seminr::estimate_pls(data = d[getRandomIndex(d),],
+                                      measurement_model,interactions,structural_model,inner_weights)$path_coef)
+        }
 
-    # Bootstrap the estimates
-    utils::capture.output(bootmatrix <- parallel::parSapply(cl,1:nboot,getEstimateResults, d))
+        # Bootstrap the estimates
+        utils::capture.output(bootmatrix <- parallel::parSapply(cl,1:nboot,getEstimateResults, d))
 
-    # Add the columns for bootstrap mean and standard error
-    bootstrapMatrix <- cbind(bootstrapMatrix,matrix(apply(bootmatrix,1,mean),nrow = rows, ncol = cols))
-    bootstrapMatrix <- cbind(bootstrapMatrix,matrix(apply(bootmatrix,1,stats::sd),nrow = rows, ncol = cols))
+        # Add the columns for bootstrap mean and standard error
+        bootstrapMatrix <- cbind(bootstrapMatrix,matrix(apply(bootmatrix,1,mean),nrow = rows, ncol = cols))
+        bootstrapMatrix <- cbind(bootstrapMatrix,matrix(apply(bootmatrix,1,stats::sd),nrow = rows, ncol = cols))
 
-    # Clean the empty paths
-    bootstrapMatrix <- bootstrapMatrix[, colSums(bootstrapMatrix != 0, na.rm = TRUE) > 0]
-    bootstrapMatrix <- bootstrapMatrix[rowSums(bootstrapMatrix != 0, na.rm = TRUE) > 0,]
+        # Clean the empty paths
+        bootstrapMatrix <- bootstrapMatrix[, colSums(bootstrapMatrix != 0, na.rm = TRUE) > 0]
+        bootstrapMatrix <- bootstrapMatrix[rowSums(bootstrapMatrix != 0, na.rm = TRUE) > 0,]
 
-    # Get the number of DVs
-    if (length(unique(structural_model[,"target"])) == 1) {
-      dependant <- unique(structural_model[,"target"])
-    } else {
-      dependant <- colnames(bootstrapMatrix[,1:length(unique(structural_model[,"target"]))])
-    }
+        # Get the number of DVs
+        if (length(unique(structural_model[,"target"])) == 1) {
+          dependant <- unique(structural_model[,"target"])
+        } else {
+          dependant <- colnames(bootstrapMatrix[,1:length(unique(structural_model[,"target"]))])
+        }
 
-    # Construct the vector of column names
-    colnames<-c()
-    # Clean the column names
-    for (parameter in c("PLS Est.", "Boot Mean", "Boot SE")) {
-      for(i in 1:length(dependant)) {
-        colnames <- c(colnames, paste(dependant[i],parameter,sep = " "))
+        # Construct the vector of column names
+        colnames<-c()
+        # Clean the column names
+        for (parameter in c("PLS Est.", "Boot Mean", "Boot SE")) {
+          for(i in 1:length(dependant)) {
+            colnames <- c(colnames, paste(dependant[i],parameter,sep = " "))
+          }
+        }
+
+        # Assign column names
+        colnames(bootstrapMatrix) <- colnames
+
+        # Add the bootstrap matrix to the simplePLS object
+        seminr_model$bootstrapMatrix <- bootstrapMatrix
+        parallel::stopCluster(cl)
       }
+      seminr_model$boots <- nboot
+      class(seminr_model) <- "boot_seminr_model"
+      return(seminr_model)
+      # The return value of `readLines()` is the actual value
+      # that will be returned in case there is no condition
+      # (e.g. warning or error).
+      # You don't need to state the return value via `return()` as code
+      # in the "try" part is not wrapped insided a function (unlike that
+      # for the condition handlers for warnings and error below)
+    },
+    error=function(cond) {
+      message("Bootstrapping encountered this ERROR: ")
+      message(cond)
+      parallel::stopCluster(cl)
+      # Choose a return value in case of error
+      return(NULL)
+    },
+    warning=function(cond) {
+      message("Bootstrapping encountered this WARNING:")
+      message(cond)
+      parallel::stopCluster(cl)
+      # Choose a return value in case of warning
+      return(NULL)
+    },
+    finally={
+      cat("SEMinR Model succesfully bootstrapped")
     }
-
-    # Assign column names
-    colnames(bootstrapMatrix) <- colnames
-
-    # Add the bootstrap matrix to the simplePLS object
-    seminr_model$bootstrapMatrix <- bootstrapMatrix
-    parallel::stopCluster(cl)
-  }
-  seminr_model$boots <- nboot
-  class(seminr_model) <- "boot_seminr_model"
-  return(seminr_model)
+  )
 }
