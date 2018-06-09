@@ -128,6 +128,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
       }
       seminr_model$boots <- nboot
       class(seminr_model) <- "boot_seminr_model"
+      cat("SEMinR Model succesfully bootstrapped")
       return(seminr_model)
     },
     error=function(cond) {
@@ -143,7 +144,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
       return(NULL)
     },
     finally={
-      cat("SEMinR Model succesfully bootstrapped")
+      #
     }
   )
 }
