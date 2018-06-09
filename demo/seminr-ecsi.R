@@ -7,20 +7,20 @@ library(seminr)
 # - note: items can be a list of names: c("CUEX1", "CUEX2", "CUEX3")
 #         which can be constructed quickly as: multi_items("CUEX", 1:3)
 mobi_mm <- constructs(
-  composite("Image 1",       multi_items("IMAG", 1:5), weights = correlation_weights),
-  composite("Expectation Value",  multi_items("CUEX", 1:3), weights = mode_A),
+  composite("Image",        multi_items("IMAG", 1:5), weights = correlation_weights),
+  composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
   composite("Quality",      multi_items("PERQ", 1:7)),
   composite("Value",        multi_items("PERV", 1:2)),
   composite("Satisfaction", multi_items("CUSA", 1:3)),
-  composite("Complaints",  single_item("CUSCO")),
-  composite("Loyalty",     multi_items("CUSL", 1:3))
+  composite("Complaints",   single_item("CUSCO")),
+  composite("Loyalty",      multi_items("CUSL", 1:3))
 )
 
 # Creating structural model
 # - note, multiple paths can be created in each line
 mobi_sm <- relationships(
-  paths(from = "Image 1",        to = c("Expectation Value", "Satisfaction", "Loyalty")),
-  paths(from = "Expectation Value",  to = c("Quality", "Value", "Satisfaction")),
+  paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+  paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
   paths(from = "Quality",      to = c("Value", "Satisfaction")),
   paths(from = "Value",        to = c("Satisfaction")),
   paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
