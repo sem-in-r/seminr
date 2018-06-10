@@ -9,8 +9,8 @@ library(seminr)
 mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5), weights = correlation_weights),
   composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
-  reflective("Quality",      multi_items("PERQ", 1:7)),
-  composite("Value",        multi_items("PERV", 1:2), weights = mode_B),
+  composite("Quality",      multi_items("PERQ", 1:7)),
+  composite("Value",        multi_items("PERV", 1:2)),
   composite("Satisfaction", multi_items("CUSA", 1:3)),
   composite("Complaints",   single_item("CUSCO")),
   composite("Loyalty",      multi_items("CUSL", 1:3))

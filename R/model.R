@@ -60,6 +60,7 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
   warnings(measurement_model, data, structural_model)
   data <- stats::na.omit(data)
   rawdata <- data
+  raw_measurement_model <- measurement_model
   if(!is.null(interactions)) {
     # update data with new interaction items
     intxns_list <- interactions(data, measurement_model)
@@ -88,6 +89,7 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
   seminr_model$data <- data
   seminr_model$mobi_xm <- interactions
   seminr_model$rawdata <- rawdata
+  seminr_model$raw_measurement_model <- raw_measurement_model
 
   # Correct for Bias in Reflective models using PLS Consistent
   seminr_model <- model_consistent(seminr_model)
