@@ -6,7 +6,6 @@ measure_mode <- function(construct,mmMatrix) {
 # function to get measurement mode of a construct (first item) as a function
 get_measure_mode <- function(construct,mmMatrix) {
   ifelse((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "A") |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "C") , return(mode_A), return(mode_B))
-#  base::get(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1])
 }
 
 # Used in warnings - warning_only_causal_construct()
@@ -227,4 +226,12 @@ error_cov_matrix <- function(seminr_model) {
   error_cov[(seminr_model$outer_loadings%*% t(seminr_model$outer_loadings)) == 0] <- 0
 
   return(error_cov)
+}
+
+get_factors <- function(seminr_model) {
+  names(sapply(seminr_model$constructs,measure_mode,seminr_model$mmMatrix)[sapply(seminr_model$constructs,measure_mode,seminr_model$mmMatrix) %in% "C"])
+}
+
+get_composites <- function(seminr_model) {
+  setdiff(seminr_model$constructs,get_factors(seminr_model))
 }
