@@ -31,11 +31,11 @@ mobi_xm <- interactions(
 )
 
 #  structural model: note that name of the interactions construct should be
-#  the names of its two main constructs joined by a '.' in between.
+#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
-                 "Image.Expectation", "Image.Value"))
+                 "Image*Expectation", "Image*Value"))
 )
 
 mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)

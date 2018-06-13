@@ -37,7 +37,7 @@ flatten_vifs <- function(vif_results) {
 
 flat_vif_items1 <- flatten_vifs(summary1$vif_items)
 flat_vif_antecedents1 <- flatten_vifs(summary1$vif_antecedents)
-flat_vif_antecedents2 <- flatten_vifs(summary1$vif_antecedents)
+flat_vif_antecedents2 <- flatten_vifs(summary2$vif_antecedents)
 
 ## Create Original Fixtures ----
 # write.csv(flat_vif_items1, "tests/fixtures/vifs/flat_item_vifs1.csv", row.names = FALSE)

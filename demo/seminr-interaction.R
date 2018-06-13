@@ -18,11 +18,11 @@ mobi_xm <- interactions(
 )
 
 # Structural model
-#  note: interactions should be the names of its main constructs joined by a '.' in between.
+#  note: interactions should be the names of its main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
-                 "Image.Expectation", "Image.Value"))
+                 "Image*Expectation", "Image*Value"))
 )
 
 # Load data, assemble model, and estimate using simplePLS
@@ -55,11 +55,11 @@ mobi_xm <- interactions(
 )
 
 # structural model: note that name of the interactions construct should be
-#  the names of its two main constructs joined by a '.' in between.
+#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
-                 "Image.Expectation", "Image.Value"))
+                 "Image*Expectation", "Image*Value"))
 )
 
 # Load data, assemble model, and estimate using simplePLS

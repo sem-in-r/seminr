@@ -59,8 +59,8 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting
   #Create list of Measurements Variables
   mmVariables <- mmMatrix[,"measurement"]
 
-  #Create list of Latent Variables
-  ltVariables <- unique(c(smMatrix[,1],smMatrix[,2]))
+  #Create list of construct Variables
+  constructs <- unique(c(smMatrix[,1],smMatrix[,2]))
 
   #Extract and Normalize the measurements for the model
   normData <- scale(obsData[,mmVariables],TRUE,TRUE)
@@ -75,12 +75,12 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting
   #Create a matrix of outer_weights
   outer_weights <- matrix(data=0,
                           nrow=length(mmVariables),
-                          ncol=length(ltVariables),
-                          dimnames = list(mmVariables,ltVariables))
+                          ncol=length(constructs),
+                          dimnames = list(mmVariables,constructs))
 
   #Initialize outer_weights matrix with value 1 for each relationship in the measurement model
-  for (i in 1:length(ltVariables))  {
-    outer_weights[mmMatrix[mmMatrix[,"latent"]==ltVariables[i],"measurement"],ltVariables[i]] =1
+  for (i in 1:length(constructs))  {
+    outer_weights[mmMatrix[mmMatrix[,"construct"]==constructs[i],"measurement"],constructs[i]] =1
   }
 
   # create a weights matrix with value 1 for each relationship
@@ -88,13 +88,13 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting
 
   #Create a matrix of inner paths
   paths_matrix <- matrix(data=0,
-                        nrow=length(ltVariables),
-                        ncol=length(ltVariables),
-                        dimnames = list(ltVariables,ltVariables))
+                        nrow=length(constructs),
+                        ncol=length(constructs),
+                        dimnames = list(constructs,constructs))
 
   #Initialize inner_paths matrix with value 1 for each relationship in the structural model
-  for (i in 1:length(ltVariables))  {
-    paths_matrix[smMatrix[smMatrix[,"target"]==ltVariables[i],"source"],ltVariables[i]] =1
+  for (i in 1:length(constructs))  {
+    paths_matrix[smMatrix[smMatrix[,"target"]==constructs[i],"source"],constructs[i]] =1
   }
 
   #Iterative Process Starts here
@@ -120,8 +120,8 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting
     last_outer_weights <- outer_weights
 
     #Update outer_weights
-    for(i in ltVariables) {
-      outer_weights[mmMatrix[mmMatrix[,"latent"]==i, "measurement"],i] <- measurement_mode_scheme[[i]]( mmMatrix, i, normData, construct_scores)
+    for(i in constructs) {
+      outer_weights[mmMatrix[mmMatrix[,"construct"]==i, "measurement"],i] <- measurement_mode_scheme[[i]]( mmMatrix, i, normData, construct_scores)
     }
 
     #Standarize outer_weights
@@ -141,7 +141,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting
   outer_loadings <- calculate_loadings(weights_matrix,construct_scores, normData)
 
   # interaction adjustment
-  construct_scores <- adjust_interaction(ltVariables, mmMatrix, outer_loadings, construct_scores, obsData)
+  construct_scores <- adjust_interaction(constructs, mmMatrix, outer_loadings, construct_scores, obsData)
 
   #Calculate Outer Loadings
   outer_loadings <- calculate_loadings(weights_matrix,construct_scores, normData)
@@ -157,7 +157,7 @@ simplePLS <- function(obsData,smMatrix, mmMatrix, inner_weights = path_weighting
                    sdData = sdData,
                    smMatrix = smMatrix,
                    mmMatrix = mmMatrix,
-                   ltVariables = ltVariables,
+                   constructs = constructs,
                    mmVariables = mmVariables,
                    outer_loadings = outer_loadings,
                    outer_weights = outer_weights,

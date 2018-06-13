@@ -18,11 +18,11 @@ mobi_xm <- interactions(
 )
 
 # structural model: note that name of the interactions construct should be
-#  the names of its two main constructs joined by a '.' in between.
+#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
-                 "Image.Expectation", "Image.Value"))
+                 "Image*Expectation", "Image*Value"))
 )
 
 # Load data, assemble model, and estimate using semPLS
@@ -41,9 +41,9 @@ weight <- seminr_model$outer_weights
 # write.csv(seminr_model$outer_weights, file = "tests/fixtures/weights.csv", row.names=TRUE)
 
 # Load controls
-coefficients_control <- as.matrix(read.csv("../fixtures/coefficients.csv", row.names = 1))
-construct_scores_control <- as.matrix(read.csv("../fixtures/constructscores.csv", row.names = 1))
-weight_control <- as.matrix(read.csv("../fixtures/weights.csv", row.names=1))
+coefficients_control <- as.matrix(read.csv("../fixtures/coefficients.csv", row.names = 1, check.names = FALSE))
+construct_scores_control <- as.matrix(read.csv("../fixtures/constructscores.csv", row.names = 1, check.names = FALSE))
+weight_control <- as.matrix(read.csv("../fixtures/weights.csv", row.names=1, check.names = FALSE))
 
 # Testing
 
@@ -79,11 +79,11 @@ mobi_xm <- interactions(
 )
 
 # structural model: note that name of the interactions construct should be
-#  the names of its two main constructs joined by a '.' in between.
+#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
-                 "Image.Expectation", "Image.Value"))
+                 "Image*Expectation", "Image*Value"))
 )
 
 # Load data, assemble model, and estimate using semPLS
@@ -102,9 +102,9 @@ weight <- seminr_model$outer_weights
 # write.csv(seminr_model$outer_weights, file = "tests/fixtures/weights2.csv", row.names=TRUE)
 
 # Load controls
-coefficients_control <- as.matrix(read.csv("../fixtures/coefficients2.csv", row.names = 1))
-construct_scores_control <- as.matrix(read.csv("../fixtures/constructscores2.csv", row.names = 1))
-weight_control <- as.matrix(read.csv("../fixtures/weights2.csv", row.names=1))
+coefficients_control <- as.matrix(read.csv("../fixtures/coefficients2.csv", row.names = 1, check.names = FALSE))
+construct_scores_control <- as.matrix(read.csv("../fixtures/constructscores2.csv", row.names = 1, check.names = FALSE))
+weight_control <- as.matrix(read.csv("../fixtures/weights2.csv", row.names=1, check.names = FALSE))
 
 # Testing
 

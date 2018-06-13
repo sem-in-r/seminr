@@ -27,11 +27,11 @@
 #' )
 #'
 #' #  structural model: note that name of the interactions construct should be
-#' #  the names of its two main constructs joined by a '.' in between.
+#' #  the names of its two main constructs joined by a '*' in between.
 #' mobi_sm <- relationships(
 #'   paths(to = "Satisfaction",
 #'         from = c("Image", "Expectation", "Value",
-#'                  "Image.Expectation", "Image.Value"))
+#'                  "Image*Expectation", "Image*Value"))
 #' )
 #'
 #' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
@@ -76,11 +76,11 @@ interactions <- function(...) {
 #' )
 #'
 #' #  structural model: note that name of the interactions construct should be
-#' #  the names of its two main constructs joined by a '.' in between.
+#' #  the names of its two main constructs joined by a '*' in between.
 #' mobi_sm <- relationships(
 #'   paths(to = "Satisfaction",
 #'         from = c("Image", "Expectation", "Value",
-#'                  "Image.Expectation", "Image.Value"))
+#'                  "Image*Expectation", "Image*Value"))
 #' )
 #'
 #' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
@@ -89,9 +89,9 @@ interactions <- function(...) {
 #' @export
 interaction_ortho <- function(construct1, construct2) {
   function(data, mm) {
-    interaction_name <- paste(construct1, construct2, sep=".")
-    iv1_items <- mm[mm[, "latent"] == construct1, ][, "measurement"]
-    iv2_items <- mm[mm[, "latent"] == construct2, ][, "measurement"]
+    interaction_name <- paste(construct1, construct2, sep="*")
+    iv1_items <- mm[mm[, "construct"] == construct1, ][, "measurement"]
+    iv2_items <- mm[mm[, "construct"] == construct2, ][, "measurement"]
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
@@ -102,6 +102,7 @@ interaction_ortho <- function(construct1, construct2) {
 
     multiples_list <- lapply(iv1_data, mult)
     interaction_data <- do.call("cbind", multiples_list)
+    colnames(interaction_data) <- gsub("\\.", "\\*", colnames(interaction_data))
 
     # Create formula
     frmla <- stats::as.formula(paste("interaction_data[,i]",paste(as.vector(c(iv1_items,iv2_items)), collapse ="+"), sep = " ~ "))
@@ -114,7 +115,7 @@ interaction_ortho <- function(construct1, construct2) {
   }
 }
 
-#' \code{interaction_scaled} creates interaction measurement items by scaled product indicator approach..
+#' \code{interaction_scaled} creates interaction measurement items by scaled product indicator approach.
 #'
 #' This function automatically generates interaction measurement items for a PLS SEM using scaled product indicator approach.
 #'
@@ -144,11 +145,11 @@ interaction_ortho <- function(construct1, construct2) {
 #' )
 #'
 #' #  structural model: note that name of the interactions construct should be
-#' #  the names of its two main constructs joined by a '.' in between.
+#' #  the names of its two main constructs joined by a '*' in between.
 #' mobi_sm <- relationships(
 #'   paths(to = "Satisfaction",
 #'         from = c("Image", "Expectation", "Value",
-#'                  "Image.Expectation", "Image.Value"))
+#'                  "Image*Expectation", "Image*Value"))
 #' )
 #'
 #' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
@@ -157,9 +158,9 @@ interaction_ortho <- function(construct1, construct2) {
 #' @export
 interaction_scaled <- function(construct1, construct2) {
   function(data, mm) {
-    interaction_name <- paste(construct1, construct2, sep=".")
-    iv1_items <- mm[mm[, "latent"] == construct1, ][, "measurement"]
-    iv2_items <- mm[mm[, "latent"] == construct2, ][, "measurement"]
+    interaction_name <- paste(construct1, construct2, sep="*")
+    iv1_items <- mm[mm[, "construct"] == construct1, ][, "measurement"]
+    iv2_items <- mm[mm[, "construct"] == construct2, ][, "measurement"]
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
@@ -170,6 +171,7 @@ interaction_scaled <- function(construct1, construct2) {
 
     multiples_list <- lapply(iv1_data, mult)
     interaction_data <- do.call("cbind", multiples_list)
+    colnames(interaction_data) <- gsub("\\.", "\\*", colnames(interaction_data))
 
     return(list(name = interaction_name, data = interaction_data))
   }

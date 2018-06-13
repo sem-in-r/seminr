@@ -161,7 +161,7 @@ intxns &lt;- interactions(
 </ol>
 <pre class="r"><code># Quickly create multiple paths &quot;from&quot; and &quot;to&quot; sets of constructs
 structure &lt;- relationships(
-  paths(from = c(&quot;Image&quot;, &quot;Expectation&quot;, &quot;Image.Expectation&quot;), 
+  paths(from = c(&quot;Image&quot;, &quot;Expectation&quot;, &quot;Image*Expectation&quot;), 
         to = &quot;Loyalty&quot;)
 )</code></pre>
 <ol start="4" style="list-style-type: decimal">
@@ -186,7 +186,7 @@ summary(boot_estimates)</code></pre>
 <div id="data" class="section level2">
 <h2>Data</h2>
 <p>You must load your data into a dataframe from any source you wish (CSV, etc.). Column names must be names of your measurement items.</p>
-<p><em>Important:</em> Avoid dots ‘.’ in your column names (these are reserved for interaction terms).</p>
+<p><em>Important:</em> Avoid stars ’*’ in your column names (these are reserved for interaction terms).</p>
 <p>For demonstration purposes, we will start with a dataset bundled with the seminr package - the <code>mobi</code> data frame (also found in the <code>semPLS</code> R package). This dataset comes from a measurement instrument for the European Customer Satisfaction Index (ECSI) adapted to the mobile phone market (Tenenhaus et al. 2005).</p>
 <p>You can see a description and sample of what is in <code>mobi</code>:</p>
 <pre class="r"><code>dim(mobi)
@@ -287,7 +287,7 @@ c(&quot;IMAG1&quot;, &quot;IMAG2&quot;, &quot;IMAG3&quot;, &quot;IMAG4&quot;, &q
 #&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)
 #&gt;     return(intxns_list)
 #&gt;   }
-#&gt; &lt;environment: 0x10f57bc00&gt;</code></pre>
+#&gt; &lt;environment: 0x10cbfb2a8&gt;</code></pre>
 <p>Not that these functions themselves return functions that are not resolved until passed as a parameter to the <code>estimate_pls()</code> function for model estimation.</p>
 </div>
 <div id="describe-an-interaction-with-interaction_ortho-or-interaction_scaled" class="section level3">
@@ -302,7 +302,7 @@ interaction_ortho(&quot;Image&quot;, &quot;Expectation&quot;)
 # Scaled (mean-centered, standardized) interaction between &quot;Image&quot; x &quot;Value&quot;
 interaction_scaled(&quot;Image&quot;, &quot;Value&quot;)</code></pre>
 <p>These functions themselves return functions that are not resolved but passed as parameters to the <code>interactions()</code> function discussed above.</p>
-<p><strong>Important Note:</strong> SEMinR syntax uses a dot “.” as a naming convention for the interaction construct. Thus, the “Image” + “Expectation” interaction is called “Image.Expectation” in the structural model below. Please refrain from using a dot “.” in the naming of non-interaction constructs.</p>
+<p><strong>Important Note:</strong> SEMinR syntax uses a star “*&quot; as a naming convention for the interaction construct. Thus, the “Image” + “Expectation” interaction is called “Image.Expectation” in the structural model below. Please refrain from using a star “*&quot; in the naming of non-interaction constructs.</p>
 </div>
 </div>
 <div id="structural-model-description" class="section level2">
@@ -381,11 +381,11 @@ mobi_xm &lt;- interactions(
 )
 
 # define structural model
-# note: interactions cobnstruct should be named by its main constructs joined by a '.'
+# note: interactions cobnstruct should be named by its main constructs joined by a '*'
 mobi_sm &lt;- relationships(
   paths(to = &quot;Satisfaction&quot;,
         from = c(&quot;Image&quot;, &quot;Expectation&quot;, &quot;Value&quot;,
-                 &quot;Image.Expectation&quot;, &quot;Image.Value&quot;))
+                 &quot;Image*Expectation&quot;, &quot;Image*Value&quot;))
 )
 
 mobi_pls &lt;- estimate_pls(data = mobi,
@@ -439,16 +439,16 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 #&gt; Image                    0.455
 #&gt; Expectation              0.165
 #&gt; Value                    0.309
-#&gt; Image.Expectation       -0.143
-#&gt; Image.Value             -0.058
+#&gt; Image*Expectation       -0.143
+#&gt; Image*Value             -0.058
 #&gt; 
 #&gt; Reliability:
 #&gt;                     rhoC   AVE  rhoA
 #&gt; Image             0.8183 0.478 0.745
 #&gt; Expectation       0.7332 0.481 0.462
 #&gt; Value             0.9179 0.848 0.858
-#&gt; Image.Expectation 0.8006 0.255 0.553
-#&gt; Image.Value       0.0439 0.226 0.339
+#&gt; Image*Expectation 0.8006 0.255 0.553
+#&gt; Image*Value       0.0439 0.226 0.339
 #&gt; Satisfaction      0.8715 0.693 0.783</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li><code>model_summary &lt;- summary(seminr_model)</code> returns an object of class <code>summary.seminr_model</code> which contains the following accessible objects:
@@ -460,6 +460,8 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 <li><code>model_summary$loadings</code> reports the estimated loadings of the measurement model</li>
 <li><code>model_summary$weights</code> reports the estimated weights of the measurement model</li>
 <li><code>model_summary$composite_scores</code> reports the construct scores of composites</li>
+<li><code>model_summary$vif_items</code> reports the Variance Inflation Factor (VIF) for the measurement model</li>
+<li><code>model_summary$vif_antecedents</code> report the Variance Inflation Factor (VIF) for the structural model</li>
 </ul></li>
 </ol>
 <p>Please note that common-factor scores are indeterminable and therefore construct scores for common factors are not reported (Hair et al.,2011).</p>
@@ -476,19 +478,19 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 #&gt; 
 #&gt; Structural Path t-values:
 #&gt;                   Satisfaction
-#&gt; Image                    8.601
-#&gt; Expectation              2.781
-#&gt; Value                    4.800
-#&gt; Image.Expectation        1.043
-#&gt; Image.Value              0.014
+#&gt; Image                    8.464
+#&gt; Expectation              2.740
+#&gt; Value                    4.581
+#&gt; Image*Expectation        1.009
+#&gt; Image*Value              0.014
 #&gt; 
 #&gt; Structural Path p-values:
 #&gt;                   Satisfaction
 #&gt; Image                    0.000
 #&gt; Expectation              0.006
 #&gt; Value                    0.000
-#&gt; Image.Expectation        0.297
-#&gt; Image.Value              0.988</code></pre>
+#&gt; Image*Expectation        0.313
+#&gt; Image*Value              0.989</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li><code>boot_model_summary &lt;- summary(boot_seminr_model)</code> returns an object of class <code>summary.boot_seminr_model</code> which contains the following accessible objects:
 <ul>
