@@ -1,6 +1,6 @@
 # function to get measurement mode of a construct (first item)
 measure_mode <- function(construct,mmMatrix) {
-  mmMatrix[mmMatrix[,"construct"]==construct,"type"][1]
+  as.matrix(mmMatrix[mmMatrix[,"construct"]==construct,"type"])[1]
 }
 
 # function to get measurement mode of a construct (first item) as a function

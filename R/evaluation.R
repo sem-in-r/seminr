@@ -28,14 +28,13 @@ cross_loadings <- function(seminr_model) {
 }
 
 # Measurement Model Evaluation ----
-#' @export
 evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
   stopifnot(inherits(object, "seminr_model"))
 
   # Collect construct types
   factors <- get_factors(object)
   composites <- get_composites(object)
-  factor_items <- sapply(factors,items_of_construct,object)
+  factor_items <- unlist(sapply(factors,items_of_construct,object))
   composite_items <- unlist(sapply(composites,items_of_construct,object))
 
   # get metrics object
@@ -104,7 +103,7 @@ evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
   print(composite_indicator_reliability, na.print = na.print, digits=digits)
 
   cat("\n2. Collinearity:\nItem VIFs per Construct:\n")
-  print(metrics$validity$item_vifs, na.print = na.print, digits=digits)
+  print(metrics$validity$item_vifs[composites], na.print = na.print, digits=digits)
   #cat("\n")
 
   #measurement_model_summary <- list(factor_reliability = factor_reliability,
@@ -114,7 +113,6 @@ evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
   #measurement_model_summary
 }
 
-#' @export
 boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
   stopifnot(inherits(object, "boot_seminr_model"))
 
@@ -242,7 +240,7 @@ boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...)
   cat("\n Weights p-values:\n")
   print(composite_indicator_weights_p, na.print = na.print, digits=digits)
   cat("\n2. Collinearity:\nItem VIFs per Construct:\n")
-  print(metrics$validity$item_vifs, na.print = na.print, digits=digits)
+  print(metrics$validity$item_vifs[composites], na.print = na.print, digits=digits)
   #cat("\n")
 
   #measurement_model_summary <- list(factor_reliability = factor_reliability,
