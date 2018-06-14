@@ -226,20 +226,20 @@ composite_indicator_weights_p_values_control <- as.matrix(read.csv("../fixtures/
 
 test_that("Seminr evaluates the composite indicator t values correctly", {
   diff <- abs(composite_indicator_weights_t_values - composite_indicator_weights_t_values_control)
-  expect_lt(diff[1,1]/composite_indicator_weights_t_values[1,1], 0.05)
-  expect_lt(diff[2,1]/composite_indicator_weights_t_values[2,1], 0.05)
-  expect_lt(diff[3,2]/composite_indicator_weights_t_values[3,2], 0.05)
-  expect_lt(diff[4,2]/composite_indicator_weights_t_values[4,2], 0.05)
-  expect_lt(diff[5,2]/composite_indicator_weights_t_values[5,2], 0.05)
+  expect_lt(diff[1,1]/composite_indicator_weights_t_values[1,1], 0.07)
+  expect_lt(diff[2,1]/composite_indicator_weights_t_values[2,1], 0.07)
+  expect_lt(diff[3,2]/composite_indicator_weights_t_values[3,2], 0.07)
+  expect_lt(diff[4,2]/composite_indicator_weights_t_values[4,2], 0.07)
+  expect_lt(diff[5,2]/composite_indicator_weights_t_values[5,2], 0.07)
 })
 
 test_that("Seminr evaluates the composite collinearity correctly", {
   diff <- abs(composite_indicator_weights_p_values - composite_indicator_weights_p_values_control)
-  expect_lt(diff[1,1], 0.05)
-  expect_lt(diff[2,1], 0.05)
-  expect_lt(diff[3,2], 0.05)
-  expect_lt(diff[4,2], 0.05)
-  expect_lt(diff[5,2], 0.05)
+  expect_lt(diff[1,1], 0.07)
+  expect_lt(diff[2,1], 0.07)
+  expect_lt(diff[3,2], 0.07)
+  expect_lt(diff[4,2], 0.07)
+  expect_lt(diff[5,2], 0.07)
 })
 
 
