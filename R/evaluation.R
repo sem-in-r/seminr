@@ -106,11 +106,13 @@ evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
   print(metrics$validity$item_vifs[composites], na.print = na.print, digits=digits)
   #cat("\n")
 
-  #measurement_model_summary <- list(factor_reliability = factor_reliability,
-  #                                  factor_indicator_reliability = factor_indicator_reliability,
-  #                                  discriminant_validity = discriminant_validity)
-  #class(measurement_model_summary) <- "measurement_model_evaluation.seminr_model"
-  #measurement_model_summary
+  measurement_model_evaluation <- list(factor_reliability = factor_reliability,
+                                       factor_indicator_reliability = factor_indicator_reliability,
+                                       factor_discriminant_validity = discriminant_validity,
+                                       composite_indicator_reliability = composite_indicator_reliability,
+                                       composite_collinearity = metrics$validity$item_vifs[composites])
+  class(measurement_model_evaluation) <- "measurement_model_evaluation.seminr_model"
+  return(measurement_model_evaluation)
 }
 
 boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
@@ -206,8 +208,6 @@ boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...)
   # Clean boot matrices
   composite_indicator_weights_t[is.nan(composite_indicator_weights_t)] <- NA
   composite_indicator_weights_p[is.nan(composite_indicator_weights_p)] <- NA
-  # colnames(composite_indicator_weights_t) <- composites
-  # colnames(composite_indicator_weights_p) <- composites
 
   # Measurement model
   cat("\nMeasurement Model Evaluation:\n")
@@ -243,11 +243,17 @@ boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...)
   print(metrics$validity$item_vifs[composites], na.print = na.print, digits=digits)
   #cat("\n")
 
-  #measurement_model_summary <- list(factor_reliability = factor_reliability,
-  #                                  factor_indicator_reliability = factor_indicator_reliability,
-  #                                  discriminant_validity = discriminant_validity)
-  #class(measurement_model_summary) <- "measurement_model_evaluation.seminr_model"
-  #measurement_model_summary
+  boot_measurement_model_evaluation <- list(factor_reliability = factor_reliability,
+                                            factor_indicator_reliability = factor_indicator_reliability,
+                                            factor_discriminant_validity = discriminant_validity,
+                                            factor_discriminant_validity_t_values =  discriminant_validity_t,
+                                            factor_discriminant_validity_p_values =  discriminant_validity_p,
+                                            composite_indicator_reliability = composite_indicator_reliability,
+                                            composite_indicator_weights_t_values = composite_indicator_weights_t,
+                                            composite_indicator_weights_p_values = composite_indicator_weights_p,
+                                            composite_collinearity = metrics$validity$item_vifs[composites])
+  class(boot_measurement_model_evaluation) <- "measurement_model_evaluation.boot_seminr_model"
+  return(boot_measurement_model_evaluation)
 }
 
 #### fix here ----

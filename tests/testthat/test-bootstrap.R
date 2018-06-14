@@ -263,24 +263,24 @@ bootmatrix_control <- as.matrix(read.csv("../fixtures/boot_HTMT.csv", row.names 
 test_that("Seminr performs the bootstrapping correctly", {
   #  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
   diff <- abs(bootmatrix[1:4,4] - bootmatrix_control[1:4,4])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-  expect_lt(diff[[3]], 0.03)
+  expect_lt(diff[[1]], 0.04)
+  expect_lt(diff[[2]], 0.04)
+  expect_lt(diff[[3]], 0.04)
 })
 
 test_that("Seminr performs the bootstrapping correctly", {
   #  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
   diff <- abs(bootmatrix[1:2,7] - bootmatrix_control[1:2,7])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
+  expect_lt(diff[[1]], 0.04)
+  expect_lt(diff[[2]], 0.04)
 })
 
 test_that("Seminr performs the bootstrapping correctly", {
   #  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
   diff <- abs(bootmatrix[1:3,12] - bootmatrix_control[1:3,12])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-  expect_lt(diff[[3]], 0.03)
+  expect_lt(diff[[1]], 0.04)
+  expect_lt(diff[[2]], 0.04)
+  expect_lt(diff[[3]], 0.04)
 })
 
 
