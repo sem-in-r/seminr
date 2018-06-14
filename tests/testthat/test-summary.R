@@ -1,5 +1,6 @@
 context("SEMinR correctly returns the summary object for class seminr_model\n")
 
+set.seed(1)
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5),weights = mode_A),
@@ -64,7 +65,7 @@ mobi_sm <- relationships(
         from = c("Image", "Expectation", "Value"))
 )
 
-# Load data, assemble model, and estimate using semPLS
+# Load data, assemble model, and estimate using estimate_pls
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path_weighting)
 boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2)
@@ -226,21 +227,18 @@ composite_indicator_weights_p_values_control <- as.matrix(read.csv("../fixtures/
 
 test_that("Seminr evaluates the composite indicator t values correctly", {
   diff <- abs(composite_indicator_weights_t_values - composite_indicator_weights_t_values_control)
-  expect_lt(diff[1,1]/composite_indicator_weights_t_values[1,1], 0.07)
-  expect_lt(diff[2,1]/composite_indicator_weights_t_values[2,1], 0.07)
-  expect_lt(diff[3,2]/composite_indicator_weights_t_values[3,2], 0.07)
-  expect_lt(diff[4,2]/composite_indicator_weights_t_values[4,2], 0.07)
-  expect_lt(diff[5,2]/composite_indicator_weights_t_values[5,2], 0.07)
+  expect_lt(diff[1,1]/composite_indicator_weights_t_values[1,1], 0.1)
+  expect_lt(diff[2,1]/composite_indicator_weights_t_values[2,1], 0.1)
+  expect_lt(diff[3,2]/composite_indicator_weights_t_values[3,2], 0.1)
+  expect_lt(diff[4,2]/composite_indicator_weights_t_values[4,2], 0.1)
+  expect_lt(diff[5,2]/composite_indicator_weights_t_values[5,2], 0.1)
 })
 
 test_that("Seminr evaluates the composite collinearity correctly", {
   diff <- abs(composite_indicator_weights_p_values - composite_indicator_weights_p_values_control)
-  expect_lt(diff[1,1], 0.07)
-  expect_lt(diff[2,1], 0.07)
-  expect_lt(diff[3,2], 0.07)
-  expect_lt(diff[4,2], 0.07)
-  expect_lt(diff[5,2], 0.07)
+  expect_lt(diff[1,1], 0.1)
+  expect_lt(diff[2,1], 0.1)
+  expect_lt(diff[3,2], 0.1)
+  expect_lt(diff[4,2], 0.1)
+  expect_lt(diff[5,2], 0.1)
 })
-
-
-
