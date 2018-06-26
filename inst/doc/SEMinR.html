@@ -11,6 +11,7 @@
 
 <meta name="author" content="Soumya Ray &amp; Nicholas Danks" />
 
+<meta name="date" content="2018-06-26" />
 
 <title>SEMinR</title>
 
@@ -118,7 +119,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">SEMinR</h1>
 <h4 class="author"><em>Soumya Ray &amp; Nicholas Danks</em></h4>
-<h4 class="date"><em>January 3, 2018</em></h4>
+<h4 class="date"><em>June 26, 2018</em></h4>
 
 </div>
 
@@ -186,7 +187,7 @@ summary(boot_estimates)</code></pre>
 <div id="data" class="section level2">
 <h2>Data</h2>
 <p>You must load your data into a dataframe from any source you wish (CSV, etc.). Column names must be names of your measurement items.</p>
-<p><em>Important:</em> Avoid stars ’*’ in your column names (these are reserved for interaction terms).</p>
+<p><em>Important:</em> Avoid using asterixes ’*’ in your column names (these are reserved for interaction terms).</p>
 <p>For demonstration purposes, we will start with a dataset bundled with the seminr package - the <code>mobi</code> data frame (also found in the <code>semPLS</code> R package). This dataset comes from a measurement instrument for the European Customer Satisfaction Index (ECSI) adapted to the mobile phone market (Tenenhaus et al. 2005).</p>
 <p>You can see a description and sample of what is in <code>mobi</code>:</p>
 <pre class="r"><code>dim(mobi)
@@ -287,7 +288,7 @@ c(&quot;IMAG1&quot;, &quot;IMAG2&quot;, &quot;IMAG3&quot;, &quot;IMAG4&quot;, &q
 #&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)
 #&gt;     return(intxns_list)
 #&gt;   }
-#&gt; &lt;environment: 0x10cbfb2a8&gt;</code></pre>
+#&gt; &lt;environment: 0x1149fa470&gt;</code></pre>
 <p>Not that these functions themselves return functions that are not resolved until passed as a parameter to the <code>estimate_pls()</code> function for model estimation.</p>
 </div>
 <div id="describe-an-interaction-with-interaction_ortho-or-interaction_scaled" class="section level3">
@@ -302,7 +303,7 @@ interaction_ortho(&quot;Image&quot;, &quot;Expectation&quot;)
 # Scaled (mean-centered, standardized) interaction between &quot;Image&quot; x &quot;Value&quot;
 interaction_scaled(&quot;Image&quot;, &quot;Value&quot;)</code></pre>
 <p>These functions themselves return functions that are not resolved but passed as parameters to the <code>interactions()</code> function discussed above.</p>
-<p><strong>Important Note:</strong> SEMinR syntax uses a star “*&quot; as a naming convention for the interaction construct. Thus, the “Image” + “Expectation” interaction is called “Image.Expectation” in the structural model below. Please refrain from using a star “*&quot; in the naming of non-interaction constructs.</p>
+<p><strong>Important Note:</strong> SEMinR syntax uses an asterix “*&quot; as a naming convention for the interaction construct. Thus, the “Image” + “Expectation” interaction is called “Image*Expectation&quot; in the structural model below. Please refrain from using an asterix “*&quot; in the naming of non-interaction constructs.</p>
 </div>
 </div>
 <div id="structural-model-description" class="section level2">
@@ -418,7 +419,8 @@ mobi_pls &lt;- estimate_pls(data = mobi,
 boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
                                  nboot = 1000,
                                  cores = 2)
-#&gt; Bootstrapping model using seminr...</code></pre>
+#&gt; Bootstrapping model using seminr...
+#&gt; SEMinR Model succesfully bootstrapped</code></pre>
 <p>Notably, bootstrapping can also be meaningfully applied to models containing interaction terms and readjusts the interaction term (Henseler and Chin 2010) for every sub-sample. This leads to slightly increased processing times, but provides accurate estimations.</p>
 </div>
 <div id="reporting-the-pls-sem-model" class="section level2">
@@ -478,19 +480,19 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 #&gt; 
 #&gt; Structural Path t-values:
 #&gt;                   Satisfaction
-#&gt; Image                    8.464
-#&gt; Expectation              2.740
-#&gt; Value                    4.581
-#&gt; Image*Expectation        1.009
-#&gt; Image*Value              0.014
+#&gt; Image                    8.031
+#&gt; Expectation              2.847
+#&gt; Value                    4.496
+#&gt; Image*Expectation        0.936
+#&gt; Image*Value              0.050
 #&gt; 
 #&gt; Structural Path p-values:
 #&gt;                   Satisfaction
 #&gt; Image                    0.000
-#&gt; Expectation              0.006
+#&gt; Expectation              0.005
 #&gt; Value                    0.000
-#&gt; Image*Expectation        0.313
-#&gt; Image*Value              0.989</code></pre>
+#&gt; Image*Expectation        0.349
+#&gt; Image*Value              0.960</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li><code>boot_model_summary &lt;- summary(boot_seminr_model)</code> returns an object of class <code>summary.boot_seminr_model</code> which contains the following accessible objects:
 <ul>
