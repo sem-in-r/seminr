@@ -11,8 +11,8 @@ PLSc(seminr_model)
 }
 \description{
 The \code{PLSc} function calculates the consistent PLS path coefficients and loadings for
-a common factor model. It returns a \code{seminr_model} containing the adjusted and consistent
-path coefficients and loadings for common factor models and composite models.
+a common-factor model. It returns a \code{seminr_model} containing the adjusted and consistent
+path coefficients and loadings for common-factor models and composite models.
 }
 \examples{
 mobi <- mobi

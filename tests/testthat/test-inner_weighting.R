@@ -12,8 +12,8 @@ mobi_mm <- constructs(
 )
 
 
-# structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
+# structural model: note that name of the interactions  should be
+#  the names of its two main s joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value"))
@@ -26,17 +26,17 @@ seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_w
 
 # Load outputs
 coefficients <- seminr_model$path_coef
-factor_scores <- seminr_model$fscores
+construct_scores <- seminr_model$construct_scores
 weight <- seminr_model$outer_weights
 
 ## Output originally created using following lines
 #write.csv(seminr_model$path_coef, file = "tests/fixtures/inner_weights_coefficients.csv")
-#write.csv(seminr_model$fscores, file = "tests/fixtures/inner_weights_factorscores.csv")
+#write.csv(seminr_model$construct_scores, file = "tests/fixtures/inner_weights_constructscores.csv")
 #write.csv(seminr_model$outer_weights, file = "tests/fixtures/inner_weights_weights.csv", row.names=TRUE)
 
 # Load controls
 coefficients_control <- as.matrix(read.csv("../fixtures/inner_weights_coefficients.csv", row.names = 1))
-factor_scores_control <- as.matrix(read.csv("../fixtures/inner_weights_factorscores.csv", row.names = 1))
+construct_scores_control <- as.matrix(read.csv("../fixtures/inner_weights_constructscores.csv", row.names = 1))
 weight_control <- as.matrix(read.csv("../fixtures/inner_weights_weights.csv", row.names=1))
 
 # Testing
@@ -45,8 +45,8 @@ test_that("Seminr estimates the loadings and path coefficients correctly", {
   expect_equal(coefficients[,4], coefficients_control[,4])
 })
 
-test_that("Seminr estimates the factor scores correctly", {
-  expect_equal(factor_scores[,1:4], factor_scores_control[,1:4])
+test_that("Seminr estimates the construct scores correctly", {
+  expect_equal(construct_scores[,1:4], construct_scores_control[,1:4])
 })
 
 test_that("Seminr estimates the outer weights correctly", {
@@ -67,8 +67,8 @@ mobi_mm <- constructs(
 )
 
 
-# structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
+# structural model: note that name of the interactions construct should be
+#  the names of its two main constructs joined by a '.' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value"))
@@ -81,17 +81,17 @@ seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_w
 
 # Load outputs
 coefficients <- seminr_model$path_coef
-factor_scores <- seminr_model$fscores
+construct_scores <- seminr_model$construct_scores
 weight <- seminr_model$outer_weights
 
 ## Output originally created using following lines
 #write.csv(seminr_model$path_coef, file = "tests/fixtures/factorial_coefficients.csv")
-#write.csv(seminr_model$fscores, file = "tests/fixtures/factorial_factorscores.csv")
+#write.csv(seminr_model$construct_scores, file = "tests/fixtures/factorial_scores.csv")
 #write.csv(seminr_model$outer_weights, file = "tests/fixtures/factorial_weights.csv", row.names=TRUE)
 
 # Load controls
 coefficients_control <- as.matrix(read.csv("../fixtures/factorial_coefficients.csv", row.names = 1))
-factor_scores_control <- as.matrix(read.csv("../fixtures/factorial_factorscores.csv", row.names = 1))
+construct_scores_control <- as.matrix(read.csv("../fixtures/factorial_scores.csv", row.names = 1))
 weight_control <- as.matrix(read.csv("../fixtures/factorial_weights.csv", row.names=1))
 
 # Testing
@@ -100,8 +100,8 @@ test_that("Seminr estimates the loadings and path coefficients correctly", {
   expect_equal(coefficients[,4], coefficients_control[,4])
 })
 
-test_that("Seminr estimates the factor scores correctly", {
-  expect_equal(factor_scores[,1:4], factor_scores_control[,1:4])
+test_that("Seminr estimates the  scores correctly", {
+  expect_equal(construct_scores[,1:4], construct_scores_control[,1:4])
 })
 
 test_that("Seminr estimates the outer weights correctly", {

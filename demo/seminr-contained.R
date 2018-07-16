@@ -20,7 +20,7 @@ mobi_pls <- estimate_pls(
   relationships(
     paths(to = "Satisfaction",
           from = c("Image", "Expectation", "Value",
-                   "Image.Expectation", "Image.Value"))
+                   "Image*Expectation", "Image*Value"))
   )
 )
 

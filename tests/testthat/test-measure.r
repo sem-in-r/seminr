@@ -12,7 +12,7 @@ mm <- constructs(
 # Testing
 
 test_that("constructs correctly specifies the measurement matrix object", {
-  expect_equal(colnames(mm), c("latent","measurement","type"))
+  expect_equal(colnames(mm), c("construct","measurement","type"))
   expect_equal(nrow(mm), 10)
   expect_equal(ncol(mm), 3)
 })

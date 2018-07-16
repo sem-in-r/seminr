@@ -1,7 +1,8 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-SEMinR
-======
+<img src="vignettes/SEMinR_logo.jpg" width="25%" />
+
+![Build Status](https://travis-ci.org/sem-in-r/seminr.svg?branch=master)
 
 SEMinR brings many advancements to creating and estimating structural equation models (SEM) using Partial Least Squares Path Modeling (PLS-PM):
 
@@ -62,7 +63,7 @@ intxns <- interactions(
 ``` r
 # Quickly create multiple paths "from" and "to" sets of constructs
 structure <- relationships(
-  paths(from = c("Image", "Expectation", "Image.Expectation"), 
+  paths(from = c("Image", "Expectation", "Image*Expectation"), 
         to = "Loyalty")
 )
 ```

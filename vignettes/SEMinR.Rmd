@@ -1,13 +1,17 @@
 ---
 title: "SEMinR"
 author: "Soumya Ray & Nicholas Danks"
-date: "January 3, 2018"
-output: rmarkdown::html_vignette 
+date: "June 26, 2018"
+output: html_document 
 vignette: >
   %\VignetteIndexEntry{SEMinR}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
+
+```{r echo=FALSE, out.width='25%'}
+knitr::include_graphics('SEMinR_logo.jpg')
+```
 
 ## Introduction
 
@@ -24,7 +28,7 @@ SEMinR brings many advancements to creating and estimating structural equation m
 
 SEMinR follows the latest best-practices in methodological literature:
 
-* Automatically _adjusts PLS estimates to ensure consistency (PLSc)_ wherever common factors are involved
+* Automatically _adjusts PLS estimates to ensure consistency (PLSc)_ wherever common-factors are involved
 * Ajusts for known biases in interaction terms in PLS models
 * Continuously tested against leading PLSPM software to ensure parity of outcomes: SmartPLS (Ringle et al., 2015) and ADANCO (Henseler and Dijkstra, 2015), as well as other R packages such as semPLS (Monecke and Leisch, 2012) and matrixpls (Rönkkö, 2016)
 * _High performance, multi-core_ bootstrapping function
@@ -53,7 +57,7 @@ intxns <- interactions(
 ```{r, eval=FALSE}
 # Quickly create multiple paths "from" and "to" sets of constructs
 structure <- relationships(
-  paths(from = c("Image", "Expectation", "Image.Expectation"), 
+  paths(from = c("Image", "Expectation", "Image*Expectation"), 
         to = "Loyalty")
 )
 ```
@@ -87,7 +91,7 @@ library(seminr)
 
 You must load your data into a dataframe from any source you wish (CSV, etc.). Column names must be names of your measurement items.
 
-*Important:* Avoid dots '.' in your column names (these are reserved for interaction terms).
+*Important:* Avoid using asterixes '*' in your column names (these are reserved for interaction terms).
 
 For demonstration purposes, we will start with a dataset bundled with the seminr package - the `mobi` data frame (also found  in the `semPLS` R package). This dataset comes from a measurement instrument for the European Customer Satisfaction Index (ECSI) adapted to the mobile phone market (Tenenhaus et al. 2005).
 
@@ -178,7 +182,7 @@ single_item("CUSCO")
 "CUSCO"
 ```
 
-It is important to note that a single-item constructs can be defined as either composite mode A or reflective common-factor, but they are essentially composites whose factors scores are determined.
+It is important to note that a single-item constructs can be defined as either composite mode A or reflective common-factor, but single-item constructs are essentially composites whose construct scores are determined.
 
 ## Interaction terms
 
@@ -229,7 +233,7 @@ interaction_scaled("Image", "Value")
 
 These functions themselves return functions that are not resolved but passed as parameters to the `interactions()` function discussed above.
 
-**Important Note:** SEMinR syntax uses a dot "." as a naming convention for the interaction construct. Thus, the "Image" + "Expectation" interaction is called "Image.Expectation" in the structural model below. Please refrain from using a dot "." in the naming of non-interaction constructs.
+**Important Note:** SEMinR syntax uses an asterix "*" as a naming convention for the interaction construct. Thus, the "Image" + "Expectation" interaction is called "Image*Expectation" in the structural model below. Please refrain from using an asterix "*" in the naming of non-interaction constructs.
 
 ## Structural model description 
 
@@ -326,11 +330,11 @@ mobi_xm <- interactions(
 )
 
 # define structural model
-# note: interactions factor should be named by its main factors joined by a '.'
+# note: interactions cobnstruct should be named by its main constructs joined by a '*'
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
-                 "Image.Expectation", "Image.Value"))
+                 "Image*Expectation", "Image*Value"))
 )
 
 mobi_pls <- estimate_pls(data = mobi,
@@ -340,11 +344,11 @@ mobi_pls <- estimate_pls(data = mobi,
                          inner_weights = path_weighting)
 ```
 
-### Consistent PLS (PLSc) for common factors
+### Consistent PLS (PLSc) for common-factors
 
-Dijkstra and Henseler (2015) offer an adjustment to generate consistent weight and path estimates of common factors estimated using PLSPM. SEMinR automatically adjusts for consistent estimates of coefficients for common factors defined using `reflective()`.
+Dijkstra and Henseler (2015) offer an adjustment to generate consistent weight and path estimates of common factors estimated using PLSPM. SEMinR automatically adjusts for consistent estimates of coefficients for common-factors defined using `reflective()`.
 
-Note: At this point, SEMinR does not adjust for PLSc on models with interactions involving common factors. Thus in models including common-factors and interactions, the coefficient of common-factors will be subject to bias.
+Note: At this point, SEMinR does not adjust for PLSc on models with interactions involving common-factors. Thus in models including common-factors and interactions, the coefficient of common-factors will be subject to bias.
 
 ## Bootstrapping the model for significance
 
@@ -388,6 +392,11 @@ summary(mobi_pls)
     + `model_summary$cross_loadings` reports all possible loadings between contructs and items
     + `model_summary$loadings` reports the estimated loadings of the measurement model
     + `model_summary$weights` reports the estimated weights of the measurement model
+    + `model_summary$composite_scores` reports the construct scores of composites
+    + `model_summary$vif_items` reports the Variance Inflation Factor (VIF) for the measurement model
+    + `model_summary$vif_antecedents` report the Variance Inflation Factor (VIF) for the structural model
+
+Please note that common-factor scores are indeterminable and therefore construct scores for common factors are not reported (Hair et al.,2011).
 
 ### Reporting the bootstrapped `boot_seminr_model` 
 
@@ -410,6 +419,7 @@ summary(boot_mobi_pls)
 * Dillon, W. R, and M. Goldstein. 1987. Multivariate Analysis: Methods, and Applications. Biometrical Journal 29 (6): 750–756.
 * Fornell, C. and D. F. Larcker (February 1981). Evaluating structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5)
 * Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on Partial Least Squares Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.
+* Hair, J. F., Ringle, C. M., & Sarstedt, M. (2011). PLS-SEM: Indeed a silver bullet. Journal of Marketing theory and Practice, 19(2), 139-152.
 * Henseler, J., & Fassot, G. (2006). Testing moderating effects in PLS path models. In: Esposito Vinzi, V., Chin,W.W., Henseler, J., & Wang, H. (Eds.), Handbook PLS and Marketing. Berlin, Heidelberg, New York: Springer.
 * Henseler, J., & Chin, W. W. (2010), A comparison of approaches for the analysis of interaction effects between latent variables 
 using partial least squares path modeling. Structural Equation Modeling, 17(1), 82–109. https://doi.org/10.1080/10705510903439003

@@ -4,11 +4,11 @@
 \alias{report_paths}
 \alias{plot_scores}
 \title{Functions for reporting the Path Coefficients and R2 of endogenous constructs
-and for generating a scatterplot matrix of factor scores.}
+and for generating a scatterplot matrix of construct scores.}
 \usage{
 report_paths(seminr_model, digits=3)
 
-plot_scores(seminr_model, factors=NULL)
+plot_scores(seminr_model, constructs=NULL)
 }
 \arguments{
 \item{seminr_model}{The PLS model estimated by simplePLS \code{seminr}. The estimated model
@@ -17,17 +17,17 @@ returned by the \code{estimate_pls} or \code{bootstrap_model} methods.}
 \item{digits}{A \code{numeric} minimum number of significant digits. If not
 specified, default is "2".}
 
-\item{factors}{a \code{list} indicating which factors to report. If not
-specified, all factors are graphed and returned.}
+\item{constructs}{a \code{list} indicating which constructs to report. If not
+specified, all constructs are graphed and returned.}
 }
 \description{
 \code{report_paths} generates an easy to read table reporting path coefficients
   and R2 values for endogenous constructs.\code{plot_scores} generates a
-  scatterplot matrix of each factor's scores against every other factor's scores.
+  scatterplot matrix of each construct's scores against every other construct's scores.
 }
 \details{
 These functions generate an easy to read table reporting path coefficients
-  and R2 values for endogenous constructs or a scatterplot matrix of factor
+  and R2 values for endogenous constructs or a scatterplot matrix of construct
   scores.
 }
 \examples{
@@ -41,8 +41,8 @@ mobi_mm <- constructs(
   composite("Satisfaction", multi_items("CUSA", 1:3))
 )
 
-#  structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
+#  structural model: note that name of the interactions construct should be
+#  the names of its two main constructs joined by a '.' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value"))

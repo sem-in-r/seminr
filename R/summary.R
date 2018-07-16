@@ -5,13 +5,16 @@ summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
   path_reports <- report_paths(object, digits)
   metrics <- evaluate_model(object)
   iterations <- object$iterations
-
-  model_summary <- list(iterations=iterations,
-                        paths=path_reports,
-                        loadings=object$outer_loadings,
-                        cross_loadings=metrics$Validity$`Cross-Loadings`,
-                        weights=object$outer_weights,
-                        reliability=metrics$Reliability)
+  composite_scores <- return_only_composite_scores(object)
+  model_summary <- list(iterations = iterations,
+                        paths = path_reports,
+                        loadings = object$outer_loadings,
+                        weights = object$outer_weights,
+                        cross_loadings = metrics$validity$cross_loadings,
+                        vif_items = metrics$validity$item_vifs,
+                        reliability = metrics$reliability,
+                        composite_scores = composite_scores,
+                        vif_antecedents = metrics$validity$antecedent_vifs)
   class(model_summary) <- "summary.seminr_model"
   model_summary
 }

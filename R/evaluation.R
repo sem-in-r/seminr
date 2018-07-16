@@ -2,172 +2,358 @@ evaluate_model <- function(seminr_model) {
   rel <- reliability(seminr_model)
   val <- validity(seminr_model)
   out <- list(rel,val)
-  names(out) <- c("Reliability","Validity")
+  names(out) <- c("reliability","validity")
   return(out)
 }
 
-
-## Reliability -------------------------
-# RhoC and AVE
-# Dillon-Goldstein's Rho as per: Dillon, W. R, and M. Goldstein. 1987. Multivariate Analysis: Methods
-# and Applications. Biometrical Journal 29 (6).
-# Average Variance Extracted as per:  Fornell, C. and D. F. Larcker (February 1981). Evaluating
-# structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5
-rhoC_AVE <- function(seminr_model){
-  dgr <- matrix(NA, nrow=length(seminr_model$ltVariables), ncol=2)
-  rownames(dgr) <- seminr_model$ltVariables
-  colnames(dgr) <- c("rhoC", "AVE")
-  for(i in seminr_model$ltVariables){
-    x <- seminr_model$outer_loadings[, i]
-    if(measure_mode(i,seminr_model$mmMatrix)=="B"| measure_mode(i,seminr_model$mmMatrix)=="A"){
-      ind <- which(x!=0)
-      if(length(ind)==1){
-        dgr[i,1:2] <- 1
-      } else {
-       x <- x[ind]
-       dgr[i,1] <- sum(x)^2 / (sum(x)^2 + sum(1-x^2))
-       dgr[i,2] <- sum(x^2)/length(x)
-      }
-    } else {
-      dgr[i,1] <- NA
-      dgr[i,2] <- sum(x^2)/length(x)
-    }
-  }
-  return(dgr)
-}
-
-# rhoA as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
-rho_A <- function(seminr_model) {
-  # get latent variable scores and weights for each latent
-  latentscores <- seminr_model$fscores
-  weights <- seminr_model$outer_weights
-  # get the mmMatrix and smMatrix
-  mmMatrix <- seminr_model$mmMatrix
-  smMatrix <- seminr_model$smMatrix
-  obsData <- seminr_model$data
-  # Create rhoA holder matrix
-  rho <- matrix(,nrow = ncol(latentscores),ncol = 1,dimnames = list(colnames(latentscores),c("rhoA")))
-
-  for (i in rownames(rho))  {
-    #If the measurement model is Formative assign rhoA = 1
-    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="B"){
-      rho[i,1] <- 1
-    }
-    #If the measurement model is Reflective Calculate RhoA
-    if(mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="C" | mmMatrix[mmMatrix[,"latent"]==i,"type"][1]=="A"){
-      #if the latent is a single item rhoA = 1
-      if(nrow(mmMatrix_per_latent(i,mmMatrix)) == 1) {
-        rho[i,1] <- 1
-      } else {
-        # get the weights for the latent
-        w <- as.matrix(weights[mmMatrix[mmMatrix[,"latent"]==i,"measurement"],i])
-
-        # Get empirical covariance matrix of lv indicators (S)
-        indicators <- scale(obsData[,mmMatrix[mmMatrix[,"latent"]==i,"measurement"]],TRUE,TRUE)
-        S <- stats::cov(indicators,indicators)
-        diag(S) <- 0
-
-        # Get AA matrix without diagonal
-        AAnondiag <- w %*% t(w)
-        diag(AAnondiag) <- 0
-
-        # Calculate rhoA
-        rho[i,1] <- (t(w) %*% w)^2 * ((t(w) %*% (S) %*% w)/(t(w) %*% AAnondiag %*% w))
-      }
-    }
-  }
-  return(rho)
-}
+# Reliability ----
 reliability <- function(seminr_model) {
   mat1 <- rhoC_AVE(seminr_model)
   mat2 <- rho_A(seminr_model)
   return(cbind(mat1,mat2))
 }
 
-## Validity ---------------------
-
+# Validity ----
 validity <- function(seminr_model) {
-  cl <- cross_loadings(seminr_model)
-# Remove HTMT
-#  htmt <- HTMT(seminr_model)
-#  out <- list(cl,htmt)
-  out <- list(cl)
-#  names(out) <- c("Cross-Loadings", "HTMT")
-  names(out) <- "Cross-Loadings"
-  return(out)
+  list(
+    # htmt            = HTMT(seminr_model),
+    cross_loadings  = cross_loadings(seminr_model),
+    item_vifs       = item_vifs(seminr_model),
+    antecedent_vifs = antecedent_vifs(seminr_model)
+  )
 }
 
 cross_loadings <- function(seminr_model) {
-  return(stats::cor(seminr_model$data[,seminr_model$mmVariables],seminr_model$fscores))
+  return(stats::cor(seminr_model$data[,seminr_model$mmVariables],seminr_model$construct_scores))
 }
 
-# HTMT as per Henseler, J., Ringle, C. M., & Sarstedt, M. (2014). A new criterion for assessing discriminant validity in
-# variance-based structural equation modeling. Journal of the Academy of Marketing Science, 43(1), 115-135.
-# https://doi.org/10.1007/s11747-014-0403-8
-HTMT <- function(seminr_model) {
-  HTMT <- matrix(, nrow=length(seminr_model$ltVariables), ncol=length(seminr_model$ltVariables),
-                 dimnames = list(seminr_model$ltVariables,seminr_model$ltVariables))
-  for (latenti in seminr_model$ltVariables[1:(length(seminr_model$ltVariables)-1)]) {
-    for (latentj in seminr_model$ltVariables[(which(seminr_model$ltVariables == latenti)+1):length(seminr_model$ltVariables)]) {
-      manifesti <- seminr_model$mmVariables[seminr_model$mmMatrix[,1] == latenti]
-      manifestj <- seminr_model$mmVariables[seminr_model$mmMatrix[,1] == latentj]
-      item_correlation_matrix <- stats::cor(seminr_model$data[,manifesti],seminr_model$data[,manifestj])
-      HTHM <- mean(item_correlation_matrix)
-      if(length(manifesti)>1 ) {
-        cor_matrix <- stats::cor(seminr_model$data[,manifesti],seminr_model$data[,manifesti])
-        diag(cor_matrix) <- 0
-        MTHM <- (2/(length(manifesti)*(length(manifesti)-1)))*(sum(cor_matrix[!lower.tri(cor_matrix)]))
-      } else {
-        MTHM <- 1
-      }
-      if(length(manifestj)>1) {
-        cor_matrix2 <- stats::cor(seminr_model$data[,manifestj],seminr_model$data[,manifestj])
-        diag(cor_matrix2) <- 0
-        MTHM <- sqrt(MTHM * (2/(length(manifestj)*(length(manifestj)-1)))*(sum(cor_matrix2[!lower.tri(cor_matrix2)])))
-      } else {
-        MTHM <- sqrt(1 * MTHM)
-      }
-      HTMT[latenti,latentj] <- HTHM / MTHM
-    }
+# Measurement Model Evaluation ----
+evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
+  stopifnot(inherits(object, "seminr_model"))
+
+  # Collect construct types
+  factors <- get_factors(object)
+  composites <- get_composites(object)
+  factor_items <- unlist(sapply(factors,items_of_construct,object))
+  composite_items <- unlist(sapply(composites,items_of_construct,object))
+
+  # get metrics object
+  metrics <- evaluate_model(object)
+  # Get factor metrics ----
+
+  # If only one factor
+  if (length(factors) == 1) {
+    factor_reliability <- as.matrix(t(metrics$reliability[factors,c("AVE","rhoA")]))
+    rownames(factor_reliability) <- factors
+
+    factor_indicator_reliability <- as.matrix(object$outer_loadings[factor_items,factors])
+    colnames(factor_indicator_reliability) <- factors
+
+    discriminant_validity <- HTMT(object)
+  # If many factors
+  } else if (length(factors) > 1) {
+    factor_reliability <- metrics$reliability[factors,c("AVE","rhoA")]
+    factor_indicator_reliability <- object$outer_loadings[factor_items,factors]
+    discriminant_validity <- HTMT(object)
+  # If no factors
+  } else {
+    factor_reliability <- NA
+    factor_indicator_reliability <- NA
+    discriminant_validity <- NA
   }
-  return(HTMT)
-}
 
-## Construct FIT ---------------------
+  # Get composite metrics ----
 
-# BIC function using rsq, SST, n pk
-BIC_func <- function(rsq, pk, N, fscore){
-  SSerrk <- (1-rsq)*(stats::var(fscore)*(N-1))
-  N*log(SSerrk/N) + (pk+1)*log(N)
-}
+  # If only one composite
+  if (length(composites) == 1) {
+    composite_indicator_reliability <- as.matrix(object$outer_weights[composite_items,composites])
+    colnames(composite_indicator_reliability) <- composites
 
-# AIC function using rsq, SST, n pk
-AIC_func <- function(rsq, pk, N, fscore){
-  SSerrk <- (1-rsq)*(stats::var(fscore)*(N-1))
-  2*(pk+1)+N*log(SSerrk/N)
-}
+    # If many composites
+  } else if (length(composites) > 1) {
+    composite_indicator_reliability <- object$outer_weights[composite_items,composites]
 
-# calculating insample metrics
-calc_insample <- function(obsData, fscores, smMatrix, dependant, fscore_cors) {
-  # matrix includes BIC
-  # Remove BIC for now
-  #insample <- matrix(,nrow=3,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq","BIC"),dependant))
+    # If no composites
+  } else {
+    composite_indicator_reliability <- NA
 
-  # matrix excludes BIC
-  insample <- matrix(,nrow=2,ncol=length(dependant),byrow =TRUE,dimnames = list(c("Rsq","AdjRsq"),dependant))
-
-  for (i in 1:length(dependant))  {
-    #Indentify the independant variables
-    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
-
-    #Calculate insample for endogenous
-    #    fscore_cors <- stats::cor(fscores)
-    r_sq <- 1 - 1/solve(fscore_cors[c(independant,dependant[i]),c(independant,dependant[i])])
-    insample[1,i] <- r_sq[dependant[i],dependant[i]]
-    insample[2,i] <- 1 - (1 - insample[1,i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
-    # Calculate the BIC for the endogenous
-    # Remove BIC for now
-    #insample[3,i] <- BIC_func(r_sq[dependant[i],dependant[i]],length(independant),nrow(obsData),fscores[,dependant[i]])
   }
-  return(insample)
+
+  # Measurement model
+  cat("\nMeasurement Model Evaluation:\n")
+
+  # First report Factor metrics:
+  cat("\n------------------Factors:------------------\n")
+
+  cat("1. Indicator Reliability:\nLoadings:\n")
+  print(factor_indicator_reliability, na.print = na.print, digits=digits)
+
+  cat("\n2. Factor Reliability and Convergent Validity:\n")
+  print(factor_reliability, na.print = na.print, digits=digits)
+  #cat("\n")
+
+  cat("\n3. Discriminant Validity\n")
+  cat("HTMT\n")
+  print(discriminant_validity, na.print = na.print, digits=digits)
+
+  # First report Factor metrics:
+  cat("\n------------------Composites:---------------\n")
+
+  cat("1. Indicator Reliability:\nWeights:\n")
+  print(composite_indicator_reliability, na.print = na.print, digits=digits)
+
+  cat("\n2. Collinearity:\nItem VIFs per Construct:\n")
+  print(metrics$validity$item_vifs[composites], na.print = na.print, digits=digits)
+  #cat("\n")
+
+  measurement_model_evaluation <- list(factor_reliability = factor_reliability,
+                                       factor_indicator_reliability = factor_indicator_reliability,
+                                       factor_discriminant_validity = discriminant_validity,
+                                       composite_indicator_reliability = composite_indicator_reliability,
+                                       composite_collinearity = metrics$validity$item_vifs[composites])
+  class(measurement_model_evaluation) <- "measurement_model_evaluation.seminr_model"
+  return(measurement_model_evaluation)
+}
+
+boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
+  stopifnot(inherits(object, "boot_seminr_model"))
+
+  # Collect construct types
+  factors <- get_factors(object)
+  composites <- get_composites(object)
+  factor_items <- unlist(sapply(factors,items_of_construct,object))
+  composite_items <- unlist(sapply(composites,items_of_construct,object))
+
+  # get metrics object
+  metrics <- evaluate_model(object)
+
+  # Evaluate weights boot matrix
+  # REFACTOR: Extract endogenous column names, means, and SEs from boot_matrix
+  weights_boot_matrix <- object$boot_weights
+  num_composites <- ncol(weights_boot_matrix) / 3
+  column_names <- colnames(weights_boot_matrix)[1:num_composites]
+  weights_boot_mean <- as.matrix(weights_boot_matrix[, c((1*num_composites+1):(2*num_composites))])
+  weights_boot_SE   <- as.matrix(weights_boot_matrix[, c((2*num_composites+1):(3*num_composites))])
+
+  # calculate t-values and two-tailed p-values; 0 paths become NaN
+  weights_boot_t <- abs(weights_boot_mean / weights_boot_SE)
+  weights_boot_p <- 2*stats::pt(weights_boot_t, df = object$boots-1, lower.tail = FALSE)
+  colnames(weights_boot_t) <- object$constructs
+  colnames(weights_boot_p) <- object$constructs
+
+  # Evaluate HTMT boot matrix
+  # REFACTOR: Extract endogenous column names, means, and SEs from boot_matrix
+  HTMT_boot_matrix <- object$boot_HTMT
+  num_factors <- ncol(HTMT_boot_matrix) / 3
+  factor_names <- colnames(HTMT_boot_matrix)[1:num_factors]
+  HTMT_boot_mean <- as.matrix(HTMT_boot_matrix[, c((1*num_factors+1):(2*num_factors))])
+  HTMT_boot_SE   <- as.matrix(HTMT_boot_matrix[, c((2*num_factors+1):(3*num_factors))])
+
+  # calculate t-values and two-tailed p-values; 0 paths become NaN
+  HTMT_boot_t <- abs((HTMT_boot_mean-1) / HTMT_boot_SE)
+  HTMT_boot_p <- 2*stats::pt(HTMT_boot_t, df = object$boots-1, lower.tail = FALSE)
+
+  colnames(HTMT_boot_t) <- colnames(HTMT(object))
+  colnames(HTMT_boot_p) <- colnames(HTMT(object))
+
+  discriminant_validity <- HTMT(object)
+  discriminant_validity_t <- HTMT_boot_t
+  discriminant_validity_p <- HTMT_boot_p
+  # Get factor metrics ----
+
+  # If only one factor
+  if (length(factors) == 1) {
+    factor_reliability <- as.matrix(t(metrics$reliability[factors,c("AVE","rhoA")]))
+    rownames(factor_reliability) <- factors
+
+    factor_indicator_reliability <- as.matrix(object$outer_loadings[factor_items,factors])
+    colnames(factor_indicator_reliability) <- factors
+
+    # If many factors
+  } else if (length(factors) > 1) {
+    factor_reliability <- metrics$reliability[factors,c("AVE","rhoA")]
+    factor_indicator_reliability <- object$outer_loadings[factor_items,factors]
+    # If no factors
+  } else {
+    factor_reliability <- NA
+    factor_indicator_reliability <- NA
+    discriminant_validity <- NA
+    discriminant_validity_t <- NA
+    discriminant_validity_p <- NA
+  }
+
+  # Get composite metrics ----
+
+  # If only one composite
+  if (length(composites) == 1) {
+    composite_indicator_reliability <- as.matrix(object$outer_weights[composite_items,composites])
+    composite_indicator_weights_t <- as.matrix(weights_boot_t[composite_items,composites])
+    composite_indicator_weights_p <- as.matrix(weights_boot_p[composite_items,composites])
+
+    colnames(composite_indicator_reliability) <- composites
+
+    # If many composites
+  } else if (length(composites) > 1) {
+    composite_indicator_reliability <- object$outer_weights[composite_items,composites]
+    composite_indicator_weights_t <- weights_boot_t[composite_items,composites]
+    composite_indicator_weights_p <- weights_boot_p[composite_items,composites]
+
+    # If no composites
+  } else {
+    composite_indicator_reliability <- NA
+    composite_indicator_weights_t <- NA
+    composite_indicator_weights_p <- NA
+  }
+
+  # Clean boot matrices
+  composite_indicator_weights_t[is.nan(composite_indicator_weights_t)] <- NA
+  composite_indicator_weights_p[is.nan(composite_indicator_weights_p)] <- NA
+
+  # Measurement model
+  cat("\nMeasurement Model Evaluation:\n")
+
+  # First report Factor metrics:
+  cat("\n------------------Factors:------------------\n")
+
+  cat("1. Indicator Reliability:\nLoadings:\n")
+  print(factor_indicator_reliability, na.print = na.print, digits=digits)
+
+  cat("\n2. Factor Reliability and Convergent Validity:\n")
+  print(factor_reliability, na.print = na.print, digits=digits)
+  #cat("\n")
+
+  cat("\n3. Discriminant Validity\n")
+  cat("HTMT\n")
+  print(discriminant_validity, na.print = na.print, digits=digits)
+  cat("HTMT t-values:\n")
+  print(discriminant_validity_t, na.print = na.print, digits=digits)
+  cat("HTMT p-values:\n")
+  print(discriminant_validity_p, na.print = na.print, digits=digits)
+
+  # Second report Composite metrics:
+  cat("\n------------------Composites:---------------\n")
+
+  cat("1. Indicator Reliability:\nWeights:\n")
+  print(composite_indicator_reliability, na.print = na.print, digits=digits)
+  cat("\n Weights t-values:\n")
+  print(composite_indicator_weights_t, na.print = na.print, digits=digits)
+  cat("\n Weights p-values:\n")
+  print(composite_indicator_weights_p, na.print = na.print, digits=digits)
+  cat("\n2. Collinearity:\nItem VIFs per Construct:\n")
+  print(metrics$validity$item_vifs[composites], na.print = na.print, digits=digits)
+  #cat("\n")
+
+  boot_measurement_model_evaluation <- list(factor_reliability = factor_reliability,
+                                            factor_indicator_reliability = factor_indicator_reliability,
+                                            factor_discriminant_validity = discriminant_validity,
+                                            factor_discriminant_validity_t_values =  discriminant_validity_t,
+                                            factor_discriminant_validity_p_values =  discriminant_validity_p,
+                                            composite_indicator_reliability = composite_indicator_reliability,
+                                            composite_indicator_weights_t_values = composite_indicator_weights_t,
+                                            composite_indicator_weights_p_values = composite_indicator_weights_p,
+                                            composite_collinearity = metrics$validity$item_vifs[composites])
+  class(boot_measurement_model_evaluation) <- "measurement_model_evaluation.boot_seminr_model"
+  return(boot_measurement_model_evaluation)
+}
+
+#### fix here ----
+## measurement_model_evaluation <- function(x) UseMethod("measurement_model_evaluation", x)
+##print.measurement_model_evaluation <- function(x) c("measurement_model_evaluation", NextMethod())
+
+# print measurement model evaluation function for seminr
+#' @export
+print.measurement_model_evaluation.seminr_model <- function(x, na.print=".", digits=3, ...) {
+
+  # Structural Model
+  #cat("\nStructural Model Evaluation:\n")
+  #cat("\nPath Coefficients:\n")
+  #print(x$paths, na.print = na.print, digits=digits)
+
+  # Measurement model
+  cat("\nMeasurement Model Evaluation:\n")
+
+  # First report Factor metrics:
+  cat("\nFactors:\n")
+
+  cat("\nReliability:\n")
+  cat("\n Indicator Reliability:\n")
+  print(x$indicator_reliability, na.print = na.print, digits=digits)
+
+  cat("\nFactor Reliability:\n")
+  print(x$factor_reliability, na.print = na.print, digits=digits)
+  #cat("\n")
+
+  cat("\nDiscriminant Validity\n")
+  print(x$discriminant_validity, na.print = na.print, digits=digits)
+
+  # Then report composite metrics:
+  #cat("\nComposites:\n")
+
+  #cat("\nConfirmatory Composite Analysis:\n")
+
+  #cat("\nCollinearity:\n")
+  #print(x$vif_items, na.print = na.print, digits=digits)
+
+  #cat("\nWeights:\n")
+  #print(x$weights, na.print = na.print, digits=digits)
+
+  invisible(x)
+}
+
+
+#### Stolen from testthat ----
+colourise <- function(text, fg = "black", bg = NULL) {
+  term <- Sys.getenv()["TERM"]
+  colour_terms <- c("xterm-color","xterm-256color", "screen", "screen-256color")
+
+  if(rcmd_running() || !any(term %in% colour_terms, na.rm = TRUE)) {
+    return(text)
+  }
+
+  col_escape <- function(col) {
+    paste0("\033[", col, "m")
+  }
+
+  col <- .fg_colours[tolower(fg)]
+  if (!is.null(bg)) {
+    col <- paste0(col, .bg_colours[tolower(bg)], sep = ";")
+  }
+
+  init <- col_escape(col)
+  reset <- col_escape("0")
+  paste0(init, text, reset)
+}
+
+.fg_colours <- c(
+  "black" = "0;30",
+  "blue" = "0;34",
+  "green" = "0;32",
+  "cyan" = "0;36",
+  "red" = "0;31",
+  "purple" = "0;35",
+  "brown" = "0;33",
+  "light gray" = "0;37",
+  "dark gray" = "1;30",
+  "light blue" = "1;34",
+  "light green" = "1;32",
+  "light cyan" = "1;36",
+  "light red" = "1;31",
+  "light purple" = "1;35",
+  "yellow" = "1;33",
+  "white" = "1;37"
+)
+
+.bg_colours <- c(
+  "black" = "40",
+  "red" = "41",
+  "green" = "42",
+  "brown" = "43",
+  "blue" = "44",
+  "purple" = "45",
+  "cyan" = "46",
+  "light gray" = "47"
+)
+
+rcmd_running <- function() {
+  nchar(Sys.getenv('R_TESTS')) != 0
 }

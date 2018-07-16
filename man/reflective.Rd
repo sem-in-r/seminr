@@ -13,11 +13,11 @@ reflective(construct_name, item_names)
 }
 \description{
 \code{reflective} creates the reflective measurement model matrix for a specific common-factor,
-specifying the relevant items of the factor and assigning the relationship of reflective.
+specifying the relevant items of the construct and assigning the relationship of reflective.
 By definition this construct will be estimated by PLS consistent.
 }
 \details{
-This function conveniently maps reflectively defined measurement items to a factor and is estimated
+This function conveniently maps reflectively defined measurement items to a construct and is estimated
 using PLS consistent.
 }
 \examples{

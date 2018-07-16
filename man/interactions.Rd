@@ -11,7 +11,7 @@ interactions(...)
 \code{interaction_ortho} methods.}
 }
 \description{
-\code{interactions} creates interaction measurement items by multipying all combination of factor items.
+\code{interactions} creates interaction measurement items by multipying all combination of construct items.
 }
 \details{
 This function automatically generates interaction measurement items for a PLS SEM.
@@ -31,12 +31,12 @@ mobi_xm <- interactions(
   interaction_ortho("Image", "Value")
 )
 
-#  structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
+#  structural model: note that name of the interactions construct should be
+#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
-                 "Image.Expectation", "Image.Value"))
+                 "Image*Expectation", "Image*Value"))
 )
 
 mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)

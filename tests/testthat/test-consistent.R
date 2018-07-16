@@ -1,4 +1,4 @@
-context("SEMinR correctly estimates rhoA for the simple model\n")
+context("SEMinR correctly estimates rho_A for the simple model\n")
 
 # Test cases
 ## Simple case
@@ -10,8 +10,8 @@ mobi_mm <- constructs(
   reflective("Satisfaction", multi_items("CUSA", 1:3))
 )
 
-# structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
+# structural model: note that name of the interactions construct should be
+#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value"))
@@ -23,7 +23,7 @@ seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_w
 
 
 # Load outputs
-rho <- rhoA(seminr_model)
+rho <- rho_A(seminr_model)
 
 ## Output originally created using following lines
 # write.csv(rho, file = "tests/fixtures/rho1.csv")
@@ -50,18 +50,18 @@ mobi_mm <- constructs(
   reflective("Satisfaction", multi_items("CUSA", 1:3))
 )
 
-# interaction factors must be created after the measurement model is defined
+# interaction constructs must be created after the measurement model is defined
 mobi_xm <- interactions(
   interaction_ortho("Image", "Expectation"),
   interaction_ortho("Image", "Value")
 )
 
-# structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
+# structural model: note that name of the interactions construct should be
+#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
-                 "Image.Expectation", "Image.Value"))
+                 "Image*Expectation", "Image*Value"))
 )
 
 # Load data, assemble model, and estimate using semPLS
@@ -69,17 +69,17 @@ mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm,inner_weights = path_factorial)
 
 # Load outputs
-rho <- rhoA(seminr_model)
+rho <- rho_A(seminr_model)
 
 ## Output originally created using following lines
-# write.csv(rho, file = "tests/fixtures/rho2.csv")
+## write.csv(rho, file = "tests/fixtures/rho2.csv")
 
 # Load controls
 rho_control <- as.matrix(read.csv("../fixtures/rho2.csv", row.names = 1))
 
 # Testing
 
-test_that("Seminr estimates rhoA correctly\n", {
+test_that("Seminr estimates rho_A correctly\n", {
   expect_equal(rho, rho_control)
 })
 
@@ -95,8 +95,8 @@ mobi_mm <- constructs(
   reflective("Satisfaction", multi_items("CUSA", 1:3))
 )
 
-# structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
+# structural model: note that name of the interactions construct should be
+#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value"))

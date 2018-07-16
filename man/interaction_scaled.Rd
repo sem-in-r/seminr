@@ -2,15 +2,15 @@
 % Please edit documentation in R/interactions.R
 \name{interaction_scaled}
 \alias{interaction_scaled}
-\title{\code{interaction_scaled} creates interaction measurement items by scaled product indicator approach..}
+\title{\code{interaction_scaled} creates interaction measurement items by scaled product indicator approach.}
 \usage{
 # standardized product indicator approach as per Henseler & Chin (2010):
- interaction_scaled("factor1", "factor2")
+ interaction_scaled("construct1", "construct2")
 }
 \arguments{
-\item{factor1}{The first factor which is subject to the interaction.}
+\item{construct1}{The first construct which is subject to the interaction.}
 
-\item{factor2}{The second factor which is subject to the interaction.}
+\item{construct2}{The second construct which is subject to the interaction.}
 }
 \description{
 This function automatically generates interaction measurement items for a PLS SEM using scaled product indicator approach.
@@ -30,12 +30,12 @@ mobi_xm <- interactions(
   interaction_scaled("Image", "Value")
 )
 
-#  structural model: note that name of the interactions factor should be
-#  the names of its two main factors joined by a '.' in between.
+#  structural model: note that name of the interactions construct should be
+#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
-                 "Image.Expectation", "Image.Value"))
+                 "Image*Expectation", "Image*Value"))
 )
 
 mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
