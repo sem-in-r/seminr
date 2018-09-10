@@ -203,11 +203,11 @@ test_that("Seminr evaluates the factor discriminant validity t_values control co
 
 test_that("Seminr evaluates the factor discriminant validity p_values correctly", {
   diff <- abs(factor_discriminant_validity_p_values - factor_discriminant_validity_p_values_control)
-  expect_lt(diff[1,2], 0.1)
-  expect_lt(diff[1,3], 0.1)
-  expect_lt(diff[1,4], 0.1)
-  expect_lt(diff[2,4], 0.1)
-  expect_lt(diff[3,4], 0.1)
+  expect_lt(diff[1,2], 0.2)
+  expect_lt(diff[1,3], 0.2)
+  expect_lt(diff[1,4], 0.2)
+  expect_lt(diff[2,4], 0.2)
+  expect_lt(diff[3,4], 0.2)
 })
 
 context("SEMinR:::boot_evaluate_measurement_model() correctly evaluates COMPOSITES for class boot_seminr_model\n")
