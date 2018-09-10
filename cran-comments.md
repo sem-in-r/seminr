@@ -1,10 +1,19 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 
-* Fixed user reported bugs in functionality and syntax.
-* Added features - VIF, boostrapping of loadings, weights, HTMT
-* Updated vignette
+## Attended to a CRAN error:
+We see such failures occasionally: for the record this time it is
 
+ SEMinR Model succesfully bootstrapped── 1. Failure: Seminr evaluates the factor discriminant validity p_values correc
+ diff[1, 2] is not strictly less than 0.1. Difference: 0.000314
+
+Seems you failed to heed the warnings in §1.6 of 'Writing R Extensions': please re-read it and correct ASAP (CRAN is shut until Sep 10) and before Sep 21 to safely retain the package on CRAN.
+
+Also try a spell checker --- it is 'successfully'.
+
+-- 
+Brian D. Ripley,                  ripley@stats.ox.ac.uk
+Emeritus Professor of Applied Statistics, University of Oxford
 
 ## Test environments
 * macOS Sierra 10.12.6 (on travis-ci), R 3.5.0
