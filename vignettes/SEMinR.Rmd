@@ -1,7 +1,7 @@
 ---
 title: "SEMinR"
 author: "Soumya Ray & Nicholas Danks"
-date: "January 3, 2018"
+date: "June 26, 2018"
 output: html_document 
 vignette: >
   %\VignetteIndexEntry{SEMinR}
@@ -91,7 +91,7 @@ library(seminr)
 
 You must load your data into a dataframe from any source you wish (CSV, etc.). Column names must be names of your measurement items.
 
-*Important:* Avoid stars '*' in your column names (these are reserved for interaction terms).
+*Important:* Avoid using asterixes '*' in your column names (these are reserved for interaction terms).
 
 For demonstration purposes, we will start with a dataset bundled with the seminr package - the `mobi` data frame (also found  in the `semPLS` R package). This dataset comes from a measurement instrument for the European Customer Satisfaction Index (ECSI) adapted to the mobile phone market (Tenenhaus et al. 2005).
 
@@ -233,7 +233,7 @@ interaction_scaled("Image", "Value")
 
 These functions themselves return functions that are not resolved but passed as parameters to the `interactions()` function discussed above.
 
-**Important Note:** SEMinR syntax uses a star "*" as a naming convention for the interaction construct. Thus, the "Image" + "Expectation" interaction is called "Image.Expectation" in the structural model below. Please refrain from using a star "*" in the naming of non-interaction constructs.
+**Important Note:** SEMinR syntax uses an asterix "*" as a naming convention for the interaction construct. Thus, the "Image" + "Expectation" interaction is called "Image*Expectation" in the structural model below. Please refrain from using an asterix "*" in the naming of non-interaction constructs.
 
 ## Structural model description 
 
