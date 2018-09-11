@@ -12,10 +12,12 @@
 #'
 #' @param cores A parameter specifying the maximum number of cores to use in the parallelization.
 #'
+#' @param seed A parameter to specify the seed for reproducibility of results. Default is NULL.
+#'
 #' @param ... A list of parameters passed on to the estimation method (e.g., \code{simplePLS}).
 #'
 #' @usage
-#' bootstrap_model(seminr_model, nboot = 500, cores = NULL, ...)
+#' bootstrap_model(seminr_model, nboot = 500, cores = NULL, seed = NULL, ...)
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
 #'
@@ -53,11 +55,11 @@
 #'
 #' # Load data, assemble model, and bootstrap using simplePLS
 #' boot_seminr_model <- bootstrap_model(seminr_model = seminr_model,
-#'                                      nboot = 50, cores = 2)
+#'                                      nboot = 50, cores = 2, seed = NULL)
 #'
 #' summary(boot_seminr_model)
 #' @export
-bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
+bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL, ...) {
   out <- tryCatch(
     {
       # Bootstrapping for significance as per Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on
@@ -83,11 +85,15 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
         # Function to generate random samples with replacement
         getRandomIndex <- function(d) {return(sample.int(nrow(d),replace = TRUE))}
 
+        # Check for and create random seed if NULL
+        if (is.null(seed)) {seed <- sample.int(100000,size = 1)}
+
         # Export variables and functions to cluster
-        parallel::clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model","inner_weights","getRandomIndex","d","HTMT"), envir=environment())
+        parallel::clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model","inner_weights","getRandomIndex","d","HTMT", "seed"), envir=environment())
 
         # Function to get PLS estimate results
         getEstimateResults <- function(i, d = d) {
+          set.seed(seed+i)
           boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
                                measurement_model,
                                interactions,
@@ -174,7 +180,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL,...) {
       seminr_model$boot_HTMT <- boot_HTMT
       seminr_model$boots <- nboot
       class(seminr_model) <- "boot_seminr_model"
-      cat("SEMinR Model succesfully bootstrapped")
+      cat("SEMinR Model successfully bootstrapped")
       return(seminr_model)
     },
     error=function(cond) {
