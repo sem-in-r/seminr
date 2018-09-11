@@ -21,7 +21,7 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm, inner_weights = path_factorial)
-bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2)
+bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 
 # Load outputs
 bootmatrix <- bootmodel$bootstrapMatrix
@@ -35,27 +35,9 @@ bootmatrix_control <- as.matrix(read.csv("../fixtures/boostrapmatrix1.csv", row.
 # Testing
 
 test_that("Seminr performs the bootstrapping correctly", {
-#  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
-  diff <- abs(bootmatrix[,1] - bootmatrix_control[,1])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-  expect_lt(diff[[3]], 0.03)
-})
-
-test_that("Seminr performs the bootstrapping correctly", {
-#  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
-  diff <- abs(bootmatrix[,2] - bootmatrix_control[,2])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-  expect_lt(diff[[3]], 0.03)
-})
-
-test_that("Seminr performs the bootstrapping correctly", {
-#  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
-  diff <- abs(bootmatrix[,3] - bootmatrix_control[,3])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-  expect_lt(diff[[3]], 0.03)
+  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
+  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
+  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
 })
 
 context("SEMinR correctly bootstraps the interaction model\n")
@@ -88,7 +70,7 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm, inner_weights = path_factorial)
-bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2)
+bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 
 # Load outputs
 bootmatrix <- bootmodel$bootstrapMatrix
@@ -102,27 +84,9 @@ bootmatrix_control <- as.matrix(read.csv("../fixtures/boostrapmatrix2.csv", row.
 # Testing
 
 test_that("Seminr performs the bootstrapping correctly", {
-#  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
-  diff <- abs(bootmatrix[,1] - bootmatrix_control[,1])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-  expect_lt(diff[[3]], 0.03)
-})
-
-test_that("Seminr performs the bootstrapping correctly", {
-#  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
-  diff <- abs(bootmatrix[,2] - bootmatrix_control[,2])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-  expect_lt(diff[[3]], 0.03)
-})
-
-test_that("Seminr performs the bootstrapping correctly", {
-#  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
-  diff <- abs(bootmatrix[,3] - bootmatrix_control[,3])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-  expect_lt(diff[[3]], 0.03)
+  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
+  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
+  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
 })
 
 context("SEMinR correctly bootstraps the model weights - composite measurement mode\n")
@@ -148,7 +112,7 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm, inner_weights = path_factorial)
-bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2)
+bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 
 # Load outputs
 bootmatrix <- bootmodel$boot_weights
@@ -162,26 +126,9 @@ bootmatrix_control <- as.matrix(read.csv("../fixtures/boot_weights.csv", row.nam
 # Testing
 
 test_that("Seminr performs the bootstrapping correctly", {
-  #  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
-  diff <- abs(bootmatrix[1:5,1] - bootmatrix_control[1:5,1])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-  expect_lt(diff[[3]], 0.03)
-})
-
-test_that("Seminr performs the bootstrapping correctly", {
-  #  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
-  diff <- abs(bootmatrix[6:8,6] - bootmatrix_control[6:8,6])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-  expect_lt(diff[[3]], 0.03)
-})
-
-test_that("Seminr performs the bootstrapping correctly", {
-  #  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
-  diff <- abs(bootmatrix[9:10,11] - bootmatrix_control[9:10,11])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
+  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
+  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
+  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
 })
 
 context("SEMinR correctly bootstraps the model loadings - factor measurement mode\n")
@@ -207,7 +154,7 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm, inner_weights = path_weighting)
-bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2)
+bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 
 # Load outputs
 bootmatrix <- bootmodel$boot_loadings
@@ -221,33 +168,15 @@ bootmatrix_control <- as.matrix(read.csv("../fixtures/boot_loadings.csv", row.na
 # Testing
 
 test_that("Seminr performs the bootstrapping correctly", {
-  #  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
-  diff <- abs(bootmatrix[1:5,1] - bootmatrix_control[1:5,1])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-  expect_lt(diff[[3]], 0.03)
+  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
+  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
+  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
 })
 
-test_that("Seminr performs the bootstrapping correctly", {
-  #  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
-  diff <- abs(bootmatrix[6:8,6] - bootmatrix_control[6:8,6])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-  expect_lt(diff[[3]], 0.03)
-})
-
-test_that("Seminr performs the bootstrapping correctly", {
-  #  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
-  diff <- abs(bootmatrix[9:10,11] - bootmatrix_control[9:10,11])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-})
 
 context("SEMinR correctly bootstraps the model HTMT - factor measurement mode\n")
 
 # Test cases
-## Regular model
-## previous model
 
 # Load outputs
 bootmatrix <- bootmodel$boot_HTMT
@@ -261,27 +190,7 @@ bootmatrix_control <- as.matrix(read.csv("../fixtures/boot_HTMT.csv", row.names 
 # Testing
 
 test_that("Seminr performs the bootstrapping correctly", {
-  #  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
-  diff <- abs(bootmatrix[1:4,4] - bootmatrix_control[1:4,4])
-  expect_lt(diff[[1]], 0.04)
-  expect_lt(diff[[2]], 0.04)
-  expect_lt(diff[[3]], 0.04)
+  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
+  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
+  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
 })
-
-test_that("Seminr performs the bootstrapping correctly", {
-  #  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
-  diff <- abs(bootmatrix[1:2,7] - bootmatrix_control[1:2,7])
-  expect_lt(diff[[1]], 0.04)
-  expect_lt(diff[[2]], 0.04)
-})
-
-test_that("Seminr performs the bootstrapping correctly", {
-  #  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
-  diff <- abs(bootmatrix[1:3,12] - bootmatrix_control[1:3,12])
-  expect_lt(diff[[1]], 0.04)
-  expect_lt(diff[[2]], 0.04)
-  expect_lt(diff[[3]], 0.04)
-})
-
-
-
