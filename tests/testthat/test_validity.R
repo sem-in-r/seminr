@@ -52,13 +52,13 @@ correct_vif_antecedents2 <- read.csv("../fixtures/vifs/flat_vif_antecedents2.csv
 
 ## Tests ----
 test_that("Seminr computes the item VIFs correctly", {
-  expect_equal(flat_vif_items1, correct_item_vifs1)
+  expect_equal(flat_vif_items1, correct_item_vifs1, tolerance = 0.00001)
 })
 
 test_that("Seminr computes the antecedent VIFs correctly for single endogenous variable", {
-  expect_equal(flat_vif_antecedents1, correct_vif_antecedents1)
+  expect_equal(flat_vif_antecedents1, correct_vif_antecedents1, tolerance = 0.00001)
 })
 
 test_that("Seminr computes the antecedent VIFs correctly for multiple endogenous variables", {
-  expect_equal(flat_vif_antecedents2, correct_vif_antecedents2)
+  expect_equal(flat_vif_antecedents2, correct_vif_antecedents2, tolerance = 0.00001)
 })

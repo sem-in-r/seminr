@@ -35,9 +35,9 @@ bootmatrix_control <- as.matrix(read.csv("../fixtures/boostrapmatrix1.csv", row.
 # Testing
 
 test_that("Seminr performs the bootstrapping correctly", {
-  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
-  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
-  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
+  expect_equal(bootmatrix[,1], bootmatrix_control[,1], tolerance = 0.00001)
+  expect_equal(bootmatrix[,2], bootmatrix_control[,2], tolerance = 0.00001)
+  expect_equal(bootmatrix[,3], bootmatrix_control[,3], tolerance = 0.00001)
 })
 
 context("SEMinR correctly bootstraps the interaction model\n")
@@ -84,9 +84,9 @@ bootmatrix_control <- as.matrix(read.csv("../fixtures/boostrapmatrix2.csv", row.
 # Testing
 
 test_that("Seminr performs the bootstrapping correctly", {
-  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
-  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
-  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
+  expect_equal(bootmatrix[,1], bootmatrix_control[,1], tolerance = 0.00001)
+  expect_equal(bootmatrix[,2], bootmatrix_control[,2], tolerance = 0.00001)
+  expect_equal(bootmatrix[,3], bootmatrix_control[,3], tolerance = 0.00001)
 })
 
 context("SEMinR correctly bootstraps the model weights - composite measurement mode\n")
@@ -126,9 +126,9 @@ bootmatrix_control <- as.matrix(read.csv("../fixtures/boot_weights.csv", row.nam
 # Testing
 
 test_that("Seminr performs the bootstrapping correctly", {
-  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
-  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
-  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
+  expect_equal(bootmatrix[,1], bootmatrix_control[,1], tolerance = 0.00001)
+  expect_equal(bootmatrix[,2], bootmatrix_control[,2], tolerance = 0.00001)
+  expect_equal(bootmatrix[,3], bootmatrix_control[,3], tolerance = 0.00001)
 })
 
 context("SEMinR correctly bootstraps the model loadings - factor measurement mode\n")
@@ -168,9 +168,9 @@ bootmatrix_control <- as.matrix(read.csv("../fixtures/boot_loadings.csv", row.na
 # Testing
 
 test_that("Seminr performs the bootstrapping correctly", {
-  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
-  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
-  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
+  expect_equal(bootmatrix[,1], bootmatrix_control[,1], tolerance = 0.00001)
+  expect_equal(bootmatrix[,2], bootmatrix_control[,2], tolerance = 0.00001)
+  expect_equal(bootmatrix[,3], bootmatrix_control[,3], tolerance = 0.00001)
 })
 
 
@@ -190,7 +190,7 @@ bootmatrix_control <- as.matrix(read.csv("../fixtures/boot_HTMT.csv", row.names 
 # Testing
 
 test_that("Seminr performs the bootstrapping correctly", {
-  expect_equal(bootmatrix[,1], bootmatrix_control[,1])
-  expect_equal(bootmatrix[,2], bootmatrix_control[,2])
-  expect_equal(bootmatrix[,3], bootmatrix_control[,3])
+  expect_equal(bootmatrix[,1], bootmatrix_control[,1], tolerance = 0.00001)
+  expect_equal(bootmatrix[,2], bootmatrix_control[,2], tolerance = 0.00001)
+  expect_equal(bootmatrix[,3], bootmatrix_control[,3], tolerance = 0.00001)
 })

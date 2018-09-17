@@ -42,15 +42,15 @@ weight_control <- as.matrix(read.csv("../fixtures/inner_weights_weights.csv", ro
 # Testing
 
 test_that("Seminr estimates the loadings and path coefficients correctly", {
-  expect_equal(coefficients[,4], coefficients_control[,4])
+  expect_equal(coefficients[,4], coefficients_control[,4], tolerance = 0.00001)
 })
 
 test_that("Seminr estimates the construct scores correctly", {
-  expect_equal(construct_scores[,1:4], construct_scores_control[,1:4])
+  expect_equal(construct_scores[,1:4], construct_scores_control[,1:4], tolerance = 0.00001)
 })
 
 test_that("Seminr estimates the outer weights correctly", {
-  expect_equal(weight, weight_control)
+  expect_equal(weight, weight_control, tolerance = 0.00001)
 })
 
 context("SEMinR correctly estimates the model using factorial scheme\n")
@@ -97,13 +97,13 @@ weight_control <- as.matrix(read.csv("../fixtures/factorial_weights.csv", row.na
 # Testing
 
 test_that("Seminr estimates the loadings and path coefficients correctly", {
-  expect_equal(coefficients[,4], coefficients_control[,4])
+  expect_equal(coefficients[,4], coefficients_control[,4], tolerance = 0.00001)
 })
 
 test_that("Seminr estimates the  scores correctly", {
-  expect_equal(construct_scores[,1:4], construct_scores_control[,1:4])
+  expect_equal(construct_scores[,1:4], construct_scores_control[,1:4], tolerance = 0.00001)
 })
 
 test_that("Seminr estimates the outer weights correctly", {
-  expect_equal(weight, weight_control)
+  expect_equal(weight, weight_control, tolerance = 0.00001)
 })
