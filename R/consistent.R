@@ -110,7 +110,7 @@ model_consistent <- function(seminr_model) {
         'Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment'\n")
     seminr_model <- PLSc(seminr_model)
   }
-  if(is.null(seminr_model$mobi_xm) && !("C" %in% seminr_model$mmMatrix[,"type"])) {
+  if(is.null(seminr_model$mobi_xm) && ("C" %in% seminr_model$mmMatrix[,"type"])) {
     seminr_model <- PLSc(seminr_model)
   }
   return(seminr_model)
