@@ -15,6 +15,8 @@ Also try a spell checker --- it is 'successfully'.
 Brian D. Ripley,                  ripley@stats.ox.ac.uk
 Emeritus Professor of Applied Statistics, University of Oxford
 
+Specifically, we updated the bootstrap method to take a seed for reproducability and added a tolerance of 0.0001 for floating point calculation tests. All tests including random processes such as bootstrapping were made reproducible.
+
 ## Test environments
 * macOS Sierra 10.12.6 (on travis-ci), R 3.5.0
 * Ubuntu 14.04.5 (on travis-ci), R 3.5.0

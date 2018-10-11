@@ -43,11 +43,11 @@ reliability_control <- as.matrix(read.csv("../fixtures/reliability.csv", row.nam
 #})
 
 test_that("Seminr estimates the cross-loadings correctly", {
-  expect_equal(cross_loadings, cross_loadings_control)
+  expect_equal(cross_loadings, cross_loadings_control, tolerance = 0.00001)
 })
 
 test_that("Seminr estimates the reliability correctly", {
-  expect_equal(reliability, reliability_control)
+  expect_equal(reliability, reliability_control, tolerance = 0.00001)
 })
 
 context("SEMinR correctly returns the summary object for class boot_seminr_model\n")
@@ -68,7 +68,7 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using estimate_pls
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path_weighting)
-boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2)
+boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2, seed = 123)
 summary_object <- summary(boot_seminr_model)
 
 # Load outputs
@@ -87,21 +87,11 @@ p_values_control <- as.matrix(read.csv("../fixtures/pvalues.csv", row.names = 1)
 # Testing
 
 test_that("Seminr estimates the t-values correctly", {
-  diff <- abs(t_values[,1] / t_values_control[,1])
-  expect_gt(diff[[1]], 0.9)
-  expect_lt(diff[[1]], 1.2)
-  expect_gt(diff[[2]], 0.9)
-  expect_lt(diff[[2]], 1.2)
-  expect_gt(diff[[3]], 0.9)
-  expect_lt(diff[[3]], 1.2)
-
+  expect_equal(t_values, t_values_control, tolerance = 0.00001)
 })
 
 test_that("Seminr estimates the p-values correctly", {
-  diff <- abs(p_values[,1] - p_values_control[,1])
-  expect_lt(diff[[1]], 0.03)
-  expect_lt(diff[[2]], 0.03)
-  expect_lt(diff[[3]], 0.03)
+  expect_equal(p_values, p_values_control, tolerance = 0.00001)
 })
 
 context("SEMinR:::evaluate_measurement_model() correctly evaluates FACTORS for class seminr_model\n")
@@ -122,7 +112,7 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path_weighting)
-boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2)
+boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2, seed = 123)
 utils::capture.output(summary_object <- seminr:::evaluate_measurement_model(seminr_model))
 utils::capture.output(boot_summary_object <- seminr:::boot_evaluate_measurement_model(boot_seminr_model))
 
@@ -143,15 +133,15 @@ factor_discriminant_validity_control <- as.matrix(read.csv("../fixtures/factor_d
 # Testing
 
 test_that("Seminr evaluates the factor reliability correctly", {
-  expect_equal(factor_reliability,factor_reliability_control)
+  expect_equal(factor_reliability,factor_reliability_control, tolerance = 0.00001)
 })
 
 test_that("Seminr evaluates the factor indicator reliability correctly", {
-  expect_equal(factor_indicator_reliability,factor_indicator_reliability_control)
+  expect_equal(factor_indicator_reliability,factor_indicator_reliability_control, tolerance = 0.00001)
 })
 
 test_that("Seminr evaluates the factor reliability correctly", {
-  expect_equal(factor_discriminant_validity,factor_discriminant_validity_control)
+  expect_equal(factor_discriminant_validity,factor_discriminant_validity_control, tolerance = 0.00001)
 })
 
 context("SEMinR:::evaluate_measurement_model() correctly evaluates COMPOSITES for class seminr_model\n")
@@ -170,11 +160,11 @@ composite_collinearity_control <- read.csv("../fixtures/composite_collinearity.c
 # Testing
 
 test_that("Seminr evaluates the composite indicator reliability correctly", {
-  expect_equal(composite_indicator_reliability,composite_indicator_reliability_control)
+  expect_equal(composite_indicator_reliability,composite_indicator_reliability_control, tolerance = 0.00001)
 })
 
 test_that("Seminr evaluates the composite collinearity correctly", {
-  expect_equal(unname(composite_collinearity[1:5]),composite_collinearity_control[1:5,1])
+  expect_equal(unname(composite_collinearity[1:5]),composite_collinearity_control[1:5,1], tolerance = 0.00001)
 })
 
 context("SEMinR:::boot_evaluate_measurement_model() correctly evaluates FACTORS for class boot_seminr_model\n")
@@ -193,21 +183,11 @@ factor_discriminant_validity_p_values_control <- as.matrix(read.csv("../fixtures
 # Testing
 
 test_that("Seminr evaluates the factor discriminant validity t_values control correctly", {
-  diff <- abs(factor_discriminant_validity_t_values - factor_discriminant_validity_t_values_control)
-  expect_lt(diff[1,2]/factor_discriminant_validity_t_values[1,2], 0.2)
-  expect_lt(diff[1,3]/factor_discriminant_validity_t_values[1,3], 0.2)
-  expect_lt(diff[1,4]/factor_discriminant_validity_t_values[1,4], 0.2)
-  expect_lt(diff[2,4]/factor_discriminant_validity_t_values[2,4], 0.2)
-  expect_lt(diff[3,4]/factor_discriminant_validity_t_values[3,4], 0.2)
+  expect_equal(factor_discriminant_validity_t_values, factor_discriminant_validity_t_values_control, tolerance = 0.00001)
 })
 
 test_that("Seminr evaluates the factor discriminant validity p_values correctly", {
-  diff <- abs(factor_discriminant_validity_p_values - factor_discriminant_validity_p_values_control)
-  expect_lt(diff[1,2], 0.2)
-  expect_lt(diff[1,3], 0.2)
-  expect_lt(diff[1,4], 0.2)
-  expect_lt(diff[2,4], 0.2)
-  expect_lt(diff[3,4], 0.2)
+  expect_equal(factor_discriminant_validity_p_values, factor_discriminant_validity_p_values_control, tolerance = 0.00001)
 })
 
 context("SEMinR:::boot_evaluate_measurement_model() correctly evaluates COMPOSITES for class boot_seminr_model\n")
@@ -226,19 +206,9 @@ composite_indicator_weights_p_values_control <- as.matrix(read.csv("../fixtures/
 # Testing
 
 test_that("Seminr evaluates the composite indicator t values correctly", {
-  diff <- abs(composite_indicator_weights_t_values - composite_indicator_weights_t_values_control)
-  expect_lt(diff[1,1]/composite_indicator_weights_t_values[1,1], 0.1)
-  expect_lt(diff[2,1]/composite_indicator_weights_t_values[2,1], 0.1)
-  expect_lt(diff[3,2]/composite_indicator_weights_t_values[3,2], 0.1)
-  expect_lt(diff[4,2]/composite_indicator_weights_t_values[4,2], 0.1)
-  expect_lt(diff[5,2]/composite_indicator_weights_t_values[5,2], 0.1)
+  expect_equal(composite_indicator_weights_t_values, composite_indicator_weights_t_values_control, tolerance = 0.00001)
 })
 
 test_that("Seminr evaluates the composite collinearity correctly", {
-  diff <- abs(composite_indicator_weights_p_values - composite_indicator_weights_p_values_control)
-  expect_lt(diff[1,1], 0.1)
-  expect_lt(diff[2,1], 0.1)
-  expect_lt(diff[3,2], 0.1)
-  expect_lt(diff[4,2], 0.1)
-  expect_lt(diff[5,2], 0.1)
+  expect_equal(composite_indicator_weights_p_values, composite_indicator_weights_p_values_control, tolerance = 0.00001)
 })

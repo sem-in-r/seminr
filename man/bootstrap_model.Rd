@@ -4,7 +4,7 @@
 \alias{bootstrap_model}
 \title{seminr bootstrap_model Function}
 \usage{
-bootstrap_model(seminr_model, nboot = 500, cores = NULL, ...)
+bootstrap_model(seminr_model, nboot = 500, cores = NULL, seed = NULL, ...)
 }
 \arguments{
 \item{seminr_model}{A fully estimated model with associated data, measurement model and structural model}
@@ -13,6 +13,8 @@ bootstrap_model(seminr_model, nboot = 500, cores = NULL, ...)
 value is 500. If 0 then no bootstrapping is performed.}
 
 \item{cores}{A parameter specifying the maximum number of cores to use in the parallelization.}
+
+\item{seed}{A parameter to specify the seed for reproducibility of results. Default is NULL.}
 
 \item{...}{A list of parameters passed on to the estimation method (e.g., \code{simplePLS}).}
 }
@@ -53,7 +55,7 @@ seminr_model <- estimate_pls(data = mobi,
 
 # Load data, assemble model, and bootstrap using simplePLS
 boot_seminr_model <- bootstrap_model(seminr_model = seminr_model,
-                                     nboot = 50, cores = 2)
+                                     nboot = 50, cores = 2, seed = NULL)
 
 summary(boot_seminr_model)
 }

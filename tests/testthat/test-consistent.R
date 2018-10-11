@@ -34,7 +34,7 @@ rho_control <- as.matrix(read.csv("../fixtures/rho1.csv", row.names = 1))
 # Testing
 
 test_that("Seminr estimates rhoA correctly\n", {
-  expect_equal(rho, rho_control)
+  expect_equal(rho, rho_control, tolerance = 0.00001)
 })
 
 context("SEMinR correctly estimates rhoA for the interaction model\n")
@@ -80,7 +80,7 @@ rho_control <- as.matrix(read.csv("../fixtures/rho2.csv", row.names = 1))
 # Testing
 
 test_that("Seminr estimates rho_A correctly\n", {
-  expect_equal(rho, rho_control)
+  expect_equal(rho, rho_control, tolerance = 0.00001)
 })
 
 context("SEMinR correctly estimates PLSc path coefficients, rsquared and loadings for the simple model\n")
@@ -126,15 +126,15 @@ rSquared_control <- as.matrix(read.csv("../fixtures/rsquaredplsc.csv", row.names
 # Testing
 
 test_that("Seminr estimates PLSc path coefficients correctly\n", {
-  expect_equal(path_coef, path_coef_control)
+  expect_equal(path_coef, path_coef_control, tolerance = 0.00001)
 })
 
 test_that("Seminr estimates PLSc loadings correctly\n", {
-  expect_equal(loadings, loadings_control)
+  expect_equal(loadings, loadings_control, tolerance = 0.00001)
 })
 
 test_that("Seminr estimates rsquared  correctly\n", {
   # remove BIC for now
   #expect_equal(rSquared, rSquared_control)
-  expect_equal(rSquared[1:2,], rSquared_control[1:2,])
+  expect_equal(rSquared[1:2,], rSquared_control[1:2,], tolerance = 0.00001)
 })
