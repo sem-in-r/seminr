@@ -55,6 +55,8 @@ PLSc <- function(seminr_model) {
 
   # Calculate rho_A for adjustments and adjust the correlation matrix
   rho <- rho_A(seminr_model)
+  ### Coerce interactions to rhoA of 1
+  rho[grepl("\\*", rownames(rho)),] <- 1
   adjustment <- sqrt(rho %*% t(rho))
   diag(adjustment) <- 1
   adj_construct_score_cors <- stats::cor(seminr_model$construct_scores) / adjustment
