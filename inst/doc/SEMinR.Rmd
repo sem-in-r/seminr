@@ -348,7 +348,7 @@ mobi_pls <- estimate_pls(data = mobi,
 
 Dijkstra and Henseler (2015) offer an adjustment to generate consistent weight and path estimates of common factors estimated using PLSPM. SEMinR automatically adjusts for consistent estimates of coefficients for common-factors defined using `reflective()`.
 
-Note: At this point, SEMinR does not adjust for PLSc on models with interactions involving common-factors. Thus in models including common-factors and interactions, the coefficient of common-factors will be subject to bias.
+Note: SEMinR does adjust for PLSc on models with interactions involving common-factors. Models with interactions can be estimated as PLS consistent, but are subject to some bias as per Becker et al. (2018). In small sample sizes, bootstrapping such a PLSc model with interactions can cause errors.
 
 ## Bootstrapping the model for significance
 
@@ -415,6 +415,7 @@ summary(boot_mobi_pls)
 
 ## References
 
+* Becker et al. (2018). Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment
 * Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, MIS Quarterly Vol. 39(X).
 * Dillon, W. R, and M. Goldstein. 1987. Multivariate Analysis: Methods, and Applications. Biometrical Journal 29 (6): 750–756.
 * Fornell, C. and D. F. Larcker (February 1981). Evaluating structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5)
