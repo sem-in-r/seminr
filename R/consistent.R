@@ -55,6 +55,8 @@ PLSc <- function(seminr_model) {
 
   # Calculate rho_A for adjustments and adjust the correlation matrix
   rho <- rho_A(seminr_model)
+  ### Coerce interactions to rhoA of 1
+  rho[grepl("\\*", rownames(rho)),] <- 1
   adjustment <- sqrt(rho %*% t(rho))
   diag(adjustment) <- 1
   adj_construct_score_cors <- stats::cor(seminr_model$construct_scores) / adjustment
@@ -102,8 +104,13 @@ PLSc <- function(seminr_model) {
 
 # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
 model_consistent <- function(seminr_model) {
+  # if(!is.null(seminr_model$mobi_xm) && ("C" %in% seminr_model$mmMatrix[,"type"])) {
+  #   cat("Models with interactions cannot be estimated as PLS consistent and therefore no adjustment for PLS consistent has been made\n")
+  # }
   if(!is.null(seminr_model$mobi_xm) && ("C" %in% seminr_model$mmMatrix[,"type"])) {
-    cat("Models with interactions cannot be estimated as PLS consistent and therefore no adjustment for PLS consistent has been made\n")
+    cat("Models with interactions can be estimated as PLS consistent, but are subject to some bias as per Becker et al. (2018)
+        'Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment'\n")
+    seminr_model <- PLSc(seminr_model)
   }
   if(is.null(seminr_model$mobi_xm) && ("C" %in% seminr_model$mmMatrix[,"type"])) {
     seminr_model <- PLSc(seminr_model)

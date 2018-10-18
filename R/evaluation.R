@@ -1,6 +1,8 @@
 evaluate_model <- function(seminr_model) {
   rel <- reliability(seminr_model)
   val <- validity(seminr_model)
+  # Coerce reliability of interaction to 1
+  #rel[grepl("\\*", rownames(rel)),] <- 1
   out <- list(rel,val)
   names(out) <- c("reliability","validity")
   return(out)
