@@ -288,7 +288,7 @@ c(&quot;IMAG1&quot;, &quot;IMAG2&quot;, &quot;IMAG3&quot;, &quot;IMAG4&quot;, &q
 #&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)
 #&gt;     return(intxns_list)
 #&gt;   }
-#&gt; &lt;environment: 0x1149fa470&gt;</code></pre>
+#&gt; &lt;environment: 0x10e7240d0&gt;</code></pre>
 <p>Not that these functions themselves return functions that are not resolved until passed as a parameter to the <code>estimate_pls()</code> function for model estimation.</p>
 </div>
 <div id="describe-an-interaction-with-interaction_ortho-or-interaction_scaled" class="section level3">
@@ -399,7 +399,7 @@ mobi_pls &lt;- estimate_pls(data = mobi,
 <div id="consistent-pls-plsc-for-common-factors" class="section level3">
 <h3>Consistent PLS (PLSc) for common-factors</h3>
 <p>Dijkstra and Henseler (2015) offer an adjustment to generate consistent weight and path estimates of common factors estimated using PLSPM. SEMinR automatically adjusts for consistent estimates of coefficients for common-factors defined using <code>reflective()</code>.</p>
-<p>Note: At this point, SEMinR does not adjust for PLSc on models with interactions involving common-factors. Thus in models including common-factors and interactions, the coefficient of common-factors will be subject to bias.</p>
+<p>Note: SEMinR does adjust for PLSc on models with interactions involving common-factors. Models with interactions can be estimated as PLS consistent, but are subject to some bias as per Becker et al. (2018). In small sample sizes, bootstrapping such a PLSc model with interactions can cause errors.</p>
 </div>
 </div>
 <div id="bootstrapping-the-model-for-significance" class="section level2">
@@ -420,7 +420,7 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
                                  nboot = 1000,
                                  cores = 2)
 #&gt; Bootstrapping model using seminr...
-#&gt; SEMinR Model succesfully bootstrapped</code></pre>
+#&gt; SEMinR Model successfully bootstrapped</code></pre>
 <p>Notably, bootstrapping can also be meaningfully applied to models containing interaction terms and readjusts the interaction term (Henseler and Chin 2010) for every sub-sample. This leads to slightly increased processing times, but provides accurate estimations.</p>
 </div>
 <div id="reporting-the-pls-sem-model" class="section level2">
@@ -480,19 +480,19 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 #&gt; 
 #&gt; Structural Path t-values:
 #&gt;                   Satisfaction
-#&gt; Image                    8.031
-#&gt; Expectation              2.847
-#&gt; Value                    4.496
-#&gt; Image*Expectation        0.936
-#&gt; Image*Value              0.050
+#&gt; Image                    7.954
+#&gt; Expectation              2.754
+#&gt; Value                    4.590
+#&gt; Image*Expectation        0.997
+#&gt; Image*Value              0.032
 #&gt; 
 #&gt; Structural Path p-values:
 #&gt;                   Satisfaction
 #&gt; Image                    0.000
-#&gt; Expectation              0.005
+#&gt; Expectation              0.006
 #&gt; Value                    0.000
-#&gt; Image*Expectation        0.349
-#&gt; Image*Value              0.960</code></pre>
+#&gt; Image*Expectation        0.319
+#&gt; Image*Value              0.974</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li><code>boot_model_summary &lt;- summary(boot_seminr_model)</code> returns an object of class <code>summary.boot_seminr_model</code> which contains the following accessible objects:
 <ul>
@@ -506,6 +506,7 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 <div id="references" class="section level2">
 <h2>References</h2>
 <ul>
+<li>Becker et al. (2018). Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment</li>
 <li>Dijkstra, T. K., &amp; Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, MIS Quarterly Vol. 39(X).</li>
 <li>Dillon, W. R, and M. Goldstein. 1987. Multivariate Analysis: Methods, and Applications. Biometrical Journal 29 (6): 750–756.</li>
 <li>Fornell, C. and D. F. Larcker (February 1981). Evaluating structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5)</li>
