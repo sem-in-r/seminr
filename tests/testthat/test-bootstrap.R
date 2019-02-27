@@ -24,7 +24,7 @@ seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm, inner_
 bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 
 # Load outputs
-bootmatrix <- bootmodel$bootstrapMatrix
+bootmatrix <- bootmodel$paths_descriptives
 
 ## Output originally created using following lines
 # write.csv(bootmodel$bootstrapMatrix, file = "tests/fixtures/boostrapmatrix1.csv")
@@ -73,7 +73,7 @@ seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm, inner_weights = pa
 bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 
 # Load outputs
-bootmatrix <- bootmodel$bootstrapMatrix
+bootmatrix <- bootmodel$paths_descriptives
 
 ## Output originally created using following lines
 # write.csv(bootmodel$bootstrapMatrix, file = "tests/fixtures/boostrapmatrix2.csv")
@@ -115,7 +115,7 @@ seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm, inner_
 bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 
 # Load outputs
-bootmatrix <- bootmodel$boot_weights
+bootmatrix <- bootmodel$weights_descriptives
 
 ## Output originally created using following lines
 # write.csv(bootmodel$boot_weights, file = "tests/fixtures/boot_weights.csv")
@@ -157,7 +157,7 @@ seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm, inner_
 bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 
 # Load outputs
-bootmatrix <- bootmodel$boot_loadings
+bootmatrix <- bootmodel$loadings_descriptives
 
 ## Output originally created using following lines
 # write.csv(bootmodel$boot_loadings, file = "tests/fixtures/boot_loadings.csv")
@@ -179,7 +179,7 @@ context("SEMinR correctly bootstraps the model HTMT - factor measurement mode\n"
 # Test cases
 
 # Load outputs
-bootmatrix <- bootmodel$boot_HTMT
+bootmatrix <- bootmodel$HTMT_descriptives
 
 ## Output originally created using following lines
 # write.csv(bootmodel$boot_HTMT, file = "tests/fixtures/boot_HTMT.csv")
