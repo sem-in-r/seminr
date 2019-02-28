@@ -127,7 +127,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         # Construct the vector of column names
         colnames<-c()
         # Clean the column names
-        for (parameter in c("PLS Est.", "Boot Mean", "Boot SE")) {
+        for (parameter in c("PLS Est.", "Boot Mean", "Boot SD")) {
           for(i in 1:length(dependant)) {
             colnames <- c(colnames, paste(dependant[i],parameter,sep = " "))
           }
@@ -143,7 +143,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         # Construct the vector of column names 2
         colnames2<-c()
         # Clean the column names
-        for (parameter in c("PLS Est.", "Boot Mean", "Boot SE")) {
+        for (parameter in c("PLS Est.", "Boot Mean", "Boot SD")) {
           for(i in seminr_model$constructs) {
             colnames2 <- c(colnames2, paste(i,parameter,sep = " "))
           }

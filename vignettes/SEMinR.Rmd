@@ -371,6 +371,16 @@ boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
                                  cores = 2)
 ```
 
+1. `bootstrap_model()` returns an object of class `boot_seminr_model` which contains the following accessible objects:
+    + `boot_seminr_model$boot_paths` an array of the `nboot` estimated bootstrap sample path coefficient matrices
+    + `boot_seminr_model$boot_loadings` an array of the `nboot` estimated bootstrap sample item loadings matrices    
+    + `boot_seminr_model$boot_weights` an array of the `nboot` estimated bootstrap sample item weights matrices    
+    + `boot_seminr_model$boot_HTMT` an array of the `nboot` estimated bootstrap sample model HTMT matrices
+    + `boot_seminr_model$paths_descriptives` a matrix of the bootstrap path coefficients and standard deviations
+    + `boot_seminr_model$loadings_descriptives` a matrix of the bootstrap item loadings and standard deviations
+    + `boot_seminr_model$weights_descriptives` a matrix of the bootstrap item weights and standard deviations
+    + `boot_seminr_model$HTMT_descriptives` a matrix of the bootstrap model HTMT and standard deviations
+
 Notably, bootstrapping can also be meaningfully applied to models containing interaction terms and readjusts the interaction term (Henseler and Chin 2010) for every sub-sample. This leads to slightly increased processing times, but provides accurate estimations.
 
 ## Reporting the PLS SEM Model

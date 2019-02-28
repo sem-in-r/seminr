@@ -287,7 +287,7 @@ c(&quot;IMAG1&quot;, &quot;IMAG2&quot;, &quot;IMAG3&quot;, &quot;IMAG4&quot;, &q
 #&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)
 #&gt;     return(intxns_list)
 #&gt;   }
-#&gt; &lt;environment: 0x10ce61180&gt;</code></pre>
+#&gt; &lt;environment: 0x10d14fea8&gt;</code></pre>
 <p>Not that these functions themselves return functions that are not resolved until passed as a parameter to the <code>estimate_pls()</code> function for model estimation.</p>
 </div>
 <div id="describe-an-interaction-with-interaction_ortho-or-interaction_scaled" class="section level3">
@@ -420,6 +420,21 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
                                  cores = 2)
 #&gt; Bootstrapping model using seminr...
 #&gt; SEMinR Model successfully bootstrapped</code></pre>
+<ol style="list-style-type: decimal">
+<li><code>bootstrap_model()</code> returns an object of class <code>boot_seminr_model</code> which contains the following accessible objects:
+<ul>
+<li><code>boot_seminr_model$boot_paths</code> an array of the <code>nboot</code> estimated bootstrap sample path coefficient matrices</li>
+<li><code>boot_seminr_model$boot_loadings</code> an array of the <code>nboot</code> estimated bootstrap sample item loadings matrices<br />
+</li>
+<li><code>boot_seminr_model$boot_weights</code> an array of the <code>nboot</code> estimated bootstrap sample item weights matrices<br />
+</li>
+<li><code>boot_seminr_model$boot_HTMT</code> an array of the <code>nboot</code> estimated bootstrap sample model HTMT matrices</li>
+<li><code>boot_seminr_model$paths_descriptives</code> a matrix of the bootstrap path coefficients and standard deviations</li>
+<li><code>boot_seminr_model$loadings_descriptives</code> a matrix of the bootstrap item loadings and standard deviations</li>
+<li><code>boot_seminr_model$weights_descriptives</code> a matrix of the bootstrap item weights and standard deviations</li>
+<li><code>boot_seminr_model$HTMT_descriptives</code> a matrix of the bootstrap model HTMT and standard deviations</li>
+</ul></li>
+</ol>
 <p>Notably, bootstrapping can also be meaningfully applied to models containing interaction terms and readjusts the interaction term (Henseler and Chin 2010) for every sub-sample. This leads to slightly increased processing times, but provides accurate estimations.</p>
 </div>
 <div id="reporting-the-pls-sem-model" class="section level2">
@@ -479,19 +494,19 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 #&gt; 
 #&gt; Structural Path t-values:
 #&gt;                   Satisfaction
-#&gt; Image                    8.458
-#&gt; Expectation              2.810
-#&gt; Value                    4.770
-#&gt; Image*Expectation        1.203
-#&gt; Image*Value              0.031
+#&gt; Image                    8.443
+#&gt; Expectation              2.731
+#&gt; Value                    4.698
+#&gt; Image*Expectation        1.100
+#&gt; Image*Value              0.001
 #&gt; 
 #&gt; Structural Path p-values:
 #&gt;                   Satisfaction
 #&gt; Image                    0.000
-#&gt; Expectation              0.005
+#&gt; Expectation              0.006
 #&gt; Value                    0.000
-#&gt; Image*Expectation        0.229
-#&gt; Image*Value              0.975</code></pre>
+#&gt; Image*Expectation        0.271
+#&gt; Image*Value              1.000</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li><code>boot_model_summary &lt;- summary(boot_seminr_model)</code> returns an object of class <code>summary.boot_seminr_model</code> which contains the following accessible objects:
 <ul>
@@ -550,7 +565,7 @@ confidence_interval(boot_seminr_model = boot_seminr_model,
                    to = &quot;Satisfaction&quot;,
                    alpha = 0.05)
 #&gt;        2.5%       97.5% 
-#&gt; -0.01490230  0.09442004
+#&gt; -0.01322948  0.07949386
 
 # Calculate the 10% confidence interval for direct path Image -&gt; Satisfaction
 confidence_interval(boot_seminr_model = boot_seminr_model,
@@ -558,7 +573,7 @@ confidence_interval(boot_seminr_model = boot_seminr_model,
                    to = &quot;Satisfaction&quot;,
                    alpha = 0.10)
 #&gt;        5%       95% 
-#&gt; 0.1060301 0.2867999</code></pre>
+#&gt; 0.1137692 0.2619912</code></pre>
 </div>
 </div>
 <div id="references" class="section level2">
