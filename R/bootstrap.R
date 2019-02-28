@@ -212,3 +212,16 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
     }
   )
 }
+
+#' @export
+confidence_interval <- function(bootstrap_model, from, to, through = NULL, alpha = 0.05) {
+  path_array <- bootstrap_model$boot_paths
+  if (is.null(through)) {
+    coefficient <- path_array[from, to,]
+  } else {
+    coefficient <- path_array[from, through,] * path_array[through, to,]
+  }
+
+  quantiles <- quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
+  return(quantiles)
+}
