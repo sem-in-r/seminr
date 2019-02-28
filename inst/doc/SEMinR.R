@@ -167,3 +167,43 @@ summary(mobi_pls)
 ## ------------------------------------------------------------------------
 summary(boot_mobi_pls)
 
+## ------------------------------------------------------------------------
+mobi_mm <- constructs(
+composite("Image",        multi_items("IMAG", 1:5)),
+composite("Expectation",  multi_items("CUEX", 1:3)),
+composite("Quality",      multi_items("PERQ", 1:7)),
+composite("Value",        multi_items("PERV", 1:2)),
+composite("Satisfaction", multi_items("CUSA", 1:3)),
+composite("Complaints",   single_item("CUSCO")),
+composite("Loyalty",      multi_items("CUSL", 1:3))
+)
+# Creating structural model
+mobi_sm <- relationships(
+ paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+ paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
+ paths(from = "Quality",      to = c("Value", "Satisfaction")),
+ paths(from = "Value",        to = c("Satisfaction")),
+ paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
+ paths(from = "Complaints",   to = "Loyalty")
+)
+# Estimating the model
+mobi_pls <- estimate_pls(data = mobi,
+                        measurement_model = mobi_mm,
+                        structural_model = mobi_sm)
+# Load data, assemble model, and bootstrap
+boot_seminr_model <- bootstrap_model(seminr_model = mobi_pls,
+                                    nboot = 50, cores = 2, seed = NULL)
+
+# Calculate the 5% confidence interval for mediated path Image -> Expectation -> Satisfaction
+confidence_interval(boot_seminr_model = boot_seminr_model,
+                   from = "Image",
+                   through = "Expectation",
+                   to = "Satisfaction",
+                   alpha = 0.05)
+
+# Calculate the 10% confidence interval for direct path Image -> Satisfaction
+confidence_interval(boot_seminr_model = boot_seminr_model,
+                   from = "Image",
+                   to = "Satisfaction",
+                   alpha = 0.10)
+

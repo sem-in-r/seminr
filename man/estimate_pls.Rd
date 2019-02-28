@@ -24,8 +24,7 @@ path_weighting is default, alternately path_factorial can be used.}
 }
 \description{
 The \code{seminr} package provides a natural syntax for researchers to describe PLS
-structural equation models. \code{seminr} is compatible with semPLS, simplePLS and matrixPLS,
-meaning that once a model is specified, it can be used across models for comparison.
+structural equation models.
 }
 \examples{
 mobi <- mobi

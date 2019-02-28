@@ -1,7 +1,7 @@
 #' seminr bootstrap_model Function
 #'
 #' The \code{seminr} package provides a natural syntax for researchers to describe PLS
-#' structural equation models. \code{seminr} is compatible with simplePLS.
+#' structural equation models.
 #' \code{bootstrap_model} provides the verb for bootstrapping a pls model from the model
 #' parameters and data.
 #'
@@ -14,7 +14,7 @@
 #'
 #' @param seed A parameter to specify the seed for reproducibility of results. Default is NULL.
 #'
-#' @param ... A list of parameters passed on to the estimation method (e.g., \code{simplePLS}).
+#' @param ... A list of parameters passed on to the estimation method.
 #'
 #' @usage
 #' bootstrap_model(seminr_model, nboot = 500, cores = NULL, seed = NULL, ...)
@@ -53,7 +53,7 @@
 #'                              interactions = mobi_xm,
 #'                              structural_model = mobi_sm)
 #'
-#' # Load data, assemble model, and bootstrap using simplePLS
+#' # Load data, assemble model, and bootstrap
 #' boot_seminr_model <- bootstrap_model(seminr_model = seminr_model,
 #'                                      nboot = 50, cores = 2, seed = NULL)
 #'
@@ -180,7 +180,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
          parallel::stopCluster(cl)
       }
 
-      # Add the bootstrap matrix to the simplePLS object
+      # Add the bootstrap matrix to the seminr_model object
       seminr_model$boot_paths <- boot_paths
       seminr_model$boot_loadings <- boot_loadings
       seminr_model$boot_weights <- boot_weights
@@ -213,15 +213,74 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
   )
 }
 
+#' seminr confidence intervals function
+#'
+#' The \code{seminr} package provides a natural syntax for researchers to describe PLS
+#' structural equation models.
+#' \code{confidence_interval} provides the verb for calculating the confidence intervals of a
+#' direct or mediated path in a bootstrapped SEMinR model.
+#'
+#' @param boot_seminr_model A bootstrapped model returned by the \code{bootstrap_model} function.
+#'
+#' @param from A parameter specifying the antecedent composite for the path.
+#'
+#' @param to A parameter specifying the outcome composite for the path.
+#'
+#' @param through A parameter to specify the mediator for the path. Default is NULL.
+#'
+#' @param alpha A parameter for specifying the alpha for the confidence interval. Default is 0.05.
+#'
+#' @usage
+#' confidence_interval(boot_seminr_model, from, to, through, alpha)
+#'
+#' @seealso \code{\link{bootstrap_model}}
+#'
+#' @references Zhao, X., Lynch Jr, J. G., & Chen, Q. (2010). Reconsidering Baron and Kenny: Myths and truths
+#' about mediation analysis. Journal of consumer research, 37(2), 197-206.
+#'
+#' @examples
+#' mobi_mm <- constructs(
+#' composite("Image",        multi_items("IMAG", 1:5)),
+#' composite("Expectation",  multi_items("CUEX", 1:3)),
+#' composite("Quality",      multi_items("PERQ", 1:7)),
+#' composite("Value",        multi_items("PERV", 1:2)),
+#' composite("Satisfaction", multi_items("CUSA", 1:3)),
+#' composite("Complaints",   single_item("CUSCO")),
+#' composite("Loyalty",      multi_items("CUSL", 1:3))
+#' )
+#'
+#' # Creating structural model
+#' mobi_sm <- relationships(
+#'   paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+#'   paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
+#'   paths(from = "Quality",      to = c("Value", "Satisfaction")),
+#'   paths(from = "Value",        to = c("Satisfaction")),
+#'   paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
+#'   paths(from = "Complaints",   to = "Loyalty")
+#' )
+#'
+#' # Estimating the model
+#' mobi_pls <- estimate_pls(data = mobi,
+#'                          measurement_model = mobi_mm,
+#'                          structural_model = mobi_sm)
+#'
+#' # Load data, assemble model, and bootstrap
+#' boot_seminr_model <- bootstrap_model(seminr_model = mobi_pls,
+#'                                      nboot = 50, cores = 2, seed = NULL)
+#'
+#' confidence_interval(boot_seminr_model = boot_seminr_model,
+#'                     from = "Image",
+#'                     through = "Expectation",
+#'                     to = "Satisfaction",
+#'                     alpha = 0.05)
 #' @export
-confidence_interval <- function(bootstrap_model, from, to, through = NULL, alpha = 0.05) {
-  path_array <- bootstrap_model$boot_paths
+confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alpha = 0.05) {
+  path_array <- boot_seminr_model$boot_paths
   if (is.null(through)) {
     coefficient <- path_array[from, to,]
   } else {
     coefficient <- path_array[from, through,] * path_array[through, to,]
   }
-
-  quantiles <- quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
+  quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
   return(quantiles)
 }

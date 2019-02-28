@@ -11,7 +11,6 @@
 
 <meta name="author" content="Soumya Ray &amp; Nicholas Danks" />
 
-<meta name="date" content="2018-06-26" />
 
 <title>SEMinR</title>
 
@@ -119,7 +118,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">SEMinR</h1>
 <h4 class="author"><em>Soumya Ray &amp; Nicholas Danks</em></h4>
-<h4 class="date"><em>June 26, 2018</em></h4>
+<h4 class="date"><em>Feb 28, 2019</em></h4>
 
 </div>
 
@@ -288,7 +287,7 @@ c(&quot;IMAG1&quot;, &quot;IMAG2&quot;, &quot;IMAG3&quot;, &quot;IMAG4&quot;, &q
 #&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)
 #&gt;     return(intxns_list)
 #&gt;   }
-#&gt; &lt;environment: 0x10e7240d0&gt;</code></pre>
+#&gt; &lt;environment: 0x10ce61180&gt;</code></pre>
 <p>Not that these functions themselves return functions that are not resolved until passed as a parameter to the <code>estimate_pls()</code> function for model estimation.</p>
 </div>
 <div id="describe-an-interaction-with-interaction_ortho-or-interaction_scaled" class="section level3">
@@ -480,19 +479,19 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 #&gt; 
 #&gt; Structural Path t-values:
 #&gt;                   Satisfaction
-#&gt; Image                    7.954
-#&gt; Expectation              2.754
-#&gt; Value                    4.590
-#&gt; Image*Expectation        0.997
-#&gt; Image*Value              0.032
+#&gt; Image                    8.458
+#&gt; Expectation              2.810
+#&gt; Value                    4.770
+#&gt; Image*Expectation        1.203
+#&gt; Image*Value              0.031
 #&gt; 
 #&gt; Structural Path p-values:
 #&gt;                   Satisfaction
 #&gt; Image                    0.000
-#&gt; Expectation              0.006
+#&gt; Expectation              0.005
 #&gt; Value                    0.000
-#&gt; Image*Expectation        0.319
-#&gt; Image*Value              0.974</code></pre>
+#&gt; Image*Expectation        0.229
+#&gt; Image*Value              0.975</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li><code>boot_model_summary &lt;- summary(boot_seminr_model)</code> returns an object of class <code>summary.boot_seminr_model</code> which contains the following accessible objects:
 <ul>
@@ -501,6 +500,65 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 <li><code>model_summary$p_values</code> reports the matrix of p_values for path co-efficients</li>
 </ul></li>
 </ol>
+</div>
+<div id="reporting-confidence-intervals-for-direct-and-mediated-bootstrapped-structural-paths-with-confidence_interval" class="section level3">
+<h3>Reporting confidence intervals for direct and mediated bootstrapped structural paths with <code>confidence_interval()</code></h3>
+<p>The <code>summary(boot_seminr_model)</code> function will return p_values and t_values for direct structural paths. However, the <code>confidence_interval()</code> function can be used to evaluate the confidence intervals for specific paths - direct and mediated (Zhao et al., 2010) - in a <code>boot_seminr_model</code> object returned by the <code>bootstrap_model()</code> function.</p>
+<p>This function takes the following parameters:</p>
+<ul>
+<li><code>boot_seminr_model</code>: a bootstrapped SEMinR model returned by <code>bootstrap_model()</code></li>
+<li><code>from</code>: the antecedent construct for the structural path</li>
+<li><code>to</code>: the outcome construct for the structural path</li>
+<li><code>through</code>: the mediator construct, if the path is mediated (default is NULL)</li>
+<li><code>alpha</code> the required level of alpha (default is 0.05)</li>
+</ul>
+<p>and returns a specific confidence interval using the percentile method as per Henseler et al. (2014).</p>
+<pre class="r"><code>mobi_mm &lt;- constructs(
+composite(&quot;Image&quot;,        multi_items(&quot;IMAG&quot;, 1:5)),
+composite(&quot;Expectation&quot;,  multi_items(&quot;CUEX&quot;, 1:3)),
+composite(&quot;Quality&quot;,      multi_items(&quot;PERQ&quot;, 1:7)),
+composite(&quot;Value&quot;,        multi_items(&quot;PERV&quot;, 1:2)),
+composite(&quot;Satisfaction&quot;, multi_items(&quot;CUSA&quot;, 1:3)),
+composite(&quot;Complaints&quot;,   single_item(&quot;CUSCO&quot;)),
+composite(&quot;Loyalty&quot;,      multi_items(&quot;CUSL&quot;, 1:3))
+)
+# Creating structural model
+mobi_sm &lt;- relationships(
+ paths(from = &quot;Image&quot;,        to = c(&quot;Expectation&quot;, &quot;Satisfaction&quot;, &quot;Loyalty&quot;)),
+ paths(from = &quot;Expectation&quot;,  to = c(&quot;Quality&quot;, &quot;Value&quot;, &quot;Satisfaction&quot;)),
+ paths(from = &quot;Quality&quot;,      to = c(&quot;Value&quot;, &quot;Satisfaction&quot;)),
+ paths(from = &quot;Value&quot;,        to = c(&quot;Satisfaction&quot;)),
+ paths(from = &quot;Satisfaction&quot;, to = c(&quot;Complaints&quot;, &quot;Loyalty&quot;)),
+ paths(from = &quot;Complaints&quot;,   to = &quot;Loyalty&quot;)
+)
+# Estimating the model
+mobi_pls &lt;- estimate_pls(data = mobi,
+                        measurement_model = mobi_mm,
+                        structural_model = mobi_sm)
+#&gt; Generating the seminr model
+#&gt; All 250 observations are valid.
+# Load data, assemble model, and bootstrap
+boot_seminr_model &lt;- bootstrap_model(seminr_model = mobi_pls,
+                                    nboot = 50, cores = 2, seed = NULL)
+#&gt; Bootstrapping model using seminr...
+#&gt; SEMinR Model successfully bootstrapped
+
+# Calculate the 5% confidence interval for mediated path Image -&gt; Expectation -&gt; Satisfaction
+confidence_interval(boot_seminr_model = boot_seminr_model,
+                   from = &quot;Image&quot;,
+                   through = &quot;Expectation&quot;,
+                   to = &quot;Satisfaction&quot;,
+                   alpha = 0.05)
+#&gt;        2.5%       97.5% 
+#&gt; -0.01490230  0.09442004
+
+# Calculate the 10% confidence interval for direct path Image -&gt; Satisfaction
+confidence_interval(boot_seminr_model = boot_seminr_model,
+                   from = &quot;Image&quot;,
+                   to = &quot;Satisfaction&quot;,
+                   alpha = 0.10)
+#&gt;        5%       95% 
+#&gt; 0.1060301 0.2867999</code></pre>
 </div>
 </div>
 <div id="references" class="section level2">
@@ -522,6 +580,7 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 <li>Rönkkö, M. (2016). R package matrixpls: Matrix-based partial least squares estimation (version 0.7.0). <a href="https://CRAN.R-project.org/package=matrixpls" class="uri">https://CRAN.R-project.org/package=matrixpls</a></li>
 <li>Sarstedt, M., Hair, J. F., Ringle, C. M., Thiele, K. O., &amp; Gudergan, S. P. (2016). Estimation issues with PLS and CBSEM: Where the bias lies! Journal of Business Research, 69(10), 3998–4010. <a href="https://doi.org/10.1016/j.jbusres.2016.06.007" class="uri">https://doi.org/10.1016/j.jbusres.2016.06.007</a></li>
 <li>Tenenhaus, M., Vinzi, V. E., Chatelin, Y. M., &amp; Lauro, C. (2005). PLS path modeling. Computational Statistics and Data Analysis, 48(1), 159–205. <a href="https://doi.org/10.1016/j.csda.2004.03.005" class="uri">https://doi.org/10.1016/j.csda.2004.03.005</a></li>
+<li>Zhao, X., Lynch Jr, J. G., &amp; Chen, Q. (2010). Reconsidering Baron and Kenny: Myths and truths about mediation analysis. Journal of consumer research, 37(2), 197-206.</li>
 </ul>
 </div>
 
