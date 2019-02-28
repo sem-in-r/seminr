@@ -282,12 +282,15 @@ c(&quot;IMAG1&quot;, &quot;IMAG2&quot;, &quot;IMAG3&quot;, &quot;IMAG4&quot;, &q
 )</code></pre>
 <p>The object held in <code>mobi_xm</code> is:</p>
 <pre class="r"><code>mobi_xm
-#&gt; function(data, mm, all_intxns=list(...)) {
-#&gt;     create_interaction &lt;- function(intxn_function) { intxn_function(data, mm) }
+#&gt; function (data, mm, all_intxns = list(...)) 
+#&gt; {
+#&gt;     create_interaction &lt;- function(intxn_function) {
+#&gt;         intxn_function(data, mm)
+#&gt;     }
 #&gt;     intxns_list &lt;- lapply(all_intxns, create_interaction)
 #&gt;     return(intxns_list)
-#&gt;   }
-#&gt; &lt;environment: 0x10d14fea8&gt;</code></pre>
+#&gt; }
+#&gt; &lt;environment: 0x10fe3f098&gt;</code></pre>
 <p>Not that these functions themselves return functions that are not resolved until passed as a parameter to the <code>estimate_pls()</code> function for model estimation.</p>
 </div>
 <div id="describe-an-interaction-with-interaction_ortho-or-interaction_scaled" class="section level3">
@@ -494,19 +497,19 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 #&gt; 
 #&gt; Structural Path t-values:
 #&gt;                   Satisfaction
-#&gt; Image                    8.443
-#&gt; Expectation              2.731
-#&gt; Value                    4.698
-#&gt; Image*Expectation        1.100
-#&gt; Image*Value              0.001
+#&gt; Image                    8.448
+#&gt; Expectation              2.773
+#&gt; Value                    4.508
+#&gt; Image*Expectation        1.188
+#&gt; Image*Value              0.042
 #&gt; 
 #&gt; Structural Path p-values:
 #&gt;                   Satisfaction
 #&gt; Image                    0.000
 #&gt; Expectation              0.006
 #&gt; Value                    0.000
-#&gt; Image*Expectation        0.271
-#&gt; Image*Value              1.000</code></pre>
+#&gt; Image*Expectation        0.235
+#&gt; Image*Value              0.967</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li><code>boot_model_summary &lt;- summary(boot_seminr_model)</code> returns an object of class <code>summary.boot_seminr_model</code> which contains the following accessible objects:
 <ul>
@@ -564,8 +567,8 @@ confidence_interval(boot_seminr_model = boot_seminr_model,
                    through = &quot;Expectation&quot;,
                    to = &quot;Satisfaction&quot;,
                    alpha = 0.05)
-#&gt;        2.5%       97.5% 
-#&gt; -0.01322948  0.07949386
+#&gt;         2.5%        97.5% 
+#&gt; -0.003690293  0.082873010
 
 # Calculate the 10% confidence interval for direct path Image -&gt; Satisfaction
 confidence_interval(boot_seminr_model = boot_seminr_model,
@@ -573,7 +576,7 @@ confidence_interval(boot_seminr_model = boot_seminr_model,
                    to = &quot;Satisfaction&quot;,
                    alpha = 0.10)
 #&gt;        5%       95% 
-#&gt; 0.1137692 0.2619912</code></pre>
+#&gt; 0.1036203 0.2501014</code></pre>
 </div>
 </div>
 <div id="references" class="section level2">
