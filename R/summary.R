@@ -38,7 +38,7 @@ print.summary.seminr_model <- function(x, na.print=".", digits=3, ...) {
 #' @export
 summary.boot_seminr_model <- function(object, ...) {
   stopifnot(inherits(object, "boot_seminr_model"))
-  boot_matrix <- object$bootstrapMatrix
+  boot_matrix <- object$paths_descriptives
   n <- nrow(object$data)
 
   # REFACTOR: Extract endogenous column names, means, and SEs from boot_matrix

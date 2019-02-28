@@ -16,11 +16,11 @@ value is 500. If 0 then no bootstrapping is performed.}
 
 \item{seed}{A parameter to specify the seed for reproducibility of results. Default is NULL.}
 
-\item{...}{A list of parameters passed on to the estimation method (e.g., \code{simplePLS}).}
+\item{...}{A list of parameters passed on to the estimation method.}
 }
 \description{
 The \code{seminr} package provides a natural syntax for researchers to describe PLS
-structural equation models. \code{seminr} is compatible with simplePLS.
+structural equation models.
 \code{bootstrap_model} provides the verb for bootstrapping a pls model from the model
 parameters and data.
 }
@@ -53,7 +53,7 @@ seminr_model <- estimate_pls(data = mobi,
                              interactions = mobi_xm,
                              structural_model = mobi_sm)
 
-# Load data, assemble model, and bootstrap using simplePLS
+# Load data, assemble model, and bootstrap
 boot_seminr_model <- bootstrap_model(seminr_model = seminr_model,
                                      nboot = 50, cores = 2, seed = NULL)
 

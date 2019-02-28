@@ -131,7 +131,7 @@ boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...)
 
   # Evaluate weights boot matrix
   # REFACTOR: Extract endogenous column names, means, and SEs from boot_matrix
-  weights_boot_matrix <- object$boot_weights
+  weights_boot_matrix <- object$weights_descriptives
   num_composites <- ncol(weights_boot_matrix) / 3
   column_names <- colnames(weights_boot_matrix)[1:num_composites]
   weights_boot_mean <- as.matrix(weights_boot_matrix[, c((1*num_composites+1):(2*num_composites))])
@@ -145,7 +145,7 @@ boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...)
 
   # Evaluate HTMT boot matrix
   # REFACTOR: Extract endogenous column names, means, and SEs from boot_matrix
-  HTMT_boot_matrix <- object$boot_HTMT
+  HTMT_boot_matrix <- object$HTMT_descriptives
   num_factors <- ncol(HTMT_boot_matrix) / 3
   factor_names <- colnames(HTMT_boot_matrix)[1:num_factors]
   HTMT_boot_mean <- as.matrix(HTMT_boot_matrix[, c((1*num_factors+1):(2*num_factors))])

@@ -1,5 +1,4 @@
-# Simple Style: Seperate declaration of measurement and structural model, no interactions. Estimated
-# using simplePLS.
+# Simple Style: Seperate declaration of measurement and structural model, no interactions.
 library(seminr)
 
 # Creating measurement mode

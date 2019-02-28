@@ -22,7 +22,7 @@ for each of the model's structural paths.}
 }
 \description{
 \code{paths} creates the structural paths of a PLS SEM model and \code{relationships} generates
-the matrix of paths for use by PLS modelling packages such as semPLS and simplePLS.
+the matrix of paths.
 }
 \examples{
 mobi_sm <- relationships(
