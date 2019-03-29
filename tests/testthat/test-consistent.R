@@ -29,7 +29,7 @@ rho <- rho_A(seminr_model)
 # write.csv(rho, file = "tests/fixtures/rho1.csv")
 
 # Load controls
-rho_control <- as.matrix(read.csv("../fixtures/rho1.csv", row.names = 1))
+rho_control <- as.matrix(read.csv("../fixtures/V_3_5_X/rho1.csv", row.names = 1))
 
 # Testing
 
@@ -75,7 +75,7 @@ rho <- rho_A(seminr_model)
 ## write.csv(rho, file = "tests/fixtures/rho2.csv")
 
 # Load controls
-rho_control <- as.matrix(read.csv("../fixtures/rho2.csv", row.names = 1))
+rho_control <- as.matrix(read.csv("../fixtures/V_3_5_X/rho2.csv", row.names = 1))
 
 # Testing
 
@@ -119,9 +119,9 @@ rSquared <- seminr_model$rSquared
 
 
 # Load controls
-path_coef_control <- as.matrix(read.csv("../fixtures/path_coef1.csv", row.names = 1))
-loadings_control <- as.matrix(read.csv("../fixtures/loadings1.csv", row.names = 1))
-rSquared_control <- as.matrix(read.csv("../fixtures/rsquaredplsc.csv", row.names = 1))
+path_coef_control <- as.matrix(read.csv("../fixtures/V_3_5_X/path_coef1.csv", row.names = 1))
+loadings_control <- as.matrix(read.csv("../fixtures/V_3_5_X/loadings1.csv", row.names = 1))
+rSquared_control <- as.matrix(read.csv("../fixtures/V_3_5_X/rsquaredplsc.csv", row.names = 1))
 
 # Testing
 

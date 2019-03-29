@@ -45,9 +45,9 @@ flat_vif_antecedents2 <- flatten_vifs(summary2$vif_antecedents)
 # write.csv(flat_vif_antecedents2, "tests/fixtures/vifs/flat_vif_antecedents2.csv", row.names = FALSE)
 
 ## Load Fixtures ----
-correct_item_vifs1 <- read.csv("../fixtures/vifs/flat_item_vifs1.csv")
-correct_vif_antecedents1 <- read.csv("../fixtures/vifs/flat_vif_antecedents1.csv")
-correct_vif_antecedents2 <- read.csv("../fixtures/vifs/flat_vif_antecedents2.csv")
+correct_item_vifs1 <- read.csv("../fixtures/V_3_5_X/vifs/flat_item_vifs1.csv")
+correct_vif_antecedents1 <- read.csv("../fixtures/V_3_5_X/vifs/flat_vif_antecedents1.csv")
+correct_vif_antecedents2 <- read.csv("../fixtures/V_3_5_X/vifs/flat_vif_antecedents2.csv")
 
 
 ## Tests ----

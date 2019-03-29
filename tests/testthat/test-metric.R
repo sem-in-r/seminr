@@ -31,7 +31,7 @@ rsquared <- seminr_model$rSquared
 
 
 # Load controls
-rsquared_control <- as.matrix(read.csv("../fixtures/rsquared1.csv", row.names = 1))
+rsquared_control <- as.matrix(read.csv("../fixtures/V_3_5_X/rsquared1.csv", row.names = 1))
 
 
 # Testing

@@ -30,7 +30,7 @@ bootmatrix <- bootmodel$paths_descriptives
 # write.csv(bootmodel$bootstrapMatrix, file = "tests/fixtures/boostrapmatrix1.csv")
 
 # Load controls
-bootmatrix_control <- as.matrix(read.csv("../fixtures/boostrapmatrix1.csv", row.names = 1))
+bootmatrix_control <- as.matrix(read.csv("../fixtures/V_3_5_X/boostrapmatrix1.csv", row.names = 1))
 
 # Testing
 
@@ -79,7 +79,7 @@ bootmatrix <- bootmodel$paths_descriptives
 # write.csv(bootmodel$bootstrapMatrix, file = "tests/fixtures/boostrapmatrix2.csv")
 
 # Load controls
-bootmatrix_control <- as.matrix(read.csv("../fixtures/boostrapmatrix2.csv", row.names = 1))
+bootmatrix_control <- as.matrix(read.csv("../fixtures/V_3_5_X/boostrapmatrix2.csv", row.names = 1))
 
 # Testing
 
@@ -121,7 +121,7 @@ bootmatrix <- bootmodel$weights_descriptives
 # write.csv(bootmodel$boot_weights, file = "tests/fixtures/boot_weights.csv")
 
 # Load controls
-bootmatrix_control <- as.matrix(read.csv("../fixtures/boot_weights.csv", row.names = 1))
+bootmatrix_control <- as.matrix(read.csv("../fixtures/V_3_5_X/boot_weights.csv", row.names = 1))
 
 # Testing
 
@@ -163,7 +163,7 @@ bootmatrix <- bootmodel$loadings_descriptives
 # write.csv(bootmodel$boot_loadings, file = "tests/fixtures/boot_loadings.csv")
 
 # Load controls
-bootmatrix_control <- as.matrix(read.csv("../fixtures/boot_loadings.csv", row.names = 1))
+bootmatrix_control <- as.matrix(read.csv("../fixtures/V_3_5_X/boot_loadings.csv", row.names = 1))
 
 # Testing
 
@@ -184,7 +184,7 @@ bootmatrix <- bootmodel$HTMT_descriptives
 # write.csv(bootmodel$boot_HTMT, file = "tests/fixtures/boot_HTMT.csv")
 
 # Load controls
-bootmatrix_control <- as.matrix(read.csv("../fixtures/boot_HTMT.csv", row.names = 1))
+bootmatrix_control <- as.matrix(read.csv("../fixtures/V_3_5_X/boot_HTMT.csv", row.names = 1))
 
 # Testing
 
@@ -230,7 +230,7 @@ paths <- bootmodel$boot_paths
 #           file = "tests/fixtures/conf_ints.csv")
 
 # Load controls
-conf_ints_control <- as.matrix(read.csv("../fixtures/conf_ints.csv", row.names = 1))
+conf_ints_control <- as.matrix(read.csv("../fixtures/V_3_5_X/conf_ints.csv", row.names = 1))
 
 # Testing
 test_that("Seminr calculates the confidence intervals correctly", {

@@ -31,9 +31,9 @@ reliability <- summary_object$reliability
 # write.csv(summary_object$reliability, file = "tests/fixtures/reliability.csv")
 
 # Remove HTMT
-#htmt_control <- as.matrix(read.csv("../fixtures/htmt.csv", row.names = 1))
-cross_loadings_control <- as.matrix(read.csv("../fixtures/cross_loadings.csv", row.names = 1))
-reliability_control <- as.matrix(read.csv("../fixtures/reliability.csv", row.names=1))
+#htmt_control <- as.matrix(read.csv("../fixtures/V_3_5_X/htmt.csv", row.names = 1))
+cross_loadings_control <- as.matrix(read.csv("../fixtures/V_3_5_X/cross_loadings.csv", row.names = 1))
+reliability_control <- as.matrix(read.csv("../fixtures/V_3_5_X/reliability.csv", row.names=1))
 
 # Testing
 
@@ -80,8 +80,8 @@ p_values <- summary_object$p_values
 # write.csv(summary_object$p_values, file = "tests/fixtures/pvalues.csv")
 
 
-t_values_control <- as.matrix(read.csv("../fixtures/tvalues.csv", row.names = 1))
-p_values_control <- as.matrix(read.csv("../fixtures/pvalues.csv", row.names = 1))
+t_values_control <- as.matrix(read.csv("../fixtures/V_3_5_X/tvalues.csv", row.names = 1))
+p_values_control <- as.matrix(read.csv("../fixtures/V_3_5_X/pvalues.csv", row.names = 1))
 
 
 # Testing
@@ -126,9 +126,9 @@ factor_discriminant_validity <- summary_object$factor_discriminant_validity
 #write.csv(summary_object$factor_indicator_reliability, file = "tests/fixtures/factor_indicator_reliability.csv")
 #write.csv(summary_object$factor_discriminant_validity, file = "tests/fixtures/factor_discriminant_validity.csv")
 
-factor_reliability_control <- as.matrix(read.csv("../fixtures/factor_reliability.csv", row.names = 1))
-factor_indicator_reliability_control <- as.matrix(read.csv("../fixtures/factor_indicator_reliability.csv", row.names = 1))
-factor_discriminant_validity_control <- as.matrix(read.csv("../fixtures/factor_discriminant_validity.csv", row.names = 1))
+factor_reliability_control <- as.matrix(read.csv("../fixtures/V_3_5_X/factor_reliability.csv", row.names = 1))
+factor_indicator_reliability_control <- as.matrix(read.csv("../fixtures/V_3_5_X/factor_indicator_reliability.csv", row.names = 1))
+factor_discriminant_validity_control <- as.matrix(read.csv("../fixtures/V_3_5_X/factor_discriminant_validity.csv", row.names = 1))
 
 # Testing
 
@@ -154,8 +154,8 @@ composite_collinearity <- unlist(summary_object$composite_collinearity)
 #write.csv(summary_object$composite_indicator_reliability, file = "tests/fixtures/composite_indicator_reliability.csv")
 #write.csv(unlist(summary_object$composite_collinearity), file = "tests/fixtures/composite_collinearity.csv")
 
-composite_indicator_reliability_control <- as.matrix(read.csv("../fixtures/composite_indicator_reliability.csv", row.names = 1))
-composite_collinearity_control <- read.csv("../fixtures/composite_collinearity.csv", row.names = 1)
+composite_indicator_reliability_control <- as.matrix(read.csv("../fixtures/V_3_5_X/composite_indicator_reliability.csv", row.names = 1))
+composite_collinearity_control <- read.csv("../fixtures/V_3_5_X/composite_collinearity.csv", row.names = 1)
 
 # Testing
 
@@ -177,8 +177,8 @@ factor_discriminant_validity_p_values <- boot_summary_object$factor_discriminant
 #write.csv(boot_summary_object$factor_discriminant_validity_t_values, file = "tests/fixtures/factor_discriminant_validity_t_values.csv")
 #write.csv(boot_summary_object$factor_discriminant_validity_p_values, file = "tests/fixtures/factor_discriminant_validity_p_values.csv")
 
-factor_discriminant_validity_t_values_control <- as.matrix(read.csv("../fixtures/factor_discriminant_validity_t_values.csv", row.names = 1))
-factor_discriminant_validity_p_values_control <- as.matrix(read.csv("../fixtures/factor_discriminant_validity_p_values.csv", row.names = 1))
+factor_discriminant_validity_t_values_control <- as.matrix(read.csv("../fixtures/V_3_5_X/factor_discriminant_validity_t_values.csv", row.names = 1))
+factor_discriminant_validity_p_values_control <- as.matrix(read.csv("../fixtures/V_3_5_X/factor_discriminant_validity_p_values.csv", row.names = 1))
 
 # Testing
 
@@ -200,8 +200,8 @@ composite_indicator_weights_p_values <- boot_summary_object$composite_indicator_
 #write.csv(boot_summary_object$composite_indicator_weights_t_values, file = "tests/fixtures/composite_indicator_weights_t_values.csv")
 #write.csv(boot_summary_object$composite_indicator_weights_p_values, file = "tests/fixtures/composite_indicator_weights_p_values.csv")
 
-composite_indicator_weights_t_values_control <- as.matrix(read.csv("../fixtures/composite_indicator_weights_t_values.csv", row.names = 1))
-composite_indicator_weights_p_values_control <- as.matrix(read.csv("../fixtures/composite_indicator_weights_p_values.csv", row.names = 1))
+composite_indicator_weights_t_values_control <- as.matrix(read.csv("../fixtures/V_3_5_X/composite_indicator_weights_t_values.csv", row.names = 1))
+composite_indicator_weights_p_values_control <- as.matrix(read.csv("../fixtures/V_3_5_X/composite_indicator_weights_p_values.csv", row.names = 1))
 
 # Testing
 
