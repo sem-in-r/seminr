@@ -2,12 +2,11 @@
 This is a resubmission. In this version I have:
 
 ## Attended to a user-reported error:
-Single-item interactions were generating a bug in the code. 
-Issue #84 on https://github.com/sem-in-r/seminr/issues/84
+Added a function called confidence_interval() which reports confidence intervals for bootstrapped models. Updated vignette and documentation. 
 
 ## Test environments
-* macOS Sierra 10.12.6 (on travis-ci), R 3.5.0
-* Ubuntu 14.04.5 (on travis-ci), R 3.5.0
+* macOS Sierra 10.13.3 (on travis-ci), R 3.5.2
+* Ubuntu 14.04.5 (on travis-ci), R 3.5.2
 * win-builder (devel and release)
 
 ## R CMD check results

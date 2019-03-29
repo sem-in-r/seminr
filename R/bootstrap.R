@@ -1,7 +1,7 @@
 #' seminr bootstrap_model Function
 #'
 #' The \code{seminr} package provides a natural syntax for researchers to describe PLS
-#' structural equation models. \code{seminr} is compatible with simplePLS.
+#' structural equation models.
 #' \code{bootstrap_model} provides the verb for bootstrapping a pls model from the model
 #' parameters and data.
 #'
@@ -14,7 +14,7 @@
 #'
 #' @param seed A parameter to specify the seed for reproducibility of results. Default is NULL.
 #'
-#' @param ... A list of parameters passed on to the estimation method (e.g., \code{simplePLS}).
+#' @param ... A list of parameters passed on to the estimation method.
 #'
 #' @usage
 #' bootstrap_model(seminr_model, nboot = 500, cores = NULL, seed = NULL, ...)
@@ -53,7 +53,7 @@
 #'                              interactions = mobi_xm,
 #'                              structural_model = mobi_sm)
 #'
-#' # Load data, assemble model, and bootstrap using simplePLS
+#' # Load data, assemble model, and bootstrap
 #' boot_seminr_model <- bootstrap_model(seminr_model = seminr_model,
 #'                                      nboot = 50, cores = 2, seed = NULL)
 #'
@@ -111,74 +111,86 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         bootstrapMatrix <- cbind(bootstrapMatrix,matrix(apply(bootmatrix,1,stats::sd),nrow = rows, ncol = cols))
 
         # Create paths matrix
-        boot_paths <- bootstrapMatrix[1:(cols-1),c(1:(3*cols))]
+        paths_descriptives <- bootstrapMatrix[1:(cols-1),c(1:(3*cols))]
 
         # Clean the empty paths
-        boot_paths <- boot_paths[, colSums(boot_paths != 0, na.rm = TRUE) > 0]
-        boot_paths <- boot_paths[rowSums(boot_paths != 0, na.rm = TRUE) > 0,]
+        paths_descriptives <- paths_descriptives[, colSums(paths_descriptives != 0, na.rm = TRUE) > 0]
+        paths_descriptives <- paths_descriptives[rowSums(paths_descriptives != 0, na.rm = TRUE) > 0,]
 
         # Get the number of DVs
         if (length(unique(structural_model[,"target"])) == 1) {
           dependant <- unique(structural_model[,"target"])
         } else {
-          dependant <- colnames(boot_paths[,1:length(unique(structural_model[,"target"]))])
+          dependant <- colnames(paths_descriptives[,1:length(unique(structural_model[,"target"]))])
         }
 
         # Construct the vector of column names
         colnames<-c()
         # Clean the column names
-        for (parameter in c("PLS Est.", "Boot Mean", "Boot SE")) {
+        for (parameter in c("PLS Est.", "Boot Mean", "Boot SD")) {
           for(i in 1:length(dependant)) {
             colnames <- c(colnames, paste(dependant[i],parameter,sep = " "))
           }
         }
 
         # Assign column names
-        colnames(boot_paths) <- colnames
+        colnames(paths_descriptives) <- colnames
 
         # collect loadings matrix
-        boot_loadings <- bootstrapMatrix[(cols+1):((cols)+nrow(seminr_model$outer_loadings)),c(1:(3*cols))]
+        loadings_descriptives <- bootstrapMatrix[(cols+1):((cols)+nrow(seminr_model$outer_loadings)),c(1:(3*cols))]
 
 
         # Construct the vector of column names 2
         colnames2<-c()
         # Clean the column names
-        for (parameter in c("PLS Est.", "Boot Mean", "Boot SE")) {
+        for (parameter in c("PLS Est.", "Boot Mean", "Boot SD")) {
           for(i in seminr_model$constructs) {
             colnames2 <- c(colnames2, paste(i,parameter,sep = " "))
           }
         }
 
         # Assign column names to loadings
-        colnames(boot_loadings) <- colnames2
+        colnames(loadings_descriptives) <- colnames2
 
         # collect weights matrix
-        boot_weights <- bootstrapMatrix[((cols+1)+nrow(seminr_model$outer_loadings)):((cols)+(2*nrow(seminr_model$outer_loadings))),c(1:(3*cols))]
+        weights_descriptives <- bootstrapMatrix[((cols+1)+nrow(seminr_model$outer_loadings)):((cols)+(2*nrow(seminr_model$outer_loadings))),c(1:(3*cols))]
 
         # Assign column names to weights
-        colnames(boot_weights) <- colnames2
+        colnames(weights_descriptives) <- colnames2
 
         # Collect HTMT matrix
-        boot_HTMT <- bootstrapMatrix[((cols+1)+(2*nrow(seminr_model$outer_loadings))):((cols+cols)+(2*nrow(seminr_model$outer_loadings))),c(1:(3*cols))]
+        HTMT_descriptives <- bootstrapMatrix[((cols+1)+(2*nrow(seminr_model$outer_loadings))):((cols+cols)+(2*nrow(seminr_model$outer_loadings))),c(1:(3*cols))]
 
         # Clean the empty paths
         #boot_HTMT <- boot_HTMT[, colSums(boot_HTMT != 0, na.rm = TRUE) > 0]
         #boot_HTMT <- boot_HTMT[rowSums(boot_HTMT != 0, na.rm = TRUE) > 0,]
 
         # Get boot_HTMT column names
-        colnames(boot_HTMT) <- colnames2
+        colnames(HTMT_descriptives) <- colnames2
 
+        # Create an array of results in bootmatrix
+        bootarray <- array(bootmatrix, dim = c(nrow(bootstrapMatrix),length(seminr_model$constructs),nboot), dimnames = list(c(rownames(bootstrapMatrix)),c(seminr_model$constructs),c(1:nboot)))
 
+        # Create arrays of bootstrapped path, loadings, weights, HTMT coefficients results
+        boot_paths <- bootarray[1:length(seminr_model$constructs),,1:nboot]
+        boot_loadings <- bootarray[(length(seminr_model$constructs)+1):((length(seminr_model$constructs))+length(seminr_model$mmVariables)),,1:nboot]
+        boot_weights <- bootarray[(length(seminr_model$constructs)+length(seminr_model$mmVariables)+1):((length(seminr_model$constructs))+2*length(seminr_model$mmVariables)),,1:nboot]
+        boot_HTMT <- bootarray[((length(seminr_model$constructs))+2*length(seminr_model$mmVariables)+1):((2*length(seminr_model$constructs))+2*length(seminr_model$mmVariables)),,1:nboot]
 
-        parallel::stopCluster(cl)
+         parallel::stopCluster(cl)
       }
 
-      # Add the bootstrap matrix to the simplePLS object
-      seminr_model$bootstrapMatrix <- boot_paths
+      # Add the bootstrap matrix to the seminr_model object
+      seminr_model$boot_paths <- boot_paths
       seminr_model$boot_loadings <- boot_loadings
       seminr_model$boot_weights <- boot_weights
       seminr_model$boot_HTMT <- boot_HTMT
+      seminr_model$paths_descriptives <- paths_descriptives
+      seminr_model$loadings_descriptives <- loadings_descriptives
+      seminr_model$weights_descriptives <- weights_descriptives
+      seminr_model$HTMT_descriptives <- HTMT_descriptives
       seminr_model$boots <- nboot
+      seminr_model$seed <- seed
       class(seminr_model) <- "boot_seminr_model"
       cat("SEMinR Model successfully bootstrapped")
       return(seminr_model)
@@ -199,4 +211,76 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       #
     }
   )
+}
+
+#' seminr confidence intervals function
+#'
+#' The \code{seminr} package provides a natural syntax for researchers to describe PLS
+#' structural equation models.
+#' \code{confidence_interval} provides the verb for calculating the confidence intervals of a
+#' direct or mediated path in a bootstrapped SEMinR model.
+#'
+#' @param boot_seminr_model A bootstrapped model returned by the \code{bootstrap_model} function.
+#'
+#' @param from A parameter specifying the antecedent composite for the path.
+#'
+#' @param to A parameter specifying the outcome composite for the path.
+#'
+#' @param through A parameter to specify the mediator for the path. Default is NULL.
+#'
+#' @param alpha A parameter for specifying the alpha for the confidence interval. Default is 0.05.
+#'
+#' @usage
+#' confidence_interval(boot_seminr_model, from, to, through, alpha)
+#'
+#' @seealso \code{\link{bootstrap_model}}
+#'
+#' @references Zhao, X., Lynch Jr, J. G., & Chen, Q. (2010). Reconsidering Baron and Kenny: Myths and truths
+#' about mediation analysis. Journal of consumer research, 37(2), 197-206.
+#'
+#' @examples
+#' mobi_mm <- constructs(
+#' composite("Image",        multi_items("IMAG", 1:5)),
+#' composite("Expectation",  multi_items("CUEX", 1:3)),
+#' composite("Quality",      multi_items("PERQ", 1:7)),
+#' composite("Value",        multi_items("PERV", 1:2)),
+#' composite("Satisfaction", multi_items("CUSA", 1:3)),
+#' composite("Complaints",   single_item("CUSCO")),
+#' composite("Loyalty",      multi_items("CUSL", 1:3))
+#' )
+#'
+#' # Creating structural model
+#' mobi_sm <- relationships(
+#'   paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+#'   paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
+#'   paths(from = "Quality",      to = c("Value", "Satisfaction")),
+#'   paths(from = "Value",        to = c("Satisfaction")),
+#'   paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
+#'   paths(from = "Complaints",   to = "Loyalty")
+#' )
+#'
+#' # Estimating the model
+#' mobi_pls <- estimate_pls(data = mobi,
+#'                          measurement_model = mobi_mm,
+#'                          structural_model = mobi_sm)
+#'
+#' # Load data, assemble model, and bootstrap
+#' boot_seminr_model <- bootstrap_model(seminr_model = mobi_pls,
+#'                                      nboot = 50, cores = 2, seed = NULL)
+#'
+#' confidence_interval(boot_seminr_model = boot_seminr_model,
+#'                     from = "Image",
+#'                     through = "Expectation",
+#'                     to = "Satisfaction",
+#'                     alpha = 0.05)
+#' @export
+confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alpha = 0.05) {
+  path_array <- boot_seminr_model$boot_paths
+  if (is.null(through)) {
+    coefficient <- path_array[from, to,]
+  } else {
+    coefficient <- path_array[from, through,] * path_array[through, to,]
+  }
+  quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
+  return(quantiles)
 }

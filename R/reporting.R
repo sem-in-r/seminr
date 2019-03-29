@@ -9,7 +9,7 @@
 #'   and R2 values for endogenous constructs or a scatterplot matrix of construct
 #'   scores.
 #'
-#' @param seminr_model The PLS model estimated by simplePLS \code{seminr}. The estimated model
+#' @param seminr_model The PLS model estimated by \code{seminr}. The estimated model
 #'   returned by the \code{estimate_pls} or \code{bootstrap_model} methods.
 #'
 #' @param digits A \code{numeric} minimum number of significant digits. If not

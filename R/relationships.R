@@ -1,7 +1,7 @@
 #' Structural specification functions for seminr package
 #'
 #' \code{paths} creates the structural paths of a PLS SEM model and \code{relationships} generates
-#' the matrix of paths for use by PLS modelling packages such as semPLS and simplePLS.
+#' the matrix of paths.
 #'
 #' @param ... A comma separated list of all the structural relationships in the the model. These
 #'  paths take the form (from = c(construct_name), to = c(construct_name)).

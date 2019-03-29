@@ -11,7 +11,7 @@ report_paths(seminr_model, digits=3)
 plot_scores(seminr_model, constructs=NULL)
 }
 \arguments{
-\item{seminr_model}{The PLS model estimated by simplePLS \code{seminr}. The estimated model
+\item{seminr_model}{The PLS model estimated by \code{seminr}. The estimated model
 returned by the \code{estimate_pls} or \code{bootstrap_model} methods.}
 
 \item{digits}{A \code{numeric} minimum number of significant digits. If not
