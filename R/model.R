@@ -86,7 +86,7 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
   # Run the model in simplePLS
   seminr_model = seminr::simplePLS(obsData = data, smMatrix = structural_model, mmMatrix = measurement_model, inner_weights = inner_weights, measurement_mode_scheme = measurement_mode_scheme)
   seminr_model$data <- data
-  seminr_model$mobi_xm <- interactions
+  seminr_model$interactions <- interactions
   seminr_model$rawdata <- rawdata
   seminr_model$raw_measurement_model <- raw_measurement_model
 
