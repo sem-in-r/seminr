@@ -54,11 +54,11 @@ rho_A <- function(seminr_model) {
 
   for (i in rownames(rho))  {
     #If the measurement model is Formative assign rhoA = 1
-    if(mmMatrix[mmMatrix[,"construct"]==i,"type"][1]=="B"){
+    if(mmMatrix[mmMatrix[,"construct"]==i,"type"][1]=="B" | mmMatrix[mmMatrix[,"construct"]==i,"type"][1]=="A"){
       rho[i,1] <- 1
     }
     #If the measurement model is Reflective Calculate RhoA
-    if(mmMatrix[mmMatrix[,"construct"]==i,"type"][1]=="C" | mmMatrix[mmMatrix[,"construct"]==i,"type"][1]=="A"){
+    if(mmMatrix[mmMatrix[,"construct"]==i,"type"][1]=="C"){
       #if the construct is a single item rhoA = 1
       if(nrow(mmMatrix_per_construct(i,mmMatrix)) == 1) {
         rho[i,1] <- 1

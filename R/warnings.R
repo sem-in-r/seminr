@@ -1,15 +1,3 @@
-# Warning to check for formative only constructs
-# DEPRECATED
-# TODO: Decide if we need to warn about this or just disregard and model
-warning_only_causal_construct <- function(mmMatrix) {
-  constructs <- unique(mmMatrix[,1])
-  for(construct in constructs) {
-    if(length(items_per_mode(construct,"B",mmMatrix)) == nrow(mmMatrix_per_construct(construct,mmMatrix))) {
-      warning(c(construct," is purely defined as a causal mode B construct.\n"))
-    }
-  }
-}
-
 warning_single_item_formative <- function(mmMatrix) {
   constructs <- unique(mmMatrix[,1])
   for(construct in constructs) {
@@ -57,7 +45,6 @@ warning_periods_in_col_names <- function(data) {
 }
 
 warnings <- function(mmMatrix,data, smMatrix) {
-#  warning_only_causal_construct(mmMatrix)
   warning_single_item_formative(mmMatrix)
   warning_missing_data(data, mmMatrix)
   warning_periods_in_col_names(data)
