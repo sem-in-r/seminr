@@ -45,20 +45,20 @@ flat_vif_antecedents2 <- flatten_vifs(summary2$vif_antecedents)
 # write.csv(flat_vif_antecedents2, "tests/fixtures/vifs/flat_vif_antecedents2.csv", row.names = FALSE)
 
 ## Load Fixtures ----
-correct_item_vifs1 <- read.csv("../fixtures/V_3_5_X/vifs/flat_item_vifs1.csv")
-correct_vif_antecedents1 <- read.csv("../fixtures/V_3_5_X/vifs/flat_vif_antecedents1.csv")
-correct_vif_antecedents2 <- read.csv("../fixtures/V_3_5_X/vifs/flat_vif_antecedents2.csv")
-
+correct_item_vifs1 <- read.csv(file = paste(test_folder,"vifs/flat_item_vifs1.csv", sep = ""), check.names = FALSE)
+correct_vif_antecedents1 <- read.csv(file = paste(test_folder,"vifs/flat_vif_antecedents1.csv", sep = ""), check.names = FALSE)
+correct_vif_antecedents2 <- read.csv(file = paste(test_folder,"vifs/flat_vif_antecedents2.csv", sep = ""), check.names = FALSE)
 
 ## Tests ----
 test_that("Seminr computes the item VIFs correctly", {
-  expect_equal(flat_vif_items1, correct_item_vifs1, tolerance = 0.00001)
+  expect_equal(unname(flat_vif_items1), unname(correct_item_vifs1), tolerance = 0.00001)
 })
 
 test_that("Seminr computes the antecedent VIFs correctly for single endogenous variable", {
-  expect_equal(flat_vif_antecedents1, correct_vif_antecedents1, tolerance = 0.00001)
+  expect_equal(unname(flat_vif_antecedents1), unname(correct_vif_antecedents1), tolerance = 0.00001)
 })
 
 test_that("Seminr computes the antecedent VIFs correctly for multiple endogenous variables", {
-  expect_equal(flat_vif_antecedents2, correct_vif_antecedents2, tolerance = 0.00001)
+  expect_equal(unname(flat_vif_antecedents2), unname(correct_vif_antecedents2), tolerance = 0.00001)
 })
+

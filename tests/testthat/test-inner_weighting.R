@@ -35,9 +35,10 @@ weight <- seminr_model$outer_weights
 #write.csv(seminr_model$outer_weights, file = "tests/fixtures/inner_weights_weights.csv", row.names=TRUE)
 
 # Load controls
-coefficients_control <- as.matrix(read.csv("../fixtures/V_3_5_X/inner_weights_coefficients.csv", row.names = 1))
-construct_scores_control <- as.matrix(read.csv("../fixtures/V_3_5_X/inner_weights_constructscores.csv", row.names = 1))
-weight_control <- as.matrix(read.csv("../fixtures/V_3_5_X/inner_weights_weights.csv", row.names=1))
+coefficients_control <- as.matrix(read.csv(file = paste(test_folder,"inner_weights_coefficients.csv", sep = ""), row.names = 1))
+construct_scores_control <- as.matrix(read.csv(file = paste(test_folder,"inner_weights_constructscores.csv", sep = ""), row.names = 1))
+weight_control <- as.matrix(read.csv(file = paste(test_folder,"inner_weights_weights.csv", sep = ""), row.names = 1))
+
 
 # Testing
 
@@ -90,9 +91,10 @@ weight <- seminr_model$outer_weights
 #write.csv(seminr_model$outer_weights, file = "tests/fixtures/factorial_weights.csv", row.names=TRUE)
 
 # Load controls
-coefficients_control <- as.matrix(read.csv("../fixtures/V_3_5_X/factorial_coefficients.csv", row.names = 1))
-construct_scores_control <- as.matrix(read.csv("../fixtures/V_3_5_X/factorial_scores.csv", row.names = 1))
-weight_control <- as.matrix(read.csv("../fixtures/V_3_5_X/factorial_weights.csv", row.names=1))
+coefficients_control <- as.matrix(read.csv(file = paste(test_folder,"factorial_coefficients.csv", sep = ""), row.names = 1))
+construct_scores_control <- as.matrix(read.csv(file = paste(test_folder,"factorial_scores.csv", sep = ""), row.names = 1))
+weight_control <- as.matrix(read.csv(file = paste(test_folder,"factorial_weights.csv", sep = ""), row.names = 1))
+
 
 # Testing
 

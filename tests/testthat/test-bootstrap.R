@@ -27,10 +27,11 @@ bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 bootmatrix <- bootmodel$paths_descriptives
 
 ## Output originally created using following lines
-# write.csv(bootmodel$bootstrapMatrix, file = "tests/fixtures/boostrapmatrix1.csv")
+# write.csv(bootmodel$paths_descriptives, file = "tests/fixtures/V_3_5_X/boostrapmatrix1.csv")     # V3.5.X
+# write.csv(bootmodel$paths_descriptives, file = "tests/fixtures/V_3_6_0/boostrapmatrix1.csv")     # V3.6.0
 
 # Load controls
-bootmatrix_control <- as.matrix(read.csv("../fixtures/V_3_5_X/boostrapmatrix1.csv", row.names = 1))
+bootmatrix_control <- as.matrix(read.csv(file = paste(test_folder,"boostrapmatrix1.csv", sep = ""), row.names = 1))
 
 # Testing
 
@@ -76,10 +77,11 @@ bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 bootmatrix <- bootmodel$paths_descriptives
 
 ## Output originally created using following lines
-# write.csv(bootmodel$bootstrapMatrix, file = "tests/fixtures/boostrapmatrix2.csv")
+# write.csv(bootmodel$paths_descriptives, file = "tests/fixtures/V_3_5_X/boostrapmatrix2.csv")     # V3.5.X
+# write.csv(bootmodel$paths_descriptives, file = "tests/fixtures/V_3_6_0/boostrapmatrix2.csv")     # V3.6.0
 
 # Load controls
-bootmatrix_control <- as.matrix(read.csv("../fixtures/V_3_5_X/boostrapmatrix2.csv", row.names = 1))
+bootmatrix_control <- as.matrix(read.csv(paste(test_folder,"boostrapmatrix2.csv", sep = ""), row.names = 1))
 
 # Testing
 
@@ -118,11 +120,11 @@ bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 bootmatrix <- bootmodel$weights_descriptives
 
 ## Output originally created using following lines
-# write.csv(bootmodel$boot_weights, file = "tests/fixtures/boot_weights.csv")
+# write.csv(bootmodel$weights_descriptives, file = "tests/fixtures/V_3_5_X/boot_weights.csv")     # V3.5.X
+# write.csv(bootmodel$weights_descriptives, file = "tests/fixtures/V_3_6_0/boot_weights.csv")     # V3.6.0
 
 # Load controls
-bootmatrix_control <- as.matrix(read.csv("../fixtures/V_3_5_X/boot_weights.csv", row.names = 1))
-
+bootmatrix_control <- as.matrix(read.csv(paste(test_folder,"boot_weights.csv", sep = ""), row.names = 1))
 # Testing
 
 test_that("Seminr performs the bootstrapping correctly", {
@@ -160,10 +162,12 @@ bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 bootmatrix <- bootmodel$loadings_descriptives
 
 ## Output originally created using following lines
-# write.csv(bootmodel$boot_loadings, file = "tests/fixtures/boot_loadings.csv")
+# write.csv(bootmodel$loadings_descriptives, file = "tests/fixtures/V_3_5_x/boot_loadings.csv")     # V3.5.X
+# write.csv(bootmodel$loadings_descriptives, file = "tests/fixtures/V_3_6_0/boot_loadings.csv")     # V3.6.0
+
 
 # Load controls
-bootmatrix_control <- as.matrix(read.csv("../fixtures/V_3_5_X/boot_loadings.csv", row.names = 1))
+bootmatrix_control <- as.matrix(read.csv(paste(test_folder,"boot_loadings.csv", sep = ""), row.names = 1))
 
 # Testing
 
@@ -181,10 +185,11 @@ context("SEMinR correctly bootstraps the model HTMT - factor measurement mode\n"
 bootmatrix <- bootmodel$HTMT_descriptives
 
 ## Output originally created using following lines
-# write.csv(bootmodel$boot_HTMT, file = "tests/fixtures/boot_HTMT.csv")
+# write.csv(bootmodel$HTMT_descriptives, file = "tests/fixtures/V_3_5_X/boot_HTMT.csv")         # V3.5.X
+# write.csv(bootmodel$HTMT_descriptives, file = "tests/fixtures/V_3_6_0/boot_HTMT.csv")     # V3.6.0
 
 # Load controls
-bootmatrix_control <- as.matrix(read.csv("../fixtures/V_3_5_X/boot_HTMT.csv", row.names = 1))
+bootmatrix_control <- as.matrix(read.csv(paste(test_folder,"boot_HTMT.csv", sep = ""), row.names = 1))
 
 # Testing
 
@@ -227,10 +232,11 @@ paths <- bootmodel$boot_paths
 # write.csv(c(confidence_interval(bootmodel, from = "Image", through = "Expectation", to = "Satisfaction"),
 #             confidence_interval(bootmodel, from = "Image", through = "Expectation", to = "Satisfaction", alpha = 0.1),
 #             confidence_interval(bootmodel, from = "Image", to = "Satisfaction")),
-#           file = "tests/fixtures/conf_ints.csv")
+#           file = "tests/fixtures/V_3_6_0/conf_ints.csv")
 
 # Load controls
-conf_ints_control <- as.matrix(read.csv("../fixtures/V_3_5_X/conf_ints.csv", row.names = 1))
+conf_ints_control <- as.matrix(read.csv(paste(test_folder,"conf_ints.csv", sep = ""), row.names = 1))
+
 
 # Testing
 test_that("Seminr calculates the confidence intervals correctly", {

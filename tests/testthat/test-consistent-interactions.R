@@ -38,8 +38,8 @@ sum <- summary(mobi_pls)
 # write.csv(sum$reliability, file = "tests/fixtures/plsc-interaction-reliability.csv")
 
 # Load controls
-paths_control <- as.matrix(read.csv("../fixtures/V_3_5_X/plsc-interaction-paths.csv", row.names = 1))
-reliability_control <- as.matrix(read.csv("../fixtures/V_3_5_X/plsc-interaction-reliability.csv", row.names = 1))
+paths_control <- as.matrix(read.csv(file = paste(test_folder,"plsc-interaction-paths.csv", sep = ""), row.names = 1))
+reliability_control <- as.matrix(read.csv(file = paste(test_folder,"plsc-interaction-reliability.csv", sep = ""), row.names = 1))
 
 # Testing
 

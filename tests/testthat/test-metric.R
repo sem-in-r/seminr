@@ -29,10 +29,8 @@ rsquared <- seminr_model$rSquared
 ## Output originally created using following lines
 # write.csv(seminr_model$rSquared, file = "tests/fixtures/rsquared1.csv")
 
-
 # Load controls
-rsquared_control <- as.matrix(read.csv("../fixtures/V_3_5_X/rsquared1.csv", row.names = 1))
-
+rsquared_control <- as.matrix(read.csv(file = paste(test_folder,"rsquared1.csv", sep = ""), row.names = 1))
 
 # Testing
 

@@ -32,8 +32,8 @@ reliability <- summary_object$reliability
 
 # Remove HTMT
 #htmt_control <- as.matrix(read.csv("../fixtures/V_3_5_X/htmt.csv", row.names = 1))
-cross_loadings_control <- as.matrix(read.csv("../fixtures/V_3_5_X/cross_loadings.csv", row.names = 1))
-reliability_control <- as.matrix(read.csv("../fixtures/V_3_5_X/reliability.csv", row.names=1))
+cross_loadings_control <- as.matrix(read.csv(file = paste(test_folder,"cross_loadings.csv", sep = ""), row.names = 1))
+reliability_control <- as.matrix(read.csv(file = paste(test_folder,"reliability.csv", sep = ""), row.names = 1))
 
 # Testing
 
@@ -76,13 +76,14 @@ t_values <- summary_object$t_values
 p_values <- summary_object$p_values
 
 ## Output originally created using following lines
-# write.csv(summary_object$t_values, file = "tests/fixtures/tvalues.csv")
-# write.csv(summary_object$p_values, file = "tests/fixtures/pvalues.csv")
+# write.csv(summary_object$t_values, file = "tests/fixtures/V_3_5_X/tvalues.csv")       # V3.5.X
+# write.csv(summary_object$p_values, file = "tests/fixtures/V_3_5_X/pvalues.csv")       # V3.5.X
+# write.csv(summary_object$t_values, file = "tests/fixtures/V_3_6_0/tvalues.csv")       # V3.6.0
+# write.csv(summary_object$p_values, file = "tests/fixtures/V_3_6_0/pvalues.csv")       # V3.6.0
 
-
-t_values_control <- as.matrix(read.csv("../fixtures/V_3_5_X/tvalues.csv", row.names = 1))
-p_values_control <- as.matrix(read.csv("../fixtures/V_3_5_X/pvalues.csv", row.names = 1))
-
+# Load controls
+t_values_control <- as.matrix(read.csv(file = paste(test_folder,"tvalues.csv", sep = ""), row.names = 1))
+p_values_control <- as.matrix(read.csv(file = paste(test_folder,"pvalues.csv", sep = ""), row.names = 1))
 
 # Testing
 
@@ -126,9 +127,10 @@ factor_discriminant_validity <- summary_object$factor_discriminant_validity
 #write.csv(summary_object$factor_indicator_reliability, file = "tests/fixtures/factor_indicator_reliability.csv")
 #write.csv(summary_object$factor_discriminant_validity, file = "tests/fixtures/factor_discriminant_validity.csv")
 
-factor_reliability_control <- as.matrix(read.csv("../fixtures/V_3_5_X/factor_reliability.csv", row.names = 1))
-factor_indicator_reliability_control <- as.matrix(read.csv("../fixtures/V_3_5_X/factor_indicator_reliability.csv", row.names = 1))
-factor_discriminant_validity_control <- as.matrix(read.csv("../fixtures/V_3_5_X/factor_discriminant_validity.csv", row.names = 1))
+# Load fixtures
+factor_reliability_control <- as.matrix(read.csv(file = paste(test_folder,"factor_reliability.csv", sep = ""), row.names = 1))
+factor_indicator_reliability_control <- as.matrix(read.csv(file = paste(test_folder,"factor_indicator_reliability.csv", sep = ""), row.names = 1))
+factor_discriminant_validity_control <- as.matrix(read.csv(file = paste(test_folder,"factor_discriminant_validity.csv", sep = ""), row.names = 1))
 
 # Testing
 
@@ -154,8 +156,9 @@ composite_collinearity <- unlist(summary_object$composite_collinearity)
 #write.csv(summary_object$composite_indicator_reliability, file = "tests/fixtures/composite_indicator_reliability.csv")
 #write.csv(unlist(summary_object$composite_collinearity), file = "tests/fixtures/composite_collinearity.csv")
 
-composite_indicator_reliability_control <- as.matrix(read.csv("../fixtures/V_3_5_X/composite_indicator_reliability.csv", row.names = 1))
-composite_collinearity_control <- read.csv("../fixtures/V_3_5_X/composite_collinearity.csv", row.names = 1)
+# Load fixtures
+composite_indicator_reliability_control <- as.matrix(read.csv(file = paste(test_folder,"composite_indicator_reliability.csv", sep = ""), row.names = 1))
+composite_collinearity_control <- as.matrix(read.csv(file = paste(test_folder,"composite_collinearity.csv", sep = ""), row.names = 1))
 
 # Testing
 
@@ -164,7 +167,7 @@ test_that("Seminr evaluates the composite indicator reliability correctly", {
 })
 
 test_that("Seminr evaluates the composite collinearity correctly", {
-  expect_equal(unname(composite_collinearity[1:5]),composite_collinearity_control[1:5,1], tolerance = 0.00001)
+  expect_equal(composite_collinearity[1:5],composite_collinearity_control[1:5,1], tolerance = 0.00001)
 })
 
 context("SEMinR:::boot_evaluate_measurement_model() correctly evaluates FACTORS for class boot_seminr_model\n")
@@ -174,11 +177,14 @@ factor_discriminant_validity_t_values <- boot_summary_object$factor_discriminant
 factor_discriminant_validity_p_values <- boot_summary_object$factor_discriminant_validity_p_values
 
 ## Output originally created using following lines
-#write.csv(boot_summary_object$factor_discriminant_validity_t_values, file = "tests/fixtures/factor_discriminant_validity_t_values.csv")
-#write.csv(boot_summary_object$factor_discriminant_validity_p_values, file = "tests/fixtures/factor_discriminant_validity_p_values.csv")
+#write.csv(boot_summary_object$factor_discriminant_validity_t_values, file = "tests/fixtures/V_3_5_X/factor_discriminant_validity_t_values.csv")      #V3.5.X
+#write.csv(boot_summary_object$factor_discriminant_validity_p_values, file = "tests/fixtures/V_3_5_X/factor_discriminant_validity_p_values.csv")      #V3.5.X
+# write.csv(boot_summary_object$factor_discriminant_validity_t_values, file = "tests/fixtures/V_3_6_0/factor_discriminant_validity_t_values.csv")      #V3.6.0
+# write.csv(boot_summary_object$factor_discriminant_validity_p_values, file = "tests/fixtures/V_3_6_0/factor_discriminant_validity_p_values.csv")      #V3.6.0
 
-factor_discriminant_validity_t_values_control <- as.matrix(read.csv("../fixtures/V_3_5_X/factor_discriminant_validity_t_values.csv", row.names = 1))
-factor_discriminant_validity_p_values_control <- as.matrix(read.csv("../fixtures/V_3_5_X/factor_discriminant_validity_p_values.csv", row.names = 1))
+# Load controls
+factor_discriminant_validity_t_values_control <- as.matrix(read.csv(file = paste(test_folder,"factor_discriminant_validity_t_values.csv", sep = ""), row.names = 1))
+factor_discriminant_validity_p_values_control <- as.matrix(read.csv(file = paste(test_folder,"factor_discriminant_validity_p_values.csv", sep = ""), row.names = 1))
 
 # Testing
 
@@ -197,11 +203,13 @@ composite_indicator_weights_t_values <- boot_summary_object$composite_indicator_
 composite_indicator_weights_p_values <- boot_summary_object$composite_indicator_weights_p_values
 
 ## Output originally created using following lines
-#write.csv(boot_summary_object$composite_indicator_weights_t_values, file = "tests/fixtures/composite_indicator_weights_t_values.csv")
-#write.csv(boot_summary_object$composite_indicator_weights_p_values, file = "tests/fixtures/composite_indicator_weights_p_values.csv")
+#write.csv(boot_summary_object$composite_indicator_weights_t_values, file = "tests/fixtures/V_3_5_X/composite_indicator_weights_t_values.csv")
+#write.csv(boot_summary_object$composite_indicator_weights_p_values, file = "tests/fixtures/V_3_5_X/composite_indicator_weights_p_values.csv")
+# write.csv(boot_summary_object$composite_indicator_weights_t_values, file = "tests/fixtures/V_3_6_0/composite_indicator_weights_t_values.csv")
+# write.csv(boot_summary_object$composite_indicator_weights_p_values, file = "tests/fixtures/V_3_6_0/composite_indicator_weights_p_values.csv")
 
-composite_indicator_weights_t_values_control <- as.matrix(read.csv("../fixtures/V_3_5_X/composite_indicator_weights_t_values.csv", row.names = 1))
-composite_indicator_weights_p_values_control <- as.matrix(read.csv("../fixtures/V_3_5_X/composite_indicator_weights_p_values.csv", row.names = 1))
+composite_indicator_weights_t_values_control <- as.matrix(read.csv(file = paste(test_folder,"composite_indicator_weights_t_values.csv", sep = ""), row.names = 1))
+composite_indicator_weights_p_values_control <- as.matrix(read.csv(file = paste(test_folder,"composite_indicator_weights_p_values.csv", sep = ""), row.names = 1))
 
 # Testing
 
