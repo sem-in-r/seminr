@@ -27,7 +27,7 @@ warning_struc_meas_model_complete <- function(smMatrix, mmMatrix, data) {
   if(any(construct %in% colnames(data))) {
     stop("The construct variables cannot share names with the manifest variables.")
   }
-  manifest <- sort(setdiff(as.vector(mmMatrix[,1:2]), construct))
+  manifest <- sort(setdiff(as.vector(mmMatrix[,1:2]), constructmm))
 
   if(!all(manifest %in% colnames(data))) {
     stop("The manifest variables must occur as columns in the data.")
