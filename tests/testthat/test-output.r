@@ -41,9 +41,9 @@ weight <- seminr_model$outer_weights
 # write.csv(seminr_model$outer_weights, file = "tests/fixtures/weights.csv", row.names=TRUE)
 
 # Load controls
-coefficients_control <- as.matrix(read.csv("../fixtures/coefficients.csv", row.names = 1, check.names = FALSE))
-construct_scores_control <- as.matrix(read.csv("../fixtures/constructscores.csv", row.names = 1, check.names = FALSE))
-weight_control <- as.matrix(read.csv("../fixtures/weights.csv", row.names=1, check.names = FALSE))
+coefficients_control <- as.matrix(read.csv(file = paste(test_folder,"coefficients.csv", sep = ""), row.names = 1, check.names = FALSE))
+construct_scores_control <- as.matrix(read.csv(file = paste(test_folder,"constructscores.csv", sep = ""), row.names = 1, check.names = FALSE))
+weight_control <- as.matrix(read.csv(file = paste(test_folder,"weights.csv", sep = ""), row.names = 1, check.names = FALSE))
 
 # Testing
 
@@ -102,9 +102,9 @@ weight <- seminr_model$outer_weights
 # write.csv(seminr_model$outer_weights, file = "tests/fixtures/weights2.csv", row.names=TRUE)
 
 # Load controls
-coefficients_control <- as.matrix(read.csv("../fixtures/coefficients2.csv", row.names = 1, check.names = FALSE))
-construct_scores_control <- as.matrix(read.csv("../fixtures/constructscores2.csv", row.names = 1, check.names = FALSE))
-weight_control <- as.matrix(read.csv("../fixtures/weights2.csv", row.names=1, check.names = FALSE))
+coefficients_control <- as.matrix(read.csv(file = paste(test_folder,"coefficients2.csv", sep = ""), row.names = 1, check.names = FALSE))
+construct_scores_control <- as.matrix(read.csv(file = paste(test_folder,"constructscores2.csv", sep = ""), row.names = 1, check.names = FALSE))
+weight_control <- as.matrix(read.csv(file = paste(test_folder,"weights2.csv", sep = ""), row.names = 1, check.names = FALSE))
 
 # Testing
 
