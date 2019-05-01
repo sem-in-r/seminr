@@ -1,8 +1,8 @@
 Package: seminr
 Type: Package
 Title: Domain-Specific Language for Building PLS Structural Equation Models
-Version: 0.6.0
-Date: 2019-02-28
+Version: 0.7.0
+Date: 2019-05-01
 Authors@R: c(person("Soumya", "Ray",
               email = "soumya.ray@gmail.com", role = c("aut", "ths")),
              person("Nicholas", "Danks",
