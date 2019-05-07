@@ -194,7 +194,9 @@ mode_B <- function(mmMatrix, i,normData, construct_scores) {
 regression_weights <- mode_B
 
 return_only_composite_scores <- function(object){
-  object$construct_scores[,(unique(object$mmMatrix[which(object$mmMatrix[,3]=="A"),1],object$mmMatrix[which(object$mmMatrix[,3]=="B"),1] ))]
+  mm_composites <- unique(object$mmMatrix[which(object$mmMatrix[,3]=="A"),1],object$mmMatrix[which(object$mmMatrix[,3]=="B"),1] )
+  used_composites <- intersect(mm_composites, object$constructs)
+  object$construct_scores[, used_composites]
 }
 
 # Function to return the total effects of a model
