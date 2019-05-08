@@ -2,11 +2,12 @@
 This is a resubmission. In this version I have:
 
 ## Attended to a user-reported error:
-Added a function called confidence_interval() which reports confidence intervals for bootstrapped models. Updated vignette and documentation. 
+Updated the test fixtures to reflect the changes to RNG in V 3.6.0
+Attended to a bug.
 
 ## Test environments
-* macOS Sierra 10.13.3 (on travis-ci), R 3.5.2
-* Ubuntu 14.04.5 (on travis-ci), R 3.5.2
+* macOS Mojave 10.14.4 (on travis-ci), R 3.6.0
+* Ubuntu 16.04.6 (on travis-ci), R 3.6.0
 * win-builder (devel and release)
 
 ## R CMD check results
