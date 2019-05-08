@@ -1,15 +1,3 @@
-# Warning to check for formative only constructs
-# DEPRECATED
-# TODO: Decide if we need to warn about this or just disregard and model
-warning_only_causal_construct <- function(mmMatrix) {
-  constructs <- unique(mmMatrix[,1])
-  for(construct in constructs) {
-    if(length(items_per_mode(construct,"B",mmMatrix)) == nrow(mmMatrix_per_construct(construct,mmMatrix))) {
-      warning(c(construct," is purely defined as a causal mode B construct.\n"))
-    }
-  }
-}
-
 warning_single_item_formative <- function(mmMatrix) {
   constructs <- unique(mmMatrix[,1])
   for(construct in constructs) {
@@ -39,7 +27,7 @@ warning_struc_meas_model_complete <- function(smMatrix, mmMatrix, data) {
   if(any(construct %in% colnames(data))) {
     stop("The construct variables cannot share names with the manifest variables.")
   }
-  manifest <- sort(setdiff(as.vector(mmMatrix[,1:2]), construct))
+  manifest <- sort(setdiff(as.vector(mmMatrix[,1:2]), constructmm))
 
   if(!all(manifest %in% colnames(data))) {
     stop("The manifest variables must occur as columns in the data.")
@@ -57,7 +45,6 @@ warning_periods_in_col_names <- function(data) {
 }
 
 warnings <- function(mmMatrix,data, smMatrix) {
-#  warning_only_causal_construct(mmMatrix)
   warning_single_item_formative(mmMatrix)
   warning_missing_data(data, mmMatrix)
   warning_periods_in_col_names(data)
