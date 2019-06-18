@@ -22,3 +22,9 @@ mobi_sm <- relationships(
   paths(from = "Satisfaction", to = c("Complaints", "Loyalty"))
 )
 
+# Estimate the model with the HOC
+mobi_pls <- estimate_pls(data = mobi,
+                         measurement_model = mobi_mm,
+                         interactions = NULL,
+                         structural_model = mobi_sm)
+

@@ -60,6 +60,19 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
   data <- stats::na.omit(data)
   rawdata <- data
   raw_measurement_model <- measurement_model
+  # Generate first order model
+  if ("HOCA" %in% measurement_model[,"type"] | "HOCB" %in% measurement_model[,"type"] ) {
+    HOM <- prepare_higher_order_model(data = data,
+                                      sm = structural_model,
+                                      mm = measurement_model,
+                                      ints = interactions,
+                                      inners = inner_weights)
+    measurement_model <- HOM$mm
+    structural_model <- HOM$sm
+    data <- HOM$data
+  }
+
+  # Generate interactions
   if(!is.null(interactions)) {
     # update data with new interaction items
     intxns_list <- interactions(data, measurement_model)
