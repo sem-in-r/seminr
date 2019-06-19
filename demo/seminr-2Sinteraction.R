@@ -8,22 +8,29 @@ library(seminr)
 mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5)),
   composite("Expectation",  multi_items("CUEX", 1:3)),
-  composite("Quality",      multi_items("PERQ", 1:7)),
   composite("Value",        multi_items("PERV", 1:2)),
-  two_stage_hierarchical_construct("Satisfaction", c("Image","Value")),
-  composite("Complaints",   single_item("CUSCO")),
-  composite("Loyalty",      multi_items("CUSL", 1:3))
+  composite("Satisfaction", multi_items("CUSA", 1:3))
+)
+
+# Interaction constructs must be created after the measurement model is defined.
+# We are using the two_stage method as per Henseler & Chin (2010)
+mobi_xm <- interactions(
+  interaction_2stage("Image", "Expectation")
 )
 
 # Creating structural model
 # - note, multiple paths can be created in each line
 mobi_sm <- relationships(
-  paths(from = c("Expectation","Quality"),  to = "Satisfaction"),
-  paths(from = "Satisfaction", to = c("Complaints", "Loyalty"))
+  paths(to = "Satisfaction",
+        from = c("Image", "Expectation", "Value",
+                 "Image*Expectation"))
 )
 
 # Estimate the model with the HOC
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
-                         interactions = NULL,
+                         interactions = mobi_xm,
                          structural_model = mobi_sm)
+mobi_pls$path_coef
+mobi_pls$rSquared
+
