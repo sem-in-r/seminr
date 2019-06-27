@@ -249,12 +249,8 @@ interaction_2stage <- function(construct1, construct2) {
                                      mmMatrix = mm,
                                      inner_weights = inners,
                                      measurement_mode_scheme = measurement_mode_scheme)
-      # estimate_pls(data <- data,
-      #                           measurement_model = mm,
-      #                           interactions = NULL,
-      #                           structural_model = sm,
-      #                           inner_weights = inners)
-    interaction_term <- as.matrix(first_stage$construct_scores[,construct1] * first_stage$construct_scores[,construct2], ncol = 1)[,, drop = FALSE]
+
+    interaction_term <- scale(as.matrix(first_stage$construct_scores[,construct1] * first_stage$construct_scores[,construct2], ncol = 1)[,, drop = FALSE])
 
     colnames(interaction_term) <- c(interaction_name)
 
