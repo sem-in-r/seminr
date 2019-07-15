@@ -87,13 +87,6 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
     data <- cbind(data, interaction_data)
 
     # update measurement model with interaction constructs
-    measure_interaction <- function(intxn) {
-      if (length(names(intxn$data))>1) {
-        composite(intxn$name, names(intxn$data),weights = mode_A)
-      } else {
-        composite(intxn$name, colnames(intxn$data),weights = mode_A)
-      }
-    }
     intxns_mm <- constructs(do.call("c", lapply(intxns_list, measure_interaction)))
     measurement_model <- rbind(measurement_model, intxns_mm)
   }
