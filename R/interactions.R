@@ -236,10 +236,10 @@ interaction_2stage <- function(construct1, construct2) {
 
     # remove interactions from structural model
     if(length(sm[-which(grepl("\\*", sm[,1])),]) > 0) {
-      sm <- sm[-which(grepl("\\*", sm[,1])),]
+      sm <- sm[-which(grepl("\\*", sm[,1])),,drop=FALSE]
     }
     if(length(sm[-which(grepl("\\*", sm[,2])),]) > 0) {
-      sm <- sm[-which(grepl("\\*", sm[,2])),]
+      sm <- sm[-which(grepl("\\*", sm[,2])),,drop=FALSE]
     }
 
     # Run the first stage
