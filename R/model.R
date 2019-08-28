@@ -60,9 +60,26 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
   data <- stats::na.omit(data)
   rawdata <- data
   raw_measurement_model <- measurement_model
+  # Generate first order model if necessary
+  if ("HOCA" %in% measurement_model[,"type"] | "HOCB" %in% measurement_model[,"type"] ) {
+    HOM <- prepare_higher_order_model(data = data,
+                                      sm = structural_model,
+                                      mm = measurement_model,
+                                      ints = interactions,
+                                      inners = inner_weights)
+    measurement_model <- HOM$mm
+    structural_model <- HOM$sm
+    data <- HOM$data
+  }
+
+  # Generate interactions
   if(!is.null(interactions)) {
     # update data with new interaction items
-    intxns_list <- interactions(data, measurement_model)
+    intxns_list <- interactions(data = data,
+                                mm = measurement_model,
+                                sm = structural_model,
+                                ints = interactions,
+                                inners = inner_weights)
     get_data <- function(intxn) { intxn$data }
     interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
 
@@ -70,15 +87,12 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
     data <- cbind(data, interaction_data)
 
     # update measurement model with interaction constructs
-    measure_interaction <- function(intxn) {
-      composite(intxn$name, names(intxn$data),weights = mode_A)
-    }
     intxns_mm <- constructs(do.call("c", lapply(intxns_list, measure_interaction)))
     measurement_model <- rbind(measurement_model, intxns_mm)
   }
 
   # warning if the model is incorrectly specified
-  warning_struc_meas_model_complete(structural_model,measurement_model,data)
+  #warning_struc_meas_model_complete(structural_model,measurement_model,data)
 
   # Make a named list of construct measurement_mode functions
   measurement_mode_scheme <- sapply(unique(c(structural_model[,1],structural_model[,2])), get_measure_mode, measurement_model, USE.NAMES = TRUE)

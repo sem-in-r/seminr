@@ -8,7 +8,7 @@ warning_single_item_formative <- function(mmMatrix) {
 }
 
 warning_missing_data <- function(data, mmMatrix) {
-  data <- data[, mmMatrix[which(!grepl("\\*", mmMatrix[,2])),2]]
+  data <- data[, mmMatrix[which(!grepl("\\*", mmMatrix[,2]) & !(mmMatrix[,"type"] == "HOCA" | mmMatrix[,"type"] == "HOCB")),2]]
   N <- nrow(data)
   missing_values <- which(stats::complete.cases(data)==FALSE)
   if(length(missing_values)==0){

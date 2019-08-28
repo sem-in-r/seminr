@@ -39,8 +39,8 @@
 #'
 #' @export
 interactions <- function(...) {
-  function(data, mm, all_intxns=list(...)) {
-    create_interaction <- function(intxn_function) { intxn_function(data, mm) }
+  function(data, mm, sm, ints, inners, all_intxns=list(...)) {
+    create_interaction <- function(intxn_function) { intxn_function(data, mm, sm, ints, inners) }
     intxns_list <- lapply(all_intxns, create_interaction)
     return(intxns_list)
   }
@@ -88,7 +88,7 @@ interactions <- function(...) {
 #'
 #' @export
 interaction_ortho <- function(construct1, construct2) {
-  function(data, mm) {
+  function(data, mm, sm, ints, inners) {
     interaction_name <- paste(construct1, construct2, sep="*")
     iv1_items <- mm[mm[, "construct"] == construct1, "measurement"]
     iv2_items <- mm[mm[, "construct"] == construct2, "measurement"]
@@ -116,7 +116,9 @@ interaction_ortho <- function(construct1, construct2) {
     for(i in 1:ncol(interaction_data)) {
       interaction_data[,i] <- stats::lm(formula = frmla, data = data)$residuals
     }
-    return(list(name = interaction_name, data = interaction_data))
+    return(list(name = interaction_name,
+                data = interaction_data
+                ))
   }
 }
 
@@ -162,7 +164,7 @@ interaction_ortho <- function(construct1, construct2) {
 #'
 #' @export
 interaction_scaled <- function(construct1, construct2) {
-  function(data, mm) {
+  function(data, mm, sm, ints, inners) {
     interaction_name <- paste(construct1, construct2, sep="*")
     iv1_items <- mm[mm[, "construct"] == construct1, "measurement"]
     iv2_items <- mm[mm[, "construct"] == construct2, "measurement"]
@@ -183,7 +185,77 @@ interaction_scaled <- function(construct1, construct2) {
     #colnames(interaction_data) <- gsub("\\.", "\\*", colnames(interaction_data))
     colnames(interaction_data) <- as.vector(sapply(iv1_items, name_items))
 
-    return(list(name = interaction_name, data = interaction_data))
+    return(list(name = interaction_name,
+                data = interaction_data))
+  }
+}
+
+#' \code{interaction_2stage} creates an interaction measurement item by the two-stage approach.
+#'
+#' This function automatically generates an interaction measurement item for a PLS SEM using the two-stage approach.
+#'
+#' @param construct1 The first construct which is subject to the interaction.
+#' @param construct2 The second construct which is subject to the interaction.
+#'
+#' @usage
+#'  # two stage approach as per Henseler & Chin (2010):
+#'  interaction_2stage("construct1", "construct2")
+#'
+#' @references Henseler & Chin (2010), A comparison of approaches for the analysis of interaction effects
+#' between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1),82-109.
+#'
+#' @examples
+#' data(mobi)
+#'
+#' # seminr syntax for creating measurement model
+#' mobi_mm <- constructs(
+#'   composite("Image",        multi_items("IMAG", 1:5)),
+#'   composite("Expectation",  multi_items("CUEX", 1:3)),
+#'   composite("Value",        multi_items("PERV", 1:2)),
+#'   composite("Satisfaction", multi_items("CUSA", 1:3))
+#' )
+#' mobi_xm <- interactions(
+#'   interaction_2stage("Image", "Expectation")
+#' )
+#'
+#' #  structural model: note that name of the interactions construct should be
+#' #  the names of its two main constructs joined by a '*' in between.
+#' mobi_sm <- relationships(
+#'   paths(to = "Satisfaction",
+#'         from = c("Image", "Expectation", "Value",
+#'                  "Image*Expectation"))
+#' )
+#'
+#' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
+#' summary(mobi_pls)
+#'
+#' @export
+interaction_2stage <- function(construct1, construct2) {
+  function(data, mm, sm, ints, inners) {
+    interaction_name <- paste(construct1, construct2, sep="*")
+
+    # remove interactions from structural model
+    if(length(sm[-which(grepl("\\*", sm[,1])),]) > 0) {
+      sm <- sm[-which(grepl("\\*", sm[,1])),,drop=FALSE]
+    }
+    if(length(sm[-which(grepl("\\*", sm[,2])),]) > 0) {
+      sm <- sm[-which(grepl("\\*", sm[,2])),,drop=FALSE]
+    }
+
+    # Run the first stage
+    measurement_mode_scheme <- sapply(unique(c(sm[,1],sm[,2])), get_measure_mode, mm, USE.NAMES = TRUE)
+    first_stage <- seminr::simplePLS(obsData = data,
+                                     smMatrix = sm,
+                                     mmMatrix = mm,
+                                     inner_weights = inners,
+                                     measurement_mode_scheme = measurement_mode_scheme)
+
+    interaction_term <- scale(as.matrix(first_stage$construct_scores[,construct1] * first_stage$construct_scores[,construct2], ncol = 1)[,, drop = FALSE])
+
+    colnames(interaction_term) <- c(interaction_name)
+
+    return(list(name = interaction_name,
+                data = interaction_term[,1, drop = FALSE]))
   }
 }
 
