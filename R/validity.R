@@ -36,17 +36,17 @@ HTMT <- function(seminr_model) {
     for (constructj in seminr_model$constructs[(which(seminr_model$constructs == constructi)+1):length(seminr_model$constructs)]) {
       manifesti <- seminr_model$mmVariables[seminr_model$mmMatrix[,1] == constructi]
       manifestj <- seminr_model$mmVariables[seminr_model$mmMatrix[,1] == constructj]
-      item_correlation_matrix <- stats::cor(seminr_model$data[,manifesti],seminr_model$data[,manifestj])
+      item_correlation_matrix <- abs(stats::cor(seminr_model$data[,manifesti],seminr_model$data[,manifestj]))
       HTHM <- mean(item_correlation_matrix)
       if(length(manifesti)>1 ) {
-        cor_matrix <- stats::cor(seminr_model$data[,manifesti],seminr_model$data[,manifesti])
+        cor_matrix <- abs(stats::cor(seminr_model$data[,manifesti],seminr_model$data[,manifesti]))
         diag(cor_matrix) <- 0
         MTHM <- (2/(length(manifesti)*(length(manifesti)-1)))*(sum(cor_matrix[!lower.tri(cor_matrix)]))
       } else {
         MTHM <- 1
       }
       if(length(manifestj)>1) {
-        cor_matrix2 <- stats::cor(seminr_model$data[,manifestj],seminr_model$data[,manifestj])
+        cor_matrix2 <- abs(stats::cor(seminr_model$data[,manifestj],seminr_model$data[,manifestj]))
         diag(cor_matrix2) <- 0
         MTHM <- sqrt(MTHM * (2/(length(manifestj)*(length(manifestj)-1)))*(sum(cor_matrix2[!lower.tri(cor_matrix2)])))
       } else {
