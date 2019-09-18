@@ -177,8 +177,8 @@ factor_discriminant_validity_t_values <- boot_summary_object$factor_discriminant
 factor_discriminant_validity_p_values <- boot_summary_object$factor_discriminant_validity_p_values
 
 ## Output originally created using following lines
-#write.csv(boot_summary_object$factor_discriminant_validity_t_values, file = "tests/fixtures/V_3_5_X/factor_discriminant_validity_t_values.csv")      #V3.5.X
-#write.csv(boot_summary_object$factor_discriminant_validity_p_values, file = "tests/fixtures/V_3_5_X/factor_discriminant_validity_p_values.csv")      #V3.5.X
+# write.csv(boot_summary_object$factor_discriminant_validity_t_values, file = "tests/fixtures/V_3_5_X/factor_discriminant_validity_t_values.csv")      #V3.5.X
+# write.csv(boot_summary_object$factor_discriminant_validity_p_values, file = "tests/fixtures/V_3_5_X/factor_discriminant_validity_p_values.csv")      #V3.5.X
 # write.csv(boot_summary_object$factor_discriminant_validity_t_values, file = "tests/fixtures/V_3_6_0/factor_discriminant_validity_t_values.csv")      #V3.6.0
 # write.csv(boot_summary_object$factor_discriminant_validity_p_values, file = "tests/fixtures/V_3_6_0/factor_discriminant_validity_p_values.csv")      #V3.6.0
 
