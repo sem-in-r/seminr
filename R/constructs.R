@@ -61,7 +61,10 @@ constructs <- function(...) {
 #' @export
 reflective <- function(construct_name, item_names) {
   construct_names <- rep(construct_name, length(item_names))
-  return(c(rbind(construct_names, item_names, "C")))
+  construct <- c(rbind(construct_names, item_names, "C"))
+
+  class(construct) <- append(class(construct), c("construct", "reflective"))
+  construct
 }
 
 #' Composite construct measurement model specification
@@ -97,11 +100,15 @@ composite <- function(construct_name, item_names, weights = correlation_weights)
   # TODO remove the duplicated conditional
   # TODO possibly remove the construct_names object as the construct name should be coerced to fitr the matrix
   if(identical(weights,correlation_weights) | identical(weights,mode_A)) {
-    return(c(rbind(construct_names,item_names,"A")))
+    construct <- c(rbind(construct_names,item_names,"A"))
   }
+
   if(identical(weights, regression_weights) | identical(weights, mode_B)) {
-    return(c(rbind(construct_names,item_names,"B")))
+    construct <- c(rbind(construct_names,item_names,"B"))
   }
+
+  class(construct) <- append(class(construct), c("construct", "composite"))
+  construct
 }
 
 # arguments:
