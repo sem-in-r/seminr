@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Fixtures for evaluating bootstrap HTMT for versions of R < 3.6.0
 - Changed the R/* file naming to R/estimate_ R/feature_ R/evaluate_ etc.
+- Summary S3 method to return data descriptives in summary object
 
 ### Fixed
 - Modified calculation of HTMT to use absolute correlation matrices in order to make HTMT stable
