@@ -47,7 +47,7 @@ mmMatrix_per_construct <- function(construct, mmMatrix) {
 #' @usage
 #'  path_factorial(smMatrix,construct_scores, dependant, paths_matrix)
 #'
-#' @references Lohmoller, J.-B. (1989). Latent variables path modeling with partial least squares. Heidelberg, Germany: Physica- Verlag.
+#' @references Lohmoller, J.-B. (1989). Latent variables path modeling with partial least squares. Heidelberg, Germany: Physica Verlag.
 #'
 #' @export
 path_factorial <- function(smMatrix,construct_scores, dependant, paths_matrix) {
