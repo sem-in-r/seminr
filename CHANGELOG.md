@@ -13,3 +13,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Fixtures for evaluating bootstrap HTMT for versions of R < 3.6.0
+
+### Fixed
+- Modified calculation of HTMT to use absolute correlation matrices in order to make HTMT stable
