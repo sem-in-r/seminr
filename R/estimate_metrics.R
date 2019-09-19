@@ -9,19 +9,6 @@ compute_vif <- function(target, predictors, model_data) {
   1/(1 - r_squared)
 }
 
-# Function to calculate SRMR for an implied and observed cor matrix
-compute_SRMR <- function(observed, implied) {
-
-  # calculate residuals for only upper triangle
-  res <- implied - observed
-  upper_res <- res[upper.tri(res, diag = TRUE)]
-
-  # Calculate model SRMR
-  ## BUT this is different from Adanco, which is different from SmarTPLS!!
-  ## Henseler (2014) mentions ignoring within block residuals - is this the difference?
-  sqrt(mean(upper_res^2))
-}
-
 # BIC function using rsq, SST, n pk
 BIC_func <- function(rsq, pk, N, construct_score){
   SSerrk <- (1-rsq)*(stats::var(construct_score)*(N-1))
