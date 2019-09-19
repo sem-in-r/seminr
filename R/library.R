@@ -257,3 +257,44 @@ measure_interaction <- function(intxn) {
     composite(intxn$name, colnames(intxn$data),weights = mode_A)
   }
 }
+
+kurt <- function(x, na.rm = FALSE) {
+  if (is.matrix(x))
+    apply(x, 2, kurt, na.rm = na.rm)
+  else if (is.vector(x)) {
+    if (na.rm)
+      x <- x[!is.na(x)]
+    n <- length(x)
+    n * sum((x - mean(x))^4)/(sum((x - mean(x))^2)^2)
+  }
+  else if (is.data.frame(x))
+    sapply(x, kurt, na.rm = na.rm)
+  else kurt(as.vector(x), na.rm = na.rm)
+}
+
+skew <- function(x, na.rm = FALSE) {
+  if (is.matrix(x))
+    apply(x, 2, skew, na.rm = na.rm)
+  else if (is.vector(x)) {
+    if (na.rm)
+      x <- x[!is.na(x)]
+    n <- length(x)
+    (sum((x - mean(x))^3)/n)/(sum((x - mean(x))^2)/n)^(3/2)
+  }
+  else if (is.data.frame(x))
+    sapply(x, skew, na.rm = na.rm)
+  else skew(as.vector(x), na.rm = na.rm)
+}
+
+get_desc <- function(data, na.rm = na.rm) {
+  Mean <- apply(data, 2, mean)
+  Std.Dev. <- apply(data, 2, sd)
+  Kurtosis <- kurt(data, na.rm = na.rm)
+  Min <- apply(data, 2, min)
+  Max <- apply(data, 2, max)
+  Median <- apply(data, 2, median)
+  Skewness <- skew(data, na.rm = na.rm)
+  Missing <- apply(data, 2, function(x) sum(stats::complete.cases(x)==FALSE))
+  No. <- 1:ncol(data)
+  cbind(No., Missing, Mean, Median, Min, Max, Std.Dev., Kurtosis, Skewness)
+}
