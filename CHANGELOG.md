@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.0] - 2019-09-19
 ### Added
 - A changelog
-- Added automated calculation of HOC
+- A new feature for automated calculation of HOC
+- A new feature for two-stage calculation of interactions
 
 ### Changed
 - Fixtures for evaluating bootstrap HTMT for versions of R < 3.6.0
