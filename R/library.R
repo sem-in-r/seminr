@@ -259,21 +259,18 @@ measure_interaction <- function(intxn) {
 }
 
 kurt <- function(x, na.rm = FALSE) {
-  if (is.matrix(x))
-    apply(x, 2, kurt, na.rm = na.rm)
-  else if (is.vector(x)) {
-    if (na.rm)
-      x <- x[!is.na(x)]
-    n <- length(x)
-    n * sum((x - mean(x))^4)/(sum((x - mean(x))^2)^2)
+   if (!is.vector(x))
+     apply(x, 2, kurt, na.rm = na.rm)
+   else if (is.vector(x)) {
+     if (na.rm)
+       x <- x[!is.na(x)]
+     n <- length(x)
+     n * sum((x - mean(x))^4)/(sum((x - mean(x))^2)^2)
   }
-  else if (is.data.frame(x))
-    sapply(x, kurt, na.rm = na.rm)
-  else kurt(as.vector(x), na.rm = na.rm)
 }
 
 skew <- function(x, na.rm = FALSE) {
-  if (is.matrix(x))
+  if (!is.vector(x))
     apply(x, 2, skew, na.rm = na.rm)
   else if (is.vector(x)) {
     if (na.rm)
@@ -281,9 +278,6 @@ skew <- function(x, na.rm = FALSE) {
     n <- length(x)
     (sum((x - mean(x))^3)/n)/(sum((x - mean(x))^2)/n)^(3/2)
   }
-  else if (is.data.frame(x))
-    sapply(x, skew, na.rm = na.rm)
-  else skew(as.vector(x), na.rm = na.rm)
 }
 
 get_desc <- function(data, na.rm = na.rm) {

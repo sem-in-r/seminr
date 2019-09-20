@@ -16,6 +16,7 @@ summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
                         reliability = metrics$reliability,
                         composite_scores = composite_scores,
                         vif_antecedents = metrics$validity$antecedent_vifs,
+                        htmt = metrics$validity$htmt,
                         descriptive_stats = descriptives)
   class(model_summary) <- "summary.seminr_model"
   model_summary

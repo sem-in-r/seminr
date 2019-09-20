@@ -33,7 +33,7 @@ mobi_pls <- estimate_pls(data = mobi,
                          structural_model = mobi_sm)
 
 # Reporting the results
-summary(mobi_pls)
+nick <- summary(mobi_pls)
 plot_scores(mobi_pls)
 
 # Getting more detailed output from estimated model:

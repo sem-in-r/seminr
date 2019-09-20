@@ -1,14 +1,14 @@
 warning_single_item_formative <- function(mmMatrix) {
-  constructs <- unique(mmMatrix[,1])
+  constructs <- unique(mmMatrix[, 1])
   for(construct in constructs) {
-    if(nrow(mmMatrix_per_construct(construct,mmMatrix)) == 1 && mmMatrix_per_construct(construct,mmMatrix)[,3] == "B") {
+    if(nrow(mmMatrix_per_construct(construct, mmMatrix)) == 1 && mmMatrix_per_construct(construct, mmMatrix)[,3] == "B") {
       stop("You cannot define a single item construct as mode B")
     }
   }
 }
 
 warning_missing_data <- function(data, mmMatrix) {
-  data <- data[, mmMatrix[which(!grepl("\\*", mmMatrix[,2]) & !(mmMatrix[,"type"] == "HOCA" | mmMatrix[,"type"] == "HOCB")),2]]
+  data <- data[, mmMatrix[which(!grepl("\\*", mmMatrix[,2]) & !(mmMatrix[,"type"] == "HOCA" | mmMatrix[, "type"] == "HOCB")),2]]
   N <- nrow(data)
   missing_values <- which(stats::complete.cases(data)==FALSE)
   if(length(missing_values)==0){
@@ -23,11 +23,11 @@ warning_missing_data <- function(data, mmMatrix) {
 
 warning_struc_meas_model_complete <- function(smMatrix, mmMatrix, data) {
   construct <- unique(as.vector(smMatrix))
-  constructmm <- unique(as.vector(mmMatrix[,1]))
+  constructmm <- unique(as.vector(mmMatrix[, 1]))
   if(any(construct %in% colnames(data))) {
     stop("The construct variables cannot share names with the manifest variables.")
   }
-  manifest <- sort(setdiff(as.vector(mmMatrix[,1:2]), constructmm))
+  manifest <- sort(setdiff(as.vector(mmMatrix[, 1:2]), constructmm))
 
   if(!all(manifest %in% colnames(data))) {
     stop("The manifest variables must occur as columns in the data.")

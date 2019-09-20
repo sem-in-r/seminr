@@ -2,9 +2,9 @@ evaluate_model <- function(seminr_model) {
   rel <- reliability(seminr_model)
   val <- validity(seminr_model)
   # Coerce reliability of interaction to 1
-  #rel[grepl("\\*", rownames(rel)),] <- 1
+  #rel[grepl("\\*", rownames(rel)), ] <- 1
   out <- list(rel,val)
-  names(out) <- c("reliability","validity")
+  names(out) <- c("reliability", "validity")
   return(out)
 }
 
@@ -12,13 +12,13 @@ evaluate_model <- function(seminr_model) {
 reliability <- function(seminr_model) {
   mat1 <- rhoC_AVE(seminr_model)
   mat2 <- rho_A(seminr_model)
-  return(cbind(mat1,mat2))
+  return(cbind(mat1, mat2))
 }
 
 # Validity ----
 validity <- function(seminr_model) {
   list(
-    # htmt            = HTMT(seminr_model),
+    htmt            = HTMT(seminr_model),
     cross_loadings  = cross_loadings(seminr_model),
     item_vifs       = item_vifs(seminr_model),
     antecedent_vifs = antecedent_vifs(seminr_model)
@@ -26,7 +26,7 @@ validity <- function(seminr_model) {
 }
 
 cross_loadings <- function(seminr_model) {
-  return(stats::cor(seminr_model$data[,seminr_model$mmVariables],seminr_model$construct_scores))
+  return(stats::cor(seminr_model$data[, seminr_model$mmVariables], seminr_model$construct_scores))
 }
 
 # Measurement Model Evaluation ----
@@ -36,8 +36,8 @@ evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
   # Collect construct types
   factors <- get_factors(object)
   composites <- get_composites(object)
-  factor_items <- unlist(sapply(factors,items_of_construct,object))
-  composite_items <- unlist(sapply(composites,items_of_construct,object))
+  factor_items <- unlist(sapply(factors, items_of_construct, object))
+  composite_items <- unlist(sapply(composites, items_of_construct, object))
 
   # get metrics object
   metrics <- evaluate_model(object)
@@ -45,17 +45,17 @@ evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
 
   # If only one factor
   if (length(factors) == 1) {
-    factor_reliability <- as.matrix(t(metrics$reliability[factors,c("AVE","rhoA")]))
+    factor_reliability <- as.matrix(t(metrics$reliability[factors, c("AVE", "rhoA")]))
     rownames(factor_reliability) <- factors
 
-    factor_indicator_reliability <- as.matrix(object$outer_loadings[factor_items,factors])
+    factor_indicator_reliability <- as.matrix(object$outer_loadings[factor_items, factors])
     colnames(factor_indicator_reliability) <- factors
 
     discriminant_validity <- HTMT(object)
   # If many factors
   } else if (length(factors) > 1) {
-    factor_reliability <- metrics$reliability[factors,c("AVE","rhoA")]
-    factor_indicator_reliability <- object$outer_loadings[factor_items,factors]
+    factor_reliability <- metrics$reliability[factors, c("AVE", "rhoA")]
+    factor_indicator_reliability <- object$outer_loadings[factor_items, factors]
     discriminant_validity <- HTMT(object)
   # If no factors
   } else {
@@ -68,12 +68,12 @@ evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
 
   # If only one composite
   if (length(composites) == 1) {
-    composite_indicator_reliability <- as.matrix(object$outer_weights[composite_items,composites])
+    composite_indicator_reliability <- as.matrix(object$outer_weights[composite_items, composites])
     colnames(composite_indicator_reliability) <- composites
 
     # If many composites
   } else if (length(composites) > 1) {
-    composite_indicator_reliability <- object$outer_weights[composite_items,composites]
+    composite_indicator_reliability <- object$outer_weights[composite_items, composites]
 
     # If no composites
   } else {
@@ -123,8 +123,8 @@ boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...)
   # Collect construct types
   factors <- get_factors(object)
   composites <- get_composites(object)
-  factor_items <- unlist(sapply(factors,items_of_construct,object))
-  composite_items <- unlist(sapply(composites,items_of_construct,object))
+  factor_items <- unlist(sapply(factors, items_of_construct, object))
+  composite_items <- unlist(sapply(composites, items_of_construct, object))
 
   # get metrics object
   metrics <- evaluate_model(object)
@@ -165,16 +165,16 @@ boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...)
 
   # If only one factor
   if (length(factors) == 1) {
-    factor_reliability <- as.matrix(t(metrics$reliability[factors,c("AVE","rhoA")]))
+    factor_reliability <- as.matrix(t(metrics$reliability[factors, c("AVE", "rhoA")]))
     rownames(factor_reliability) <- factors
 
-    factor_indicator_reliability <- as.matrix(object$outer_loadings[factor_items,factors])
+    factor_indicator_reliability <- as.matrix(object$outer_loadings[factor_items, factors])
     colnames(factor_indicator_reliability) <- factors
 
     # If many factors
   } else if (length(factors) > 1) {
-    factor_reliability <- metrics$reliability[factors,c("AVE","rhoA")]
-    factor_indicator_reliability <- object$outer_loadings[factor_items,factors]
+    factor_reliability <- metrics$reliability[factors, c("AVE", "rhoA")]
+    factor_indicator_reliability <- object$outer_loadings[factor_items, factors]
     # If no factors
   } else {
     factor_reliability <- NA
@@ -188,17 +188,17 @@ boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...)
 
   # If only one composite
   if (length(composites) == 1) {
-    composite_indicator_reliability <- as.matrix(object$outer_weights[composite_items,composites])
-    composite_indicator_weights_t <- as.matrix(weights_boot_t[composite_items,composites])
-    composite_indicator_weights_p <- as.matrix(weights_boot_p[composite_items,composites])
+    composite_indicator_reliability <- as.matrix(object$outer_weights[composite_items, composites])
+    composite_indicator_weights_t <- as.matrix(weights_boot_t[composite_items, composites])
+    composite_indicator_weights_p <- as.matrix(weights_boot_p[composite_items, composites])
 
     colnames(composite_indicator_reliability) <- composites
 
     # If many composites
   } else if (length(composites) > 1) {
-    composite_indicator_reliability <- object$outer_weights[composite_items,composites]
-    composite_indicator_weights_t <- weights_boot_t[composite_items,composites]
-    composite_indicator_weights_p <- weights_boot_p[composite_items,composites]
+    composite_indicator_reliability <- object$outer_weights[composite_items, composites]
+    composite_indicator_weights_t <- weights_boot_t[composite_items, composites]
+    composite_indicator_weights_p <- weights_boot_p[composite_items, composites]
 
     # If no composites
   } else {
