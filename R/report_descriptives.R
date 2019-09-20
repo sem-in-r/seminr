@@ -10,9 +10,9 @@ descriptives <- function(seminr_model, na.rm = TRUE) {
   class(item_correlations) <- append(class(item_correlations), "table_output")
   class(construct_descriptives) <- append(class(construct_descriptives), "table_output")
   class(construct_correlations) <- append(class(construct_correlations), "table_output")
-  return(list(item_descriptives = item_descriptives,
-              item_correlations = item_correlations,
-              construct_descriptives = construct_descriptives,
-              construct_correlations = construct_correlations))
+  return(list(statistics = list(items = item_descriptives,
+                               constructs = construct_descriptives),
+              correlations = list(items = item_correlations,
+                                  constructs = construct_correlations)))
 }
 

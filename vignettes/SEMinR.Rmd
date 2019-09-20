@@ -405,7 +405,7 @@ summary(mobi_pls)
     + `model_summary$composite_scores` reports the construct scores of composites
     + `model_summary$vif_items` reports the Variance Inflation Factor (VIF) for the measurement model
     + `model_summary$vif_antecedents` report the Variance Inflation Factor (VIF) for the structural model
-    + `model_summary$descriptive_stats` reports the descriptive statistics and correlations for both items and constructs
+    + `model_summary$descriptives` reports the descriptive statistics and correlations for both items and constructs
 
 Please note that common-factor scores are indeterminable and therefore construct scores for common factors are not reported (Hair et al.,2011).
 
@@ -484,17 +484,17 @@ confidence_interval(boot_seminr_model = boot_seminr_model,
 
 The `summary(seminr_model)` function will return four matrices:
 `model_summary <- summary(seminr_model)` returns an object of class `summary.seminr_model` which contains the following four descriptive statistics matrices:
-    + `model_summary$descriptive_stats$item_descriptives` reports the descriptive statistics for items
-    + `model_summary$descriptive_stats$item_correlations` reports the correlation matrix for items
-    + `model_summary$descriptive_stats$construct_descriptives` reports the descriptive statistics for constructs
-    + `model_summary$descriptive_stats$construct_correlations` reports the correlation matrix for constructs
+    + `model_summary$descriptives$statistics$items` reports the descriptive statistics for items
+    + `model_summary$descriptives$correlations$items` reports the correlation matrix for items
+    + `model_summary$descriptives$statistics$constructs` reports the descriptive statistics for constructs
+    + `model_summary$descriptives$correlations$constructs` reports the correlation matrix for constructs
 
 ```{r}
 model_summary <- summary(mobi_pls)
-model_summary$descriptive_stats$item_descriptives
-model_summary$descriptive_stats$item_correlations
-model_summary$descriptive_stats$construct_descriptives
-model_summary$descriptive_stats$construct_correlations
+model_summary$descriptives$statistics$items
+model_summary$descriptives$correlations$items
+model_summary$descriptives$statistics$constructs
+model_summary$descriptives$correlations$constructs
 ```
 
 ## References

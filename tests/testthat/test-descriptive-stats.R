@@ -20,10 +20,10 @@ seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_w
 summary_object <- summary(seminr_model)
 
 # Load outputs
-item_stats <- summary_object$descriptive_statistics$item_descriptives
-item_cors <- summary_object$descriptive_statistics$item_correlations
-construct_stats <- summary_object$descriptive_statistics$construct_descriptives
-construct_cors <- summary_object$descriptive_statistics$construct_correlations
+item_stats <- summary_object$descriptives$statistics$items
+item_cors <- summary_object$descriptives$correlations$items
+construct_stats <- summary_object$descriptives$statistics$constructs
+construct_cors <- summary_object$descriptives$correlations$constructs
 
 ## Output originally created using following lines
 # write.csv(summary_object$descriptive_statistics$item_descriptives, file = "tests/fixtures/V_3_5_X/item_stats.csv")
