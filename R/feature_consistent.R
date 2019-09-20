@@ -56,43 +56,43 @@ PLSc <- function(seminr_model) {
   # Calculate rho_A for adjustments and adjust the correlation matrix
   rho <- rho_A(seminr_model)
   ### Coerce interactions to rhoA of 1
-  rho[grepl("\\*", rownames(rho)),] <- 1
+  rho[grepl("\\*", rownames(rho)), ] <- 1
   adjustment <- sqrt(rho %*% t(rho))
   diag(adjustment) <- 1
   adj_construct_score_cors <- stats::cor(seminr_model$construct_scores) / adjustment
 
   # iterate over endogenous constructs and adjust path coefficients and R-squared
-  for (i in unique(smMatrix[,"target"]))  {
+  for (i in unique(smMatrix[, "target"]))  {
 
     #Indentify the exogenous variables
-    exogenous<-smMatrix[smMatrix[,"target"]==i,"source"]
+    exogenous <- smMatrix[smMatrix[, "target"]==i, "source"]
 
     #Solve the system of equations
-    results <- solve(adj_construct_score_cors[exogenous,exogenous],
-                    adj_construct_score_cors[exogenous,i])
+    results <- solve(adj_construct_score_cors[exogenous, exogenous],
+                    adj_construct_score_cors[exogenous, i])
     # Assign the path names
     names(results) <- exogenous
 
     #Assign the Beta Values to the Path Coefficient Matrix
-    path_coef[exogenous,i] <- results
+    path_coef[exogenous, i] <- results
   }
 
   #calculate insample metrics
-  rSquared <- calc_insample(seminr_model$data, construct_scores, smMatrix, unique(smMatrix[,"target"]),adj_construct_score_cors)
+  rSquared <- calc_insample(seminr_model$data, construct_scores, smMatrix, unique(smMatrix[, "target"]), adj_construct_score_cors)
 
   # get all common-factor constructs (Mode A Consistent) in a vector
-  reflective <- unique(mmMatrix[mmMatrix[,"type"]=="C", "construct"])
+  reflective <- unique(mmMatrix[mmMatrix[, "type"]=="C", "construct"])
 
   # function to adjust the loadings of a common-factor
   adjust_loadings <- function(i) {
-    w <- as.matrix(seminr_model$outer_weights[mmMatrix[mmMatrix[,"construct"]==i,"measurement"],i])
-    loadings[mmMatrix[mmMatrix[,"construct"]==i,"measurement"],i] <- w %*% (sqrt(rho[i,]) / t(w) %*% w )
-    loadings[,i]
+    w <- as.matrix(seminr_model$outer_weights[mmMatrix[mmMatrix[, "construct"]==i, "measurement"], i])
+    loadings[mmMatrix[mmMatrix[,"construct"]==i,"measurement"], i] <- w %*% (sqrt(rho[i, ]) / t(w) %*% w )
+    loadings[, i]
   }
 
   # apply the function over common-factors and assign to loadings matrix
   if(length(reflective) > 0) {
-    loadings[,reflective] <- sapply(reflective, adjust_loadings)
+    loadings[, reflective] <- sapply(reflective, adjust_loadings)
   }
 
   # Assign the adjusted values for return
@@ -107,12 +107,12 @@ model_consistent <- function(seminr_model) {
   # if(!is.null(seminr_model$mobi_xm) && ("C" %in% seminr_model$mmMatrix[,"type"])) {
   #   cat("Models with interactions cannot be estimated as PLS consistent and therefore no adjustment for PLS consistent has been made\n")
   # }
-  if(!is.null(seminr_model$interactions) && ("C" %in% seminr_model$mmMatrix[,"type"])) {
+  if(!is.null(seminr_model$interactions) && ("C" %in% seminr_model$mmMatrix[, "type"])) {
     cat("Models with interactions can be estimated as PLS consistent, but are subject to some bias as per Becker et al. (2018)
         'Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment'\n")
     seminr_model <- PLSc(seminr_model)
   }
-  if(is.null(seminr_model$interactions) && ("C" %in% seminr_model$mmMatrix[,"type"])) {
+  if(is.null(seminr_model$interactions) && ("C" %in% seminr_model$mmMatrix[, "type"])) {
     seminr_model <- PLSc(seminr_model)
   }
   return(seminr_model)

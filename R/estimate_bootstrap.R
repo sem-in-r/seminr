@@ -78,18 +78,18 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         suppressWarnings(ifelse(is.null(cores), cl <- parallel::makeCluster(parallel::detectCores()), cl <- parallel::makeCluster(cores)))
 
         # Initialize the Estimates Matrix
-        bootstrapMatrix <- rbind(seminr_model$path_coef, seminr_model$outer_loadings,seminr_model$outer_weights,HTMT(seminr_model))
+        bootstrapMatrix <- rbind(seminr_model$path_coef, seminr_model$outer_loadings, seminr_model$outer_weights, HTMT(seminr_model))
         cols <- ncol(bootstrapMatrix)
         rows <- nrow(bootstrapMatrix)
 
         # Function to generate random samples with replacement
-        getRandomIndex <- function(d) {return(sample.int(nrow(d),replace = TRUE))}
+        getRandomIndex <- function(d) {return(sample.int(nrow(d), replace = TRUE))}
 
         # Check for and create random seed if NULL
-        if (is.null(seed)) {seed <- sample.int(100000,size = 1)}
+        if (is.null(seed)) {seed <- sample.int(100000, size = 1)}
 
         # Export variables and functions to cluster
-        parallel::clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model","inner_weights","getRandomIndex","d","HTMT", "seed"), envir=environment())
+        parallel::clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model", "inner_weights", "getRandomIndex", "d", "HTMT", "seed"), envir=environment())
 
         # Function to get PLS estimate results
         getEstimateResults <- function(i, d = d) {
@@ -104,24 +104,24 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         }
 
         # Bootstrap the estimates
-        utils::capture.output(bootmatrix <- parallel::parSapply(cl,1:nboot,getEstimateResults, d))
+        utils::capture.output(bootmatrix <- parallel::parSapply(cl, 1:nboot, getEstimateResults, d))
 
         # Add the columns for bootstrap mean and standard error
-        bootstrapMatrix <- cbind(bootstrapMatrix,matrix(apply(bootmatrix,1,mean),nrow = rows, ncol = cols))
-        bootstrapMatrix <- cbind(bootstrapMatrix,matrix(apply(bootmatrix,1,stats::sd),nrow = rows, ncol = cols))
+        bootstrapMatrix <- cbind(bootstrapMatrix, matrix(apply(bootmatrix,1,mean), nrow = rows, ncol = cols))
+        bootstrapMatrix <- cbind(bootstrapMatrix, matrix(apply(bootmatrix,1,stats::sd), nrow = rows, ncol = cols))
 
         # Create paths matrix
-        paths_descriptives <- bootstrapMatrix[1:(cols-1),c(1:(3*cols))]
+        paths_descriptives <- bootstrapMatrix[1:(cols-1), c(1:(3*cols))]
 
         # Clean the empty paths
         paths_descriptives <- paths_descriptives[, colSums(paths_descriptives != 0, na.rm = TRUE) > 0]
-        paths_descriptives <- paths_descriptives[rowSums(paths_descriptives != 0, na.rm = TRUE) > 0,]
+        paths_descriptives <- paths_descriptives[rowSums(paths_descriptives != 0, na.rm = TRUE) > 0, ]
 
         # Get the number of DVs
         if (length(unique(structural_model[,"target"])) == 1) {
           dependant <- unique(structural_model[,"target"])
         } else {
-          dependant <- colnames(paths_descriptives[,1:length(unique(structural_model[,"target"]))])
+          dependant <- colnames(paths_descriptives[, 1:length(unique(structural_model[,"target"]))])
         }
 
         # Construct the vector of column names
@@ -129,7 +129,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         # Clean the column names
         for (parameter in c("PLS Est.", "Boot Mean", "Boot SD")) {
           for(i in 1:length(dependant)) {
-            colnames <- c(colnames, paste(dependant[i],parameter,sep = " "))
+            colnames <- c(colnames, paste(dependant[i], parameter, sep = " "))
           }
         }
 
@@ -137,7 +137,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         colnames(paths_descriptives) <- colnames
 
         # collect loadings matrix
-        loadings_descriptives <- bootstrapMatrix[(cols+1):((cols)+nrow(seminr_model$outer_loadings)),c(1:(3*cols))]
+        loadings_descriptives <- bootstrapMatrix[(cols+1):((cols)+nrow(seminr_model$outer_loadings)), c(1:(3*cols))]
 
 
         # Construct the vector of column names 2
@@ -145,7 +145,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         # Clean the column names
         for (parameter in c("PLS Est.", "Boot Mean", "Boot SD")) {
           for(i in seminr_model$constructs) {
-            colnames2 <- c(colnames2, paste(i,parameter,sep = " "))
+            colnames2 <- c(colnames2, paste(i, parameter, sep = " "))
           }
         }
 
@@ -153,13 +153,13 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         colnames(loadings_descriptives) <- colnames2
 
         # collect weights matrix
-        weights_descriptives <- bootstrapMatrix[((cols+1)+nrow(seminr_model$outer_loadings)):((cols)+(2*nrow(seminr_model$outer_loadings))),c(1:(3*cols))]
+        weights_descriptives <- bootstrapMatrix[((cols+1)+nrow(seminr_model$outer_loadings)):((cols)+(2*nrow(seminr_model$outer_loadings))), c(1:(3*cols))]
 
         # Assign column names to weights
         colnames(weights_descriptives) <- colnames2
 
         # Collect HTMT matrix
-        HTMT_descriptives <- bootstrapMatrix[((cols+1)+(2*nrow(seminr_model$outer_loadings))):((cols+cols)+(2*nrow(seminr_model$outer_loadings))),c(1:(3*cols))]
+        HTMT_descriptives <- bootstrapMatrix[((cols+1)+(2*nrow(seminr_model$outer_loadings))):((cols+cols)+(2*nrow(seminr_model$outer_loadings))), c(1:(3*cols))]
 
         # Clean the empty paths
         #boot_HTMT <- boot_HTMT[, colSums(boot_HTMT != 0, na.rm = TRUE) > 0]
@@ -169,13 +169,13 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         colnames(HTMT_descriptives) <- colnames2
 
         # Create an array of results in bootmatrix
-        bootarray <- array(bootmatrix, dim = c(nrow(bootstrapMatrix),length(seminr_model$constructs),nboot), dimnames = list(c(rownames(bootstrapMatrix)),c(seminr_model$constructs),c(1:nboot)))
+        bootarray <- array(bootmatrix, dim = c(nrow(bootstrapMatrix), length(seminr_model$constructs),nboot), dimnames = list(c(rownames(bootstrapMatrix)), c(seminr_model$constructs), c(1:nboot)))
 
         # Create arrays of bootstrapped path, loadings, weights, HTMT coefficients results
-        boot_paths <- bootarray[1:length(seminr_model$constructs),,1:nboot]
-        boot_loadings <- bootarray[(length(seminr_model$constructs)+1):((length(seminr_model$constructs))+length(seminr_model$mmVariables)),,1:nboot]
-        boot_weights <- bootarray[(length(seminr_model$constructs)+length(seminr_model$mmVariables)+1):((length(seminr_model$constructs))+2*length(seminr_model$mmVariables)),,1:nboot]
-        boot_HTMT <- bootarray[((length(seminr_model$constructs))+2*length(seminr_model$mmVariables)+1):((2*length(seminr_model$constructs))+2*length(seminr_model$mmVariables)),,1:nboot]
+        boot_paths <- bootarray[1:length(seminr_model$constructs), , 1:nboot]
+        boot_loadings <- bootarray[(length(seminr_model$constructs)+1):((length(seminr_model$constructs))+length(seminr_model$mmVariables)), , 1:nboot]
+        boot_weights <- bootarray[(length(seminr_model$constructs)+length(seminr_model$mmVariables)+1):((length(seminr_model$constructs))+2*length(seminr_model$mmVariables)), , 1:nboot]
+        boot_HTMT <- bootarray[((length(seminr_model$constructs))+2*length(seminr_model$mmVariables)+1):((2*length(seminr_model$constructs))+2*length(seminr_model$mmVariables)), , 1:nboot]
 
          parallel::stopCluster(cl)
       }

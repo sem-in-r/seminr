@@ -50,21 +50,21 @@ rho_A <- function(seminr_model) {
   smMatrix <- seminr_model$smMatrix
   obsData <- seminr_model$data
   # Create rho_A holder matrix
-  rho <- matrix(,nrow = ncol(constructscores),ncol = 1,dimnames = list(colnames(constructscores),c("rhoA")))
+  rho <- matrix(, nrow = ncol(constructscores), ncol = 1, dimnames = list(colnames(constructscores), c("rhoA")))
 
   for (i in rownames(rho))  {
     #If the measurement model is Formative assign rhoA = 1
-    if(mmMatrix[mmMatrix[,"construct"]==i,"type"][1]=="B" | mmMatrix[mmMatrix[,"construct"]==i,"type"][1]=="A"){
-      rho[i,1] <- 1
+    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="B" | mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="A"){
+      rho[i, 1] <- 1
     }
     #If the measurement model is Reflective Calculate RhoA
-    if(mmMatrix[mmMatrix[,"construct"]==i,"type"][1]=="C"){
+    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="C"){
       #if the construct is a single item rhoA = 1
-      if(nrow(mmMatrix_per_construct(i,mmMatrix)) == 1) {
-        rho[i,1] <- 1
+      if(nrow(mmMatrix_per_construct(i, mmMatrix)) == 1) {
+        rho[i, 1] <- 1
       } else {
         # Calculate rhoA
-        rho[i,1] <- compute_construct_rhoA(weights,mmMatrix,construct = i, obsData)
+        rho[i, 1] <- compute_construct_rhoA(weights, mmMatrix, construct = i, obsData)
       }
     }
   }
@@ -84,18 +84,18 @@ rhoC_AVE <- function(seminr_model){
   for(i in seminr_model$constructs){
     x <- seminr_model$outer_loadings[, i]
     ind <- which(x!=0)
-    if(measure_mode(i,seminr_model$mmMatrix)=="B"| measure_mode(i,seminr_model$mmMatrix)=="A"){
+    if(measure_mode(i, seminr_model$mmMatrix)=="B"| measure_mode(i, seminr_model$mmMatrix)=="A"){
       if(length(ind)==1){
-        dgr[i,1:2] <- 1
+        dgr[i, 1:2] <- 1
       } else {
         x <- x[ind]
-        dgr[i,1] <- sum(x)^2 / (sum(x)^2 + sum(1-x^2))
-        dgr[i,2] <- sum(x^2)/length(x)
+        dgr[i, 1] <- sum(x)^2 / (sum(x)^2 + sum(1-x^2))
+        dgr[i, 2] <- sum(x^2)/length(x)
       }
     } else {
       x <- x[ind]
-      dgr[i,1] <- NA
-      dgr[i,2] <- sum(x^2)/length(x)
+      dgr[i, 1] <- NA
+      dgr[i, 2] <- sum(x^2)/length(x)
     }
   }
   return(dgr)
