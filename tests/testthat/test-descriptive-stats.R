@@ -20,8 +20,6 @@ seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_w
 summary_object <- summary(seminr_model)
 
 # Load outputs
-# Remove HTMT
-#htmt <- summary_object$metrics$Validity$HTMT
 item_stats <- summary_object$descriptive_statistics$item_descriptives
 item_cors <- summary_object$descriptive_statistics$item_correlations
 construct_stats <- summary_object$descriptive_statistics$construct_descriptives
