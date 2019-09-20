@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A new feature for automated calculation of HOC
 - A new feature for two-stage calculation of interactions
 - A file for all references and citations
+- A return object in summary(boot_seminr_model) containing boot mean, SD, tvalue, and CIs for bootstrapped paths, loadings, weights and HTMT, 
+- A test for the bootstrap summary return object
 
 ### Changed
 - Fixtures for evaluating bootstrap HTMT for versions of R < 3.6.0
