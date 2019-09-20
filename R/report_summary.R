@@ -36,28 +36,25 @@ print.summary.seminr_model <- function(x, na.print=".", digits=3, ...) {
 
 # Summary for bootstrapped seminr model
 #' @export
-summary.boot_seminr_model <- function(object, ...) {
+summary.boot_seminr_model <- function(object, alpha = 0.05, ...) {
   stopifnot(inherits(object, "boot_seminr_model"))
   boot_matrix <- object$paths_descriptives
   n <- nrow(object$data)
 
-  # REFACTOR: Extract endogenous column names, means, and SEs from boot_matrix
-  num_endogenous <- ncol(boot_matrix) / 3
-  column_names <- colnames(boot_matrix)[1:num_endogenous]
-  endogenous_names <- as.vector(substr(column_names, 1, nchar(column_names)-nchar(" PLS Est.")))
-  boot_mean <- as.matrix(boot_matrix[, c((1*num_endogenous+1):(2*num_endogenous))])
-  boot_SE   <- as.matrix(boot_matrix[, c((2*num_endogenous+1):(3*num_endogenous))])
+  # bootstrapped direct paths
+  paths_summary <- parse_boot_array(object$path_coef, object$boot_paths, alpha = alpha)
+  # bootstrapped weights
+  weights_summary <- parse_boot_array(object$outer_weights, object$boot_weights, alpha = alpha)
+  # bootstrapped loadings
+  loadings_summary <- parse_boot_array(object$outer_loadings, object$boot_loadings, alpha = alpha)
+  # bootstrapped HTMT
+  htmt_summary <- parse_boot_array(HTMT(object), object$boot_HTMT, alpha = alpha)
 
-  # calculate t-values and two-tailed p-values; 0 paths become NaN
-  boot_t <- abs(boot_mean / boot_SE)
-  boot_p <- 2*stats::pt(boot_t, df = object$boots-1, lower.tail = FALSE)
-
-  colnames(boot_t) <- endogenous_names
-  colnames(boot_p) <- endogenous_names
-  boot_t[is.nan(boot_t)] <- NA
-  boot_p[is.nan(boot_p)] <- NA
-
-  boot_summary <- list(nboot = object$boots, t_values = boot_t, p_values = boot_p)
+  boot_summary <- list(nboot = object$boots,
+                       bootstrapped_paths = paths_summary,
+                       bootstrapped_weights = weights_summary,
+                       bootstrapped_loadings = loadings_summary,
+                       bootstrapped_HTMT = htmt_summary)
   class(boot_summary) <- "summary.boot_seminr_model"
   boot_summary
 }
@@ -71,13 +68,19 @@ print_matrix <- function(pmatrix, na.print=".", digits=3) {
 # Print for summary of bootstrapped seminr model
 #' @export
 print.summary.boot_seminr_model <- function(x, na.print=".", digits=3, ...) {
-  cat("\n", sprintf("Bootstrapped resamples: %s", x$nboot))
+  cat("\n", sprintf("Bootstrap resamples: %s", x$nboot))
 
-  cat("\n\nStructural Path t-values:\n")
-  print_matrix(x$t_values, na.print, digits)
+  cat("\n\nBootstrapped Structural Paths:\n")
+  print_matrix(x$bootstrapped_paths[,c(1,2,3,4,5,6)], na.print, digits)
 
-  cat("\nStructural Path p-values:\n")
-  print_matrix(x$p_values, na.print, digits)
+  cat("\nBootstrapped Weights:\n")
+  print_matrix(x$bootstrapped_weights[,c(1,2,3,4,5,6)], na.print, digits)
+
+  cat("\nBootstrapped Loadings:\n")
+  print_matrix(x$bootstrapped_loadings[,c(1,2,3,4,5,6)], na.print, digits)
+
+  cat("\nBootstrapped HTMT:\n")
+  print_matrix(x$bootstrapped_HTMT[,c(1,2,3,5,6)], na.print, digits)
 
   cat("\n")
   invisible(x)

@@ -257,3 +257,14 @@ measure_interaction <- function(intxn) {
     composite(intxn$name, colnames(intxn$data),weights = mode_A)
   }
 }
+
+conf_int <- function(boot_array, from, to, through = NULL, alpha = 0.05) {
+  if (is.null(through)) {
+    coefficient <- boot_array[from, to,]
+  } else {
+    coefficient <- boot_array[from, through,] * boot_array[through, to,]
+  }
+  quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
+  return(quantiles)
+}
+
