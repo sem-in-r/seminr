@@ -6,7 +6,7 @@ summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
   metrics <- evaluate_model(object)
   iterations <- object$iterations
   composite_scores <- return_only_composite_scores(object)
-  descriptives <- get_descriptives(object)
+  descriptives <- descriptives(object)
   model_summary <- list(iterations = iterations,
                         paths = path_reports,
                         loadings = object$outer_loadings,

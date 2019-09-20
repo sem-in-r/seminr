@@ -280,7 +280,7 @@ skew <- function(x, na.rm = FALSE) {
   }
 }
 
-get_desc <- function(data, na.rm = na.rm) {
+desc <- function(data, na.rm = na.rm) {
   Mean <- apply(data, 2, mean)
   Std.Dev. <- apply(data, 2, sd)
   Kurtosis <- kurt(data, na.rm = na.rm)
