@@ -302,3 +302,11 @@ desc <- function(data, na.rm = na.rm) {
   No. <- 1:ncol(data)
   cbind(No., Missing, Mean, Median, Min, Max, Std.Dev., Kurtosis, Skewness)
 }
+
+mult <- function(col, iv2_data) {
+  iv2_data*col
+}
+
+name_items <- function(item_name, iv2_items) {
+  sapply(iv2_items, function(item2, item1 = item_name) paste(item1, item2, sep = "*"))
+}

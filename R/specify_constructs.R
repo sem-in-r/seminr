@@ -27,8 +27,11 @@
 #'   )
 #' @export
 constructs <- function(...) {
-  return(matrix(c(...), ncol = 3, byrow = TRUE,
-                dimnames = list(NULL, c("construct", "measurement", "type"))))
+  return_list <- list(...)
+  names(return_list) <- lapply(return_list, function(x) class(x)[[3]])
+  return(return_list)
+#   return(matrix(c(...), ncol = 3, byrow = TRUE,
+#                 dimnames = list(NULL, c("construct", "measurement", "type"))))
 }
 
 #' Reflective construct measurement model specification
@@ -62,9 +65,8 @@ constructs <- function(...) {
 reflective <- function(construct_name, item_names) {
   construct_names <- rep(construct_name, length(item_names))
   construct <- c(rbind(construct_names, item_names, "C"))
-
   class(construct) <- append(class(construct), c("construct", "reflective"))
-  construct
+  return(construct)
 }
 
 #' Composite construct measurement model specification
@@ -96,8 +98,6 @@ reflective <- function(construct_name, item_names) {
 #'   )
 #' @export
 composite <- function(construct_name, item_names, weights = correlation_weights) {
-  construct_names <- rep(construct_name, length(item_names))
-  # TODO possibly remove the construct_names object as the construct name should be coerced to fitr the matrix
   if (identical(weights, correlation_weights)) {
     composite_type = "A"
   } else if (identical(weights, regression_weights)) {
@@ -105,10 +105,9 @@ composite <- function(construct_name, item_names, weights = correlation_weights)
   } else {
     stop("Composites must be defined as mode A (correlation weights) or B (regression weights)")
   }
-
-  construct <- c(rbind(construct_names, item_names, composite_type))
+  construct <- c(rbind(construct_name, item_names, composite_type))
   class(construct) <- append(class(construct), c("construct", "composite"))
-  construct
+  return(construct)
 }
 
 # arguments:
@@ -168,6 +167,7 @@ multi_items <- function(item_name, item_numbers, ...) {
 #'   )
 #' @export
 single_item <- function(item) {
+  class(item) <- append(class(item), c("construct","single_item_construct"))
   return(item)
 }
 
@@ -198,15 +198,27 @@ single_item <- function(item) {
 #'   )
 #' @export
 two_stage_HOC <- function(construct_name, dimensions, weights = correlation_weights) {
-  construct_names <- rep(construct_name, length(dimensions))
   # TODO remove the duplicated conditional
-  # TODO possibly remove the construct_names object as the construct name should be coerced to fitr the matrix
-  if(identical(weights,correlation_weights) | identical(weights,mode_A)) {
-    return(c(rbind(construct_names,dimensions,"HOCA")))
+  if (identical(weights, correlation_weights)) {
+    composite_type = "HOCA"
+  } else if (identical(weights, regression_weights)) {
+    composite_type = "HOCB"
+  } else {
+    stop("Composites must be defined as mode A (correlation weights) or B (regression weights)")
   }
-  if(identical(weights, regression_weights) | identical(weights, mode_B)) {
-    return(c(rbind(construct_names,dimensions,"HOCB")))
+  construct <- c(rbind(construct_name, item_names, composite_type))
+  class(construct) <- append(class(construct), c("construct", "higher_order_composite"))
+  return(construct)
+}
+
+# Function to create a interaction construct
+#' @export
+interaction <- function(dimensions, method = two_stage, weights = correlation_weights) {
+  int <- function(data, mm, sm, ints, inners, method) {
+    interaction_construct <- method(data, mm, sm, ints, inners, weights)
   }
+  class(int) <- class(method())
+  return(int)
 }
 
 #' \code{interaction_ortho} creates interaction measurement items by using the orthogonalized approach..
@@ -250,27 +262,18 @@ two_stage_HOC <- function(construct_name, dimensions, weights = correlation_weig
 #' summary(mobi_pls)
 #'
 #' @export
-interaction_ortho <- function(construct1, construct2) {
-  function(data, mm, sm, ints, inners) {
-    interaction_name <- paste(construct1, construct2, sep="*")
-    iv1_items <- mm[mm[, "construct"] == construct1, "measurement"]
-    iv2_items <- mm[mm[, "construct"] == construct2, "measurement"]
+orthogonal <- function(constructs) {
+  ortho_construct <- function(data, mm, sm, ints, inners) {
+    interaction_name <- paste(constructs[[1]], constructs[[2]], sep="*")
+    iv1_items <- mm[mm[, "construct"] == constructs[[1]], "measurement"]
+    iv2_items <- mm[mm[, "construct"] == constructs[[2]], "measurement"]
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
 
-    mult <- function(col) {
-      iv2_data*col
-    }
-
-    name_items <- function(item_name) {
-      sapply(iv2_items, function(item2, item1 = item_name) paste(item1, item2, sep = "*"))
-    }
-
-    multiples_list <- lapply(iv1_data, mult)
+    multiples_list <- lapply(iv1_data, mult, iv2_data)
     interaction_data <- do.call("cbind", multiples_list)
-    #colnames(interaction_data) <- gsub("\\.", "\\*", colnames(interaction_data))
-    colnames(interaction_data) <- as.vector(sapply(iv1_items, name_items))
+    colnames(interaction_data) <- as.vector(sapply(iv1_items, name_items, iv2_items))
 
     # Create formula
     frmla <- stats::as.formula(paste("interaction_data[,i]",paste(as.vector(c(iv1_items,iv2_items)), collapse ="+"), sep = " ~ "))
@@ -283,6 +286,8 @@ interaction_ortho <- function(construct1, construct2) {
                 data = interaction_data
     ))
   }
+  class(ortho_construct) <- append(class(ortho_construct), c("construct", "orthogonal_interaction"))
+  return(ortho_construct)
 }
 
 #' \code{interaction_scaled} creates interaction measurement items by scaled product indicator approach.
@@ -326,31 +331,23 @@ interaction_ortho <- function(construct1, construct2) {
 #' summary(mobi_pls)
 #'
 #' @export
-interaction_scaled <- function(construct1, construct2) {
-  function(data, mm, sm, ints, inners) {
-    interaction_name <- paste(construct1, construct2, sep="*")
-    iv1_items <- mm[mm[, "construct"] == construct1, "measurement"]
-    iv2_items <- mm[mm[, "construct"] == construct2, "measurement"]
+product_indicator <- function(constructs) {
+  scaled_interaction <- function(data, mm, sm, ints, inners) {
+    interaction_name <- paste(constructs[[1]], constructs[[2]], sep="*")
+    iv1_items <- mm[mm[, "construct"] == constructs[[1]], "measurement"]
+    iv2_items <- mm[mm[, "construct"] == constructs[[2]], "measurement"]
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
 
-    mult <- function(col) {
-      iv2_data*col
-    }
-
-    name_items <- function(item_name) {
-      sapply(iv2_items, function(item2, item1 = item_name) paste(item1, item2, sep = "*"))
-    }
-
-    multiples_list <- lapply(iv1_data, mult)
+    multiples_list <- lapply(iv1_data, mult, iv2_data)
     interaction_data <- do.call("cbind", multiples_list)
-    #colnames(interaction_data) <- gsub("\\.", "\\*", colnames(interaction_data))
-    colnames(interaction_data) <- as.vector(sapply(iv1_items, name_items))
-
+    colnames(interaction_data) <- as.vector(sapply(iv1_items, name_items, iv2_items))
     return(list(name = interaction_name,
                 data = interaction_data))
   }
+  class(scaled_interaction) <- append(class(scaled_interaction), c("construct", "scaled_interaction"))
+  return(scaled_interaction)
 }
 
 #' \code{interaction_2stage} creates an interaction measurement item by the two-stage approach.
@@ -393,10 +390,10 @@ interaction_scaled <- function(construct1, construct2) {
 #' summary(mobi_pls)
 #'
 #' @export
-interaction_2stage <- function(construct1, construct2) {
-  function(data, mm, sm, ints, inners) {
-    interaction_name <- paste(construct1, construct2, sep="*")
-
+two_stage <- function(constructs) {
+  two_stage_interaction <- function(data, mm, sm, ints, inners) {
+    interaction_name <- paste(constructs[[1]], constructs[[2]], sep="*")
+    # TODO: remove duplicated conditional
     # remove interactions from structural model
     if(length(sm[-which(grepl("\\*", sm[,1])),]) > 0) {
       sm <- sm[-which(grepl("\\*", sm[,1])),,drop=FALSE]
@@ -413,11 +410,13 @@ interaction_2stage <- function(construct1, construct2) {
                                      inner_weights = inners,
                                      measurement_mode_scheme = measurement_mode_scheme)
 
-    interaction_term <- scale(as.matrix(first_stage$construct_scores[,construct1] * first_stage$construct_scores[,construct2], ncol = 1)[,, drop = FALSE])
+    interaction_term <- scale(as.matrix(first_stage$construct_scores[,constructs[[1]]] * first_stage$construct_scores[,constructs[[2]]], ncol = 1)[,, drop = FALSE])
 
     colnames(interaction_term) <- c(interaction_name)
 
     return(list(name = interaction_name,
                 data = interaction_term[,1, drop = FALSE]))
   }
+  class(two_stage_interaction) <- append(class(two_stage_interaction), c("construct", "two_stage_interaction"))
+  return(two_stage_interaction)
 }
