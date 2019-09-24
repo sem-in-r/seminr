@@ -277,7 +277,7 @@ interaction_ortho <- function(construct1, construct2) {
 
     # iterate and orthogonalize
     for(i in 1:ncol(interaction_data)) {
-      interaction_data[,i] <- stats::lm(formula = frmla, data = data)$residuals
+      interaction_data[, i] <- stats::lm(formula = frmla, data = data)$residuals
     }
     return(list(name = interaction_name,
                 data = interaction_data

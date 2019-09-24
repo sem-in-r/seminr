@@ -6,6 +6,7 @@ summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
   metrics <- evaluate_model(object)
   iterations <- object$iterations
   composite_scores <- return_only_composite_scores(object)
+  descriptives <- descriptives(object)
   model_summary <- list(iterations = iterations,
                         paths = path_reports,
                         loadings = object$outer_loadings,
@@ -14,7 +15,9 @@ summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
                         vif_items = metrics$validity$item_vifs,
                         reliability = metrics$reliability,
                         composite_scores = composite_scores,
-                        vif_antecedents = metrics$validity$antecedent_vifs)
+                        vif_antecedents = metrics$validity$antecedent_vifs,
+                        htmt = metrics$validity$htmt,
+                        descriptives = descriptives)
   class(model_summary) <- "summary.seminr_model"
   model_summary
 }
@@ -82,6 +85,15 @@ print.summary.boot_seminr_model <- function(x, na.print=".", digits=3, ...) {
   cat("\nBootstrapped HTMT:\n")
   print_matrix(x$bootstrapped_HTMT[,c(1,2,3,5,6)], na.print, digits)
 
+  cat("\n")
+  invisible(x)
+}
+
+# Print for generic tables of output
+#' @export
+print.table_output <- function(x, na.print=".", digits=3, ...) {
+  class(x) <- "matrix"
+  print(x, na.print = na.print, digits=digits)
   cat("\n")
   invisible(x)
 }

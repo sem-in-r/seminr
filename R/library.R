@@ -268,3 +268,37 @@ conf_int <- function(boot_array, from, to, through = NULL, alpha = 0.05) {
   return(quantiles)
 }
 
+kurt <- function(x, na.rm = FALSE) {
+   if (!is.vector(x))
+     apply(x, 2, kurt, na.rm = na.rm)
+   else if (is.vector(x)) {
+     if (na.rm)
+       x <- x[!is.na(x)]
+     n <- length(x)
+     n * sum((x - mean(x))^4)/(sum((x - mean(x))^2)^2)
+  }
+}
+
+skew <- function(x, na.rm = FALSE) {
+  if (!is.vector(x))
+    apply(x, 2, skew, na.rm = na.rm)
+  else if (is.vector(x)) {
+    if (na.rm)
+      x <- x[!is.na(x)]
+    n <- length(x)
+    (sum((x - mean(x))^3)/n)/(sum((x - mean(x))^2)/n)^(3/2)
+  }
+}
+
+desc <- function(data, na.rm = na.rm) {
+  Mean <- apply(data, 2, mean)
+  Std.Dev. <- apply(data, 2, sd)
+  Kurtosis <- kurt(data, na.rm = na.rm)
+  Min <- apply(data, 2, min)
+  Max <- apply(data, 2, max)
+  Median <- apply(data, 2, median)
+  Skewness <- skew(data, na.rm = na.rm)
+  Missing <- apply(data, 2, function(x) sum(stats::complete.cases(x)==FALSE))
+  No. <- 1:ncol(data)
+  cbind(No., Missing, Mean, Median, Min, Max, Std.Dev., Kurtosis, Skewness)
+}
