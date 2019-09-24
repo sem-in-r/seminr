@@ -258,6 +258,16 @@ measure_interaction <- function(intxn) {
   }
 }
 
+conf_int <- function(boot_array, from, to, through = NULL, alpha = 0.05) {
+  if (is.null(through)) {
+    coefficient <- boot_array[from, to,]
+  } else {
+    coefficient <- boot_array[from, through,] * boot_array[through, to,]
+  }
+  quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
+  return(quantiles)
+}
+
 kurt <- function(x, na.rm = FALSE) {
    if (!is.vector(x))
      apply(x, 2, kurt, na.rm = na.rm)

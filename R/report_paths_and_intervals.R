@@ -71,9 +71,9 @@ report_paths <- function(seminr_model, digits=3) {
   final_paths
 }
 
-report_bootstrapped_paths <- function(seminr_model, na.print=".", digits=3) {
-  bootstrapresults <- seminr_model$bootstrapMatrix
-  nboots <- seminr_model$boots
+report_bootstrapped_paths <- function(boot_seminr_model, na.print=".", digits=3) {
+  bootstrapresults <- seminr_model$
+  nboots <- boot_seminr_model$boots
   bootstraplist <- list()
   j <- ncol(bootstrapresults)/3
   k <- j+1
@@ -167,4 +167,34 @@ confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alp
   }
   quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
   return(quantiles)
+}
+
+parse_boot_array <- function(original_matrix, boot_array, alpha = 0.05) {
+  Path <- c()
+  original <- c()
+  boot_mean <- c()
+  boot_SD <- c()
+  t_stat <- c()
+  lower <- c()
+  upper <- c()
+  alpha_text <- alpha/2*100
+  original_matrix[is.na(original_matrix)] <- 0
+  for (i in 1:nrow(original_matrix)) {
+    for (j in 1:ncol(original_matrix)) {
+      if (original_matrix[i,j]!=0 ) {
+        Path <- append(Path, paste(rownames(original_matrix)[i], " -> ", colnames(original_matrix)[j]))
+        original <- append(original, original_matrix[i,j])
+        boot_mean <- append(boot_mean, mean(boot_array[i,j,]))
+        boot_SD <- append(boot_SD, stats::sd(boot_array[i,j,]))
+        t_stat <- append(t_stat,  original_matrix[i,j]/ stats::sd(boot_array[i,j,]))
+        lower <- append(lower, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[1]])
+        upper <- append(upper, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[2]])
+      }
+    }
+  }
+  return_matrix <- cbind(original, boot_mean, boot_SD, t_stat, lower, upper)
+  colnames(return_matrix) <- c( "Original Est.", "Bootstrap Mean", "Bootstrap SD", "T Stat.",paste(alpha_text, "% CI", sep = ""),paste((100-alpha_text), "% CI", sep = ""))
+  rownames(return_matrix) <- Path
+  class(return_matrix) <- append(class(return_matrix), "table_output")
+  return(return_matrix)
 }
