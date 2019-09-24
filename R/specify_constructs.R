@@ -211,11 +211,11 @@ two_stage_HOC <- function(construct_name, dimensions, weights = correlation_weig
   return(construct)
 }
 
-# Function to create a interaction construct
+# Function to create an interaction construct
 #' @export
 interaction <- function(dimensions, method = two_stage, weights = correlation_weights) {
-  int <- function(data, mm, sm, ints, inners, method) {
-    interaction_construct <- method(data, mm, sm, ints, inners, weights)
+  int <- function(dimensions, ...) {
+    method(dimensions)
   }
   class(int) <- class(method())
   return(int)
@@ -262,11 +262,11 @@ interaction <- function(dimensions, method = two_stage, weights = correlation_we
 #' summary(mobi_pls)
 #'
 #' @export
-orthogonal <- function(constructs) {
+orthogonal <- function(dimensions) {
   ortho_construct <- function(data, mm, sm, ints, inners) {
-    interaction_name <- paste(constructs[[1]], constructs[[2]], sep="*")
-    iv1_items <- mm[mm[, "construct"] == constructs[[1]], "measurement"]
-    iv2_items <- mm[mm[, "construct"] == constructs[[2]], "measurement"]
+    interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
+    iv1_items <- mm[mm[, "construct"] == dimensions[[1]], "measurement"]
+    iv2_items <- mm[mm[, "construct"] == dimensions[[2]], "measurement"]
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
@@ -419,4 +419,38 @@ two_stage <- function(constructs) {
   }
   class(two_stage_interaction) <- append(class(two_stage_interaction), c("construct", "two_stage_interaction"))
   return(two_stage_interaction)
+}
+
+process_interactions <- function(measurement_model, data, structural_model, inner_weights) {
+  ints <- measurement_model[(substr(names(measurement_model), nchar(names(measurement_model))-10, nchar(names(measurement_model))) == "interaction")]
+  non_ints <- measurement_model[(substr(names(measurement_model), nchar(names(measurement_model))-10, nchar(names(measurement_model))) != "interaction")]
+  measurement_model <- matrix(unlist(non_ints), ncol = 3, byrow = TRUE,
+               dimnames = list(NULL, c("construct", "measurement", "type")))
+
+
+  if(!is.null(ints)) {
+    # update data with new interaction items
+    names(ints) <- c()
+    create_interaction <- function(intxn_function) { intxn_function()(data = data,
+                                                                    mm = measurement_model,
+                                                                    sm = structural_model,
+                                                                    ints = ints,
+                                                                    inners = inner_weights) }
+    intxns_list <- lapply(ints, create_interaction)
+
+    get_data <- function(intxn) { intxn$data }
+    interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
+
+    # Append data with interaction data
+    data <- cbind(data, interaction_data)
+
+    # update measurement model with interaction constructs
+    intxns_mm <- matrix(unlist(lapply(intxns_list, measure_interaction)), ncol = 3, byrow = TRUE)
+    # construct <- c(rbind(construct_name, item_names, composite_type))
+
+    measurement_model <- rbind(measurement_model, intxns_mm)
+  }
+  return(list(
+    data <- data,
+    measurement_model <- measurement_model))
 }

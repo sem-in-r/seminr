@@ -73,24 +73,26 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
   }
 
   # Generate interactions
-  if(!is.null(interactions)) {
-    # update data with new interaction items
-    intxns_list <- interactions(data = data,
-                                mm = measurement_model,
-                                sm = structural_model,
-                                ints = interactions,
-                                inners = inner_weights)
-    get_data <- function(intxn) { intxn$data }
-    interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
-
-    # Append data with interaction data
-    data <- cbind(data, interaction_data)
-
-    # update measurement model with interaction constructs
-    intxns_mm <- constructs(do.call("c", lapply(intxns_list, measure_interaction)))
-    measurement_model <- rbind(measurement_model, intxns_mm)
-  }
-
+  # if(!is.null(interactions)) {
+  #   # update data with new interaction items
+  #   intxns_list <- interactions(data = data,
+  #                               mm = measurement_model,
+  #                               sm = structural_model,
+  #                               ints = interactions,
+  #                               inners = inner_weights)
+  #   get_data <- function(intxn) { intxn$data }
+  #   interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
+  #
+  #   # Append data with interaction data
+  #   data <- cbind(data, interaction_data)
+  #
+  #   # update measurement model with interaction constructs
+  #   intxns_mm <- constructs(do.call("c", lapply(intxns_list, measure_interaction)))
+  #   measurement_model <- rbind(measurement_model, intxns_mm)
+  # }
+  nick <- process_interactions(measurement_model, data, structural_model, inner_weights)
+  measurement_model <- nick$measurement_model
+  data <- nick$data
   # warning if the model is incorrectly specified
   #warning_struc_meas_model_complete(structural_model,measurement_model,data)
 
