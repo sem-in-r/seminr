@@ -60,16 +60,19 @@ estimate_pls <- function(data, measurement_model, structural_model, inner_weight
   rawdata <- data
   raw_measurement_model <- measurement_model
   # Generate first order model if necessary
-  # if ("HOCA" %in% measurement_model[,"type"] | "HOCB" %in% measurement_model[,"type"] ) {
-  #   HOM <- prepare_higher_order_model(data = data,
-  #                                     sm = structural_model,
-  #                                     mm = measurement_model,
-  #                                     ints = interactions,
-  #                                     inners = inner_weights)
-  #   measurement_model <- HOM$mm
-  #   structural_model <- HOM$sm
-  #   data <- HOM$data
-  # }
+
+  HOCs <- measurement_model[names(measurement_model) == "higher_order_composite"]
+
+  if ( length(HOCs)>0 ) {
+    HOM <- prepare_higher_order_model(data = data,
+                                      sm = structural_model,
+                                      mm = measurement_model,
+                                      inners = inner_weights,
+                                      HOCs = HOCs)
+    measurement_model <- HOM$mm
+    structural_model <- HOM$sm
+    data <- HOM$data
+  }
 
   post_interaction_object <- process_interactions(measurement_model, data, structural_model, inner_weights)
   measurement_model <- post_interaction_object$measurement_model

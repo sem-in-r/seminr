@@ -5,7 +5,9 @@ measure_mode <- function(construct,mmMatrix) {
 
 # function to get measurement mode of a construct (first item) as a function
 get_measure_mode <- function(construct,mmMatrix) {
-  ifelse((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "A") |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "C") , return(mode_A), return(mode_B))
+  ifelse((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "A")
+         |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "C")
+         |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "HOCA"), return(mode_A), return(mode_B))
 }
 
 # Used in warnings - warning_only_causal_construct()

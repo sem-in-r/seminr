@@ -197,7 +197,7 @@ single_item <- function(item) {
 #'     composite("Value",        multi_items("PERV", 1:2), weights = mode_B)
 #'   )
 #' @export
-two_stage_HOC <- function(construct_name, dimensions, weights = correlation_weights) {
+higher_composite <- function(construct_name, dimensions, method = two_stage,  weights = correlation_weights) {
   # TODO remove the duplicated conditional
   if (identical(weights, correlation_weights)) {
     composite_type = "HOCA"
@@ -206,15 +206,15 @@ two_stage_HOC <- function(construct_name, dimensions, weights = correlation_weig
   } else {
     stop("Composites must be defined as mode A (correlation weights) or B (regression weights)")
   }
-  construct <- c(rbind(construct_name, item_names, composite_type))
+  construct <- c(rbind(construct_name, dimensions, composite_type))
   class(construct) <- append(class(construct), c("construct", "higher_order_composite"))
   return(construct)
 }
 
 # Function to create an interaction construct
 #' @export
-interaction <- function(dimensions, method = two_stage, weights = mode_A) {
-  int <- method(dimensions, weights)
+interaction <- function(name, dimensions, method = two_stage, weights = mode_A) {
+  int <- method(name, dimensions, weights)
   class(int) <- class(method())
   return(int)
 }
@@ -260,9 +260,10 @@ interaction <- function(dimensions, method = two_stage, weights = mode_A) {
 #' summary(mobi_pls)
 #'
 #' @export
-orthogonal <- function(dimensions, weights) {
+orthogonal <- function(name, dimensions, weights) {
   ortho_construct <- function(data, measurement_model, structural_model, ints, inner_weights) {
-    interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
+    #interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
+    interaction_name <- name
     iv1_items <- measurement_model[measurement_model[, "construct"] == dimensions[[1]], "measurement"]
     iv2_items <- measurement_model[measurement_model[, "construct"] == dimensions[[2]], "measurement"]
 
@@ -272,7 +273,6 @@ orthogonal <- function(dimensions, weights) {
     multiples_list <- lapply(iv1_data, mult, iv2_data)
     interaction_data <- do.call("cbind", multiples_list)
     colnames(interaction_data) <- as.vector(sapply(iv1_items, name_items, iv2_items))
-
     # Create formula
     frmla <- stats::as.formula(paste("interaction_data[,i]",paste(as.vector(c(iv1_items,iv2_items)), collapse ="+"), sep = " ~ "))
 
@@ -330,9 +330,10 @@ orthogonal <- function(dimensions, weights) {
 #' summary(mobi_pls)
 #'
 #' @export
-product_indicator <- function(dimensions, weights) {
+product_indicator <- function(name, dimensions, weights) {
   scaled_interaction <- function(data, measurement_model, structural_model, ints, inner_weights) {
-    interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
+    #interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
+    interaction_name <- name
     iv1_items <- measurement_model[measurement_model[, "construct"] == dimensions[[1]], "measurement"]
     iv2_items <- measurement_model[measurement_model[, "construct"] == dimensions[[2]], "measurement"]
 
@@ -391,17 +392,19 @@ product_indicator <- function(dimensions, weights) {
 #' summary(mobi_pls)
 #'
 #' @export
-two_stage <- function(dimensions, weights) {
+two_stage <- function(name, dimensions, weights) {
   two_stage_interaction <- function(data, measurement_model, structural_model, ints, inner_weights) {
-    interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
+    #interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
+    interaction_name <- name
     # TODO: remove duplicated conditional
     # remove interactions from structural model
-    if(length(structural_model[-which(grepl("\\*", structural_model[,1])),]) > 0) {
-      structural_model <- structural_model[-which(grepl("\\*", structural_model[,1])),,drop=FALSE]
-    }
-    if(length(structural_model[-which(grepl("\\*", structural_model[,2])),]) > 0) {
-      structural_model <- structural_model[-which(grepl("\\*", structural_model[,2])),,drop=FALSE]
-    }
+    structural_model <- structural_model[!(structural_model[, "source"] %in% name), ]
+    # if(length(structural_model[-which(grepl("\\*", structural_model[,1])),]) > 0) {
+    #   structural_model <- structural_model[-which(grepl("\\*", structural_model[,1])),,drop=FALSE]
+    # }
+    # if(length(structural_model[-which(grepl("\\*", structural_model[,2])),]) > 0) {
+    #   structural_model <- structural_model[-which(grepl("\\*", structural_model[,2])),,drop=FALSE]
+    # }
 
     measurement_mode_scheme <- sapply(unique(c(structural_model[,1],structural_model[,2])), get_measure_mode, measurement_model, USE.NAMES = TRUE)
     first_stage <- seminr::simplePLS(obsData = data,
@@ -414,7 +417,7 @@ two_stage <- function(dimensions, weights) {
     interaction_term <- as.matrix(first_stage$construct_scores[,dimensions[[1]]] * first_stage$construct_scores[,dimensions[[2]]], ncol = 1)[,, drop = FALSE]
     colnames(interaction_term) <- c(interaction_name)
 
-    intxn_mm <- matrix(measure_interaction(interaction_name, interaction_data, weights), ncol = 3, byrow = TRUE)
+    intxn_mm <- matrix(measure_interaction(interaction_name, interaction_term, weights), ncol = 3, byrow = TRUE)
 
     return(list(name = interaction_name,
                 data = interaction_term[,1, drop = FALSE],
