@@ -54,7 +54,7 @@
 #' summary(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
-estimate_pls <- function(data, measurement_model, interactions=NULL, structural_model, inner_weights = path_weighting) {
+estimate_pls <- function(data, measurement_model, structural_model, inner_weights = path_weighting) {
   cat("Generating the seminr model\n")
   data <- stats::na.omit(data)
   rawdata <- data
@@ -71,27 +71,9 @@ estimate_pls <- function(data, measurement_model, interactions=NULL, structural_
   #   data <- HOM$data
   # }
 
-  # Generate interactions
-  # if(!is.null(interactions)) {
-  #   # update data with new interaction items
-  #   intxns_list <- interactions(data = data,
-  #                               mm = measurement_model,
-  #                               sm = structural_model,
-  #                               ints = interactions,
-  #                               inners = inner_weights)
-  #   get_data <- function(intxn) { intxn$data }
-  #   interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
-  #
-  #   # Append data with interaction data
-  #   data <- cbind(data, interaction_data)
-  #
-  #   # update measurement model with interaction constructs
-  #   intxns_mm <- constructs(do.call("c", lapply(intxns_list, measure_interaction)))
-  #   measurement_model <- rbind(measurement_model, intxns_mm)
-  # }
-  nick <- process_interactions(measurement_model, data, structural_model, inner_weights)
-  measurement_model <- nick$measurement_model
-  data <- nick$data
+  post_interaction_object <- process_interactions(measurement_model, data, structural_model, inner_weights)
+  measurement_model <- post_interaction_object$measurement_model
+  data <- post_interaction_object$data
 
   # warning if the model is incorrectly specified
   warnings(measurement_model, data, structural_model)

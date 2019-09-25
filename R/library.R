@@ -250,11 +250,11 @@ antecedents_of_construct <- function(construct, model) {
   model$smMatrix[model$smMatrix[,2] == construct, 1]
 }
 # update measurement model with interaction constructs
-measure_interaction <- function(intxn) {
-  if (length(names(intxn$data))>1) {
-    composite(intxn$name, names(intxn$data),weights = mode_A)
+measure_interaction <- function(name, data, weights) {
+  if (length(names(data))>1) {
+    composite(name, names(data),weights = weights)
   } else {
-    composite(intxn$name, colnames(intxn$data),weights = mode_A)
+    composite(name, colnames(data),weights = weights)
   }
 }
 

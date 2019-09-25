@@ -213,8 +213,8 @@ two_stage_HOC <- function(construct_name, dimensions, weights = correlation_weig
 
 # Function to create an interaction construct
 #' @export
-interaction <- function(dimensions, method = two_stage, weights = correlation_weights) {
-  int <- method(dimensions)
+interaction <- function(dimensions, method = two_stage, weights = mode_A) {
+  int <- method(dimensions, weights)
   class(int) <- class(method())
   return(int)
 }
@@ -260,7 +260,7 @@ interaction <- function(dimensions, method = two_stage, weights = correlation_we
 #' summary(mobi_pls)
 #'
 #' @export
-orthogonal <- function(dimensions) {
+orthogonal <- function(dimensions, weights) {
   ortho_construct <- function(data, measurement_model, structural_model, ints, inner_weights) {
     interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
     iv1_items <- measurement_model[measurement_model[, "construct"] == dimensions[[1]], "measurement"]
@@ -280,9 +280,10 @@ orthogonal <- function(dimensions) {
     for(i in 1:ncol(interaction_data)) {
       interaction_data[, i] <- stats::lm(formula = frmla, data = data)$residuals
     }
+    intxn_mm <- matrix(measure_interaction(interaction_name, interaction_data, weights), ncol = 3, byrow = TRUE)
     return(list(name = interaction_name,
-                data = interaction_data
-    ))
+                data = interaction_data,
+                mm = intxn_mm))
   }
   class(ortho_construct) <- append(class(ortho_construct), c("construct", "orthogonal_interaction"))
   return(ortho_construct)
@@ -329,7 +330,7 @@ orthogonal <- function(dimensions) {
 #' summary(mobi_pls)
 #'
 #' @export
-product_indicator <- function(dimensions) {
+product_indicator <- function(dimensions, weights) {
   scaled_interaction <- function(data, measurement_model, structural_model, ints, inner_weights) {
     interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
     iv1_items <- measurement_model[measurement_model[, "construct"] == dimensions[[1]], "measurement"]
@@ -341,8 +342,10 @@ product_indicator <- function(dimensions) {
     multiples_list <- lapply(iv1_data, mult, iv2_data)
     interaction_data <- do.call("cbind", multiples_list)
     colnames(interaction_data) <- as.vector(sapply(iv1_items, name_items, iv2_items))
+    intxn_mm <- matrix(measure_interaction(interaction_name, interaction_data, weights), ncol = 3, byrow = TRUE)
     return(list(name = interaction_name,
-                data = interaction_data))
+                data = interaction_data,
+                mm = intxn_mm))
   }
   class(scaled_interaction) <- append(class(scaled_interaction), c("construct", "scaled_interaction"))
   return(scaled_interaction)
@@ -388,7 +391,7 @@ product_indicator <- function(dimensions) {
 #' summary(mobi_pls)
 #'
 #' @export
-two_stage <- function(dimensions) {
+two_stage <- function(dimensions, weights) {
   two_stage_interaction <- function(data, measurement_model, structural_model, ints, inner_weights) {
     interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
     # TODO: remove duplicated conditional
@@ -407,12 +410,15 @@ two_stage <- function(dimensions) {
                                      inner_weights = inner_weights,
                                      measurement_mode_scheme = measurement_mode_scheme)
 
-    interaction_term <- scale(as.matrix(first_stage$construct_scores[,dimensions[[1]]] * first_stage$construct_scores[,dimensions[[2]]], ncol = 1)[,, drop = FALSE])
-
+    #interaction_term <- scale(as.matrix(first_stage$construct_scores[,dimensions[[1]]] * first_stage$construct_scores[,dimensions[[2]]], ncol = 1)[,, drop = FALSE])
+    interaction_term <- as.matrix(first_stage$construct_scores[,dimensions[[1]]] * first_stage$construct_scores[,dimensions[[2]]], ncol = 1)[,, drop = FALSE]
     colnames(interaction_term) <- c(interaction_name)
 
+    intxn_mm <- matrix(measure_interaction(interaction_name, interaction_data, weights), ncol = 3, byrow = TRUE)
+
     return(list(name = interaction_name,
-                data = interaction_term[,1, drop = FALSE]))
+                data = interaction_term[,1, drop = FALSE],
+                mm = intxn_mm))
   }
   class(two_stage_interaction) <- append(class(two_stage_interaction), c("construct", "two_stage_interaction"))
   return(two_stage_interaction)
@@ -434,11 +440,13 @@ process_interactions <- function(measurement_model, data, structural_model, inne
     get_data <- function(intxn) { intxn$data }
     interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
 
+    get_mm <- function(intxn) { intxn$mm }
+    intxns_mm <- do.call("rbind", lapply(intxns_list, get_mm))
     # Append data with interaction data
     data <- cbind(data, interaction_data)
 
     # update measurement model with interaction constructs
-    intxns_mm <- matrix(unlist(lapply(intxns_list, measure_interaction)), ncol = 3, byrow = TRUE)
+    #intxns_mm <- matrix(unlist(lapply(intxns_list, measure_interaction)), ncol = 3, byrow = TRUE)
     # construct <- c(rbind(construct_name, item_names, composite_type))
 
     measurement_model <- rbind(measurement_model, intxns_mm)
