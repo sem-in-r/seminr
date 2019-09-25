@@ -409,6 +409,12 @@ summary(mobi_pls)
 
 Please note that common-factor scores are indeterminable and therefore construct scores for common factors are not reported (Hair et al.,2011).
 
+3. The fSquare of specific relationships can be determine using the `fSquared()` function as per Cohen (2013). 
+
+```{r}
+fSquared(mobi_pls, "Image", "Satisfaction")
+```
+
 ### Reporting the bootstrapped `boot_seminr_model` 
 
 As with the estimated model, there are multiple ways of reporting the bootstrapped model. The `bootstrap_model()` function returns an object of class `boot_seminr_model`. This can be passed directly to the base R function `summary()`. This can be used in two primary ways:   
@@ -500,6 +506,7 @@ model_summary$descriptives$correlations$constructs
 ## References
 
 * Becker et al. (2018). Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment
+* Cohen, J. (2013). Statistical power analysis for the behavioral sciences. Routledge.
 * Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, MIS Quarterly Vol. 39(X).
 * Dillon, W. R, and M. Goldstein. 1987. Multivariate Analysis: Methods, and Applications. Biometrical Journal 29 (6): 750–756.
 * Fornell, C. and D. F. Larcker (February 1981). Evaluating structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5)

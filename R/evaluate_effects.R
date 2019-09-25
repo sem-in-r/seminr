@@ -37,19 +37,18 @@
 #'
 #' fSquared(mobi_pls, "Image", "Satisfaction")
 #' @export
-# fSquared as per Cohen (2013)
-
 fSquared <- function(seminr_model, iv, dv) {
   with_sm <- seminr_model$smMatrix
   without_sm <- subset(with_sm, !((with_sm[, "source"] == iv) & (with_sm[, "target"] == dv)))
   capture.output(
-    without_pls <- estimate_pls(data = seminr_model$data,
+    without_pls <- estimate_pls(data = seminr_model$rawdata,
                                 measurement_model = seminr_model$mmMatrix,
+                                interactions = seminr_model$interactions,
                                 structural_model = without_sm)
   )
-
   with_r2 <- seminr_model$rSquared["Rsq", dv]
-  without_r2 <- without_pls$rSquared["Rsq", dv]
-
-  (with_r2 - without_r2) / (1 - with_r2)
+  ifelse(any(without_sm[,"target"] == dv),
+         without_r2 <- without_pls$rSquared["Rsq", dv],
+         without_r2 <- 0)
+  return((with_r2 - without_r2) / (1 - with_r2))
 }
