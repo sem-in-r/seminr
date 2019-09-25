@@ -263,10 +263,10 @@ interaction <- function(dimensions, method = two_stage, weights = correlation_we
 #'
 #' @export
 orthogonal <- function(dimensions) {
-  ortho_construct <- function(data, mm, sm, ints, inners) {
+  ortho_construct <- function(data, measurement_model, structural_model, ints, inner_weights) {
     interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
-    iv1_items <- mm[mm[, "construct"] == dimensions[[1]], "measurement"]
-    iv2_items <- mm[mm[, "construct"] == dimensions[[2]], "measurement"]
+    iv1_items <- measurement_model[measurement_model[, "construct"] == dimensions[[1]], "measurement"]
+    iv2_items <- measurement_model[measurement_model[, "construct"] == dimensions[[2]], "measurement"]
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
@@ -431,7 +431,7 @@ process_interactions <- function(measurement_model, data, structural_model, inne
   if(!is.null(ints)) {
     # update data with new interaction items
     names(ints) <- c()
-    create_interaction <- function(intxn_function) { intxn_function()(data = data,
+    create_interaction <- function(intxn_function) { intxn_function(data = data,
                                                                     mm = measurement_model,
                                                                     sm = structural_model,
                                                                     ints = ints,
