@@ -214,9 +214,7 @@ two_stage_HOC <- function(construct_name, dimensions, weights = correlation_weig
 # Function to create an interaction construct
 #' @export
 interaction <- function(dimensions, method = two_stage, weights = correlation_weights) {
-  int <- function(dimensions, ...) {
-    method(dimensions)
-  }
+  int <- method(dimensions)
   class(int) <- class(method())
   return(int)
 }
@@ -331,11 +329,11 @@ orthogonal <- function(dimensions) {
 #' summary(mobi_pls)
 #'
 #' @export
-product_indicator <- function(constructs) {
-  scaled_interaction <- function(data, mm, sm, ints, inners) {
-    interaction_name <- paste(constructs[[1]], constructs[[2]], sep="*")
-    iv1_items <- mm[mm[, "construct"] == constructs[[1]], "measurement"]
-    iv2_items <- mm[mm[, "construct"] == constructs[[2]], "measurement"]
+product_indicator <- function(dimensions) {
+  scaled_interaction <- function(data, measurement_model, structural_model, ints, inner_weights) {
+    interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
+    iv1_items <- measurement_model[measurement_model[, "construct"] == dimensions[[1]], "measurement"]
+    iv2_items <- measurement_model[measurement_model[, "construct"] == dimensions[[2]], "measurement"]
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
@@ -390,27 +388,26 @@ product_indicator <- function(constructs) {
 #' summary(mobi_pls)
 #'
 #' @export
-two_stage <- function(constructs) {
-  two_stage_interaction <- function(data, mm, sm, ints, inners) {
-    interaction_name <- paste(constructs[[1]], constructs[[2]], sep="*")
+two_stage <- function(dimensions) {
+  two_stage_interaction <- function(data, measurement_model, structural_model, ints, inner_weights) {
+    interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
     # TODO: remove duplicated conditional
     # remove interactions from structural model
-    if(length(sm[-which(grepl("\\*", sm[,1])),]) > 0) {
-      sm <- sm[-which(grepl("\\*", sm[,1])),,drop=FALSE]
+    if(length(structural_model[-which(grepl("\\*", structural_model[,1])),]) > 0) {
+      structural_model <- structural_model[-which(grepl("\\*", structural_model[,1])),,drop=FALSE]
     }
-    if(length(sm[-which(grepl("\\*", sm[,2])),]) > 0) {
-      sm <- sm[-which(grepl("\\*", sm[,2])),,drop=FALSE]
+    if(length(structural_model[-which(grepl("\\*", structural_model[,2])),]) > 0) {
+      structural_model <- structural_model[-which(grepl("\\*", structural_model[,2])),,drop=FALSE]
     }
 
-    # Run the first stage
-    measurement_mode_scheme <- sapply(unique(c(sm[,1],sm[,2])), get_measure_mode, mm, USE.NAMES = TRUE)
+    measurement_mode_scheme <- sapply(unique(c(structural_model[,1],structural_model[,2])), get_measure_mode, measurement_model, USE.NAMES = TRUE)
     first_stage <- seminr::simplePLS(obsData = data,
-                                     smMatrix = sm,
-                                     mmMatrix = mm,
-                                     inner_weights = inners,
+                                     smMatrix = structural_model,
+                                     mmMatrix = measurement_model,
+                                     inner_weights = inner_weights,
                                      measurement_mode_scheme = measurement_mode_scheme)
 
-    interaction_term <- scale(as.matrix(first_stage$construct_scores[,constructs[[1]]] * first_stage$construct_scores[,constructs[[2]]], ncol = 1)[,, drop = FALSE])
+    interaction_term <- scale(as.matrix(first_stage$construct_scores[,dimensions[[1]]] * first_stage$construct_scores[,dimensions[[2]]], ncol = 1)[,, drop = FALSE])
 
     colnames(interaction_term) <- c(interaction_name)
 
@@ -428,14 +425,10 @@ process_interactions <- function(measurement_model, data, structural_model, inne
                dimnames = list(NULL, c("construct", "measurement", "type")))
 
 
-  if(!is.null(ints)) {
+  if(length(ints)>0) {
     # update data with new interaction items
     names(ints) <- c()
-    create_interaction <- function(intxn_function) { intxn_function(data = data,
-                                                                    mm = measurement_model,
-                                                                    sm = structural_model,
-                                                                    ints = ints,
-                                                                    inners = inner_weights) }
+    create_interaction <- function(intxn_function) { intxn_function(data, measurement_model, structural_model, ints, inner_weights) }
     intxns_list <- lapply(ints, create_interaction)
 
     get_data <- function(intxn) { intxn$data }
@@ -450,7 +443,6 @@ process_interactions <- function(measurement_model, data, structural_model, inne
 
     measurement_model <- rbind(measurement_model, intxns_mm)
   }
-  return(list(
-    data <- data,
-    measurement_model <- measurement_model))
+  return(list(data = data,
+              measurement_model = measurement_model))
 }
