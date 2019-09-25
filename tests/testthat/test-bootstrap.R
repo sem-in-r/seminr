@@ -51,13 +51,9 @@ mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5), weights = correlation_weights),
   composite("Expectation",  multi_items("CUEX", 1:3), weights = correlation_weights),
   composite("Value",        multi_items("PERV", 1:2), weights = correlation_weights),
-  composite("Satisfaction", multi_items("CUSA", 1:3), weights = correlation_weights)
-)
-
-# interaction constructs must be created after the measurement model is defined
-mobi_xm <- interactions(
-  interaction_ortho("Image", "Expectation"),
-  interaction_ortho("Image", "Value")
+  composite("Satisfaction", multi_items("CUSA", 1:3), weights = correlation_weights),
+  interaction("Image*Expectation", dimensions = c("Image","Expectation"), method = orthogonal, weights = mode_A),
+  interaction("Image*Value", dimensions = c("Image","Value"), method = orthogonal, weights = mode_A)
 )
 
 # structural model: note that name of the interactions construct should be
@@ -70,7 +66,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm, inner_weights = path_factorial)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm, inner_weights = path_factorial)
 bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 
 # Load outputs
@@ -113,7 +109,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm, inner_weights = path_factorial)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm, inner_weights = path_factorial)
 bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 
 # Load outputs
@@ -155,7 +151,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm, inner_weights = path_weighting)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm, inner_weights = path_weighting)
 bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 
 # Load outputs
@@ -222,7 +218,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm, inner_weights = path_factorial)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm, inner_weights = path_factorial)
 bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 
 # Load outputs

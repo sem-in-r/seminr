@@ -7,13 +7,8 @@ mobi_mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Expectation",  single_item("CUEX3")),
   reflective("Value",        multi_items("PERV", 1:2)),
-  reflective("Satisfaction", multi_items("CUSA", 1:3))
-)
-
-# Interaction constructs must be created after the measurement model is defined.
-# We are using the orthogonalization method as per Henseler & Chin (2010)
-mobi_xm <- interactions(
-  interaction_ortho("Image", "Expectation")
+  reflective("Satisfaction", multi_items("CUSA", 1:3)),
+  interaction("Image*Expectation", dimensions = c("Image","Expectation"), method = orthogonal, weights = mode_A)
 )
 
 # Structural model
@@ -28,7 +23,6 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
-                         interactions = mobi_xm,
                          structural_model = mobi_sm)
 # Load outputs
 sum <- summary(mobi_pls)

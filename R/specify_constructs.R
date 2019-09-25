@@ -394,18 +394,9 @@ product_indicator <- function(name, dimensions, weights) {
 #' @export
 two_stage <- function(name, dimensions, weights) {
   two_stage_interaction <- function(data, measurement_model, structural_model, ints, inner_weights) {
-    #interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
     interaction_name <- name
-    # TODO: remove duplicated conditional
     # remove interactions from structural model
     structural_model <- structural_model[!(structural_model[, "source"] %in% name), ]
-    # if(length(structural_model[-which(grepl("\\*", structural_model[,1])),]) > 0) {
-    #   structural_model <- structural_model[-which(grepl("\\*", structural_model[,1])),,drop=FALSE]
-    # }
-    # if(length(structural_model[-which(grepl("\\*", structural_model[,2])),]) > 0) {
-    #   structural_model <- structural_model[-which(grepl("\\*", structural_model[,2])),,drop=FALSE]
-    # }
-
     measurement_mode_scheme <- sapply(unique(c(structural_model[,1],structural_model[,2])), get_measure_mode, measurement_model, USE.NAMES = TRUE)
     first_stage <- seminr::simplePLS(obsData = data,
                                      smMatrix = structural_model,
@@ -413,7 +404,6 @@ two_stage <- function(name, dimensions, weights) {
                                      inner_weights = inner_weights,
                                      measurement_mode_scheme = measurement_mode_scheme)
 
-    #interaction_term <- scale(as.matrix(first_stage$construct_scores[,dimensions[[1]]] * first_stage$construct_scores[,dimensions[[2]]], ncol = 1)[,, drop = FALSE])
     interaction_term <- as.matrix(first_stage$construct_scores[,dimensions[[1]]] * first_stage$construct_scores[,dimensions[[2]]], ncol = 1)[,, drop = FALSE]
     colnames(interaction_term) <- c(interaction_name)
 
