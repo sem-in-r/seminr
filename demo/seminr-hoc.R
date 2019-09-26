@@ -10,7 +10,7 @@ mobi_mm <- constructs(
   composite("Expectation",  multi_items("CUEX", 1:3)),
   composite("Quality",      multi_items("PERQ", 1:7)),
   composite("Value",        multi_items("PERV", 1:2)),
-  two_stage_HOC("Satisfaction", c("Image","Value")),
+  higher_composite("Satisfaction", dimensions = c("Image","Value"), method = two_stage, ),
   composite("Complaints",   single_item("CUSCO")),
   composite("Loyalty",      multi_items("CUSL", 1:3))
 )
@@ -25,5 +25,4 @@ mobi_sm <- relationships(
 # Estimate the model with the HOC
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
-                         interactions = NULL,
                          structural_model = mobi_sm)

@@ -2,10 +2,10 @@
 descriptives <- function(seminr_model, na.rm = TRUE) {
   #items
   item_descriptives <- desc(seminr_model$data, na.rm = na.rm)
-  item_correlations <- cor(seminr_model$data)
+  item_correlations <- stats::cor(seminr_model$data)
   #constructs
   construct_descriptives <- desc(seminr_model$construct_scores, na.rm = na.rm)
-  construct_correlations <- cor(seminr_model$construct_scores)
+  construct_correlations <- stats::cor(seminr_model$construct_scores)
   class(item_descriptives) <- append(class(item_descriptives), "table_output")
   class(item_correlations) <- append(class(item_correlations), "table_output")
   class(construct_descriptives) <- append(class(construct_descriptives), "table_output")

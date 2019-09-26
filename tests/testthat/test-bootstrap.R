@@ -52,8 +52,8 @@ mobi_mm <- constructs(
   composite("Expectation",  multi_items("CUEX", 1:3), weights = correlation_weights),
   composite("Value",        multi_items("PERV", 1:2), weights = correlation_weights),
   composite("Satisfaction", multi_items("CUSA", 1:3), weights = correlation_weights),
-  interaction("Image*Expectation", dimensions = c("Image","Expectation"), method = orthogonal, weights = mode_A),
-  interaction("Image*Value", dimensions = c("Image","Value"), method = orthogonal, weights = mode_A)
+  interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method = orthogonal, weights = mode_A),
+  interaction_term("Image*Value", dimensions = c("Image","Value"), method = orthogonal, weights = mode_A)
 )
 
 # structural model: note that name of the interactions construct should be
@@ -66,7 +66,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm, inner_weights = path_factorial)
-bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 1234)
+bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
 
 # Load outputs
 bootmatrix <- bootmodel$paths_descriptives

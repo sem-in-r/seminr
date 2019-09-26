@@ -2,21 +2,23 @@
 % Please edit documentation in R/specify_constructs.R
 \name{higher_composite}
 \alias{higher_composite}
-\title{HOC construct}
+\title{higher_composite}
 \usage{
-two_stage_HOC(construct_name, dimensions,weights = correlation_weights)
+higher_composite(construct_name, dimensions, method, weights)
 }
 \arguments{
 \item{construct_name}{of second order construct}
 
 \item{dimensions}{the first order constructs}
 
+\item{method}{is the estimation method, default is two_stage}
+
 \item{weights}{is the relationship between the second order construct and first order constructs. This can be
 specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
 \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.}
 }
 \description{
-\code{two_stage_HOC} creates the constructs from further constructs using the two-stage method (Becker et al., 2012).
+\code{higher_composite} creates a higher order construct from first order constructs using the two-stage method (Becker et al., 2012).
 }
 \details{
 This function conveniently maps first order constructs onto second order constructs using
@@ -26,7 +28,7 @@ construct names.
   mobi_mm <- constructs(
     composite("Image",        multi_items("IMAG", 1:5), weights = correlation_weights),
     composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
-    two_stage_HOC("Quality",      c("Image","Expectation"), weights = regression_weights),
+    higher_composite("Quality",  c("Image","Expectation"), method = two_stage),
     composite("Value",        multi_items("PERV", 1:2), weights = mode_B)
   )
 }

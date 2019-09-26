@@ -25,7 +25,7 @@
 #' simplePLS(obsData,smMatrix, mmMatrix,inner_weights = path_weighting,
 #'           maxIt=300, stopCriterion=7,measurement_mode_scheme)
 #'
-#' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
+#' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
 #'          \code{\link{estimate_pls}} \code{\link{bootstrap_model}}
 #'
 #' @examples

@@ -44,6 +44,6 @@ rho_A(mobi_pls)
 Dijkstra, T. K., & Henseler, J. (2015). Consistent partial least squares path modeling. MIS quarterly, 39(2).
 }
 \seealso{
-\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
+\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
          \code{\link{bootstrap_model}}
 }

@@ -9,13 +9,8 @@ mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5)),
   composite("Expectation",  multi_items("CUEX", 1:3)),
   composite("Value",        multi_items("PERV", 1:2)),
-  composite("Satisfaction", multi_items("CUSA", 1:3))
-)
-
-# Interaction constructs must be created after the measurement model is defined.
-# We are using the two_stage method as per Henseler & Chin (2010)
-mobi_xm <- interactions(
-  interaction_2stage("Image", "Expectation")
+  composite("Satisfaction", multi_items("CUSA", 1:3)),
+  interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method = two_stage, weights = mode_A)
 )
 
 # Creating structural model
@@ -29,5 +24,4 @@ mobi_sm <- relationships(
 # Estimate the model with the HOC
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
-                         interactions = mobi_xm,
                          structural_model = mobi_sm)

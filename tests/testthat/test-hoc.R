@@ -67,7 +67,7 @@ mobi_mm <- constructs(
   composite("Value",        multi_items("PERV", 1:2)),
   higher_composite("Nick", dimensions = c("Quality","Loyalty"), method = two_stage, weights = mode_A),
   composite("Satisfaction", multi_items("CUSA", 1:3)),
-  interaction("Image*Expectation", dimensions = c("Image","Expectation"), method = two_stage, weights = mode_A)
+  interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method = two_stage, weights = mode_A)
 )
 
 # Creating structural model

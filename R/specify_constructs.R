@@ -171,21 +171,22 @@ single_item <- function(item) {
   return(item)
 }
 
-#' HOC construct
+#' higher_composite
 #'
-#' \code{two_stage_HOC} creates the constructs from further constructs using the two-stage method (Becker et al., 2012).
+#' \code{higher_composite} creates a higher order construct from first order constructs using the two-stage method (Becker et al., 2012).
 #'
 #' This function conveniently maps first order constructs onto second order constructs using
 #' construct names.
 #'
 #' @param construct_name of second order construct
 #' @param dimensions the first order constructs
+#' @param method is the estimation method, default is two_stage
 #' @param weights is the relationship between the second order construct and first order constructs. This can be
 #' specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
 #' \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.
 #'
 #' @usage
-#'  two_stage_HOC(construct_name, dimensions,weights = correlation_weights)
+#'  higher_composite(construct_name, dimensions, method, weights)
 #'
 #' @seealso See \code{\link{constructs}}, \code{\link{reflective}}
 #'
@@ -193,7 +194,7 @@ single_item <- function(item) {
 #'   mobi_mm <- constructs(
 #'     composite("Image",        multi_items("IMAG", 1:5), weights = correlation_weights),
 #'     composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
-#'     two_stage_HOC("Quality",      c("Image","Expectation"), weights = regression_weights),
+#'     higher_composite("Quality",  c("Image","Expectation"), method = two_stage),
 #'     composite("Value",        multi_items("PERV", 1:2), weights = mode_B)
 #'   )
 #' @export
@@ -209,241 +210,4 @@ higher_composite <- function(construct_name, dimensions, method = two_stage,  we
   construct <- c(rbind(construct_name, dimensions, composite_type))
   class(construct) <- append(class(construct), c("construct", "higher_order_composite"))
   return(construct)
-}
-
-# Function to create an interaction construct
-#' @export
-interaction <- function(name, dimensions, method = two_stage, weights = mode_A) {
-  int <- method(name, dimensions, weights)
-  class(int) <- class(method())
-  return(int)
-}
-
-#' \code{interaction_ortho} creates interaction measurement items by using the orthogonalized approach..
-#'
-#' This function automatically generates interaction measurement items for a PLS SEM using the orthogonalized approach..
-#'
-#' @param construct1 The first construct which is subject to the interaction.
-#' @param construct2 The second construct which is subject to the interaction.
-#'
-#' @usage
-#'  # orthogonalization approach as per Henseler & CHin (2010):
-#'  interaction_ortho(construct1, construct2)
-#'
-#' @references Henseler & Chin (2010), A comparison of approaches for the analysis of interaction effects
-#' between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1),82-109.
-#'
-#' @examples
-#' data(mobi)
-#'
-#' # seminr syntax for creating measurement model
-#' mobi_mm <- constructs(
-#'   composite("Image",        multi_items("IMAG", 1:5)),
-#'   composite("Expectation",  multi_items("CUEX", 1:3)),
-#'   composite("Value",        multi_items("PERV", 1:2)),
-#'   composite("Satisfaction", multi_items("CUSA", 1:3))
-#' )
-#' mobi_xm <- interactions(
-#'   interaction_ortho("Image", "Expectation"),
-#'   interaction_ortho("Image", "Value")
-#' )
-#'
-#' #  structural model: note that name of the interactions construct should be
-#' #  the names of its two main constructs joined by a '*' in between.
-#' mobi_sm <- relationships(
-#'   paths(to = "Satisfaction",
-#'         from = c("Image", "Expectation", "Value",
-#'                  "Image*Expectation", "Image*Value"))
-#' )
-#'
-#' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
-#' summary(mobi_pls)
-#'
-#' @export
-orthogonal <- function(name, dimensions, weights) {
-  ortho_construct <- function(data, measurement_model, structural_model, ints, inner_weights) {
-    #interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
-    interaction_name <- name
-    iv1_items <- measurement_model[measurement_model[, "construct"] == dimensions[[1]], "measurement"]
-    iv2_items <- measurement_model[measurement_model[, "construct"] == dimensions[[2]], "measurement"]
-
-    iv1_data <- as.data.frame(scale(data[iv1_items]))
-    iv2_data <- as.data.frame(scale(data[iv2_items]))
-
-    multiples_list <- lapply(iv1_data, mult, iv2_data)
-    interaction_data <- do.call("cbind", multiples_list)
-    colnames(interaction_data) <- as.vector(sapply(iv1_items, name_items, iv2_items))
-    # Create formula
-    frmla <- stats::as.formula(paste("interaction_data[,i]",paste(as.vector(c(iv1_items,iv2_items)), collapse ="+"), sep = " ~ "))
-
-    # iterate and orthogonalize
-    for(i in 1:ncol(interaction_data)) {
-      interaction_data[, i] <- stats::lm(formula = frmla, data = data)$residuals
-    }
-    intxn_mm <- matrix(measure_interaction(interaction_name, interaction_data, weights), ncol = 3, byrow = TRUE)
-    return(list(name = interaction_name,
-                data = interaction_data,
-                mm = intxn_mm))
-  }
-  class(ortho_construct) <- append(class(ortho_construct), c("construct", "orthogonal_interaction"))
-  return(ortho_construct)
-}
-
-#' \code{interaction_scaled} creates interaction measurement items by scaled product indicator approach.
-#'
-#' This function automatically generates interaction measurement items for a PLS SEM using scaled product indicator approach.
-#'
-#' @param construct1 The first construct which is subject to the interaction.
-#' @param construct2 The second construct which is subject to the interaction.
-#'
-#' @usage
-#'  # standardized product indicator approach as per Henseler & Chin (2010):
-#'  interaction_scaled("construct1", "construct2")
-#'
-#' @references Henseler & Chin (2010), A comparison of approaches for the analysis of interaction effects
-#' between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1),82-109.
-#'
-#' @examples
-#' data(mobi)
-#'
-#' # seminr syntax for creating measurement model
-#' mobi_mm <- constructs(
-#'   composite("Image",        multi_items("IMAG", 1:5)),
-#'   composite("Expectation",  multi_items("CUEX", 1:3)),
-#'   composite("Value",        multi_items("PERV", 1:2)),
-#'   composite("Satisfaction", multi_items("CUSA", 1:3))
-#' )
-#' mobi_xm <- interactions(
-#'   interaction_scaled("Image", "Expectation"),
-#'   interaction_scaled("Image", "Value")
-#' )
-#'
-#' #  structural model: note that name of the interactions construct should be
-#' #  the names of its two main constructs joined by a '*' in between.
-#' mobi_sm <- relationships(
-#'   paths(to = "Satisfaction",
-#'         from = c("Image", "Expectation", "Value",
-#'                  "Image*Expectation", "Image*Value"))
-#' )
-#'
-#' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
-#' summary(mobi_pls)
-#'
-#' @export
-product_indicator <- function(name, dimensions, weights) {
-  scaled_interaction <- function(data, measurement_model, structural_model, ints, inner_weights) {
-    #interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
-    interaction_name <- name
-    iv1_items <- measurement_model[measurement_model[, "construct"] == dimensions[[1]], "measurement"]
-    iv2_items <- measurement_model[measurement_model[, "construct"] == dimensions[[2]], "measurement"]
-
-    iv1_data <- as.data.frame(scale(data[iv1_items]))
-    iv2_data <- as.data.frame(scale(data[iv2_items]))
-
-    multiples_list <- lapply(iv1_data, mult, iv2_data)
-    interaction_data <- do.call("cbind", multiples_list)
-    colnames(interaction_data) <- as.vector(sapply(iv1_items, name_items, iv2_items))
-    intxn_mm <- matrix(measure_interaction(interaction_name, interaction_data, weights), ncol = 3, byrow = TRUE)
-    return(list(name = interaction_name,
-                data = interaction_data,
-                mm = intxn_mm))
-  }
-  class(scaled_interaction) <- append(class(scaled_interaction), c("construct", "scaled_interaction"))
-  return(scaled_interaction)
-}
-
-#' \code{interaction_2stage} creates an interaction measurement item by the two-stage approach.
-#'
-#' This function automatically generates an interaction measurement item for a PLS SEM using the two-stage approach.
-#'
-#' @param construct1 The first construct which is subject to the interaction.
-#' @param construct2 The second construct which is subject to the interaction.
-#'
-#' @usage
-#'  # two stage approach as per Henseler & Chin (2010):
-#'  interaction_2stage("construct1", "construct2")
-#'
-#' @references Henseler & Chin (2010), A comparison of approaches for the analysis of interaction effects
-#' between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1),82-109.
-#'
-#' @examples
-#' data(mobi)
-#'
-#' # seminr syntax for creating measurement model
-#' mobi_mm <- constructs(
-#'   composite("Image",        multi_items("IMAG", 1:5)),
-#'   composite("Expectation",  multi_items("CUEX", 1:3)),
-#'   composite("Value",        multi_items("PERV", 1:2)),
-#'   composite("Satisfaction", multi_items("CUSA", 1:3))
-#' )
-#' mobi_xm <- interactions(
-#'   interaction_2stage("Image", "Expectation")
-#' )
-#'
-#' #  structural model: note that name of the interactions construct should be
-#' #  the names of its two main constructs joined by a '*' in between.
-#' mobi_sm <- relationships(
-#'   paths(to = "Satisfaction",
-#'         from = c("Image", "Expectation", "Value",
-#'                  "Image*Expectation"))
-#' )
-#'
-#' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm)
-#' summary(mobi_pls)
-#'
-#' @export
-two_stage <- function(name, dimensions, weights) {
-  two_stage_interaction <- function(data, measurement_model, structural_model, ints, inner_weights) {
-    interaction_name <- name
-    # remove interactions from structural model
-    structural_model <- structural_model[!(structural_model[, "source"] %in% name), ]
-    measurement_mode_scheme <- sapply(unique(c(structural_model[,1],structural_model[,2])), get_measure_mode, measurement_model, USE.NAMES = TRUE)
-    first_stage <- seminr::simplePLS(obsData = data,
-                                     smMatrix = structural_model,
-                                     mmMatrix = measurement_model,
-                                     inner_weights = inner_weights,
-                                     measurement_mode_scheme = measurement_mode_scheme)
-
-    interaction_term <- as.matrix(first_stage$construct_scores[,dimensions[[1]]] * first_stage$construct_scores[,dimensions[[2]]], ncol = 1)[,, drop = FALSE]
-    colnames(interaction_term) <- c(interaction_name)
-
-    intxn_mm <- matrix(measure_interaction(interaction_name, interaction_term, weights), ncol = 3, byrow = TRUE)
-
-    return(list(name = interaction_name,
-                data = interaction_term[,1, drop = FALSE],
-                mm = intxn_mm))
-  }
-  class(two_stage_interaction) <- append(class(two_stage_interaction), c("construct", "two_stage_interaction"))
-  return(two_stage_interaction)
-}
-
-process_interactions <- function(measurement_model, data, structural_model, inner_weights) {
-  ints <- measurement_model[(substr(names(measurement_model), nchar(names(measurement_model))-10, nchar(names(measurement_model))) == "interaction")]
-  non_ints <- measurement_model[(substr(names(measurement_model), nchar(names(measurement_model))-10, nchar(names(measurement_model))) != "interaction")]
-  measurement_model <- matrix(unlist(non_ints), ncol = 3, byrow = TRUE,
-               dimnames = list(NULL, c("construct", "measurement", "type")))
-
-
-  if(length(ints)>0) {
-    # update data with new interaction items
-    names(ints) <- c()
-    create_interaction <- function(intxn_function) { intxn_function(data, measurement_model, structural_model, ints, inner_weights) }
-    intxns_list <- lapply(ints, create_interaction)
-
-    get_data <- function(intxn) { intxn$data }
-    interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
-
-    get_mm <- function(intxn) { intxn$mm }
-    intxns_mm <- do.call("rbind", lapply(intxns_list, get_mm))
-    # Append data with interaction data
-    data <- cbind(data, interaction_data)
-
-    # update measurement model with interaction constructs
-    #intxns_mm <- matrix(unlist(lapply(intxns_list, measure_interaction)), ncol = 3, byrow = TRUE)
-    # construct <- c(rbind(construct_name, item_names, composite_type))
-
-    measurement_model <- rbind(measurement_model, intxns_mm)
-  }
-  return(list(data = data,
-              measurement_model = measurement_model))
 }

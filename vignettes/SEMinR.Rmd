@@ -35,37 +35,33 @@ SEMinR follows the latest best-practices in methodological literature:
 
 Briefly, there are four steps to specifying and estimating a structural equation model using SEMinR:
 
-1. Describe measurement model for each construct and its items:
+1. Describe measurement model for each construct and its items, specifying interactions and higher order constructs:
 ```{r, eval=FALSE}
 # Distinguish and mix composite or reflective (common-factor) measurement models
 measurements <- constructs(
   composite("Image",       multi_items("IMAG", 1:5), weights = mode_B),
   composite("Expectation", multi_items("CUEX", 1:3), weights = mode_A),
-  reflective("Loyalty",    multi_items("CUSL", 1:3))
+  composite("Loyalty",    multi_items("CUSL", 1:3)),
+  composite("Quality",      multi_items("PERQ", 1:7)),
+  composite("Complaints",   single_item("CUSCO")),
+  interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method =  orthogonal, weights = mode_A),
+  higher_composite("Value", dimensions = c("Quality","Complaints"), method = two_stage, weights = mode_B)
 )
 ```
 
-2. Specify any interactions between constructs:
-```{r, eval=FALSE}
-# Easily create orthogonalized or scaled interactions between constructs
-intxns <- interactions(
-  interaction_ortho("Image", "Expectation")
-)
-```
-
-3. Describe the structural model of causal relationships between constructs (and interactions):
+2. Describe the structural model of causal relationships between constructs (and interactions):
 ```{r, eval=FALSE}
 # Quickly create multiple paths "from" and "to" sets of constructs
 structure <- relationships(
-  paths(from = c("Image", "Expectation", "Image*Expectation"), 
+  paths(from = c("Image", "Expectation", "Image*Expectation", "Value"), 
         to = "Loyalty")
 )
 ```
 
-4. Put the above elements together to estimate and bootstrap the model:
+3. Put the above elements together to estimate and bootstrap the model:
 ```{r, eval=FALSE}
 # Dynamically compose SEM models from individual parts
-pls_model <- estimate_pls(data = mobi, measurements, intxns, structure)
+pls_model <- estimate_pls(data = mobi, measurements, structure)
 summary(pls_model)
 
 # Use multi-core parallel processing to speed up bootstraps
@@ -116,7 +112,7 @@ Let's take a closer look at the individual functions.
 
 ### Create measurement model matrix with `constructs()`
 
-`constructs()` compiles the measurement model source-target matrix from the user specified construct descriptions described in the parameters. You must supply it with any number of individual _composite_ or _reflective_ constructs:
+`constructs()` compiles the measurement model source-target matrix from the user specified construct descriptions described in the parameters. You must supply it with any number of individual _composite_, _reflective_, _interaction_, or _higher_composite_ constructs:
 
 ```{r}
 mobi_mm <- constructs(
@@ -126,13 +122,15 @@ mobi_mm <- constructs(
   composite("Value",         multi_items("PERV", 1:2), weights = correlation_weights),
   reflective("Satisfaction", multi_items("CUSA", 1:3)),
   reflective("Complaints",   single_item("CUSCO")),
+  higher_composite("HOC", c("Value", "Satisfaction"), orthogonal, mode_A),
+  interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method =  orthogonal, weights = mode_A),
   reflective("Loyalty",      multi_items("CUSL", 1:3))
 )
 ```
 
 We are storing the measurement model in the `mobi_mm` variable for later use.
 
-Note that neither a dataset nor a structural model is specified in the measurement model stage, so we can reuse the measurement model object `mobi_mm` across different datasets and structural models.
+*Note* that neither a dataset nor a structural model is specified in the measurement model stage, so we can reuse the measurement model object `mobi_mm` across different datasets and structural models.
 
 ### Describe individual constructs with `composite()` or `reflective()`
 
@@ -182,57 +180,33 @@ single_item("CUSCO")
 "CUSCO"
 ```
 
-It is important to note that a single-item constructs can be defined as either composite mode A or reflective common-factor, but single-item constructs are essentially composites whose construct scores are determined.
+*Note* that a single-item constructs can be defined as either composite mode A or reflective common-factor, but single-item constructs are essentially composites whose construct scores are determined.
 
 ## Interaction terms
 
 Creating interaction terms by hand can be a time-consuming and error-prone. SEMinR provides high-level functions for simply creating interactions between constructs.
 
-* `interactions()` gathers all pairs of interacting constructs in the model
-* `interaction_ortho()` or `interaction_scaled()` specify individual pairs of interactions
+### Apply different estimation methods for interactions with `orthogonal`, `product_indicator`, and `two_stage`:
 
-Note that recent studies show PLS models must adjust the standard deviation of the interaction term because: _"In general, the product of two standardized variables does not equal the standardized product of these variables"_ (Henseler and Chin 2010). SEMinR automatically adjusts for this providing highly accurate model estimations.
+Interaction terms are described in the measurement model function constructs() using the following methods:
 
-### Describe all model interactions with `interactions()`
+* `orthogonal` describes a single interaction composite generated by the orthogonalization method of Henseler and Chin (2010).
+* `product_indicator` describes a single interaction composite as generated by the scaled product-indicator method as described by Henseler and Chin (2010).
+* `two_stage` describes a single interaction composite as generated by the two stage method as described by Henseler and Chin (2010).
 
-`interactions()` describes all pairs of interactions in a model.
-
-```{r}
-mobi_xm <- interactions(
-  interaction_ortho("Image", "Expectation"),
-  interaction_ortho("Image", "Value")
-)
-```
-
-The object held in `mobi_xm` is:
-
-```{r}
-mobi_xm
-```
-
-Not that these functions themselves return functions that are not resolved until passed as a parameter to the `estimate_pls()` function for model estimation.
-
-### Describe an interaction with `interaction_ortho()` or `interaction_scaled()`
-
-`interaction_ortho()` describes a single interaction composite generated by the orthogonalization method of Henseler and Chin (2010).
-
-`interaction_scaled()` describes a single interaction composite as generated by the scale product-indicator method as described by Henseler and Chin (2010).
-
-For both these methods the standard deviation of the interaction term is adjusted as noted above.
+For these methods the standard deviation of the interaction term is adjusted as noted above.
 
 For example, we can describe the following interactions between antecedent and moderator:
-* "Image" + "Value"
+* "Image" + "Expectation"
 
 ```{r, eval = FALSE}
-# Orgthogonalized interaction between "Image" x "Expectation"
-interaction_ortho("Image", "Expectation")
-
-# Scaled (mean-centered, standardized) interaction between "Image" x "Value"
-interaction_scaled("Image", "Value")
+interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method =  orthogonal, weights = mode_A)
+interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method =  product_indicator, weights = mode_A)
+interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method =  two_stage, weights = mode_A)
 ```
 
-These functions themselves return functions that are not resolved but passed as parameters to the `interactions()` function discussed above.
-
+*Note* that these functions themselves return functions that are not resolved until processed in the `estimate_pls()` function for model estimation.
+*Note* that recent studies show PLS models must adjust the standard deviation of the interaction term because: _"In general, the product of two standardized variables does not equal the standardized product of these variables"_ (Henseler and Chin 2010). SEMinR automatically adjusts for this providing highly accurate model estimations.
 **Important Note:** SEMinR syntax uses an asterix "*" as a naming convention for the interaction construct. Thus, the "Image" + "Expectation" interaction is called "Image*Expectation" in the structural model below. Please refrain from using an asterix "*" in the naming of non-interaction constructs.
 
 ## Structural model description 
@@ -306,7 +280,6 @@ This function takes the following parameters:
 
 * `data`: the dataset containing the measurement model items specified in `constructs()`
 * `measurement_model`: the measurement model described by the `constructs()` function
-* `interactions` (optional): the interactions described by the `interactions()` function (default is NULL)
 * `structural_model`: the structural model described by the `paths()` function
 * `inner_weights`: the weighting scheme for path estimation - either `path_weighting` for path weighting (default) or `path_factorial` for factor weighting (Lohmöller 1989)
 * `max_iterations` (optional): the maximum number of iterations (default is 300)
@@ -320,13 +293,9 @@ mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5)),
   composite("Expectation",  multi_items("CUEX", 1:3)),
   composite("Value",        multi_items("PERV", 1:2)),
-  composite("Satisfaction", multi_items("CUSA", 1:3))
-)
-
-# specify interactions among constructs
-mobi_xm <- interactions(
-  interaction_ortho("Image", "Expectation"),
-  interaction_ortho("Image", "Value")
+  composite("Satisfaction", multi_items("CUSA", 1:3)),
+  interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method =  orthogonal, weights = mode_A),
+  interaction_term("Image*Value", dimensions = c("Image","Value"), method =  orthogonal, weights = mode_A)
 )
 
 # define structural model
@@ -339,7 +308,6 @@ mobi_sm <- relationships(
 
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
-                         interactions = mobi_xm,
                          structural_model = mobi_sm,
                          inner_weights = path_weighting)
 ```

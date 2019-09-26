@@ -9,8 +9,8 @@ mobi_mm <- constructs(
   composite("Expectation",  multi_items("CUEX", 1:3),weights = mode_A),
   composite("Value",        multi_items("PERV", 1:2),weights = mode_A),
   composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A),
-  interaction("Image*Expectation", dimensions = c("Image","Expectation"), method = orthogonal, weights = mode_A),
-  interaction("Image*Value", dimensions = c("Image","Value"), method = orthogonal, weights = mode_A)
+  interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method = orthogonal, weights = mode_A),
+  interaction_term("Image*Value", dimensions = c("Image","Value"), method = orthogonal, weights = mode_A)
 )
 
 # structural model: note that name of the interactions construct should be
@@ -66,8 +66,8 @@ mobi_mm <- constructs(
   composite("Expectation",  multi_items("CUEX", 1:3),weights = mode_A),
   composite("Value",        multi_items("PERV", 1:2),weights = mode_A),
   composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A),
-  interaction("Image*Expectation", dimensions = c("Image","Expectation"), method = product_indicator, weights = mode_A),
-  interaction("Image*Value", dimensions = c("Image","Value"), method = product_indicator, weights = mode_A)
+  interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method = product_indicator, weights = mode_A),
+  interaction_term("Image*Value", dimensions = c("Image","Value"), method = product_indicator, weights = mode_A)
 )
 
 # structural model: note that name of the interactions construct should be

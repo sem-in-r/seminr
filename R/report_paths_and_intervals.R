@@ -71,31 +71,31 @@ report_paths <- function(seminr_model, digits=3) {
   final_paths
 }
 
-report_bootstrapped_paths <- function(boot_seminr_model, na.print=".", digits=3) {
-  bootstrapresults <- seminr_model$
-  nboots <- boot_seminr_model$boots
-  bootstraplist <- list()
-  j <- ncol(bootstrapresults)/3
-  k <- j+1
-  l <- (j*2)+1
-  for(i in 1:j){
-    bootstraplist[[i]] <- bootstrapresults[,c(i,k,l)]
-    bootstraplist[[i]] <- cbind(bootstraplist[[i]],matrix((abs(bootstraplist[[i]][,1])/abs(bootstraplist[[i]][,3])),ncol = 1, dimnames = list(c(NULL),c("t value"))))
-    bootstraplist[[i]] <- cbind(bootstraplist[[i]], matrix(2*stats::pt(-abs(bootstraplist[[i]][,4]),df = nboots - 1),ncol = 1, dimnames = list(c(NULL),c("Pr(>|t|)"))))
-    bootstraplist[[i]][is.nan(bootstraplist[[i]])] <- 0
-    #      bootstraplist[[i]] <- cbind(bootstraplist[[i]], bootstraplist[[i]][bootstraplist[[i]][,5] == 0,5] = "")
-    k <- k+1
-    l <- l+1
-  }
-
-  for(i in 1:length(bootstraplist)) { bootstraplist[[i]] <- round(bootstraplist[[i]], digits) }
-
-  # print final_boot
-  for(i in 1:length(bootstraplist)) { print(bootstraplist[[i]], na.print = na.print) }
-
-  class(bootstraplist) <- "report_bootstrapped_paths"
-  bootstraplist
-}
+# report_bootstrapped_paths <- function(boot_seminr_model, na.print=".", digits=3) {
+#   bootstrapresults <- seminr_model$
+#   nboots <- boot_seminr_model$boots
+#   bootstraplist <- list()
+#   j <- ncol(bootstrapresults)/3
+#   k <- j+1
+#   l <- (j*2)+1
+#   for(i in 1:j){
+#     bootstraplist[[i]] <- bootstrapresults[,c(i,k,l)]
+#     bootstraplist[[i]] <- cbind(bootstraplist[[i]],matrix((abs(bootstraplist[[i]][,1])/abs(bootstraplist[[i]][,3])),ncol = 1, dimnames = list(c(NULL),c("t value"))))
+#     bootstraplist[[i]] <- cbind(bootstraplist[[i]], matrix(2*stats::pt(-abs(bootstraplist[[i]][,4]),df = nboots - 1),ncol = 1, dimnames = list(c(NULL),c("Pr(>|t|)"))))
+#     bootstraplist[[i]][is.nan(bootstraplist[[i]])] <- 0
+#     #      bootstraplist[[i]] <- cbind(bootstraplist[[i]], bootstraplist[[i]][bootstraplist[[i]][,5] == 0,5] = "")
+#     k <- k+1
+#     l <- l+1
+#   }
+#
+#   for(i in 1:length(bootstraplist)) { bootstraplist[[i]] <- round(bootstraplist[[i]], digits) }
+#
+#   # print final_boot
+#   for(i in 1:length(bootstraplist)) { print(bootstraplist[[i]], na.print = na.print) }
+#
+#   class(bootstraplist) <- "report_bootstrapped_paths"
+#   bootstraplist
+# }
 
 #' seminr confidence intervals function
 #'

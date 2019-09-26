@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A test for the bootstrap summary return object
 - Descriptive statistics for item and construct data
 - S3 print method for class "table_output" for printing generic tables
-- new method interaction() for specifying a interaction construct
+- new method interaction_term() for specifying a interaction construct
 
 ### Changed
 - Fixtures for evaluating bootstrap HTMT for versions of R < 3.6.0
