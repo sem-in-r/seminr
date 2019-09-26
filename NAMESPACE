@@ -14,7 +14,16 @@ export(constructs)
 export(correlation_weights)
 export(estimate_pls)
 export(higher_composite)
+<<<<<<< HEAD
 export(interaction_term)
+=======
+export(interaction)
+export(fSquared)
+export(interaction_2stage)
+export(interaction_ortho)
+export(interaction_scaled)
+export(interactions)
+>>>>>>> 6d8385f240f2b690921a0d030e9efb3c56b334d3
 export(mode_A)
 export(mode_B)
 export(multi_items)
