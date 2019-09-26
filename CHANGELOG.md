@@ -19,12 +19,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Descriptive statistics for item and construct data
 - S3 print method for class "table_output" for printing generic tables
 - new method interaction() for specifying a interaction construct
+- A fSquare function to calculating fSquared
+- A test for fSquared function
 
 ### Changed
 - Fixtures for evaluating bootstrap HTMT for versions of R < 3.6.0
 - Changed the R/* file naming to R/estimate_ R/feature_ R/evaluate_ etc.
 - Summary S3 method to return data descriptives in summary object
 - constructs() method now returns a list with classes
+- Changed references to include Cohen (2013)
+- Updated vignette to reflect fSquare function
 
 ### Fixed
 - Modified calculation of HTMT to use absolute correlation matrices in order to make HTMT stable

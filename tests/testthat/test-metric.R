@@ -22,19 +22,26 @@ mobi_sm <- relationships(
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm)
 
-
 # Load outputs
 rsquared <- seminr_model$rSquared
+fsquared <- fSquared(seminr_model, "Image", "Satisfaction")
 
 ## Output originally created using following lines
 # write.csv(seminr_model$rSquared, file = "tests/fixtures/rsquared1.csv")
+# write.csv(fSquared(seminr_model, "Image", "Satisfaction"), file = "tests/fixtures/V_3_5_X/fsquared1.csv")
+# write.csv(fSquared(seminr_model, "Image", "Satisfaction"), file = "tests/fixtures/V_3_6_0/fsquared1.csv")
+
 
 # Load controls
 rsquared_control <- as.matrix(read.csv(file = paste(test_folder,"rsquared1.csv", sep = ""), row.names = 1))
+fsquared_control <- as.matrix(read.csv(file = paste(test_folder,"fsquared1.csv", sep = ""), row.names = 1))
 
 # Testing
 
 test_that("Seminr estimates the Rsquared correctly", {
-  # Remove BIC for now
   expect_equal(rsquared[1:2,1], rsquared_control[1:2,1], tolerance = 0.00001)
+})
+
+test_that("Seminr estimates the fSquared correctly", {
+  expect_equal(fsquared, fsquared_control[1,1], tolerance = 0.00001)
 })

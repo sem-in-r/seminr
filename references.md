@@ -57,6 +57,6 @@
   ref: Sarstedt, M., Hair, J. F., Ringle, C. M., Thiele, K. O., & Gudergan, S. P. (2016). Estimation issues with PLS and CBSEM: Where the bias lies! Journal of Business Research, 69(10), 3998–4010
   cite: Sarstedt et al. (2016)
 - code: [short code here]
-  ref: [full academic reference here]
-  cite: [preferred citation format]
+  ref: Cohen, J. (2013). Statistical power analysis for the behavioral sciences. Routledge.
+  cite: Cohen (2013)
 
