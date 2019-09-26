@@ -92,6 +92,9 @@ weights <- seminr_model$outer_weights
 # write.csv(paths, file = "tests/fixtures/V_3_6_0/hoc_2si-paths.csv")
 # write.csv(loadings, file = "tests/fixtures/V_3_6_0/hoc_2si-loadings.csv")
 # write.csv(weights, file = "tests/fixtures/V_3_6_0/hoc-_2siweights.csv")
+# write.csv(paths, file = "tests/fixtures/V_3_5_X/hoc_2si-paths.csv")
+# write.csv(loadings, file = "tests/fixtures/V_3_5_X/hoc_2si-loadings.csv")
+# write.csv(weights, file = "tests/fixtures/V_3_5_X/hoc-_2siweights.csv")
 
 
 # Load controls

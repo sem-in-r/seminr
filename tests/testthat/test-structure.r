@@ -63,35 +63,25 @@ mm1 <- constructs(
   composite("1",       multi_items("IMAG", 1:5), weights = correlation_weights),
   composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
   composite("Satisfaction", multi_items("CUSA", 1:3)),
-  composite("Value",        multi_items("PERV", 1:2))
+  composite("Value",        multi_items("PERV", 1:2)),
+  interaction("1*Expectation", dimensions = c("1","Expectation"), method = orthogonal, weights = mode_A),
+  interaction("1*Value", dimensions = c("1","Value"), method = orthogonal, weights = mode_A)
 )
 mm2 <- constructs(
   composite("Image",       multi_items("IMAG", 1:5), weights = correlation_weights),
   composite("Expectation of",  multi_items("CUEX", 1:3), weights = mode_A),
   composite("Satisfaction", multi_items("CUSA", 1:3)),
-  composite("Value",        multi_items("PERV", 1:2))
-)
-
-
-# We are using the orthogonalization method as per Henseler & Chin (2010)
-xm1 <- interactions(
-  interaction_ortho("1", "Expectation"),
-  interaction_ortho("1", "Value")
-)
-
-xm2 <- interactions(
-  interaction_ortho("Image", "Expectation of"),
-  interaction_ortho("Image", "Value")
+  composite("Value",        multi_items("PERV", 1:2)),
+  interaction("Image*Expectation of", dimensions = c("Image","Expectation of"), method = orthogonal, weights = mode_A),
+  interaction("Image*Value", dimensions = c("Image","Value"), method = orthogonal, weights = mode_A)
 )
 
 seminr_model1 <- estimate_pls(data = mobi,
                              measurement_model = mm1,
-                             interactions = xm1,
                              structural_model = sm1)
 
 seminr_model2 <- estimate_pls(data = mobi,
                               measurement_model = mm2,
-                              interactions = xm2,
                               structural_model = sm2)
 
 # Testing
@@ -114,4 +104,3 @@ test_that("Summary method correctly handles construct names containing space wit
 test_that("Summary method correctly handles numeric construct names with and without interaction", {
   expect_equal(round( sum1$vif_antecedents$Satisfaction[[1]], digits = 6), 1.617113)
 })
-

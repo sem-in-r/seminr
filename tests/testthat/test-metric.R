@@ -20,7 +20,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL ,mobi_sm)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm)
 
 
 # Load outputs
@@ -38,4 +38,3 @@ test_that("Seminr estimates the Rsquared correctly", {
   # Remove BIC for now
   expect_equal(rsquared[1:2,1], rsquared_control[1:2,1], tolerance = 0.00001)
 })
-
