@@ -20,7 +20,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL ,mobi_sm)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm)
 
 # Load outputs
 rsquared <- seminr_model$rSquared

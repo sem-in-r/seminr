@@ -47,6 +47,6 @@ PLSc(seminr_model)
 Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
 }
 \seealso{
-\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
+\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
          \code{\link{bootstrap_model}}
 }

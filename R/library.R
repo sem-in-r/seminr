@@ -5,7 +5,9 @@ measure_mode <- function(construct,mmMatrix) {
 
 # function to get measurement mode of a construct (first item) as a function
 get_measure_mode <- function(construct,mmMatrix) {
-  ifelse((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "A") |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "C") , return(mode_A), return(mode_B))
+  ifelse((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "A")
+         |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "C")
+         |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "HOCA"), return(mode_A), return(mode_B))
 }
 
 # Used in warnings - warning_only_causal_construct()
@@ -250,11 +252,11 @@ antecedents_of_construct <- function(construct, model) {
   model$smMatrix[model$smMatrix[,2] == construct, 1]
 }
 # update measurement model with interaction constructs
-measure_interaction <- function(intxn) {
-  if (length(names(intxn$data))>1) {
-    composite(intxn$name, names(intxn$data),weights = mode_A)
+measure_interaction <- function(name, data, weights) {
+  if (length(names(data))>1) {
+    composite(name, names(data),weights = weights)
   } else {
-    composite(intxn$name, colnames(intxn$data),weights = mode_A)
+    composite(name, colnames(data),weights = weights)
   }
 }
 
@@ -292,13 +294,21 @@ skew <- function(x, na.rm = FALSE) {
 
 desc <- function(data, na.rm = na.rm) {
   Mean <- apply(data, 2, mean)
-  Std.Dev. <- apply(data, 2, sd)
+  Std.Dev. <- apply(data, 2, stats::sd)
   Kurtosis <- kurt(data, na.rm = na.rm)
   Min <- apply(data, 2, min)
   Max <- apply(data, 2, max)
-  Median <- apply(data, 2, median)
+  Median <- apply(data, 2, stats::median)
   Skewness <- skew(data, na.rm = na.rm)
   Missing <- apply(data, 2, function(x) sum(stats::complete.cases(x)==FALSE))
   No. <- 1:ncol(data)
   cbind(No., Missing, Mean, Median, Min, Max, Std.Dev., Kurtosis, Skewness)
+}
+
+mult <- function(col, iv2_data) {
+  iv2_data*col
+}
+
+name_items <- function(item_name, iv2_items) {
+  sapply(iv2_items, function(item2, item1 = item_name) paste(item1, item2, sep = "*"))
 }

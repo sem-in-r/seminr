@@ -8,13 +8,9 @@ mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5),weights = mode_A),
   composite("Expectation",  multi_items("CUEX", 1:3),weights = mode_A),
   composite("Value",        multi_items("PERV", 1:2),weights = mode_A),
-  composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A)
-)
-
-# interaction constructs must be created after the measurement model is defined
-mobi_xm <- interactions(
-  interaction_ortho("Image", "Expectation"),
-  interaction_ortho("Image", "Value")
+  composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A),
+  interaction_term(iv = "Image", moderator = "Expectation", method = orthogonal, weights = mode_A),
+  interaction_term(iv = "Image", moderator = "Value", method = orthogonal, weights = mode_A)
 )
 
 # structural model: note that name of the interactions construct should be
@@ -27,7 +23,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm,inner_weights = path_factorial)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_factorial)
 
 
 # Load outputs
@@ -69,13 +65,9 @@ mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5),weights = mode_A),
   composite("Expectation",  multi_items("CUEX", 1:3),weights = mode_A),
   composite("Value",        multi_items("PERV", 1:2),weights = mode_A),
-  composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A)
-)
-
-# interaction constructs must be created after the measurement model is defined
-mobi_xm <- interactions(
-  interaction_scaled("Image", "Expectation"),
-  interaction_scaled("Image", "Value")
+  composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A),
+  interaction_term(iv = "Image", moderator = "Expectation", method = product_indicator, weights = mode_A),
+  interaction_term(iv = "Image", moderator = "Value", method = product_indicator, weights = mode_A)
 )
 
 # structural model: note that name of the interactions construct should be
@@ -88,7 +80,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm,inner_weights = path_factorial)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_factorial)
 
 
 # Load outputs
@@ -119,4 +111,3 @@ test_that("Seminr estimates the construct scores correctly", {
 test_that("Seminr estimates the outer weights correctly", {
   expect_equal(weight, weight_control, tolerance = 0.00001)
 })
-

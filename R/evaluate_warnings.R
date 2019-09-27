@@ -47,6 +47,6 @@ warning_periods_in_col_names <- function(data) {
 warnings <- function(mmMatrix,data, smMatrix) {
   warning_single_item_formative(mmMatrix)
   warning_missing_data(data, mmMatrix)
-  warning_periods_in_col_names(data)
+  #warning_periods_in_col_names(data)
 }
 

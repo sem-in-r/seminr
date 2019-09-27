@@ -57,6 +57,6 @@ mobi_pls <- estimate_pls(data = mobi,
 
 }
 \seealso{
-\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
+\code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
          \code{\link{estimate_pls}} \code{\link{bootstrap_model}}
 }

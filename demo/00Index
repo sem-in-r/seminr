@@ -4,4 +4,3 @@ seminr-ecsi   A demonstration of the regular style of SEMinR syntax
 seminr-interaction   A demonstration of modeling an interaction using SEMinR syntax
 seminr-alternative-models   A demonstration of alternate model specification, quick and easy
 seminr-hoc   A demonstration of modeling a higher order construct in SEMinR syntax
-seminr-2Sinteraction    A demonstration of modeling a two-stage interaction in SEMinR syntax

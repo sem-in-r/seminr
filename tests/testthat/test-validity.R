@@ -24,9 +24,8 @@ mobi_sm2 <- relationships(
 )
 
 # Load data, assemble model, and estimate using semPLS
-mobi <- mobi
-model1 <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm1, inner_weights = path_weighting)
-model2 <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm2, inner_weights = path_weighting)
+model1 <- estimate_pls(mobi, mobi_mm, mobi_sm1, inner_weights = path_weighting)
+model2 <- estimate_pls(mobi, mobi_mm, mobi_sm2, inner_weights = path_weighting)
 
 summary1 <- summary(model1)
 summary2 <- summary(model2)
@@ -61,4 +60,3 @@ test_that("Seminr computes the antecedent VIFs correctly for single endogenous v
 test_that("Seminr computes the antecedent VIFs correctly for multiple endogenous variables", {
   expect_equal(unname(flat_vif_antecedents2), unname(correct_vif_antecedents2), tolerance = 0.00001)
 })
-

@@ -4,7 +4,7 @@
 \alias{fSquared}
 \title{seminr fSquared Function}
 \usage{
-fsquared(model, iv, dv)
+fSquared(seminr_model, iv, dv)
 }
 \arguments{
 \item{seminr_model}{A \code{seminr_model} containing the estimated seminr model.}

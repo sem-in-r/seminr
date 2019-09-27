@@ -7,7 +7,7 @@
 #' @param dv A dependent variable in the model.
 #'
 #' @usage
-#' fsquared(model, iv, dv)
+#' fSquared(seminr_model, iv, dv)
 #'
 #' @references Cohen, J. (2013). Statistical power analysis for the behavioral sciences. Routledge.
 #'
@@ -40,15 +40,48 @@
 fSquared <- function(seminr_model, iv, dv) {
   with_sm <- seminr_model$smMatrix
   without_sm <- subset(with_sm, !((with_sm[, "source"] == iv) & (with_sm[, "target"] == dv)))
-  capture.output(
+
+  # Calculate fSquared using LM of constructs instead of re-estiating the model (this is probably incorrect, but might serve for interaction models)
+  # dvs <- unique(seminr_model$smMatrix[, "target"])
+  # path_matrix <- seminr_model$path_coef
+  # for (dv in dvs) {
+  #   ivs <- names(path_matrix[(path_matrix[,dv] != 0),dv])
+  #   sub("\\*", "x", ivs)
+  #   frmla <- stats::as.formula(paste(dv,paste(sub("\\*", "x", ivs), collapse ="+"), sep = " ~ "))
+  #   data <- as.data.frame(seminr_model$construct_scores)
+  #   colnames(data) <- sub("\\*", "x",colnames(data))
+  #   lm <- stats::lm(formula = frmla, data = data)
+  #   summary(lm)
+  #   }
+  utils::capture.output(
     without_pls <- estimate_pls(data = seminr_model$rawdata,
-                                measurement_model = seminr_model$mmMatrix,
-                                interactions = seminr_model$interactions,
+                                measurement_model = seminr_model$raw_measurement_model,
                                 structural_model = without_sm)
   )
   with_r2 <- seminr_model$rSquared["Rsq", dv]
   ifelse(any(without_sm[,"target"] == dv),
          without_r2 <- without_pls$rSquared["Rsq", dv],
          without_r2 <- 0)
+
   return((with_r2 - without_r2) / (1 - with_r2))
+}
+
+model_fsquares <- function(seminr_model) {
+  if (any(names(seminr_model$raw_measurement_model) == "orthogonal_interaction")
+      | any(names(seminr_model$raw_measurement_model) == "two_stage_interaction")
+      | any(names(seminr_model$raw_measurement_model) == "scaled_interaction" )) {
+    return("The fSquare cannot be calculated as the model contains an interaction term and omitting either the antecedent or moderator in the interaction term will cause model estimation to fail")
+  }
+  path_matrix <- seminr_model$path_coef
+  ivs <- unique(seminr_model$smMatrix[, "source"])
+  dvs <- unique(seminr_model$smMatrix[, "target"])
+  fsquared_matrix <- path_matrix
+  for (dv in dvs) {
+    for (iv in ivs) {
+      fsquared_matrix[iv, dv] <- fSquared(seminr_model = seminr_model,
+                                          iv = iv,
+                                          dv = dv)
+    }
+  }
+  return(fsquared_matrix)
 }

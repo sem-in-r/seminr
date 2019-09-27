@@ -7,7 +7,7 @@ mobi_mm <- constructs(
   composite("Expectation",  multi_items("CUEX", 1:3)),
   composite("Quality",      multi_items("PERQ", 1:7)),
   composite("Value",        multi_items("PERV", 1:2)),
-  two_stage_HOC("Satisfaction", c("Image","Value")),
+  higher_composite("Satisfaction", dimensions = c("Image","Value"), method = two_stage, weights = mode_A),
   composite("Complaints",   single_item("CUSCO")),
   composite("Loyalty",      multi_items("CUSL", 1:3))
 )
@@ -22,7 +22,6 @@ mobi_sm <- relationships(
 # Estimate the model with the HOC
 seminr_model <- estimate_pls(data = mobi,
                              measurement_model = mobi_mm,
-                             interactions = NULL,
                              structural_model = mobi_sm)
 
 # Load outputs
@@ -66,14 +65,9 @@ mobi_mm <- constructs(
   composite("Quality",      multi_items("PERQ", 1:5)),
   composite("Loyalty",      multi_items("CUSL", 1:3)),
   composite("Value",        multi_items("PERV", 1:2)),
-  two_stage_HOC(construct_name = "Nick", dimensions = c("Quality","Loyalty")),
-  composite("Satisfaction", multi_items("CUSA", 1:3))
-)
-
-# Interaction constructs must be created after the measurement model is defined.
-# We are using the two_stage method as per Henseler & Chin (2010)
-mobi_xm <- interactions(
-  interaction_2stage("Image", "Expectation")
+  higher_composite("Nick", dimensions = c("Quality","Loyalty"), method = two_stage, weights = mode_A),
+  composite("Satisfaction", multi_items("CUSA", 1:3)),
+  interaction_term(iv = "Image", moderator = "Expectation", method = two_stage, weights = mode_A)
 )
 
 # Creating structural model
@@ -87,7 +81,6 @@ mobi_sm <- relationships(
 # Estimate the model with the HOC
 seminr_model <- estimate_pls(data = mobi,
                              measurement_model = mobi_mm,
-                             interactions = mobi_xm,
                              structural_model = mobi_sm)
 
 # Load outputs
@@ -99,6 +92,9 @@ weights <- seminr_model$outer_weights
 # write.csv(paths, file = "tests/fixtures/V_3_6_0/hoc_2si-paths.csv")
 # write.csv(loadings, file = "tests/fixtures/V_3_6_0/hoc_2si-loadings.csv")
 # write.csv(weights, file = "tests/fixtures/V_3_6_0/hoc-_2siweights.csv")
+# write.csv(paths, file = "tests/fixtures/V_3_5_X/hoc_2si-paths.csv")
+# write.csv(loadings, file = "tests/fixtures/V_3_5_X/hoc_2si-loadings.csv")
+# write.csv(weights, file = "tests/fixtures/V_3_5_X/hoc-_2siweights.csv")
 
 
 # Load controls

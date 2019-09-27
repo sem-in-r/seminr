@@ -19,7 +19,7 @@
 #' @usage
 #' bootstrap_model(seminr_model, nboot = 500, cores = NULL, seed = NULL, ...)
 #'
-#' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interactions}}
+#' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
 #'
 #' @references Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on Partial Least Squares
 #'  Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.
@@ -31,13 +31,9 @@
 #'   composite("Image",        multi_items("IMAG", 1:5)),
 #'   composite("Expectation",  multi_items("CUEX", 1:3)),
 #'   composite("Value",        multi_items("PERV", 1:2)),
-#'   composite("Satisfaction", multi_items("CUSA", 1:3))
-#' )
-#'
-#' # interaction constructs must be created after the measurement model is defined
-#' mobi_xm <- interactions(
-#'   interaction_ortho("Image", "Expectation"),
-#'   interaction_ortho("Image", "Value")
+#'   composite("Satisfaction", multi_items("CUSA", 1:3)),
+#'   interaction_term(iv = "Image", moderator = "Expectation", method = orthogonal),
+#'   interaction_term(iv = "Image", moderator = "Value", method = orthogonal)
 #' )
 #'
 #' # structural model: note that name of the interactions construct should be
@@ -50,7 +46,6 @@
 #'
 #' seminr_model <- estimate_pls(data = mobi,
 #'                              measurement_model = mobi_mm,
-#'                              interactions = mobi_xm,
 #'                              structural_model = mobi_sm)
 #'
 #' # Load data, assemble model, and bootstrap
@@ -67,7 +62,6 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       cat("Bootstrapping model using seminr...\n")
 
       # prepare parameters for cluster export (model parameters)
-      interactions = seminr_model$interactions
       d <- seminr_model$rawdata
       measurement_model <- seminr_model$raw_measurement_model
       structural_model <- seminr_model$smMatrix
@@ -89,14 +83,13 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         if (is.null(seed)) {seed <- sample.int(100000, size = 1)}
 
         # Export variables and functions to cluster
-        parallel::clusterExport(cl=cl, varlist=c("measurement_model", "interactions", "structural_model", "inner_weights", "getRandomIndex", "d", "HTMT", "seed"), envir=environment())
+        parallel::clusterExport(cl=cl, varlist=c("measurement_model", "structural_model", "inner_weights", "getRandomIndex", "d", "HTMT", "seed"), envir=environment())
 
         # Function to get PLS estimate results
         getEstimateResults <- function(i, d = d) {
           set.seed(seed+i)
           boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
                                measurement_model,
-                               interactions,
                                structural_model,
                                inner_weights)
           boot_htmt <- HTMT(boot_model)
