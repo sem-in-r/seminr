@@ -33,7 +33,7 @@ SEMinR follows the latest best-practices in methodological literature:
 ## Documentation
 
 The vignette for Seminr can be found in the
-[CRAN](https://cran.r-project.org/web/packages/seminr/vignettes/SEMinR.html)
+[CRAN](https://cran.r-project.org/package=seminr/vignettes/SEMinR.html)
 folder or by running the `vignette("SEMinR")` command after
 installation.
 
