@@ -11,35 +11,32 @@ mm <- constructs(
 
 # Testing
 
-test_that("constructs correctly specifies the measurement matrix object", {
-  expect_equal(colnames(mm), c("construct","measurement","type"))
-  expect_equal(nrow(mm), 10)
-  expect_equal(ncol(mm), 3)
+test_that("constructs correctly specifies the measurement list object", {
+  expect_equal(names(mm), c("reflective", "reflective", "composite",  "composite"))
+  expect_equal(length(mm), 4)
 })
 
 test_that("composite correctly specifies mode B constructs", {
-  expect_equal(as.vector(mm[7,]), c("Satisfaction","CUSA1","B"))
+  expect_equal(as.vector(mm[[3]][1:3]), c("Satisfaction","CUSA1","B"))
 })
 
 test_that("composite correctly specifies mode A constructs", {
-  expect_equal(as.vector(mm[10,]), c("Complaints","CUSCO","A"))
+  expect_equal(as.vector(mm[[4]][1:3]), c("Complaints","CUSCO","A"))
 })
 
 test_that("reflect correctly specifies a reflective constructs", {
-  expect_equal(as.vector(mm[1,]), c( "Image", "IMAG1","C"))
-  expect_equal(as.vector(mm[6,]), c("Quality", "PERQ1","C"))
+  expect_equal(as.vector(mm[[1]][1:3]), c( "Image", "IMAG1","C"))
+  expect_equal(as.vector(mm[[2]][1:3]), c("Quality", "PERQ1","C"))
 })
 
 test_that("multi_items correctly allocates measurement items", {
-  expect_equal(as.vector(mm[1:5,]), c("Image", "Image", "Image", "Image", "Image",
-                                      "IMAG1", "IMAG2", "IMAG3", "IMAG4", "IMAG5",
-                                      "C","C","C","C","C"))
-  expect_equal(as.vector(mm[7:9,]), c("Satisfaction", "Satisfaction", "Satisfaction",
-                                      "CUSA1", "CUSA2", "CUSA3",
-                                      "B","B","B"))
+  expect_equal(as.vector(mm[[1]][1:15]), c("Image", "IMAG1", "C", "Image", "IMAG2", "C", "Image", "IMAG3", "C",
+                                           "Image", "IMAG4", "C", "Image", "IMAG5", "C"))
+  expect_equal(as.vector(mm[[3]][1:9]), c("Satisfaction", "CUSA1", "B", "Satisfaction", "CUSA2", "B", "Satisfaction",
+                                          "CUSA3", "B"))
 })
 
 test_that("single_item correctly allocates a measurement item", {
-  expect_equal(as.vector(mm[6,]),  c("Quality","PERQ1","C"))
-  expect_equal(as.vector(mm[10,]), c("Complaints","CUSCO","A"))
+  expect_equal(as.vector(mm[[2]][1:3]),  c("Quality","PERQ1","C"))
+  expect_equal(as.vector(mm[[4]][1:3]), c("Complaints","CUSCO","A"))
 })

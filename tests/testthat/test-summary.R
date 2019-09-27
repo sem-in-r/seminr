@@ -16,7 +16,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path_weighting)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_weighting)
 summary_object <- summary(seminr_model)
 
 # Load outputs
@@ -67,32 +67,47 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using estimate_pls
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path_weighting)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_weighting)
 boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2, seed = 123)
 summary_object <- summary(boot_seminr_model)
 
 # Load outputs
-t_values <- summary_object$t_values
-p_values <- summary_object$p_values
+paths <- summary_object$bootstrapped_paths
+loadings <- summary_object$bootstrapped_loadings
+weights <- summary_object$bootstrapped_weights
+htmt <- summary_object$bootstrapped_HTMT
 
 ## Output originally created using following lines
-# write.csv(summary_object$t_values, file = "tests/fixtures/V_3_5_X/tvalues.csv")       # V3.5.X
-# write.csv(summary_object$p_values, file = "tests/fixtures/V_3_5_X/pvalues.csv")       # V3.5.X
-# write.csv(summary_object$t_values, file = "tests/fixtures/V_3_6_0/tvalues.csv")       # V3.6.0
-# write.csv(summary_object$p_values, file = "tests/fixtures/V_3_6_0/pvalues.csv")       # V3.6.0
+# write.csv(summary_object$bootstrapped_paths, file = "tests/fixtures/V_3_6_0/boot_report_paths.csv")
+# write.csv(summary_object$bootstrapped_loadings, file = "tests/fixtures/V_3_6_0/boot_report_loadings.csv")
+# write.csv(summary_object$bootstrapped_weights, file = "tests/fixtures/V_3_6_0/boot_report_weights")
+# write.csv(summary_object$bootstrapped_HTMT, file = "tests/fixtures/V_3_5_X/boot_report_htmt.csv")
+# write.csv(summary_object$bootstrapped_paths, file = "tests/fixtures/V_3_5_X/boot_report_paths.csv")
+# write.csv(summary_object$bootstrapped_loadings, file = "tests/fixtures/V_3_5_X/boot_report_loadings.csv")
+# write.csv(summary_object$bootstrapped_weights, file = "tests/fixtures/V_3_5_X/boot_report_weights")
+# write.csv(summary_object$bootstrapped_HTMT, file = "tests/fixtures/V_3_5_X/boot_report_htmt.csv")
 
 # Load controls
-t_values_control <- as.matrix(read.csv(file = paste(test_folder,"tvalues.csv", sep = ""), row.names = 1))
-p_values_control <- as.matrix(read.csv(file = paste(test_folder,"pvalues.csv", sep = ""), row.names = 1))
-
+paths_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_paths.csv", sep = ""), row.names = 1))
+loadings_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_loadings.csv", sep = ""), row.names = 1))
+weights_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_weights", sep = ""), row.names = 1))
+htmt_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_htmt.csv", sep = ""), row.names = 1))
 # Testing
 
-test_that("Seminr estimates the t-values correctly", {
-  expect_equal(t_values, t_values_control, tolerance = 0.00001)
+test_that("Seminr summarizes the bootstrapped paths correctly", {
+  expect_equal(as.vector(paths[1, 1:6]), as.vector(paths_control[1, 1:6]), tolerance = 0.00001)
 })
 
-test_that("Seminr estimates the p-values correctly", {
-  expect_equal(p_values, p_values_control, tolerance = 0.00001)
+test_that("Seminr summarizes the bootstrapped loadings correctly", {
+  expect_equal(as.vector(loadings[1, 1:6]), as.vector(loadings_control[1, 1:6]), tolerance = 0.00001)
+})
+
+test_that("Seminr summarizes the bootstrapped weights correctly", {
+  expect_equal(as.vector(weights[1, 1:6]), as.vector(weights_control[1, 1:6]), tolerance = 0.00001)
+})
+
+test_that("Seminr summarizes the bootstrapped htmt correctly", {
+  expect_equal(as.vector(htmt[1, 1:6]), as.vector(htmt_control[1, 1:6]), tolerance = 0.00001)
 })
 
 context("SEMinR:::evaluate_measurement_model() correctly evaluates FACTORS for class seminr_model\n")
@@ -112,7 +127,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path_weighting)
+seminr_model <- estimate_pls(mobi, mobi_mm,  mobi_sm,inner_weights = path_weighting)
 boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2, seed = 123)
 utils::capture.output(summary_object <- seminr:::evaluate_measurement_model(seminr_model))
 utils::capture.output(boot_summary_object <- seminr:::boot_evaluate_measurement_model(boot_seminr_model))
@@ -177,8 +192,8 @@ factor_discriminant_validity_t_values <- boot_summary_object$factor_discriminant
 factor_discriminant_validity_p_values <- boot_summary_object$factor_discriminant_validity_p_values
 
 ## Output originally created using following lines
-#write.csv(boot_summary_object$factor_discriminant_validity_t_values, file = "tests/fixtures/V_3_5_X/factor_discriminant_validity_t_values.csv")      #V3.5.X
-#write.csv(boot_summary_object$factor_discriminant_validity_p_values, file = "tests/fixtures/V_3_5_X/factor_discriminant_validity_p_values.csv")      #V3.5.X
+# write.csv(boot_summary_object$factor_discriminant_validity_t_values, file = "tests/fixtures/V_3_5_X/factor_discriminant_validity_t_values.csv")      #V3.5.X
+# write.csv(boot_summary_object$factor_discriminant_validity_p_values, file = "tests/fixtures/V_3_5_X/factor_discriminant_validity_p_values.csv")      #V3.5.X
 # write.csv(boot_summary_object$factor_discriminant_validity_t_values, file = "tests/fixtures/V_3_6_0/factor_discriminant_validity_t_values.csv")      #V3.6.0
 # write.csv(boot_summary_object$factor_discriminant_validity_p_values, file = "tests/fixtures/V_3_6_0/factor_discriminant_validity_p_values.csv")      #V3.6.0
 

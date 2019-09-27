@@ -5,7 +5,9 @@ measure_mode <- function(construct,mmMatrix) {
 
 # function to get measurement mode of a construct (first item) as a function
 get_measure_mode <- function(construct,mmMatrix) {
-  ifelse((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "A") |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "C") , return(mode_A), return(mode_B))
+  ifelse((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "A")
+         |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "C")
+         |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "HOCA"), return(mode_A), return(mode_B))
 }
 
 # Used in warnings - warning_only_causal_construct()
@@ -47,7 +49,7 @@ mmMatrix_per_construct <- function(construct, mmMatrix) {
 #' @usage
 #'  path_factorial(smMatrix,construct_scores, dependant, paths_matrix)
 #'
-#' @references Lohmoller, J.-B. (1989). Latent variables path modeling with partial least squares. Heidelberg, Germany: Physica- Verlag.
+#' @references Lohmoller, J.-B. (1989). Latent variables path modeling with partial least squares. Heidelberg, Germany: Physica Verlag.
 #'
 #' @export
 path_factorial <- function(smMatrix,construct_scores, dependant, paths_matrix) {
@@ -236,4 +238,77 @@ get_factors <- function(seminr_model) {
 
 get_composites <- function(seminr_model) {
   setdiff(seminr_model$constructs,get_factors(seminr_model))
+}
+
+# PURPOSE: functions to extract elements of estimated seminr models (seminr_model)
+
+# Gets item names for a given construct in a model
+items_of_construct <- function(construct, model) {
+  model$mmMatrix[model$mmMatrix[,1] == construct, 2]
+}
+
+# Get antecedent construct names for a give construct in a model
+antecedents_of_construct <- function(construct, model) {
+  model$smMatrix[model$smMatrix[,2] == construct, 1]
+}
+# update measurement model with interaction constructs
+measure_interaction <- function(name, data, weights) {
+  if (length(names(data))>1) {
+    composite(name, names(data),weights = weights)
+  } else {
+    composite(name, colnames(data),weights = weights)
+  }
+}
+
+conf_int <- function(boot_array, from, to, through = NULL, alpha = 0.05) {
+  if (is.null(through)) {
+    coefficient <- boot_array[from, to,]
+  } else {
+    coefficient <- boot_array[from, through,] * boot_array[through, to,]
+  }
+  quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
+  return(quantiles)
+}
+
+kurt <- function(x, na.rm = FALSE) {
+   if (!is.vector(x))
+     apply(x, 2, kurt, na.rm = na.rm)
+   else if (is.vector(x)) {
+     if (na.rm)
+       x <- x[!is.na(x)]
+     n <- length(x)
+     n * sum((x - mean(x))^4)/(sum((x - mean(x))^2)^2)
+  }
+}
+
+skew <- function(x, na.rm = FALSE) {
+  if (!is.vector(x))
+    apply(x, 2, skew, na.rm = na.rm)
+  else if (is.vector(x)) {
+    if (na.rm)
+      x <- x[!is.na(x)]
+    n <- length(x)
+    (sum((x - mean(x))^3)/n)/(sum((x - mean(x))^2)/n)^(3/2)
+  }
+}
+
+desc <- function(data, na.rm = na.rm) {
+  Mean <- apply(data, 2, mean)
+  Std.Dev. <- apply(data, 2, stats::sd)
+  Kurtosis <- kurt(data, na.rm = na.rm)
+  Min <- apply(data, 2, min)
+  Max <- apply(data, 2, max)
+  Median <- apply(data, 2, stats::median)
+  Skewness <- skew(data, na.rm = na.rm)
+  Missing <- apply(data, 2, function(x) sum(stats::complete.cases(x)==FALSE))
+  No. <- 1:ncol(data)
+  cbind(No., Missing, Mean, Median, Min, Max, Std.Dev., Kurtosis, Skewness)
+}
+
+mult <- function(col, iv2_data) {
+  iv2_data*col
+}
+
+name_items <- function(item_name, iv2_items) {
+  sapply(iv2_items, function(item2, item1 = item_name) paste(item1, item2, sep = "*"))
 }

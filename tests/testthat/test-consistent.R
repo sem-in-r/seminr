@@ -18,8 +18,7 @@ mobi_sm <- relationships(
 )
 
 # Load data, assemble model, and estimate using semPLS
-mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path_factorial)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_factorial)
 
 
 # Load outputs
@@ -47,13 +46,9 @@ mobi_mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Expectation",  multi_items("CUEX", 1:3)),
   reflective("Value",        multi_items("PERV", 1:2)),
-  reflective("Satisfaction", multi_items("CUSA", 1:3))
-)
-
-# interaction constructs must be created after the measurement model is defined
-mobi_xm <- interactions(
-  interaction_ortho("Image", "Expectation"),
-  interaction_ortho("Image", "Value")
+  reflective("Satisfaction", multi_items("CUSA", 1:3)),
+  interaction_term(iv = "Image", moderator = "Expectation", method = orthogonal, weights = mode_A),
+  interaction_term(iv = "Image", moderator = "Value", method = orthogonal, weights = mode_A)
 )
 
 # structural model: note that name of the interactions construct should be
@@ -65,8 +60,7 @@ mobi_sm <- relationships(
 )
 
 # Load data, assemble model, and estimate using semPLS
-mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, mobi_xm, mobi_sm,inner_weights = path_factorial)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_factorial)
 
 # Load outputs
 rho <- rho_A(seminr_model)
@@ -103,8 +97,7 @@ mobi_sm <- relationships(
 )
 
 # Load data, assemble model, and estimate using semPLS
-mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm,inner_weights = path_factorial)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_factorial)
 # plscModel <- PLSc(seminr_model)
 
 # Load outputs

@@ -3,3 +3,4 @@ seminr-ecsi-plsc   A demonstration of Consistent PLS estimation of the ECSI mode
 seminr-ecsi   A demonstration of the regular style of SEMinR syntax
 seminr-interaction   A demonstration of modeling an interaction using SEMinR syntax
 seminr-alternative-models   A demonstration of alternate model specification, quick and easy
+seminr-hoc   A demonstration of modeling a higher order construct in SEMinR syntax
