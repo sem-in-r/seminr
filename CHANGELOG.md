@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Change code syntax to remove interactions() method and add interactions and HOC to composites()
 - Document all the syntax and features
 
-## [0.7.0] - 2019-09-19
+## [0.1.0] - 2019-09-27
 ### Added
 - A changelog
 - A new feature for automated calculation of HOC
@@ -19,7 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Descriptive statistics for item and construct data
 - S3 print method for class "table_output" for printing generic tables
 - new method interaction_term() for specifying a interaction construct
-- new method interaction() for specifying a interaction construct
 - A fSquare function to calculating fSquared
 - A test for fSquared function
 

@@ -1,7 +1,7 @@
 ---
 title: "SEMinR"
 author: "Soumya Ray & Nicholas Danks"
-date: "Sep 28, 2019"
+date: "Sep 27, 2019"
 output: html_document 
 vignette: >
   %\VignetteIndexEntry{SEMinR}
@@ -12,6 +12,10 @@ vignette: >
 ```{r echo=FALSE, out.width='25%'}
 knitr::include_graphics('SEMinR_logo.jpg')
 ```
+
+![Build Status](https://travis-ci.org/sem-in-r/seminr.svg?branch=master)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/seminr)](https://cran.r-project.org/package=seminr)
+[![metacran downloads](https://cranlogs.r-pkg.org/badges/grand-total/seminr)](https://cran.r-project.org/package=seminr)
 
 ## Introduction
 
