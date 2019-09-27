@@ -47,8 +47,8 @@ mobi_mm <- constructs(
   reflective("Expectation",  multi_items("CUEX", 1:3)),
   reflective("Value",        multi_items("PERV", 1:2)),
   reflective("Satisfaction", multi_items("CUSA", 1:3)),
-  interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method = orthogonal, weights = mode_A),
-  interaction_term("Image*Value", dimensions = c("Image","Value"), method = orthogonal, weights = mode_A)
+  interaction_term(iv = "Image", moderator = "Expectation", method = orthogonal, weights = mode_A),
+  interaction_term(iv = "Image", moderator = "Value", method = orthogonal, weights = mode_A)
 )
 
 # structural model: note that name of the interactions construct should be

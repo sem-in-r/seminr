@@ -5,12 +5,12 @@
 \title{\code{product_indicator} creates interaction measurement items by scaled product indicator approach.}
 \usage{
 # standardized product indicator approach as per Henseler & Chin (2010):
- product_indicator(name, dimensions, weights)
+ product_indicator(iv, moderator, weights)
 }
 \arguments{
-\item{name}{The name of the interaction term}
+\item{iv}{The independent variable that is subject to moderation.}
 
-\item{dimensions}{The antecedent and moderator construct which form the interaction.}
+\item{moderator}{The moderator variable.}
 
 \item{weights}{is the relationship between the items and the interaction terms. This can be
 specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
@@ -28,12 +28,12 @@ mobi_mm <- constructs(
  composite("Expectation",  multi_items("CUEX", 1:3),weights = mode_A),
  composite("Value",        multi_items("PERV", 1:2),weights = mode_A),
  composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A),
- interaction_term(name = "Image*Expectation",
-                  dimensions = c("Image","Expectation"),
+ interaction_term(iv = "Image",
+                  moderator = "Expectation",
                   method = product_indicator,
                   weights = mode_A),
- interaction_term(name = "Image*Value",
-                  dimensions = c("Image","Value"),
+ interaction_term(iv = "Image",
+                  moderator = "Value",
                   method = product_indicator,
                   weights = mode_A)
 )

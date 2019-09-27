@@ -5,12 +5,12 @@
 \title{\code{orthogonal} creates interaction measurement items by using the orthogonalized approach..}
 \usage{
 # orthogonalization approach as per Henseler & Chin (2010):
- orthogonal(name, dimensions, weights)
+ orthogonal(iv, moderator, weights)
 }
 \arguments{
-\item{name}{The name of the interaction term}
+\item{iv}{The independent variable that is subject to moderation.}
 
-\item{dimensions}{The antecedent and moderator construct which form the interaction.}
+\item{moderator}{The moderator variable.}
 
 \item{weights}{is the relationship between the items and the interaction terms. This can be
 specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
@@ -28,8 +28,8 @@ mobi_mm <- constructs(
   composite("Expectation",  multi_items("CUEX", 1:3)),
   composite("Value",        multi_items("PERV", 1:2)),
   composite("Satisfaction", multi_items("CUSA", 1:3)),
-  interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method = orthogonal),
-  interaction_term("Image*Value", dimensions = c("Image","Value"), method = orthogonal)
+  interaction_term(iv = "Image", moderator = "Expectation", method = orthogonal),
+  interaction_term(iv = "Image", moderator = "Value", method = orthogonal)
 )
 
 #  structural model: note that name of the interactions construct should be

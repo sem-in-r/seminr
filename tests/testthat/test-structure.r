@@ -64,16 +64,16 @@ mm1 <- constructs(
   composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
   composite("Satisfaction", multi_items("CUSA", 1:3)),
   composite("Value",        multi_items("PERV", 1:2)),
-  interaction_term("1*Expectation", dimensions = c("1","Expectation"), method = orthogonal, weights = mode_A),
-  interaction_term("1*Value", dimensions = c("1","Value"), method = orthogonal, weights = mode_A)
+  interaction_term(iv = "1", moderator = "Expectation", method = orthogonal, weights = mode_A),
+  interaction_term(iv = "1", moderator = "Value", method = orthogonal, weights = mode_A)
 )
 mm2 <- constructs(
   composite("Image",       multi_items("IMAG", 1:5), weights = correlation_weights),
   composite("Expectation of",  multi_items("CUEX", 1:3), weights = mode_A),
   composite("Satisfaction", multi_items("CUSA", 1:3)),
   composite("Value",        multi_items("PERV", 1:2)),
-  interaction_term("Image*Expectation of", dimensions = c("Image","Expectation of"), method = orthogonal, weights = mode_A),
-  interaction_term("Image*Value", dimensions = c("Image","Value"), method = orthogonal, weights = mode_A)
+  interaction_term(iv = "Image", moderator = "Expectation of", method = orthogonal, weights = mode_A),
+  interaction_term(iv = "Image", moderator = "Value", method = orthogonal, weights = mode_A)
 )
 
 seminr_model1 <- estimate_pls(data = mobi,

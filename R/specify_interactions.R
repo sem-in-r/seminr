@@ -4,8 +4,8 @@
 #'
 #' This function automatically generates interaction measurement items for a PLS SEM.
 #'
-#' @param name Name of the interaction construct.
-#' @param dimensions the antecedent and moderator constructs to form the interaction .
+#' @param iv The independent variable that is subject to moderation.
+#' @param moderator The moderator variable.
 #' @param method The method to generate the estimated interaction term with a default of `two_stage`.
 #' @param weights The weighting mode of the interaction items with default of `modeA`.
 #'
@@ -14,7 +14,7 @@
 #'
 #' @usage
 #'
-#' interaction_term(name, dimensions, method, weights)
+#' interaction_term(iv, moderator, method, weights)
 #'
 #' @examples
 #' data(mobi)
@@ -25,8 +25,8 @@
 #'   composite("Expectation",  multi_items("CUEX", 1:3)),
 #'   composite("Value",        multi_items("PERV", 1:2)),
 #'   composite("Satisfaction", multi_items("CUSA", 1:3)),
-#'   interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method = orthogonal),
-#'   interaction_term("Image*Value", dimensions = c("Image","Value"), method = product_indicator)
+#'   interaction_term(iv = "Image", moderator = "Expectation", method = orthogonal),
+#'   interaction_term(iv = "Image", moderator = "Value", method = product_indicator)
 #' )
 #'
 #' #  structural model: note that name of the interactions construct should be
@@ -41,8 +41,8 @@
 #' summary(mobi_pls)
 #'
 #' @export
-interaction_term <- function(name, dimensions, method = two_stage, weights = mode_A) {
-  int <- method(name, dimensions, weights)
+interaction_term <- function(iv, moderator, method = two_stage, weights = mode_A) {
+  int <- method(iv, moderator, weights)
   class(int) <- class(method())
   return(int)
 }
@@ -51,15 +51,15 @@ interaction_term <- function(name, dimensions, method = two_stage, weights = mod
 #'
 #' This function automatically generates interaction measurement items for a PLS SEM using the orthogonalized approach..
 #'
-#' @param name The name of the interaction term
-#' @param dimensions The antecedent and moderator construct which form the interaction.
+#' @param iv The independent variable that is subject to moderation.
+#' @param moderator The moderator variable.
 #' @param weights is the relationship between the items and the interaction terms. This can be
 #' specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
 #' \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.
 #'
 #' @usage
 #'  # orthogonalization approach as per Henseler & Chin (2010):
-#'  orthogonal(name, dimensions, weights)
+#'  orthogonal(iv, moderator, weights)
 #'
 #' @references Henseler & Chin (2010), A comparison of approaches for the analysis of interaction effects
 #' between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1),82-109.
@@ -73,8 +73,8 @@ interaction_term <- function(name, dimensions, method = two_stage, weights = mod
 #'   composite("Expectation",  multi_items("CUEX", 1:3)),
 #'   composite("Value",        multi_items("PERV", 1:2)),
 #'   composite("Satisfaction", multi_items("CUSA", 1:3)),
-#'   interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method = orthogonal),
-#'   interaction_term("Image*Value", dimensions = c("Image","Value"), method = orthogonal)
+#'   interaction_term(iv = "Image", moderator = "Expectation", method = orthogonal),
+#'   interaction_term(iv = "Image", moderator = "Value", method = orthogonal)
 #' )
 #'
 #' #  structural model: note that name of the interactions construct should be
@@ -89,12 +89,11 @@ interaction_term <- function(name, dimensions, method = two_stage, weights = mod
 #' summary(mobi_pls)
 #'
 #' @export
-orthogonal <- function(name, dimensions, weights) {
+orthogonal <- function(iv, moderator, weights) {
   ortho_construct <- function(data, measurement_model, structural_model, ints, inner_weights) {
-    #interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
-    interaction_name <- name
-    iv1_items <- measurement_model[measurement_model[, "construct"] == dimensions[[1]], "measurement"]
-    iv2_items <- measurement_model[measurement_model[, "construct"] == dimensions[[2]], "measurement"]
+    interaction_name <- paste(iv, moderator, sep = "*")
+    iv1_items <- measurement_model[measurement_model[, "construct"] == iv, "measurement"]
+    iv2_items <- measurement_model[measurement_model[, "construct"] == moderator, "measurement"]
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
@@ -122,15 +121,15 @@ orthogonal <- function(name, dimensions, weights) {
 #'
 #' This function automatically generates interaction measurement items for a PLS SEM using scaled product indicator approach.
 #'
-#' @param name The name of the interaction term
-#' @param dimensions The antecedent and moderator construct which form the interaction.
+#' @param iv The independent variable that is subject to moderation.
+#' @param moderator The moderator variable.
 #' @param weights is the relationship between the items and the interaction terms. This can be
 #' specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
 #' \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.
 #'
 #' @usage
 #'  # standardized product indicator approach as per Henseler & Chin (2010):
-#'  product_indicator(name, dimensions, weights)
+#'  product_indicator(iv, moderator, weights)
 #'
 #' @references Henseler & Chin (2010), A comparison of approaches for the analysis of interaction effects
 #' between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1),82-109.
@@ -144,12 +143,12 @@ orthogonal <- function(name, dimensions, weights) {
 #'  composite("Expectation",  multi_items("CUEX", 1:3),weights = mode_A),
 #'  composite("Value",        multi_items("PERV", 1:2),weights = mode_A),
 #'  composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A),
-#'  interaction_term(name = "Image*Expectation",
-#'                   dimensions = c("Image","Expectation"),
+#'  interaction_term(iv = "Image",
+#'                   moderator = "Expectation",
 #'                   method = product_indicator,
 #'                   weights = mode_A),
-#'  interaction_term(name = "Image*Value",
-#'                   dimensions = c("Image","Value"),
+#'  interaction_term(iv = "Image",
+#'                   moderator = "Value",
 #'                   method = product_indicator,
 #'                   weights = mode_A)
 #' )
@@ -167,12 +166,11 @@ orthogonal <- function(name, dimensions, weights) {
 #' seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_factorial)
 #'
 #' @export
-product_indicator <- function(name, dimensions, weights) {
+product_indicator <- function(iv, moderator, weights) {
   scaled_interaction <- function(data, measurement_model, structural_model, ints, inner_weights) {
-    #interaction_name <- paste(dimensions[[1]], dimensions[[2]], sep="*")
-    interaction_name <- name
-    iv1_items <- measurement_model[measurement_model[, "construct"] == dimensions[[1]], "measurement"]
-    iv2_items <- measurement_model[measurement_model[, "construct"] == dimensions[[2]], "measurement"]
+    interaction_name <- paste(iv, moderator, sep = "*")
+    iv1_items <- measurement_model[measurement_model[, "construct"] == iv, "measurement"]
+    iv2_items <- measurement_model[measurement_model[, "construct"] == moderator, "measurement"]
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
@@ -193,15 +191,15 @@ product_indicator <- function(name, dimensions, weights) {
 #'
 #' This function automatically generates an interaction measurement item for a PLS SEM using the two-stage approach.
 #'
-#' @param name The name of the interaction term
-#' @param dimensions The antecedent and moderator construct which form the interaction.
+#' @param iv The independent variable that is subject to moderation.
+#' @param moderator The moderator variable.
 #' @param weights is the relationship between the items and the interaction terms. This can be
 #' specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
 #' \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.
 #'
 #' @usage
 #'  # two stage approach as per Henseler & Chin (2010):
-#'  two_stage(name, dimensions, weights)
+#'  two_stage(iv, moderator, weights)
 #'
 #' @references Henseler & Chin (2010), A comparison of approaches for the analysis of interaction effects
 #' between latent variables using partial least squares path modeling. Structural Equation Modeling, 17(1),82-109.
@@ -215,7 +213,7 @@ product_indicator <- function(name, dimensions, weights) {
 #'   composite("Expectation",  multi_items("CUEX", 1:3)),
 #'   composite("Value",        multi_items("PERV", 1:2)),
 #'   composite("Satisfaction", multi_items("CUSA", 1:3)),
-#'   interaction_term("Image*Expectation", dimensions = c("Image","Expectation"), method = two_stage)
+#'   interaction_term(iv = "Image", moderator = "Expectation", method = two_stage)
 #' )
 #'
 #' #  structural model: note that name of the interactions construct should be
@@ -230,11 +228,11 @@ product_indicator <- function(name, dimensions, weights) {
 #' summary(mobi_pls)
 #'
 #' @export
-two_stage <- function(name, dimensions, weights) {
+two_stage <- function(iv, moderator, weights) {
   two_stage_interaction <- function(data, measurement_model, structural_model, ints, inner_weights) {
-    interaction_name <- name
+    interaction_name <- paste(iv, moderator, sep = "*")
     # remove interactions from structural model
-    structural_model <- structural_model[!(structural_model[, "source"] %in% name), ]
+    structural_model <- structural_model[ !grepl("\\*", structural_model[,"source"]), ]
     measurement_mode_scheme <- sapply(unique(c(structural_model[,1],structural_model[,2])), get_measure_mode, measurement_model, USE.NAMES = TRUE)
     first_stage <- seminr::simplePLS(obsData = data,
                                      smMatrix = structural_model,
@@ -242,7 +240,7 @@ two_stage <- function(name, dimensions, weights) {
                                      inner_weights = inner_weights,
                                      measurement_mode_scheme = measurement_mode_scheme)
 
-    interaction_term <- as.matrix(first_stage$construct_scores[,dimensions[[1]]] * first_stage$construct_scores[,dimensions[[2]]], ncol = 1)[,, drop = FALSE]
+    interaction_term <- as.matrix(first_stage$construct_scores[, iv] * first_stage$construct_scores[, moderator], ncol = 1)[,, drop = FALSE]
     colnames(interaction_term) <- c(interaction_name)
 
     intxn_mm <- matrix(measure_interaction(interaction_name, interaction_term, weights), ncol = 3, byrow = TRUE)
