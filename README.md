@@ -3,7 +3,13 @@
 
 <img src="vignettes/SEMinR_logo.jpg" width="25%" />
 
-![Build Status](https://travis-ci.org/sem-in-r/seminr.svg?branch=master)
+![Build
+Status](https://travis-ci.org/sem-in-r/seminr.svg?branch=master)
+
+[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/seminr)](https://cran.r-project.org/package=seminr)
+
+[![metacran
+downloads](https://cranlogs.r-pkg.org/badges/grand-total/seminr)](https://cran.r-project.org/package=seminr)
 
 SEMinR brings many advancements to creating and estimating structural
 equation models (SEM) using Partial Least Squares Path Modeling
