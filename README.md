@@ -3,11 +3,8 @@
 
 <img src="vignettes/SEMinR_logo.jpg" width="25%" />
 
-![Build
-Status](https://travis-ci.org/sem-in-r/seminr.svg?branch=master)
-
+![Build Status](https://travis-ci.org/sem-in-r/seminr.svg?branch=master)
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/seminr)](https://cran.r-project.org/package=seminr)
-
 [![metacran
 downloads](https://cranlogs.r-pkg.org/badges/grand-total/seminr)](https://cran.r-project.org/package=seminr)
 
@@ -36,12 +33,12 @@ SEMinR follows the latest best-practices in methodological literature:
 ## Documentation
 
 The vignette for Seminr can be found in the
-[seminr/doc/](https://github.com/ISS-Analytics/seminr/blob/master/doc/SEMinR.html)
+[CRAN](https://cran.r-project.org/web/packages/seminr/vignettes/SEMinR.html)
 folder or by running the `vignette("SEMinR")` command after
 installation.
 
 Demo code for use of Seminr can be found in the
-[seminr/demo/](https://github.com/ISS-Analytics/seminr/tree/master/demo)
+[seminr/demo/](https://github.com/sem-in-r/seminr/tree/master/demo)
 folder or by running the `demo("seminr-contained")`,
 `demo("seminr-ecsi")` or `demo("seminr-interaction")` commands after
 installation.
