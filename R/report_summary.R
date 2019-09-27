@@ -7,6 +7,7 @@ summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
   iterations <- object$iterations
   composite_scores <- return_only_composite_scores(object)
   descriptives <- descriptives(object)
+  fSquare <- model_fsquares(object)
   model_summary <- list(iterations = iterations,
                         paths = path_reports,
                         loadings = object$outer_loadings,
@@ -16,6 +17,7 @@ summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
                         reliability = metrics$reliability,
                         composite_scores = composite_scores,
                         vif_antecedents = metrics$validity$antecedent_vifs,
+                        fSquare = fSquare,
                         htmt = metrics$validity$htmt,
                         descriptives = descriptives)
   class(model_summary) <- "summary.seminr_model"
