@@ -15,7 +15,7 @@ get_measure_mode <- function(construct,mmMatrix) {
 items_per_mode <- function(construct, mode,mmMatrix) {
   constructmatrix <- mmMatrix[mmMatrix[,"construct"]==construct,c("measurement","type")]
   # If single item construct
-  if (class(constructmatrix) == "character") {
+  if (class(constructmatrix)[1] != "matrix") {
     constructmatrix = t(as.matrix(constructmatrix))
   }
   return(constructmatrix[constructmatrix[,"type"] == mode,"measurement"])
@@ -26,7 +26,7 @@ items_per_mode <- function(construct, mode,mmMatrix) {
 mmMatrix_per_construct <- function(construct, mmMatrix) {
   constructmatrix <- mmMatrix[mmMatrix[,"construct"]==construct,c("construct","measurement","type")]
   # If single item construct
-  if (class(constructmatrix) == "character") {
+  if (class(constructmatrix)[1] != "matrix") {
     constructmatrix = t(as.matrix(constructmatrix))
   }
   return(constructmatrix)

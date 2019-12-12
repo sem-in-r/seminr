@@ -1,11 +1,11 @@
 Package: seminr
 Type: Package
 Title: Domain-Specific Language for Building PLS Structural Equation Models
-Version: 1.0.0
-Date: 2019-09-27
+Version: 1.0.1
+Date: 2019-12-11
 Authors@R: c(person("Soumya", "Ray",
               email = "soumya.ray@gmail.com", role = c("aut", "ths")),
-             person("Nicholas", "Danks",
+             person("Nicholas Patrick", "Danks",
               email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
              person("Juan Manuel Velasquez", "Estrada", role = "aut"))
 Description: A powerful, easy to write and easy to modify syntax for
