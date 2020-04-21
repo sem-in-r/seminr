@@ -32,8 +32,10 @@
 #'
 #' @export
 relationships <- function(...) {
-  return(matrix(c(...), ncol = 2, byrow = TRUE,
-                dimnames = list(NULL, c("source", "target"))))
+  smMatrix <- matrix(c(...), ncol = 2, byrow = TRUE,
+                     dimnames = list(NULL, c("source", "target")))
+  class(smMatrix) <- c(class(smMatrix), "structural_model")
+  return(smMatrix)
 }
 #' @export
 paths <- function(from, to) {
