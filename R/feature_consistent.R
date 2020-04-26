@@ -62,7 +62,7 @@ PLSc <- function(seminr_model) {
   adj_construct_score_cors <- stats::cor(seminr_model$construct_scores) / adjustment
 
   # iterate over endogenous constructs and adjust path coefficients and R-squared
-  for (i in unique(smMatrix[, "target"]))  {
+  for (i in all_endogenous(smMatrix)) {
 
     #Indentify the exogenous variables
     exogenous <- smMatrix[smMatrix[, "target"]==i, "source"]
@@ -78,7 +78,7 @@ PLSc <- function(seminr_model) {
   }
 
   #calculate insample metrics
-  rSquared <- calc_insample(seminr_model$data, construct_scores, smMatrix, unique(smMatrix[, "target"]), adj_construct_score_cors)
+  rSquared <- calc_insample(seminr_model$data, construct_scores, smMatrix, all_endogenous(smMatrix), adj_construct_score_cors)
 
   # get all common-factor constructs (Mode A Consistent) in a vector
   reflective <- unique(mmMatrix[mmMatrix[, "type"]=="C", "construct"])

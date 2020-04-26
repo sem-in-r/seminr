@@ -247,10 +247,6 @@ items_of_construct <- function(construct, model) {
   model$mmMatrix[model$mmMatrix[,1] == construct, 2]
 }
 
-# Get antecedent construct names for a give construct in a model
-antecedents_of_construct <- function(construct, model) {
-  model$smMatrix[model$smMatrix[,2] == construct, 1]
-}
 # update measurement model with interaction constructs
 measure_interaction <- function(name, data, weights) {
   if (length(names(data))>1) {

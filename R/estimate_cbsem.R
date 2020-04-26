@@ -25,7 +25,6 @@
 #' #seminr syntax for creating measurement model
 #' mobi_mm <- constructs(
 #'              reflective("Image",        multi_items("IMAG", 1:5)),
-#'              reflective("Expectation",  multi_items("CUEX", 1:3)),
 #'              reflective("Quality",      multi_items("PERQ", 1:7)),
 #'              reflective("Value",        multi_items("PERV", 1:2)),
 #'              reflective("Satisfaction", multi_items("CUSA", 1:3)),
@@ -35,29 +34,25 @@
 #'
 #' #seminr syntax for freeing up item-item covariances
 #' mobi_am <- associations(
-#'              item_errors(c("PERQ1", "PERQ2"), "CUEX3"),
-#'              item_errors("IMAG1", "CUEX2")
+#'              item_errors(c("PERQ1", "PERQ2"), "IMAG1")
 #'            )
 #'
 #' #seminr syntax for creating structural model
 #' mobi_sm <- relationships(
-#'   paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
-#'   paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
-#'   paths(from = "Quality",      to = c("Value", "Satisfaction")),
-#'   paths(from = "Value",        to = c("Satisfaction")),
-#'   paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
+#'   paths(from = c("Image", "Quality"), to = c("Value", "Satisfaction")),
+#'   paths(from = c("Value", "Satisfaction"), to = c("Complaints", "Loyalty")),
 #'   paths(from = "Complaints",   to = "Loyalty")
 #' )
 #'
 #' # Estimate model and get results
-#' cbsem <- estimate_cbsem(mobi, mobi_mm, mobi_sm, mobi_am)
-#' cbsem$results
+#' mobi_cbsem <- estimate_cbsem(mobi, mobi_mm, mobi_sm, mobi_am)
+#' mobi_cbsem$results
 #' @export
-estimate_cbsem <- function(data, measurement_model, structural_model, item_associations=NULL, ...) {
-  cat("Generating the seminr model\n")
+estimate_cbsem <- function(data, measurement_model, structural_model, item_associations=NULL, estimator="MLR", ...) {
+  cat("Generating the seminr model for CBSEM\n")
 
   # TODO: see if fiml and other imputations work
-  data <- stats::na.omit(data)
+  # data <- stats::na.omit(data)
 
   # TODO: consider higher order models (see estimate_pls() function for template)
 
@@ -68,16 +63,9 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
   # TODO: warning if the model is incorrectly specified
   # warnings(measurement_model, data, structural_model)
 
-
   # Create LAVAAN syntax
-  measurement_syntax <- mm_syntax(measurement_model)
-
-  outcomes <- unique(structural_model[, "target"])
-  regressions <- lapply(outcomes, FUN=lavaan_regression, smMatrix=structural_model)
-  structural_syntax <- paste("# Regressions",
-                             paste(regressions, collapse="\n"),
-                             sep="\n")
-
+  measurement_syntax <- lavaan_mm_syntax(measurement_model)
+  structural_syntax <- lavaan_sm_syntax(structural_model)
   association_syntax <- lavaan_item_associations(item_associations)
 
   # Put all the parts together
@@ -86,29 +74,47 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
 
   # Run the model in LAVAAN
   library(lavaan)
-  lavaan_model <- sem(model=full_syntax, data=data, std.lv = TRUE, ...)
-  results <- summary(lavaan_model, fit.measures=TRUE, rsq=TRUE, standardized=TRUE)
+  lavaan_model <- sem(model=full_syntax, data=data, std.lv = TRUE,
+                      estimator=estimator, ...)
 
   # Gather model information
   seminr_model <- list(
     data = data,
     measurement_model = measurement_model,
     structural_model = structural_model,
+    associations = item_associations,
     constructs = construct_names(structural_model),
-    syntax = full_syntax,
-    lavaan_model = lavaan_model,
-    results = results
+    lavaan_syntax = full_syntax,
+    lavaan_model = lavaan_model
   )
 
   class(seminr_model) <- c("cbsem_model", "seminr_model")
   return(seminr_model)
 }
 
+#' #' @examples
+#' mobi <- mobi
+#'
+#' #seminr syntax for creating measurement model
+#' mobi_mm <- constructs(
+#' reflective("Image",          multi_items("IMAG", 1:5)),
+#'   reflective("Expectation",  multi_items("CUEX", 1:3)),
+#'   reflective("Quality",      multi_items("PERQ", 1:7))
+#' )
+#'
+#' #seminr syntax for freeing up item-item covariances
+#' mobi_am <- associations(
+#'              item_errors(c("PERQ1", "PERQ2"), "CUEX3"),
+#'              item_errors("IMAG1", "CUEX2")
+#'            )
+#'
+#' mobi_cfa <- estimate_cfa(mobi, mobi_mm, mobi_am)
 #' @export
-estimate_cfa <- function(data, measurement_model, item_associations=NULL, ...) {
-  cat("Generating the seminr model\n")
+estimate_cfa <- function(data, measurement_model, item_associations=NULL, estimator="MLR", ...) {
+  cat("Generating the seminr model for CFA\n")
 
-  data <- stats::na.omit(data)
+  # TODO: see if fiml and other imputations work
+  # data <- stats::na.omit(data)
 
   # TODO: consider higher order models (see estimate_pls() function for template)
 
@@ -116,7 +122,7 @@ estimate_cfa <- function(data, measurement_model, item_associations=NULL, ...) {
   # warnings(measurement_model, data, structural_model)
 
   # Create LAVAAN syntax
-  measurement_syntax <- mm_syntax(measurement_model)
+  measurement_syntax <- lavaan_mm_syntax(measurement_model)
   association_syntax <- lavaan_item_associations(item_associations)
 
   full_syntax <- paste(measurement_syntax,
@@ -125,8 +131,8 @@ estimate_cfa <- function(data, measurement_model, item_associations=NULL, ...) {
 
   # Run the model in LAVAAN
   library(lavaan)
-  lavaan_model <- cfa(model=full_syntax, data=data, std.lv = TRUE, ...)
-  lavaan_results <- summary(lavaan_model, fit.measures=TRUE, standardized=TRUE)
+  lavaan_model <- cfa(model=full_syntax, data=data, std.lv = TRUE,
+                      estimator=estimator, ...)
 
   # Gather model information
   seminr_model <- list(
@@ -135,35 +141,10 @@ estimate_cfa <- function(data, measurement_model, item_associations=NULL, ...) {
     # TODO: get construct names out of a measurement model
     # constructs = construct_names(structural_model),
     syntax = full_syntax,
-    lavaan_model = lavaan_model,
-    lavaan_results = lavaan_results
+    lavaan_model = lavaan_model
   )
 
   class(seminr_model) <- c("cfa_model", "seminr_model")
   return(seminr_model)
 }
 
-lavaan_item_associations <- function(item_associations) {
-  if (is.null(item_associations)) return(NULL)
-  associaxns <- apply(item_associations, MARGIN=1, FUN=lavaan_association)
-  association_syntax <- paste("# Residual Covariances",
-                              paste(associaxns, collapse="\n"),
-                              sep="\n")
-}
-
-mm_syntax <- function(measurement_model) {
-  # Create measurement model syntax
-  measurements <- lapply(measurement_model, FUN = lavaan_construct)
-  paste("# Latent Variable Definitions",
-        paste(measurements, collapse="\n"),
-        sep="\n")
-}
-
-#' @export
-summary.cbsem_model <- function(object, na.print=".", digits=3, ...) {
-  stopifnot(inherits(object, "cbsem_model"))
-  #TODO: we should set the package attribute to seminr rather than as class attribute
-  stopifnot(inherits(object, "seminr_model"))
-
-  fit <- fitMeasures(object$lavaan_model)
-}
