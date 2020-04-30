@@ -4,7 +4,8 @@
 \name{mobi}
 \alias{mobi}
 \title{Measurement Instrument for the Mobile Phone Industry}
-\format{A data frame with 250 rows and 24 variables:
+\format{
+A data frame with 250 rows and 24 variables:
 \describe{
   \item{CUEX1}{Expectations for the overall quality of "your mobile phone provider" at the moment you became customer of this provider}
   \item{CUEX2}{Expectations for "your mobile phone provider" to provide products and services to meet your personal need}
@@ -30,7 +31,8 @@
   \item{PERQ7}{Clarity and transparency of information provided}
   \item{PERV1}{Given the quality of the products and services offered by "your mobile phone provider" how would you rate the fees and prices that you pay for them?}
   \item{PERV2}{Given the fees and prices that you pay for "your mobile phone provider" how would you rate the quality of the products and services offered by "your mobile phone provider"?}
-}}
+}
+}
 \usage{
 mobi
 }
