@@ -38,6 +38,10 @@
 #' fSquared(mobi_pls, "Image", "Satisfaction")
 #' @export
 fSquared <- function(seminr_model, iv, dv) {
+  if (length(seminr_model$constructs) == 2) {
+    rsq <- (seminr_model$rSquared["Rsq", dv])
+    return((rsq - 0) / (1 - rsq))
+  }
   with_sm <- seminr_model$smMatrix
   without_sm <- subset(with_sm, !((with_sm[, "source"] == iv) & (with_sm[, "target"] == dv)))
 
