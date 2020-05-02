@@ -3,7 +3,7 @@ library(lavaan)
 "%^%" <- function(S, power) with(eigen(S), vectors %*% (values ^ power * t(vectors)))
 
 # factor score calculator
-calc_ten_berge_scores <- function(X, Lambda, Phi, i.means, i.sds, R) {
+calc_ten_berge_scores <- function(X, Lambda, Phi, i.means, i.sds) {
   if (any(is.na(X))) {
     # if any missing, impute using person average
     p.means <- colMeans(t(X), na.rm = TRUE)
@@ -35,7 +35,5 @@ do_ten_berge <- function (fit) {
   i.sds <- sqrt(fit@SampleStats@var[[1]])
   Lambda_mat <- inspect(fit, what = "std.lv")$lambda
   Phi_mat <- matrix(inspect(fit, what = "cor.lv"), ncol(Lambda_mat))
-  R.mod <- cov2cor(matrix(inspect(fit, what = "resid")$cov +
-                            inspect(fit, what = "cov.ov"), length(i.means)))
-  calc_ten_berge_scores(X, Lambda_mat, Phi_mat, i.means, i.sds, R.mod)
+  calc_ten_berge_scores(X, Lambda_mat, Phi_mat, i.means, i.sds)
 }
