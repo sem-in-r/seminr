@@ -6,7 +6,7 @@ library(lavaan)
 calc_ten_berge_scores <- function(X, Lambda, Phi, i.means, i.sds) {
   if (any(is.na(X))) {
     # if any missing, impute using person average
-    p.means <- colMeans(t(X), na.rm = TRUE)
+    p.means <- rowMeans(X, na.rm = TRUE)
     missings <- which(is.na(X), arr.ind = TRUE)
     X[is.na(X)] <- p.means[missings[, 1]]
     X <- scale(X)
