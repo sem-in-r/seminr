@@ -18,12 +18,12 @@ item_vifs <- function(seminr_model) {
 }
 
 # Calculate VIF of all antecedents of each construct
-antecedent_vifs <- function(seminr_model) {
-  endogenous_constructs <- all_endogenous(seminr_model$smMatrix)
-  names(endogenous_constructs) <- endogenous_constructs # helps lapply return named list
-  antecedent_vifs <- lapply(endogenous_constructs, independent_vifs,
-                            antecedents_of, seminr_model$smMatrix,
-                            data = seminr_model$construct_scores)
+antecedent_vifs <- function(structural_model, cor_matrix) {
+  endogenous_names <- all_endogenous(structural_model)
+  sapply(endogenous_names, function(outcome) {
+    antecedents <- antecedents_of(outcome, structural_model)
+    cor_vifs(cor_matrix, antecedents)
+  }, simplify=FALSE, USE.NAMES=TRUE)
 }
 
 # HTMT as per Henseler, J., Ringle, C. M., & Sarstedt, M. (2014). A new criterion for assessing discriminant validity in

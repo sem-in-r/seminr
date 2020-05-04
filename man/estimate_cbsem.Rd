@@ -46,7 +46,7 @@ mobi_sm <- relationships(
 
 # Estimate model and get results
 mobi_cbsem <- estimate_cbsem(mobi, mobi_mm, mobi_sm, mobi_am)
-mobi_cbsem$results
+summary(mobi_cbsem)
 }
 \seealso{
 \code{\link{as.reflective}} \code{\link{all.reflective}}

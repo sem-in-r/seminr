@@ -1,7 +1,6 @@
 #' Traverses tree structures of nested lists to create
 #' string representation of structure. Useful to compare list structures
 #' in test cases. (see cbsem summary tests for example)
-#' @export
 traverse_names <- function(list_tree, level = 0)  {
   if (!("list" %in% class(list_tree))) return("")
 
@@ -14,3 +13,4 @@ traverse_names <- function(list_tree, level = 0)  {
   }
   return(return_str)
 }
+

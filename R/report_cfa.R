@@ -5,7 +5,9 @@ summary.cfa_model <- function(object, na.print=".", digits=3, ...) {
   stopifnot(inherits(object, "seminr_model"))
 
   model_summary     <- summarize_cb_measurement(object)
-  model_summary$fit <- summarize_fit(object$lavaan_model)
+  model_summary$quality <- list(
+    fit = summarize_fit(object$lavaan_model)
+  )
 
   class(model_summary) <- c("summary.cfa_model", class(model_summary))
   model_summary

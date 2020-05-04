@@ -42,10 +42,20 @@ cbsem_summary_tree <- list(
   ),
   loadings = NULL,
   paths = list(coefficients = NULL, pvalues = NULL),
-  fit = list(
-    all = NULL,
-    curated = list(ordinary = NULL, robust = NULL)
-  )
+  quality = list(
+    fit = list(
+      all = NULL,
+      curated = list(ordinary = NULL, robust = NULL)
+    ),
+    antecedent_vifs = list(
+      Complaints = NULL,
+      Loyalty = NULL,
+      Satisfaction = NULL,
+      Value = NULL
+    )
+  ),
+  factor_scores=NULL,
+  weights=NULL
 )
 
 test_that("Summary of CBSEM has proper structure", {
@@ -83,10 +93,14 @@ cfa_summary_tree <- list(
     correlations = list(items = NULL, constructs = NULL)
   ),
   loadings = NULL,
-  fit = list(
-    all = NULL,
-    curated = list(ordinary = NULL, robust = NULL)
-  )
+  quality = list(
+    fit = list(
+      all = NULL,
+      curated = list(ordinary = NULL, robust = NULL)
+    )
+  ),
+  factor_scores=NULL,
+  weights=NULL
 )
 
 test_that("Summary of CFA has proper structure", {

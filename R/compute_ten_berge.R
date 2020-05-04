@@ -1,8 +1,7 @@
-library(lavaan)
-
+# Power operator for matrices
 "%^%" <- function(S, power) with(eigen(S), vectors %*% (values ^ power * t(vectors)))
 
-# factor score calculator
+# ten Berge factor score calculator
 calc_ten_berge_scores <- function(X, Lambda, Phi, i.means, i.sds) {
   if (any(is.na(X))) {
     # if any missing, impute using person average
@@ -24,16 +23,4 @@ calc_ten_berge_scores <- function(X, Lambda, Phi, i.means, i.sds) {
   scores <- X %*% W
   colnames(scores) <- colnames(Lambda)
   list(scores = scores, weights = W)
-}
-
-# function to call to get scores, only argument is lavaan model called `fit` here
-# returns list with two elements:
-# ten berge scores and weights for calculating scores
-do_ten_berge <- function (fit) {
-  X <- inspect(fit, "data")
-  i.means <- fit@SampleStats@mean[[1]]
-  i.sds <- sqrt(fit@SampleStats@var[[1]])
-  Lambda_mat <- inspect(fit, what = "std.lv")$lambda
-  Phi_mat <- matrix(inspect(fit, what = "cor.lv"), ncol(Lambda_mat))
-  calc_ten_berge_scores(X, Lambda_mat, Phi_mat, i.means, i.sds)
 }

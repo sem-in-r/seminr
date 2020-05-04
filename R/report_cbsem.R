@@ -4,15 +4,16 @@ summary.cbsem_model <- function(object, na.print=".", digits=3, ...) {
   #TODO: we should set the package attribute to seminr rather than as class attribute
   stopifnot(inherits(object, "seminr_model"))
 
-  model_summary   <- summarize_cb_measurement(object)
-  model_structure <- summarize_cb_structure(object)
+  model_summary <- summarize_cb_measurement(object)
+  regr_vifs = antecedent_vifs(
+    object$structural_model,
+    model_summary$descriptives$correlations$constructs)
 
-  model_summary$paths <- list(
-    coefficients = model_structure$path_matrix,
-    pvalues  = model_structure$pvalue_matrix
+  model_summary$paths <- summarize_cb_structure(object)
+  model_summary$quality <- list(
+    fit = summarize_fit(object$lavaan_model),
+    antecedent_vifs = regr_vifs
   )
-
-  model_summary$fit <- summarize_fit(object$lavaan_model)
 
   class(model_summary) <- c("summary.cbsem_model", class(model_summary))
   model_summary

@@ -46,7 +46,7 @@
 #'
 #' # Estimate model and get results
 #' mobi_cbsem <- estimate_cbsem(mobi, mobi_mm, mobi_sm, mobi_am)
-#' mobi_cbsem$results
+#' summary(mobi_cbsem)
 #' @export
 estimate_cbsem <- function(data, measurement_model, structural_model, item_associations=NULL, estimator="MLR", ...) {
   cat("Generating the seminr model for CBSEM\n")

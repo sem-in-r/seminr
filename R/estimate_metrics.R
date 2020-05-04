@@ -1,5 +1,37 @@
 # PURPOSE: Functions to compute metrics on measurement or structure
 
+#' Returns R-sq of a dv given correlation matrix of ivs, dv
+#'   cors <- cbsem_summary$descriptives$correlations$constructs
+#'   cor_rsq(cors, dv_name = "Value", iv_names = c("Image", "Quality"))
+#'
+cor_rsq <- function(cor_matrix, dv_name, iv_names) {
+  iv_cors <- cor_matrix[iv_names, iv_names]
+  dv_cors <- cor_matrix[iv_names, dv_name]
+  as.numeric(t(dv_cors) %*% solve(iv_cors) %*% dv_cors)
+}
+
+#
+#' lm_vif <- function(data, model) {
+#'   1/(1-summary(lm(model, as.data.frame(data)))$r.squared)
+#' }
+#'
+#' > lm_vif(scores, Value ~ Satisfaction + Complaints)
+#' [1] 1.769965
+#' > lm_vif(scores, Satisfaction ~ Value + Complaints)
+#' [1] 2.455003
+#' > lm_vif(scores, Complaints ~ Value + Satisfaction)
+#' [1] 1.6049
+#'
+#'> cor_vifs(cors, c("Value", "Satisfaction", "Complaints"))
+#'    Value Satisfaction   Complaints
+#' 1.769965     2.455003     1.604900
+cor_vifs <- function(cor_matrix, iv_names) {
+  vifs <- sapply(iv_names, function(iv) {
+    rsq_j <- cor_rsq(cor_matrix, dv_name = iv, iv_names = iv_names[iv_names != iv])
+    1/(1 - rsq_j)
+  }, USE.NAMES = TRUE)
+}
+
 # Function to apply over manifests of a construct and return VIF values
 compute_vif <- function(target, predictors, model_data) {
   independents_regr <- stats::lm(paste("`", target,"` ~.", sep = ""),

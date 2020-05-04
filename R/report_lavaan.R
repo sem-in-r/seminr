@@ -19,6 +19,9 @@ summarize_cb_measurement <- function(object) {
   item_correlations <- stats::cor(object$data)
   construct_correlations <- lavInspect(lavaan_model, what = "cor.lv")
 
+  # Scores, weights
+  tenB <- estimate_lavaan_ten_berge(lavaan_model)
+
   list(
     meta = list(
       seminr = seminr_info(),
@@ -41,7 +44,9 @@ summarize_cb_measurement <- function(object) {
         constructs = construct_correlations
       )
     ),
-    loadings = loadings_matrix
+    loadings = loadings_matrix,
+    factor_scores = tenB$scores,
+    weights = tenB$weights
   )
 }
 
@@ -73,12 +78,12 @@ summarize_cb_structure <- function(object) {
     rbind("R^2"=rsq, .)
   }
 
-  pvalue_matrix   <- df_xtab_matrix(pvalue ~ rhs + lhs, path_df,
-                                    all_antecedents, all_outcomes)
+  pvalue_matrix <- df_xtab_matrix(pvalue ~ rhs + lhs, path_df,
+                                  all_antecedents, all_outcomes)
 
   list(
-    path_matrix = path_matrix,
-    pvalue_matrix = pvalue_matrix
+    coefficients = path_matrix,
+    pvalues = pvalue_matrix
   )
 }
 
