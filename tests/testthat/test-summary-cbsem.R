@@ -47,6 +47,7 @@ cbsem_summary_tree <- list(
       all = NULL,
       curated = list(ordinary = NULL, robust = NULL)
     ),
+    reliability = NULL,
     antecedent_vifs = list(
       Complaints = NULL,
       Loyalty = NULL,
@@ -97,7 +98,8 @@ cfa_summary_tree <- list(
     fit = list(
       all = NULL,
       curated = list(ordinary = NULL, robust = NULL)
-    )
+    ),
+    reliability = NULL
   ),
   factor_scores=NULL,
   weights=NULL

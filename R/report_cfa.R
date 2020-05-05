@@ -6,7 +6,8 @@ summary.cfa_model <- function(object, na.print=".", digits=3, ...) {
 
   model_summary     <- summarize_cb_measurement(object)
   model_summary$quality <- list(
-    fit = summarize_fit(object$lavaan_model)
+    fit = summarize_fit(object$lavaan_model),
+    reliability = rhoC_AVE(object)
   )
 
   class(model_summary) <- c("summary.cfa_model", class(model_summary))
@@ -21,8 +22,8 @@ print.summary.cfa_model <- function(x, na.print=".", digits=2, ...) {
 
   cat("\n")
   cat(" Fit metrics:\n")
-  print(x$fit$curated$ordinary, digits=digits)
-  if (!is.null(x$fit$curated$robust)) print(x$fit$curated$robust)
+  print(x$fit$curated$ordinary, digits=digits+1)
+  if (!is.null(x$fit$curated$robust)) print(x$fit$curated$robust, digits=digits+1)
 
   cat("\n")
   cat(" Loadings:\n")

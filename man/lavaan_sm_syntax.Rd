@@ -4,7 +4,7 @@
 \alias{lavaan_sm_syntax}
 \title{Create Lavaan syntax for entire structural model}
 \usage{
-lavaan_sm_syntax(structural_model)
+lavaan_sm_syntax(smMatrix)
 }
 \description{
 Create Lavaan syntax for entire structural model

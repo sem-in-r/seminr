@@ -89,7 +89,7 @@ estimate_pls <- function(data, measurement_model, structural_model, inner_weight
   # Correct for Bias in Reflective models using PLS Consistent
   seminr_model <- model_consistent(seminr_model)
 
-  class(seminr_model) <- "seminr_model"
+  class(seminr_model) <- c("pls_model", "seminr_model")
   return(seminr_model)
 }
 

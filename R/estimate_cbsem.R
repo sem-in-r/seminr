@@ -79,14 +79,21 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
   lavaan_model <- sem(model=full_syntax, data=data, std.lv = TRUE,
                       estimator=estimator, ...)
 
+  # Inspect results
+  constructs <- construct_names(smMatrix)
+  lavaan_std <- lavaan::lavInspect(lavaan_model, what="std")
+  loadings <- lavaan_std$lambda
+  class(loadings) <- "matrix"
+
   # Gather model information
   seminr_model <- list(
     data = data,
     measurement_model = measurement_model,
     mmMatrix = mmMatrix,
     smMatrix = smMatrix,
+    factor_loadings = loadings,
     associations = item_associations,
-    constructs = construct_names(smMatrix),
+    constructs = constructs,
     lavaan_syntax = full_syntax,
     lavaan_model = lavaan_model
   )
