@@ -38,3 +38,16 @@ as.reflective.measurement_model <- function(mmMatrix) {
 as.reflective.construct <- function(from) {
   reflective(construct_name(from), construct_items(from))
 }
+
+#' Convert measurement model into mmMatrix
+mm2matrix <- function(measurement_model) {
+  recognized_constructs <- c("composite", "reflective", "higher_order_composite")
+  construct_measurements <- measurement_model[names(measurement_model) %in% recognized_constructs]
+  matrix(unlist(construct_measurements), ncol = 3, byrow = TRUE,
+         dimnames = list(NULL, c("construct", "measurement", "type")))
+}
+
+#' Extract only interaction closures from measurement model
+mm_interactions <- function(measurement_model) {
+  measurement_model[(substr(names(measurement_model), nchar(names(measurement_model))-10, nchar(names(measurement_model))) == "interaction")]
+}

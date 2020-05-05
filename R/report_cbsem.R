@@ -6,7 +6,7 @@ summary.cbsem_model <- function(object, na.print=".", digits=3, ...) {
 
   model_summary <- summarize_cb_measurement(object)
   regr_vifs = antecedent_vifs(
-    object$structural_model,
+    object$smMatrix,
     model_summary$descriptives$correlations$constructs)
 
   model_summary$paths <- summarize_cb_structure(object)
@@ -26,10 +26,10 @@ print.summary.cbsem_model <- function(x, na.print=".", digits=2, ...) {
   print_pkginfo("Estimation used", x$meta$seminr)
 
   cat("\nFit metrics:\n")
-  print_matrix(x$fit$curated$ordinary, na.print=na.print, digits=digits)
-  if (!is.null(x$fit$curated$robust)) {
+  print_matrix(x$quality$fit$curated$ordinary, na.print=na.print, digits=digits)
+  if (!is.null(x$quality$fit$curated$robust)) {
     cat("\n")
-    print_matrix(x$fit$curated$robust, na.print=na.print, digits=digits)
+    print_matrix(x$quality$fit$curated$robust, na.print=na.print, digits=digits)
   }
 
   cat("\nPath Coefficients:\n")

@@ -254,33 +254,25 @@ two_stage <- function(iv, moderator, weights) {
 }
 
 process_interactions <- function(measurement_model, data, structural_model, inner_weights) {
-  ints <- measurement_model[(substr(names(measurement_model), nchar(names(measurement_model))-10, nchar(names(measurement_model))) == "interaction")]
-  non_ints <- measurement_model[(substr(names(measurement_model), nchar(names(measurement_model))-10, nchar(names(measurement_model))) != "interaction")]
-  measurement_model <- matrix(unlist(non_ints), ncol = 3, byrow = TRUE,
-                              dimnames = list(NULL, c("construct", "measurement", "type")))
-
+  ints <- mm_interactions(measurement_model)
+  mmMatrix <- mm2matrix(measurement_model)
 
   if(length(ints)>0) {
     # update data with new interaction items
     names(ints) <- c()
-    create_interaction <- function(intxn_function) { intxn_function(data, measurement_model, structural_model, ints, inner_weights) }
+    create_interaction <- function(intxn_function) { intxn_function(data, mmMatrix, structural_model, ints, inner_weights) }
     intxns_list <- lapply(ints, create_interaction)
 
     get_data <- function(intxn) { intxn$data }
     interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
 
-    get_mm <- function(intxn) { intxn$mm }
-    intxns_mm <- do.call("rbind", lapply(intxns_list, get_mm))
     # Append data with interaction data
+    intxns_mm <- do.call("rbind", lapply(intxns_list, function(intxn) { intxn$mm }))
     data <- cbind(data, interaction_data)
 
-    # update measurement model with interaction constructs
-    #intxns_mm <- matrix(unlist(lapply(intxns_list, measure_interaction)), ncol = 3, byrow = TRUE)
-    # construct <- c(rbind(construct_name, item_names, composite_type))
-
-    measurement_model <- rbind(measurement_model, intxns_mm)
+    mmMatrix <- rbind(mmMatrix, intxns_mm)
   }
   return(list(data = data,
-              measurement_model = measurement_model,
+              mmMatrix = mmMatrix,
               ints = ints))
 }

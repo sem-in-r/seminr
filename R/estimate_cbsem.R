@@ -59,13 +59,15 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
   # TODO: process interactions limited to repeated measures and orthogonalization
   # post_interaction_object <- process_interactions(measurement_model, data, structural_model, inner_weights)
   # measurement_model <- post_interaction_object$measurement_model
+  mmMatrix <- mm2matrix(measurement_model)
+  smMatrix <- structural_model
 
   # TODO: warning if the model is incorrectly specified
   # warnings(measurement_model, data, structural_model)
 
   # Create LAVAAN syntax
-  measurement_syntax <- lavaan_mm_syntax(measurement_model)
-  structural_syntax <- lavaan_sm_syntax(structural_model)
+  measurement_syntax <- lavaan_mm_syntax(measurement_model) # TODO: interactions in lavaan syntax
+  structural_syntax <- lavaan_sm_syntax(smMatrix)
   association_syntax <- lavaan_item_associations(item_associations)
 
   # Put all the parts together
@@ -73,7 +75,7 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
                        sep="\n\n")
 
   # Run the model in LAVAAN
-  library(lavaan)
+  library(lavaan) # TODO: suppress and replace Lavaan startup message
   lavaan_model <- sem(model=full_syntax, data=data, std.lv = TRUE,
                       estimator=estimator, ...)
 
@@ -81,9 +83,10 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
   seminr_model <- list(
     data = data,
     measurement_model = measurement_model,
-    structural_model = structural_model,
+    mmMatrix = mmMatrix,
+    smMatrix = smMatrix,
     associations = item_associations,
-    constructs = construct_names(structural_model),
+    constructs = construct_names(smMatrix),
     lavaan_syntax = full_syntax,
     lavaan_model = lavaan_model
   )

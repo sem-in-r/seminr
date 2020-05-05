@@ -54,8 +54,8 @@ summarize_cb_structure <- function(object) {
   estimates <- standardizedSolution(object$lavaan_model)
 
   # Capture structural relationship information
-  all_antecedents <- all_exogenous(object$structural_model)
-  all_outcomes <- all_endogenous(object$structural_model)
+  all_antecedents <- all_exogenous(object$smMatrix)
+  all_outcomes <- all_endogenous(object$smMatrix)
 
   # Get R^2 results (only found in unstandandardized results?)
   invisible(capture.output(

@@ -4,6 +4,7 @@
 # Generic: Gets VIF for all independent variables of a construct
 independent_vifs <- function(construct, find_independents, seminr_model, data) {
   independents <- find_independents(construct, seminr_model)
+  # TODO: remove dependence on compute_vif and use cor_vifs instead
   vifs <- if (length(independents) > 1)
     sapply(independents, compute_vif, independents, data)
   else structure(1, names = independents)
@@ -18,10 +19,11 @@ item_vifs <- function(seminr_model) {
 }
 
 # Calculate VIF of all antecedents of each construct
-antecedent_vifs <- function(structural_model, cor_matrix) {
-  endogenous_names <- all_endogenous(structural_model)
+# TODO: ensure that VIF works for single antecedent to outcome
+antecedent_vifs <- function(smMatrix, cor_matrix) {
+  endogenous_names <- all_endogenous(smMatrix)
   sapply(endogenous_names, function(outcome) {
-    antecedents <- antecedents_of(outcome, structural_model)
+    antecedents <- antecedents_of(outcome, smMatrix)
     cor_vifs(cor_matrix, antecedents)
   }, simplify=FALSE, USE.NAMES=TRUE)
 }

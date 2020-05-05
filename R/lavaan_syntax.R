@@ -44,10 +44,10 @@ lavaan_mm_syntax <- function(measurement_model) {
 }
 
 #' Create Lavaan syntax for entire structural model
-lavaan_sm_syntax <- function(structural_model) {
-  regressions <- lapply(all_endogenous(structural_model),
+lavaan_sm_syntax <- function(smMatrix) {
+  regressions <- lapply(all_endogenous(smMatrix),
                         FUN=lavaan_regression,
-                        smMatrix=structural_model)
+                        smMatrix=smMatrix)
   paste("# Regressions",
       paste(regressions, collapse="\n"),
       sep="\n")

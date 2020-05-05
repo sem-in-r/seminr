@@ -59,7 +59,7 @@ fSquared <- function(seminr_model, iv, dv) {
   #   }
   utils::capture.output(
     without_pls <- estimate_pls(data = seminr_model$rawdata,
-                                measurement_model = seminr_model$raw_measurement_model,
+                                measurement_model = seminr_model$measurement_model,
                                 structural_model = without_sm)
   )
   with_r2 <- seminr_model$rSquared["Rsq", dv]
@@ -71,9 +71,9 @@ fSquared <- function(seminr_model, iv, dv) {
 }
 
 model_fsquares <- function(seminr_model) {
-  if (any(names(seminr_model$raw_measurement_model) == "orthogonal_interaction")
-      | any(names(seminr_model$raw_measurement_model) == "two_stage_interaction")
-      | any(names(seminr_model$raw_measurement_model) == "scaled_interaction" )) {
+  if (any(names(seminr_model$measurement_model) == "orthogonal_interaction")
+      | any(names(seminr_model$measurement_model) == "two_stage_interaction")
+      | any(names(seminr_model$measurement_model) == "scaled_interaction" )) {
     return("The fSquare cannot be calculated as the model contains an interaction term and omitting either the antecedent or moderator in the interaction term will cause model estimation to fail")
   }
 
