@@ -7,8 +7,9 @@ construct_name <- function(construct) {
   construct[1]
 }
 
-all_construct_names <- function(mmMatrix) {
-  lapply(mmMatrix, FUN=construct_name) -> .
+all_construct_names <- function(measurement_model) {
+  constructs_only <- mm_constructs(measurement_model)
+  lapply(constructs_only, FUN=construct_name) -> .
   unlist(., use.names = FALSE)
 }
 
@@ -17,8 +18,9 @@ construct_items <- function(construct) {
   construct[item_indices]
 }
 
-all_items <- function(mmMatrix) {
-  sapply(mmMatrix, FUN=construct_items) -> .
+all_items <- function(measurement_model) {
+  constructs_only <- mm_constructs(measurement_model)
+  sapply(constructs_only, FUN=construct_items) -> .
   unlist(., use.names = FALSE) -> .
   unique(.)
 }
@@ -30,13 +32,27 @@ as.reflective <- function (x, ...) {
 }
 
 #' @export
-as.reflective.measurement_model <- function(mmMatrix) {
-  lapply(mmMatrix, FUN=as.reflective)
+as.reflective.measurement_model <- function(measurement_model) {
+  reflectives <- lapply(measurement_model, FUN=as.reflective)
+  # Filter(Negate(is.null), reflectives)
 }
 
 #' @export
 as.reflective.construct <- function(from) {
   reflective(construct_name(from), construct_items(from))
+}
+
+#' @export
+as.reflective.interaction <- function(from) {
+  from
+}
+
+#' @export
+as.reflective.matrix <- function(from) {
+  # TODO: make an 'mmMatrix' class name
+  # TODO: give interaction mmMAtrix column names so we can do: from[, "type"]
+  from[, 3] <- "C"
+  from
 }
 
 #' Convert measurement model into mmMatrix
@@ -47,7 +63,13 @@ mm2matrix <- function(measurement_model) {
          dimnames = list(NULL, c("construct", "measurement", "type")))
 }
 
+mm_constructs <- function(measurement_model) {
+  Filter(function(e) {!("interaction" %in% class(e))}, measurement_model)
+}
+
 #' Extract only interaction closures from measurement model
 mm_interactions <- function(measurement_model) {
+  # TODO: refactor to?
+  #  Filter(function(e) {"interaction" %in% class(e)}, measurement_model)
   measurement_model[(substr(names(measurement_model), nchar(names(measurement_model))-10, nchar(names(measurement_model))) == "interaction")]
 }

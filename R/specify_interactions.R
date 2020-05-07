@@ -41,10 +41,12 @@
 #' summary(mobi_pls)
 #'
 #' @export
-interaction_term <- function(iv, moderator, method = two_stage, weights = mode_A) {
-  int <- method(iv, moderator, weights)
-  class(int) <- class(method())
-  return(int)
+interaction_term <- function(iv, moderator, method=orthogonal, weights = mode_A) {
+  # TODO: revert method to two_stage once a two_stage implementation for CBSEM is done
+  intxn <- method(iv, moderator, weights)
+  class(intxn) <- class(method())
+
+  return(intxn)
 }
 
 #' \code{orthogonal} creates interaction measurement items by using the orthogonalized approach..
@@ -90,7 +92,7 @@ interaction_term <- function(iv, moderator, method = two_stage, weights = mode_A
 #'
 #' @export
 orthogonal <- function(iv, moderator, weights) {
-  ortho_construct <- function(data, measurement_model, structural_model, ints, inner_weights) {
+  ortho_construct <- function(data, measurement_model, structural_model, ints, ...) {
     interaction_name <- paste(iv, moderator, sep = "*")
     iv1_items <- measurement_model[measurement_model[, "construct"] == iv, "measurement"]
     iv2_items <- measurement_model[measurement_model[, "construct"] == moderator, "measurement"]
@@ -113,7 +115,7 @@ orthogonal <- function(iv, moderator, weights) {
                 data = interaction_data,
                 mm = intxn_mm))
   }
-  class(ortho_construct) <- append(class(ortho_construct), c("construct", "orthogonal_interaction"))
+  class(ortho_construct) <- append(class(ortho_construct), c("interaction", "orthogonal_interaction"))
   return(ortho_construct)
 }
 
@@ -163,11 +165,11 @@ orthogonal <- function(iv, moderator, weights) {
 #'
 #' # Load data, assemble model, and estimate using semPLS
 #' mobi <- mobi
-#' seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_factorial)
+#' seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm, inner_weights = path_factorial)
 #'
 #' @export
 product_indicator <- function(iv, moderator, weights) {
-  scaled_interaction <- function(data, measurement_model, structural_model, ints, inner_weights) {
+  scaled_interaction <- function(data, measurement_model, structural_model, ints, ...) {
     interaction_name <- paste(iv, moderator, sep = "*")
     iv1_items <- measurement_model[measurement_model[, "construct"] == iv, "measurement"]
     iv2_items <- measurement_model[measurement_model[, "construct"] == moderator, "measurement"]
@@ -183,7 +185,7 @@ product_indicator <- function(iv, moderator, weights) {
                 data = interaction_data,
                 mm = intxn_mm))
   }
-  class(scaled_interaction) <- append(class(scaled_interaction), c("construct", "scaled_interaction"))
+  class(scaled_interaction) <- append(class(scaled_interaction), c("interaction", "scaled_interaction"))
   return(scaled_interaction)
 }
 
@@ -249,7 +251,7 @@ two_stage <- function(iv, moderator, weights) {
                 data = interaction_term[,1, drop = FALSE],
                 mm = intxn_mm))
   }
-  class(two_stage_interaction) <- append(class(two_stage_interaction), c("construct", "two_stage_interaction"))
+  class(two_stage_interaction) <- append(class(two_stage_interaction), c("interaction", "two_stage_interaction"))
   return(two_stage_interaction)
 }
 
@@ -271,6 +273,32 @@ process_interactions <- function(measurement_model, data, structural_model, inne
     data <- cbind(data, interaction_data)
 
     mmMatrix <- rbind(mmMatrix, intxns_mm)
+  }
+  return(list(data = data,
+              mmMatrix = mmMatrix,
+              ints = ints))
+}
+
+process_cbsem_interactions <- function(measurement_model, data, structural_model, ...) {
+  ints <- mm_interactions(measurement_model)
+  mmMatrix <- mm2matrix(measurement_model)
+
+  if(length(ints) > 0) {
+    # update data with new interaction items
+    names(ints) <- c()
+    # create_interaction <- function(intxn_function) { intxn_function(data, mmMatrix, structural_model, ints, inner_weights) }
+    create_interaction <- function(intxn_function) { intxn_function(data, mmMatrix, structural_model, ints, ...) }
+    intxns_list <- lapply(ints, create_interaction)
+
+    get_data <- function(intxn) { intxn$data }
+    interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
+
+    # Append data with interaction data
+    intxns_mm <- do.call("rbind", lapply(intxns_list, function(intxn) { intxn$mm }))
+    data <- cbind(data, interaction_data)
+
+    # mmMatrix <- rbind(mmMatrix, intxns_mm)
+    mmMatrix <- rbind(mmMatrix, as.reflective(intxns_mm))
   }
   return(list(data = data,
               mmMatrix = mmMatrix,

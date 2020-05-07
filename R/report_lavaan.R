@@ -75,11 +75,17 @@ summarize_cb_structure <- function(object) {
   path_matrix     <- {
     df_xtab_matrix(est.std ~ rhs + lhs, path_df,
                    all_antecedents, all_outcomes) -> .
+    rownames(.) <- all_antecedents
     rbind("R^2"=rsq, .)
   }
 
-  pvalue_matrix <- df_xtab_matrix(pvalue ~ rhs + lhs, path_df,
-                                  all_antecedents, all_outcomes)
+  pvalue_matrix <- {
+    df_xtab_matrix(pvalue ~ rhs + lhs, path_df,
+                   all_antecedents, all_outcomes) -> .
+    rownames(.) <- all_antecedents
+    colnames(.) <- all_outcomes
+    .
+  }
 
   list(
     coefficients = path_matrix,
