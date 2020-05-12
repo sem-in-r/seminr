@@ -24,7 +24,11 @@ antecedent_vifs <- function(smMatrix, cor_matrix) {
   endogenous_names <- all_endogenous(smMatrix)
   sapply(endogenous_names, function(outcome) {
     antecedents <- antecedents_of(outcome, smMatrix)
-    cor_vifs(cor_matrix, antecedents)
+    if (length(antecedents) == 1) {
+      structure(NA, names=antecedents)
+    } else {
+      cor_vifs(cor_matrix, antecedents)
+    }
   }, simplify=FALSE, USE.NAMES=TRUE)
 }
 

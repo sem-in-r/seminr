@@ -36,7 +36,7 @@ cor_rsq <- function(cor_matrix, dv_name, iv_names) {
 #'    Value Satisfaction   Complaints
 #' 1.769965     2.455003     1.604900
 cor_vifs <- function(cor_matrix, iv_names) {
-  vifs <- sapply(iv_names, function(iv) {
+  sapply(iv_names, function(iv) {
     rsq_j <- cor_rsq(cor_matrix, dv_name = iv, iv_names = iv_names[iv_names != iv])
     1/(1 - rsq_j)
   }, USE.NAMES = TRUE)
