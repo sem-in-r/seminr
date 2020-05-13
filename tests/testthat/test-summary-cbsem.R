@@ -55,7 +55,7 @@ cbsem_summary_tree <- list(
       Value = NULL
     )
   ),
-  factor_scores=NULL,
+  construct_scores=NULL,
   weights=NULL
 )
 
@@ -101,7 +101,7 @@ cfa_summary_tree <- list(
     ),
     reliability = NULL
   ),
-  factor_scores=NULL,
+  construct_scores=NULL,
   weights=NULL
 )
 

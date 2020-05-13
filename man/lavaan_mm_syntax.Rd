@@ -4,7 +4,7 @@
 \alias{lavaan_mm_syntax}
 \title{Create Lavaan syntax for entire measurement model}
 \usage{
-lavaan_mm_syntax(measurement_model)
+lavaan_mm_syntax(mmMatrix)
 }
 \description{
 Create Lavaan syntax for entire measurement model

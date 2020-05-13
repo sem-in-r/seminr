@@ -45,7 +45,7 @@ summarize_cb_measurement <- function(object) {
       )
     ),
     loadings = loadings_matrix,
-    factor_scores = tenB$scores,
+    construct_scores = tenB$scores,
     weights = tenB$weights
   )
 }

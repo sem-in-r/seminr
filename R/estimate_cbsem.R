@@ -57,7 +57,7 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
   # TODO: consider higher order models (see estimate_pls() function for template)
 
   # TODO: process interactions limited to repeated measures and orthogonalization
-  post_interaction_object <- process_cbsem_interactions(measurement_model, data, structural_model, estimator=estimator, ...)
+  post_interaction_object <- process_cbsem_interactions(measurement_model, data, structural_model, item_associations, estimator, ...)
   names(post_interaction_object$data) <- sapply(names(post_interaction_object$data), FUN=lavaanify_name, USE.NAMES = FALSE)
   mmMatrix <- post_interaction_object$mmMatrix
   data <- post_interaction_object$data
@@ -82,8 +82,8 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
 
   # Run the model in LAVAAN
   library(lavaan) # TODO: suppress and replace Lavaan startup message
-  lavaan_model <- sem(model=full_syntax, data=data, std.lv = TRUE,
-                      estimator=estimator, ...)
+  lavaan_model <- lavaan::sem(model=full_syntax, data=data, std.lv = TRUE,
+                              estimator=estimator, ...)
 
   # Inspect results
   constructs <- all_construct_names(measurement_model)
@@ -141,6 +141,7 @@ estimate_cfa <- function(data, measurement_model, item_associations=NULL, estima
 
   # Create LAVAAN syntax
   mmMatrix <- mm2matrix(measurement_model)
+
   measurement_syntax <- lavaan_mm_syntax(mmMatrix)
   association_syntax <- lavaan_item_associations(item_associations)
 
@@ -150,8 +151,8 @@ estimate_cfa <- function(data, measurement_model, item_associations=NULL, estima
 
   # Run the model in LAVAAN
   library(lavaan)
-  lavaan_model <- cfa(model=full_syntax, data=data, std.lv = TRUE,
-                      estimator=estimator, ...)
+  lavaan_model <- lavaan::cfa(model=full_syntax, data=data, std.lv = TRUE,
+                              estimator=estimator, ...)
 
   # Gather model information
   seminr_model <- list(

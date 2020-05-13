@@ -56,11 +56,21 @@ as.reflective.matrix <- function(from) {
 }
 
 #' Convert measurement model into mmMatrix
+#' - if measurement model is a matrix, return it directly
 mm2matrix <- function(measurement_model) {
+  if ("mmMatrix" %in% class(measurement_model)) {
+    return(measurement_model)
+  }
+
   recognized_constructs <- c("composite", "reflective", "higher_order_composite")
   construct_measurements <- measurement_model[names(measurement_model) %in% recognized_constructs]
-  matrix(unlist(construct_measurements), ncol = 3, byrow = TRUE,
-         dimnames = list(NULL, c("construct", "measurement", "type")))
+  mmMatrix <- matrix(
+    unlist(construct_measurements), ncol = 3, byrow = TRUE,
+    dimnames = list(NULL, c("construct", "measurement", "type"))
+  )
+
+  class(mmMatrix) <- c(class(mmMatrix), "mmMatrix")
+  mmMatrix
 }
 
 mm_constructs <- function(measurement_model) {

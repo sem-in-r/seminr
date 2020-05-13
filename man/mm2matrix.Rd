@@ -2,10 +2,12 @@
 % Please edit documentation in R/inspect_mmMatrix.R
 \name{mm2matrix}
 \alias{mm2matrix}
-\title{Convert measurement model into mmMatrix}
+\title{Convert measurement model into mmMatrix
+- if measurement model is a matrix, return it directly}
 \usage{
 mm2matrix(measurement_model)
 }
 \description{
 Convert measurement model into mmMatrix
+- if measurement model is a matrix, return it directly
 }

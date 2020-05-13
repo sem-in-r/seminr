@@ -4,7 +4,7 @@
 \alias{lavaan_construct}
 \title{Create lavaan syntax for a single construct's measurement}
 \usage{
-lavaan_construct(construct)
+lavaan_construct(construct_matrix)
 }
 \description{
 Create lavaan syntax for a single construct's measurement

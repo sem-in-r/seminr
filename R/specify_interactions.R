@@ -231,19 +231,19 @@ product_indicator <- function(iv, moderator, weights) {
 #'
 #' @export
 two_stage <- function(iv, moderator, weights) {
-  two_stage_interaction <- function(data, measurement_model, structural_model, ints, inner_weights) {
+  # Create an interaction function that takes extra params (...) for particular estimation
+  two_stage_interaction <- function(data, mmMatrix, structural_model, ints, estimate_first_stage, ...) {
     interaction_name <- paste(iv, moderator, sep = "*")
     # remove interactions from structural model
     structural_model <- structural_model[ !grepl("\\*", structural_model[,"source"]), ]
-    measurement_mode_scheme <- sapply(unique(c(structural_model[,1],structural_model[,2])), get_measure_mode, measurement_model, USE.NAMES = TRUE)
-    first_stage <- seminr::simplePLS(obsData = data,
-                                     smMatrix = structural_model,
-                                     mmMatrix = measurement_model,
-                                     inner_weights = inner_weights,
-                                     measurement_mode_scheme = measurement_mode_scheme)
+    measurement_mode_scheme <- sapply(unique(c(structural_model[,1],structural_model[,2])), get_measure_mode, mmMatrix, USE.NAMES = TRUE)
+    first_stage <- estimate_first_stage(
+      data = data, smMatrix = structural_model, mmMatrix = mmMatrix,
+      measurement_mode_scheme = measurement_mode_scheme, ...)
 
     interaction_term <- as.matrix(first_stage$construct_scores[, iv] * first_stage$construct_scores[, moderator], ncol = 1)[,, drop = FALSE]
-    colnames(interaction_term) <- c(interaction_name)
+    # colnames(interaction_term) <- c(interaction_name)
+    colnames(interaction_term) <- c(paste(interaction_name, "_intxn", sep = ""))
 
     intxn_mm <- matrix(measure_interaction(interaction_name, interaction_term, weights), ncol = 3, byrow = TRUE)
 
@@ -255,6 +255,28 @@ two_stage <- function(iv, moderator, weights) {
   return(two_stage_interaction)
 }
 
+first_stage_pls <- function(data, smMatrix, mmMatrix,  measurement_mode_scheme, ...) {
+  seminr::simplePLS(
+    obsData = data,
+    smMatrix = smMatrix,
+    mmMatrix = mmMatrix,
+    measurement_mode_scheme = measurement_mode_scheme,
+    ...
+  )
+}
+
+first_stage_cbsem <- function(data, smMatrix, mmMatrix, measurement_mode_scheme, ...) {
+  cfa_result <- seminr::estimate_cfa(
+    data = data,
+    measurement_model = mmMatrix,
+    ...
+  )
+
+  tenB <- estimate_lavaan_ten_berge(cfa_result$lavaan_model)
+  cfa_result$construct_scores <- tenB$scores
+  cfa_result
+}
+
 process_interactions <- function(measurement_model, data, structural_model, inner_weights) {
   ints <- mm_interactions(measurement_model)
   mmMatrix <- mm2matrix(measurement_model)
@@ -262,7 +284,7 @@ process_interactions <- function(measurement_model, data, structural_model, inne
   if(length(ints)>0) {
     # update data with new interaction items
     names(ints) <- c()
-    create_interaction <- function(intxn_function) { intxn_function(data, mmMatrix, structural_model, ints, inner_weights) }
+    create_interaction <- function(intxn_function) { intxn_function(data, mmMatrix, structural_model, ints, first_stage_pls, inner_weights) }
     intxns_list <- lapply(ints, create_interaction)
 
     get_data <- function(intxn) { intxn$data }
@@ -286,8 +308,8 @@ process_cbsem_interactions <- function(measurement_model, data, structural_model
   if(length(ints) > 0) {
     # update data with new interaction items
     names(ints) <- c()
-    # create_interaction <- function(intxn_function) { intxn_function(data, mmMatrix, structural_model, ints, inner_weights) }
-    create_interaction <- function(intxn_function) { intxn_function(data, mmMatrix, structural_model, ints, ...) }
+    # create_interaction <- function(intxn_function) { intxn_function(data, mmMatrix, structural_model, ints, first_stage_pls, inner_weights) }
+    create_interaction <- function(intxn_function) { intxn_function(data, mmMatrix, structural_model, ints, first_stage_cbsem, ...) }
     intxns_list <- lapply(ints, create_interaction)
 
     get_data <- function(intxn) { intxn$data }
