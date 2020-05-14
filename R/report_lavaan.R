@@ -2,7 +2,6 @@ summarize_cb_measurement <- function(object) {
   lavaan_model <- object$lavaan_model
   estimates <- standardizedSolution(lavaan_model)
 
-  # TODO: extract names from seminr rather than lavaan
   model <- list(
     item_names       = all_items(object$measurement_model),
     construct_names  = all_construct_names(object$measurement_model),
@@ -16,7 +15,7 @@ summarize_cb_measurement <- function(object) {
 
   # Get descriptives and correlations
   # item_descriptives <- desc(object$data)
-  item_correlations <- stats::cor(object$data)
+  item_correlations <- stats::cor(object$data[, model$item_names])
   construct_correlations <- lavInspect(lavaan_model, what = "cor.lv")
 
   list(
