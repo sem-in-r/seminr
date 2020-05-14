@@ -54,9 +54,7 @@ cbsem_summary_tree <- list(
       Satisfaction = NULL,
       Value = NULL
     )
-  ),
-  construct_scores=NULL,
-  weights=NULL
+  )
 )
 
 test_that("Summary of CBSEM has proper structure", {
@@ -100,9 +98,7 @@ cfa_summary_tree <- list(
       curated = list(ordinary = NULL, robust = NULL)
     ),
     reliability = NULL
-  ),
-  construct_scores=NULL,
-  weights=NULL
+  )
 )
 
 test_that("Summary of CFA has proper structure", {

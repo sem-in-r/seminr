@@ -51,17 +51,12 @@
 estimate_cbsem <- function(data, measurement_model, structural_model, item_associations=NULL, estimator="MLR", ...) {
   cat("Generating the seminr model for CBSEM\n")
 
-  # TODO: see if fiml and other imputations work
-  # data <- stats::na.omit(data)
-
   # TODO: consider higher order models (see estimate_pls() function for template)
 
-  # TODO: process interactions limited to repeated measures and orthogonalization
   post_interaction_object <- process_cbsem_interactions(measurement_model, data, structural_model, item_associations, estimator, ...)
   names(post_interaction_object$data) <- sapply(names(post_interaction_object$data), FUN=lavaanify_name, USE.NAMES = FALSE)
   mmMatrix <- post_interaction_object$mmMatrix
   data <- post_interaction_object$data
-  # mmMatrix <- mm2matrix(measurement_model)
 
   # Rename interaction terms
   structural_model[, "source"] <- sapply(structural_model[, "source"], FUN=lavaanify_name)
@@ -71,26 +66,24 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
   # warnings(measurement_model, data, structural_model)
 
   # Create LAVAAN syntax
-  # measurement_syntax <- lavaan_mm_syntax(measurement_model) # TODO: interactions in lavaan syntax
-  measurement_syntax <- lavaan_mm_syntax(mmMatrix) # TODO: interactions in lavaan syntax
+  measurement_syntax <- lavaan_mm_syntax(mmMatrix)
   structural_syntax <- lavaan_sm_syntax(smMatrix)
   association_syntax <- lavaan_item_associations(item_associations)
 
   # Put all the parts together
-  full_syntax <- paste(measurement_syntax, structural_syntax, association_syntax,
-                       sep="\n\n")
+  full_syntax <- paste(measurement_syntax, structural_syntax, association_syntax, sep="\n\n")
 
   # Run the model in LAVAAN
-  library(lavaan) # TODO: suppress and replace Lavaan startup message
+  suppressMessages(library(lavaan))
   lavaan_model <- lavaan::sem(model=full_syntax, data=data, std.lv = TRUE,
                               estimator=estimator, ...)
 
   # Inspect results
   constructs <- all_construct_names(measurement_model)
-  # all_terms <- construct_names(smMatrix)
   lavaan_std <- lavaan::lavInspect(lavaan_model, what="std")
   loadings <- lavaan_std$lambda
   class(loadings) <- "matrix"
+  tenB <- estimate_lavaan_ten_berge(lavaan_model)
 
   # Gather model information
   seminr_model <- list(
@@ -101,7 +94,8 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
     factor_loadings = loadings,
     associations = item_associations,
     constructs = constructs,
-    # all_terms = all_terms,
+    construct_scores = tenB$scores,
+    item_weights = tenB$weights,
     lavaan_syntax = full_syntax,
     lavaan_model = lavaan_model
   )
@@ -131,9 +125,6 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
 estimate_cfa <- function(data, measurement_model, item_associations=NULL, estimator="MLR", ...) {
   cat("Generating the seminr model for CFA\n")
 
-  # TODO: see if fiml and other imputations work
-  # data <- stats::na.omit(data)
-
   # TODO: consider higher order models (see estimate_pls() function for template)
 
   # TODO: warning if the model is incorrectly specified
@@ -154,13 +145,15 @@ estimate_cfa <- function(data, measurement_model, item_associations=NULL, estima
   lavaan_model <- lavaan::cfa(model=full_syntax, data=data, std.lv = TRUE,
                               estimator=estimator, ...)
 
+  tenB <- estimate_lavaan_ten_berge(lavaan_model)
+
   # Gather model information
   seminr_model <- list(
     data = data,
     measurement_model = measurement_model,
-    # TODO: get construct names out of a measurement model
-    # constructs = construct_names(structural_model),
-    syntax = full_syntax,
+    lavaan_syntax = full_syntax,
+    construct_scores = tenB$scores,
+    item_weights = tenB$weights,
     lavaan_model = lavaan_model
   )
 

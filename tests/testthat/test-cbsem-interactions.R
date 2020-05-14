@@ -1,13 +1,13 @@
 context("SEMinR correctly estimates CBSEM interaction models\n")
 
-write_controls <- function(cbsem_summary, approach) {
+write_controls <- function(cbsem_model, cbsem_summary, approach) {
   filename <- function(values, approach) {
     paste("tests/fixtures/cbsem-interaction-", approach, "-", values, ".csv", sep="")
   }
 
   write.csv(cbsem_summary$paths$coefficients, file = filename("paths-coefficients", approach))
   write.csv(cbsem_summary$quality$reliability, file = filename("quality-reliability", approach))
-  write.csv(cbsem_summary$construct_scores, file = filename("factor_scores", approach), row.names = FALSE)
+  write.csv(cbsem_model$construct_scores, file = filename("factor_scores", approach), row.names = FALSE)
 
   print("Please move files into correct fixture folders by hand")
 }
@@ -46,7 +46,7 @@ mobi_cbsem <- estimate_cbsem(data = mobi, measurement_model = mobi_mm, structura
 
 cbsem_summary <- summary(mobi_cbsem)
 
-# write_controls(cbsem_summary, "pi")
+# write_controls(mobi_cbsem, cbsem_summary, "pi")
 controls <- load_controls(test_folder, "pi")
 
 test_that("Seminr estimates PI interaction paths correctly\n", {
@@ -58,7 +58,7 @@ test_that("Seminr estimates PI interaction AVE, rhoC (reliability) correctly\n",
 })
 
 test_that("Seminr estimates PI ten Berge factor scores correctly\n", {
-  expect_equal(cbsem_summary$construct_scores, controls$scores, tolerance = 0.00001)
+  expect_equal(mobi_cbsem$construct_scores, controls$scores, tolerance = 0.00001)
 })
 
 
@@ -81,6 +81,6 @@ test_that("Seminr estimates TWO-STAGE interaction AVE, rhoC (reliability) correc
 })
 
 test_that("Seminr estimates TWO-STAGE ten Berge factor scores correctly\n", {
-  expect_equal(cbsem_summary$construct_scores, controls$scores, tolerance = 0.00001)
+  expect_equal(mobi_cbsem$construct_scores, controls$scores, tolerance = 0.00001)
 })
 

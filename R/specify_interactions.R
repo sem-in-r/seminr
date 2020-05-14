@@ -41,8 +41,7 @@
 #' summary(mobi_pls)
 #'
 #' @export
-interaction_term <- function(iv, moderator, method=orthogonal, weights = mode_A) {
-  # TODO: revert method to two_stage once a two_stage implementation for CBSEM is done
+interaction_term <- function(iv, moderator, method=two_stage, weights = mode_A) {
   intxn <- method(iv, moderator, weights)
   class(intxn) <- class(method())
 
@@ -242,7 +241,8 @@ two_stage <- function(iv, moderator, weights) {
       measurement_mode_scheme = measurement_mode_scheme, ...)
 
     interaction_term <- as.matrix(first_stage$construct_scores[, iv] * first_stage$construct_scores[, moderator], ncol = 1)[,, drop = FALSE]
-    # colnames(interaction_term) <- c(interaction_name)
+
+    # Give interaction data column a unique name
     colnames(interaction_term) <- c(paste(interaction_name, "_intxn", sep = ""))
 
     intxn_mm <- matrix(measure_interaction(interaction_name, interaction_term, weights), ncol = 3, byrow = TRUE)
@@ -266,15 +266,11 @@ first_stage_pls <- function(data, smMatrix, mmMatrix,  measurement_mode_scheme, 
 }
 
 first_stage_cbsem <- function(data, smMatrix, mmMatrix, measurement_mode_scheme, ...) {
-  cfa_result <- seminr::estimate_cfa(
+  seminr::estimate_cfa(
     data = data,
     measurement_model = mmMatrix,
     ...
   )
-
-  tenB <- estimate_lavaan_ten_berge(cfa_result$lavaan_model)
-  cfa_result$construct_scores <- tenB$scores
-  cfa_result
 }
 
 process_interactions <- function(measurement_model, data, structural_model, inner_weights) {

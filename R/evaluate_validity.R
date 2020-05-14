@@ -19,7 +19,6 @@ item_vifs <- function(seminr_model) {
 }
 
 # Calculate VIF of all antecedents of each construct
-# TODO: ensure that VIF works for single antecedent to outcome
 antecedent_vifs <- function(smMatrix, cor_matrix) {
   endogenous_names <- all_endogenous(smMatrix)
   sapply(endogenous_names, function(outcome) {

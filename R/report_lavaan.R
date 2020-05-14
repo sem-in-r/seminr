@@ -19,9 +19,6 @@ summarize_cb_measurement <- function(object) {
   item_correlations <- stats::cor(object$data)
   construct_correlations <- lavInspect(lavaan_model, what = "cor.lv")
 
-  # Scores, weights
-  tenB <- estimate_lavaan_ten_berge(lavaan_model)
-
   list(
     meta = list(
       seminr = seminr_info(),
@@ -35,18 +32,16 @@ summarize_cb_measurement <- function(object) {
     ),
     model = model,
     descriptives = list(
+      # TODO: report item descriptive stats
       # statistics = list(
       #   items = item_descriptives
-      #   # TODO: report construct descriptive stats
       # ),
       correlations = list(
         items = item_correlations,
         constructs = construct_correlations
       )
     ),
-    loadings = loadings_matrix,
-    construct_scores = tenB$scores,
-    weights = tenB$weights
+    loadings = loadings_matrix
   )
 }
 
@@ -104,7 +99,6 @@ curated_fit_metrics <- function(fit_metrics) {
   robustable_names <- {
     regmatches(suffixed_names, regexpr("\\.(robust|scaled)", suffixed_names), invert = TRUE) -> .
     lapply(., FUN=function(x) { x[1] }) -> .
-    # TODO: only select prefixes with simple names (no dots in them)
     unlist(.) -> .
     unique(.)
   }

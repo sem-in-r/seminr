@@ -49,14 +49,13 @@ as.reflective.interaction <- function(from) {
 
 #' @export
 as.reflective.matrix <- function(from) {
-  # TODO: make an 'mmMatrix' class name
-  # TODO: give interaction mmMAtrix column names so we can do: from[, "type"]
+  # TODO: give interaction mmMatrix column names so we can do: from[, "type"]
   from[, 3] <- "C"
   from
 }
 
 #' Convert measurement model into mmMatrix
-#' - if measurement model is a matrix, return it directly
+#' - if measurement model is a matrix, return it directly (used in 2-stage)
 mm2matrix <- function(measurement_model) {
   if ("mmMatrix" %in% class(measurement_model)) {
     return(measurement_model)
@@ -79,7 +78,5 @@ mm_constructs <- function(measurement_model) {
 
 #' Extract only interaction closures from measurement model
 mm_interactions <- function(measurement_model) {
-  # TODO: refactor to?
-  #  Filter(function(e) {"interaction" %in% class(e)}, measurement_model)
-  measurement_model[(substr(names(measurement_model), nchar(names(measurement_model))-10, nchar(names(measurement_model))) == "interaction")]
+   Filter(function(e) {"interaction" %in% class(e)}, measurement_model)
 }
