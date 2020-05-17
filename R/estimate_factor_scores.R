@@ -1,6 +1,18 @@
-# function to call to get scores, only argument is lavaan model called `fit` here
-# returns list with two elements:
-# ten berge scores and weights for calculating scores
+#' seminr estimate_lavaan_ten_berge() function
+#'
+#' Estimates factor scores using ten Berge method for a fitted Lavaan model
+#'
+#' @param fit A fitted \code{lavaan} object – can be extracted from cbesem estimation or from using Lavaan directly.
+#'
+#' @return A list with two elements: ten berge scores; weights for calculating scores
+#'
+#' @examples
+#' cbsem <- estimate_cbsem(...)
+#' tb <- estimate_lavaan_ten_berge(cbsem$lavaan_model)
+#' tb$scores
+#' tb$weights
+#'
+#' @export
 estimate_lavaan_ten_berge <- function (fit) {
   X <- lavaan::lavInspect(fit, "data")
   i.means <- fit@SampleStats@mean[[1]]

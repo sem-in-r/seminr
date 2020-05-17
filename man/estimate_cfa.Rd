@@ -2,31 +2,54 @@
 % Please edit documentation in R/estimate_cbsem.R
 \name{estimate_cfa}
 \alias{estimate_cfa}
-\title{#' @examples
-mobi <- mobi}
+\title{seminr estimate_cfa() function}
 \usage{
-estimate_cfa(
-  data,
-  measurement_model,
-  item_associations = NULL,
-  estimator = "MLR",
-  ...
-)
+estimate_cfa(data, measurement_model, interactions)
+}
+\arguments{
+\item{data}{A \code{dataframe} containing the indicator measurement data.}
+
+\item{measurement_model}{A list represention of how constructs are measured 
+by their items, generated using \code{\link{constructs}}. 
+Note that only reflective constructs are supported for CBSEM models, 
+though a composite measurement model can be converted into a reflective one 
+using \code{\link{as.reflective}}.}
+
+\item{item_associations}{An item-to-item matrix representing error 
+covariances that are freed for estimation. 
+This matrix is created by \code{associations()}, or defaults to NULL 
+(no associations).}
+
+\item{estimator}{A character string indicating which estimation method to use 
+in Lavaan. It defaults to "MLR" for robust estimation. 
+See the Lavaan documentation for other supported estimators.}
+
+\item{...}{Any other parameters to pass to \code{\link{lavaan::sem}} during 
+estimation.}
 }
 \description{
+Estimates a Confirmatory Factor Analysis (CFA) model
+}
+\seealso{
+\code{\link{constructs}} \code{\link{reflective}}
+         \code{\link{associations}} \code{\link{item_errors}}
+         \code{\link{as.reflective}}
+
+#' @examples
+mobi <- mobi
+
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
-reflective("Image",          multi_items("IMAG", 1:5)),
+  reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Expectation",  multi_items("CUEX", 1:3)),
   reflective("Quality",      multi_items("PERQ", 1:7))
 )
-}
-\details{
+
 #seminr syntax for freeing up item-item covariances
 mobi_am <- associations(
-             item_errors(c("PERQ1", "PERQ2"), "CUEX3"),
-             item_errors("IMAG1", "CUEX2")
-           )
+  item_errors(c("PERQ1", "PERQ2"), "CUEX3"),
+  item_errors("IMAG1", "CUEX2")
+)
 
 mobi_cfa <- estimate_cfa(mobi, mobi_mm, mobi_am)
 }

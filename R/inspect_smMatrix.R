@@ -1,3 +1,5 @@
+# Purpose: inspect a structural model/matrix
+
 #' Get all unique construct names in a structural model
 construct_names <- function(smMatrix) {
   unique(c(smMatrix[,1], smMatrix[,2]))

@@ -3,11 +3,11 @@
 \name{mm2matrix}
 \alias{mm2matrix}
 \title{Convert measurement model into mmMatrix
-- if measurement model is a matrix, return it directly}
+- if measurement model is a matrix, return it directly (used in 2-stage)}
 \usage{
 mm2matrix(measurement_model)
 }
 \description{
 Convert measurement model into mmMatrix
-- if measurement model is a matrix, return it directly
+- if measurement model is a matrix, return it directly (used in 2-stage)
 }

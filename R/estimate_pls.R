@@ -1,6 +1,6 @@
 #' seminr estimate_pls() function
 #'
-#' The \code{seminr} package provides a natural syntax for researchers to describe PLS
+#' The \code{seminr} package provides a natural syntax for researchers to describe
 #' structural equation models.
 #'
 #' @param data A \code{dataframe} containing the indicator measurement data.

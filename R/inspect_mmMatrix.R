@@ -1,23 +1,32 @@
-## Construct (mmMatrix row) level functions
+# PURPOSE: inspect and extract information from measurement models 
+# and mmMatrix.
+
+# Construct (mmMatrix row) level functions
+
+#' get number of items from a construct in a measurement model
 number_of_items <- function(construct) {
   length(construct) / 3
 }
 
+#' Get name of construct from a measurement model
 construct_name <- function(construct) {
   construct[1]
 }
 
+#' Get names of all constructs in a measurement model
 all_construct_names <- function(measurement_model) {
   constructs_only <- mm_constructs(measurement_model)
   lapply(constructs_only, FUN=construct_name) -> .
   unlist(., use.names = FALSE)
 }
 
+#' Get names of all items of a construct in a measurement model
 construct_items <- function(construct) {
   item_indices <- seq(from=2, to=number_of_items(construct)*3 - 1, by=3)
   construct[item_indices]
 }
 
+#' Get names of all items from measurement model
 all_items <- function(measurement_model) {
   constructs_only <- mm_constructs(measurement_model)
   sapply(constructs_only, FUN=construct_items) -> .
@@ -26,6 +35,26 @@ all_items <- function(measurement_model) {
 }
 
 ## Public functions for manipulating mmMatrix or its rows
+
+#' Converts all contructs of a measurement model, or just a single construct
+#'  into reflective factors.
+#' 
+#' @param x A measurement model defined by \code{\link{constructs}} 
+#'   or a single composite construct defined by \code{\link{composite}}
+#' 
+#' @examples
+#' 
+#' mobi_mm <- constructs(
+#'   composite("Image",        multi_items("IMAG", 1:5)),
+#'   composite("Expectation",  multi_items("CUEX", 1:3)),
+#'   composite("Value",        multi_items("PERV", 1:2))
+#' )
+#' 
+#' fa <- estimate_cfa(as.reflective(mobi_mm))
+#' 
+#' @seealso \code{\link{as.reflective.measurement_model}},
+#'   \code{\link{as.reflective.construct}}
+#' 
 #' @export
 as.reflective <- function (x, ...) {
   UseMethod("as.reflective", x)
@@ -47,7 +76,6 @@ as.reflective.interaction <- function(from) {
   from
 }
 
-#' @export
 as.reflective.matrix <- function(from) {
   # TODO: give interaction mmMatrix column names so we can do: from[, "type"]
   from[, 3] <- "C"

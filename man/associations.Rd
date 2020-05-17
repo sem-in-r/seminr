@@ -2,18 +2,24 @@
 % Please edit documentation in R/specify_associations.R
 \name{associations}
 \alias{associations}
-\title{SEMinR provides functions to specify inter-item covariances that
-should be estimated, typically under CBSEM.}
+\title{Specifies inter-item covariances that should be supplied to 
+CBSEM estimation (\code{\link{estimate_cbsem}}) or 
+CFA estimation (\code{\link{estimte_cfa}})}
 \usage{
 associations(...)
 }
+\arguments{
+\item{...}{One or more associations defined by \code{\link{item_errors}}}
+}
 \description{
-SEMinR provides functions to specify inter-item covariances that
-should be estimated, typically under CBSEM.
+Specifies inter-item covariances that should be supplied to 
+CBSEM estimation (\code{\link{estimate_cbsem}}) or 
+CFA estimation (\code{\link{estimte_cfa}})
 }
 \examples{
 covaries <- associations(
   item_errors(c("a1", "a2"), c("b1", "b2")),
   item_errors("a3", "c3")
 )
+
 }

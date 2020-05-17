@@ -1,3 +1,4 @@
+#' Creates summary statistics for a cbsem object for summary and print functions
 summarize_cb_measurement <- function(object) {
   lavaan_model <- object$lavaan_model
   estimates <- standardizedSolution(lavaan_model)
