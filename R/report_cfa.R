@@ -22,8 +22,9 @@ print.summary.cfa_model <- function(x, na.print=".", digits=2, ...) {
 
   cat("\n")
   cat(" Fit metrics:\n")
-  print(x$fit$curated$ordinary, digits=digits+1)
-  if (!is.null(x$fit$curated$robust)) print(x$fit$curated$robust, digits=digits+1)
+  curated_fit <- x$quality$fit$curated
+  print(curated_fit$ordinary, digits=digits+1)
+  if (!is.null(curated_fit$robust)) print(curated_fit$robust, digits=digits+1)
 
   cat("\n")
   cat(" Loadings:\n")

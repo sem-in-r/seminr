@@ -7,8 +7,8 @@ df_xtab_matrix <- function(model, df, rows, columns) {
   # identify required relationships
   model_parts <- strsplit(deparse(model), '~')[[1]]
   ones <- rep(1,nrow(df))
-  params_model <- as.formula(paste("ones", '~', model_parts[2]))
-  params <- xtabs(params_model, df)
+  params_model <- stats::as.formula(paste("ones", '~', model_parts[2]))
+  params <- stats::xtabs(params_model, df)
 
   # create model matrix
   xtabs(model, df) -> .

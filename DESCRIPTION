@@ -1,17 +1,25 @@
 Package: seminr
 Type: Package
 Title: Domain-Specific Language for Building and Estimating Structural Equation Models
-Version: 1.0.2
-Date: 2020-04-28
+Version: 1.1.0
+Date: 2020-07-01
 Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("aut", "ths")),
              person("Nicholas Patrick", "Danks", email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
              person("Juan Manuel Velasquez", "Estrada", role = "aut"),
-             person("James", "Uanhoro", role = "ctr"),
-             person("Arutro Heynar Cano", "Bejar", role = "ctr"))
-Description: A powerful, easy to syntax for specifying and estimating complex Structural Equation Models (SEM). Models can be estimated using: Partial Least Squares Path Modeling (PLS-PM) or
-    Covariance-Based Structural Equation Modeling (CBSEM) or covariance based Confirmatory Factor Analysis (CFA). PLS models also supports Consistent PLS as per Dijkstra & Henseler (2015, MISQ 39(2): 297-316), adjusted interactions as per 
-    Henseler & Chin (2010) <doi:10.1080/10705510903439003> and bootstrapping utilizing  parallel processing as per Hair et al. (2017, ISBN:978-1483377445). 
-    CBSEM and CFA models use the Lavaan package for estimation.
+             person("James", "Uanhoro", role = "ctr", email = "James.uanhoro@gmail.com"),
+             person("Arutro Heynar Cano", "Bejar", role = "ctr", email = "arturocano997@gmail.com"))
+Description: A powerful, easy to syntax for specifying and estimating complex 
+    Structural Equation Models (SEM). Models can be estimated using Partial 
+    Least Squares Path Modeling (PLS-PM) or Covariance-Based Structural Equation 
+    Modeling (CBSEM) or covariance based Confirmatory Factor Analysis (CFA). 
+    PLS models also supports Consistent PLS as per Dijkstra & Henseler 
+    (2015, MISQ 39(2): 297-316), adjusted interactions as per Henseler & Chin 
+    (2010) <doi:10.1080/10705510903439003> and bootstrapping utilizing 
+    parallel processing as per Hair et al. (2017, ISBN:978-1483377445). 
+    CBSEM and CFA models use the Lavaan package as per Rosseel (2012, ) for estimation. SEMinR also adds 
+    new features for CBSEM/CFA including ten Berge factor score extraction, 
+    Variance Inflation Factor metrics for CBSEM, and two stage interactions for 
+    CBSEM.
 Imports:
     parallel, lavaan
 License: GPL-3

@@ -12,7 +12,7 @@ calc_ten_berge_scores <- function(X, Lambda, Phi, i.means, i.sds) {
   } else {
     X <- t((t(X) - i.means) / i.sds)
   }
-  R <- cor(X, use = "pairwise")
+  R <- stats::cor(X, use = "pairwise")
   R.sqrt.i <- R %^% -0.5
   Phi.sqrt <- Phi %^% 0.5
   L <- Lambda %*% Phi.sqrt

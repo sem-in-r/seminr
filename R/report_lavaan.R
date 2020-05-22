@@ -1,7 +1,7 @@
 #' Creates summary statistics for a cbsem object for summary and print functions
 summarize_cb_measurement <- function(object) {
   lavaan_model <- object$lavaan_model
-  estimates <- standardizedSolution(lavaan_model)
+  estimates <- lavaan::standardizedSolution(lavaan_model)
 
   model <- list(
     item_names       = all_items(object$measurement_model),
@@ -17,7 +17,7 @@ summarize_cb_measurement <- function(object) {
   # Get descriptives and correlations
   # item_descriptives <- desc(object$data)
   item_correlations <- stats::cor(object$data[, model$item_names])
-  construct_correlations <- lavInspect(lavaan_model, what = "cor.lv")
+  construct_correlations <- lavaan::lavInspect(lavaan_model, what = "cor.lv")
 
   list(
     meta = list(
@@ -46,14 +46,14 @@ summarize_cb_measurement <- function(object) {
 }
 
 summarize_cb_structure <- function(object) {
-  estimates <- standardizedSolution(object$lavaan_model)
+  estimates <- lavaan::standardizedSolution(object$lavaan_model)
 
   # Capture structural relationship information
   all_antecedents <- all_exogenous(object$smMatrix)
   all_outcomes <- all_endogenous(object$smMatrix)
 
   # Get R^2 results (only found in unstandandardized results?)
-  invisible(capture.output(
+  invisible(utils::capture.output(
     lav_summary <- lavaan::summary(object$lavaan_model, rsquare=TRUE)
   ))
   rsq_rows <- lav_summary$PE[(lav_summary$PE[,"lhs"] %in% all_outcomes) &
@@ -121,7 +121,7 @@ curated_fit_metrics <- function(fit_metrics) {
 }
 
 summarize_fit <- function(lavaan_model) {
-  lavaan_fit <- fitMeasures(lavaan_model)
+  lavaan_fit <- lavaan::fitMeasures(lavaan_model)
 
   list(
     all = lavaan_fit,

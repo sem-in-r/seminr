@@ -45,7 +45,7 @@
 #' summary(mobi_pls)
 #'
 #' @export
-interaction_term <- function(iv, moderator, method=two_stage, weights = mode_A) {
+interaction_term <- function(iv, moderator, method=product_indicator, weights = mode_A) {
   intxn <- method(iv, moderator, weights)
   class(intxn) <- class(method())
 

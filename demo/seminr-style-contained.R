@@ -1,4 +1,6 @@
 # Demonstration of concise, contained model style
+# - Both measurement and structural parts of the model are created within
+#   the estimate_pls() function
 
 library(seminr)
 
