@@ -52,20 +52,9 @@ summarize_cb_structure <- function(object) {
   all_antecedents <- all_exogenous(object$smMatrix)
   all_outcomes <- all_endogenous(object$smMatrix)
 
-  # Get R^2 results (only found in unstandandardized results?)
-  invisible(utils::capture.output(
-    lav_summary <- lavaan::summary(object$lavaan_model, rsquare=TRUE)
-  ))
-  rsq_rows <- lav_summary$PE[(lav_summary$PE[,"lhs"] %in% all_outcomes) &
-                               (lav_summary$PE[,"op"] == "r2"), ]
-  rsq <- {
-    rsq_rows[, "est"] -> .
-    names(.) <- rsq_rows[, "lhs"]
-    .[all_outcomes] # get correct order
-  }
-
-  # Path coefficients and p-values
+  # Path coefficients, p-values, R^2 for path matrix
   path_df <- estimates[estimates$op == "~",]
+  rsq <- inspect(object$lavaan_model, "r2")[all_outcomes]
 
   path_matrix     <- {
     df_xtab_matrix(est.std ~ rhs + lhs, path_df,
