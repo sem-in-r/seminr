@@ -7,7 +7,7 @@ Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("a
              person("Nicholas Patrick", "Danks", email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
              person("Juan Manuel Velasquez", "Estrada", role = "aut"),
              person("James", "Uanhoro", role = "ctr", email = "James.uanhoro@gmail.com"),
-             person("Arutro Heynar Cano", "Bejar", role = "ctr", email = "arturocano997@gmail.com"))
+             person("Arturo Heynar Cano", "Bejar", role = "ctr", email = "arturocano997@gmail.com"))
 Description: A powerful, easy to syntax for specifying and estimating complex 
     Structural Equation Models (SEM). Models can be estimated using Partial 
     Least Squares Path Modeling (PLS-PM) or Covariance-Based Structural Equation 
