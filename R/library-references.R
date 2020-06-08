@@ -16,7 +16,7 @@ list2df <- function(datl) {
 
 yml_to_csv <- function(yml_in, csv_out) {
   library(yaml) # assumes available in dev environment
-  refs <- read_yaml(yml_in)
+  refs <- yaml::read_yaml(yml_in)
   ref_df <- list2df(refs)
-  write.csv(ref_df, csv_out, row.names = FALSE)
+  utils::write.csv(ref_df, csv_out, row.names = FALSE)
 }

@@ -11,7 +11,7 @@ df_xtab_matrix <- function(model, df, rows, columns) {
   params <- stats::xtabs(params_model, df)
 
   # create model matrix
-  xtabs(model, df) -> .
+  stats::xtabs(model, df) -> .
   .[params == 0] <- NA
   as.data.frame.matrix(.) -> .
   as.matrix(.[rows, columns])

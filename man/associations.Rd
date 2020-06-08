@@ -2,9 +2,9 @@
 % Please edit documentation in R/specify_associations.R
 \name{associations}
 \alias{associations}
-\title{Specifies inter-item covariances that should be supplied to 
-CBSEM estimation (\code{\link{estimate_cbsem}}) or 
-CFA estimation (\code{\link{estimte_cfa}})}
+\title{Specifies inter-item covariances that should be supplied to
+CBSEM estimation (\code{\link{estimate_cbsem}}) or
+CFA estimation (\code{\link{estimate_cfa}})}
 \usage{
 associations(...)
 }
@@ -12,9 +12,9 @@ associations(...)
 \item{...}{One or more associations defined by \code{\link{item_errors}}}
 }
 \description{
-Specifies inter-item covariances that should be supplied to 
-CBSEM estimation (\code{\link{estimate_cbsem}}) or 
-CFA estimation (\code{\link{estimte_cfa}})
+Specifies inter-item covariances that should be supplied to
+CBSEM estimation (\code{\link{estimate_cbsem}}) or
+CFA estimation (\code{\link{estimate_cfa}})
 }
 \examples{
 covaries <- associations(

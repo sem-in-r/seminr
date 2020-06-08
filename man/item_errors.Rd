@@ -2,13 +2,18 @@
 % Please edit documentation in R/specify_associations.R
 \name{item_errors}
 \alias{item_errors}
-\title{Specifies pair of items, or sets of items, that should covary. Used to 
+\title{Specifies pair of items, or sets of items, that should covary. Used to
 specify error covariances for \code{\link{associations}}.}
 \usage{
 item_errors(items_a, items_b)
 }
+\arguments{
+\item{items_a}{One or more items that should covary}
+
+\item{items_b}{One or more items that should covary}
+}
 \description{
-Specifies pair of items, or sets of items, that should covary. Used to 
+Specifies pair of items, or sets of items, that should covary. Used to
 specify error covariances for \code{\link{associations}}.
 }
 \examples{

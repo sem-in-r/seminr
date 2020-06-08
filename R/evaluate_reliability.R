@@ -106,7 +106,7 @@ rhoC_AVE.pls_model <- rhoC_AVE.boot_seminr_model <- function(pls_model){
 }
 
 # Assumes factor loadings are in model:
-# inspect(fit,what="std")$lambda
+# lavaan::inspect(fit,what="std")$lambda
 rhoC_AVE.cbsem_model <- rhoC_AVE.cfa_model <-  function(seminr_model) {
   dgr <- matrix(NA, nrow=length(seminr_model$constructs), ncol=2)
   rownames(dgr) <- seminr_model$constructs

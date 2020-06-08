@@ -1,6 +1,6 @@
-#' Traverses tree structures of nested lists to create
-#' string representation of structure. Useful to compare list structures
-#' in test cases. (see cbsem summary tests for example)
+# Traverses tree structures of nested lists to create
+# string representation of structure. Useful to compare list structures
+# in test cases. (see cbsem summary tests for example)
 traverse_names <- function(list_tree, level = 0)  {
   if (!("list" %in% class(list_tree))) return("")
 

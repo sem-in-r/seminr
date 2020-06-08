@@ -23,14 +23,15 @@
 #'   in Lavaan. It defaults to "MLR" for robust estimation.
 #'   See the Lavaan documentation for other supported estimators.
 #'
-#' @param ... Any other parameters to pass to \code{\link{lavaan::sem}} during
+#' @param ... Any other parameters to pass to \code{lavaan::sem} during
 #'   estimation.
 #'
 #' @usage
-#' estimate_cbsem(data, measurement_model, structural_model, interactions)
+#' estimate_cbsem(data, measurement_model, structural_model, item_associations=NULL,
+#'                estimator="MLR", ...)
 #'
 #' @references Joreskog, K. G. (1973). A general method for estimating a linear structural equation system In: Goldberger AS, Duncan OD, editors. Structural Equation Models in the Social Sciences. New York: Seminar Press.
-#' 
+#'
 #' @seealso \code{\link{as.reflective}}
 #'          \code{\link{relationships}} \code{\link{constructs}}
 #'          \code{\link{paths}}
@@ -96,15 +97,12 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
   # Put all the parts together
   full_syntax <- paste(measurement_syntax, structural_syntax, association_syntax, sep="\n\n")
 
-  # Run the model in LAVAAN
-  suppressMessages(library(lavaan))
-
   lavaan_model <- try_or_stop(
     lavaan::sem(
       model=full_syntax, data=data, std.lv = TRUE, estimator=estimator, ...),
     "run CBSEM in Lavaan"
   )
-  
+
   # Inspect results
   constructs <- all_construct_names(measurement_model)
   lavaan_std <- lavaan::lavInspect(lavaan_model, what="std")
@@ -138,10 +136,10 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
 #' @inheritParams estimate_cbsem
 #'
 #' @usage
-#' estimate_cfa(data, measurement_model, interactions)
+#' estimate_cfa(data, measurement_model, item_associations=NULL, estimator="MLR", ...)
 #'
 #' @references Jöreskog, K.G. (1969) A general approach to confirmatory maximum likelihood factor analysis. Psychometrika, 34, 183-202.
-#' 
+#'
 #' @seealso \code{\link{constructs}} \code{\link{reflective}}
 #'          \code{\link{associations}} \code{\link{item_errors}}
 #'          \code{\link{as.reflective}}
@@ -185,7 +183,6 @@ estimate_cfa <- function(data, measurement_model, item_associations=NULL,
                        sep="\n\n")
 
   # Run the model in LAVAAN
-  suppressMessages(library(lavaan))
   lavaan_model <- try_or_stop(
     lavaan::cfa(model=full_syntax, data=data, std.lv = TRUE,
                 estimator=estimator, ...),

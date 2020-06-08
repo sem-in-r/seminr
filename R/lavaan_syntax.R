@@ -1,16 +1,16 @@
-#' Makes sure construct name is valid for lavaan, or else transforms it
+# Makes sure construct name is valid for lavaan, or else transforms it
 lavaanify_name <- function(name) {
   # process interaction names
   gsub("\\*", "_x_", name)
 }
 
-#' Renames lavaan construct names for reporting
+# Renames lavaan construct names for reporting
 unlavaanify_name <- function(name) {
   # process interaction names
   gsub("_x_", "\\*", name)
 }
 
-#' Create lavaan syntax for a single construct's measurement
+# Create lavaan syntax for a single construct's measurement
 lavaan_construct <- function(construct_matrix) {
   # TODO: refactor all construct_matrix (mmMatrix subset) inspections to functions
   construct_name <- {
@@ -38,7 +38,7 @@ lavaan_construct <- function(construct_matrix) {
   paste(c(measurement, extras), collapse="\n")
 }
 
-#' Create lavaan syntax for a single construct's endogenous paths
+# Create lavaan syntax for a single construct's endogenous paths
 lavaan_regression <- function(outcome, smMatrix) {
   lav_outcome <- lavaanify_name(outcome)
   lav_antecedents <- {
@@ -48,12 +48,12 @@ lavaan_regression <- function(outcome, smMatrix) {
   paste(lav_outcome, "~", paste(lav_antecedents, collapse=" + "))
 }
 
-#' Create Lavaan syntax for a single association between items
+# Create Lavaan syntax for a single association between items
 lavaan_association <- function(pair) {
   paste(pair[1], "~~", pair[2])
 }
 
-#' Create Lavaan syntax for inter-item associations
+# Create Lavaan syntax for inter-item associations
 lavaan_item_associations <- function(item_associations) {
   if (is.null(item_associations)) return(NULL)
   associaxns <- apply(item_associations, MARGIN=1, FUN=lavaan_association)
@@ -62,7 +62,7 @@ lavaan_item_associations <- function(item_associations) {
                               sep="\n")
 }
 
-#' Create Lavaan syntax for entire measurement model
+# Create Lavaan syntax for entire measurement model
 lavaan_mm_syntax <- function(mmMatrix) {
   constructs <- unique(mmMatrix[, "construct"])
   measurements <- lapply(constructs, FUN = function(construct) {
@@ -75,7 +75,7 @@ lavaan_mm_syntax <- function(mmMatrix) {
         sep="\n")
 }
 
-#' Create Lavaan syntax for entire structural model
+# Create Lavaan syntax for entire structural model
 lavaan_sm_syntax <- function(smMatrix) {
   regressions <- lapply(all_endogenous(smMatrix),
                         FUN=lavaan_regression,

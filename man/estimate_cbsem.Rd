@@ -4,7 +4,8 @@
 \alias{estimate_cbsem}
 \title{seminr estimate_cbsem() function}
 \usage{
-estimate_cbsem(data, measurement_model, structural_model, interactions)
+estimate_cbsem(data, measurement_model, structural_model, item_associations=NULL,
+               estimator="MLR", ...)
 }
 \arguments{
 \item{data}{A \code{dataframe} containing the indicator measurement data.}
@@ -27,7 +28,7 @@ This matrix is created by \code{associations()}, or defaults to NULL
 in Lavaan. It defaults to "MLR" for robust estimation.
 See the Lavaan documentation for other supported estimators.}
 
-\item{...}{Any other parameters to pass to \code{\link{lavaan::sem}} during
+\item{...}{Any other parameters to pass to \code{lavaan::sem} during
 estimation.}
 }
 \description{

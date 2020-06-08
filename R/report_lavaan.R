@@ -1,4 +1,4 @@
-#' Creates summary statistics for a cbsem object for summary and print functions
+# Creates summary statistics for a cbsem object for summary and print functions
 summarize_cb_measurement <- function(object) {
   lavaan_model <- object$lavaan_model
   estimates <- lavaan::standardizedSolution(lavaan_model)
@@ -54,7 +54,7 @@ summarize_cb_structure <- function(object) {
 
   # Path coefficients, p-values, R^2 for path matrix
   path_df <- estimates[estimates$op == "~",]
-  rsq <- inspect(object$lavaan_model, "r2")[all_outcomes]
+  rsq <- lavaan::inspect(object$lavaan_model, "r2")[all_outcomes]
 
   path_matrix     <- {
     df_xtab_matrix(est.std ~ rhs + lhs, path_df,
@@ -77,7 +77,7 @@ summarize_cb_structure <- function(object) {
   )
 }
 
-#' Returns selected fit metrics: ordinary, robustable, robust, and scaled
+# Returns selected fit metrics: ordinary, robustable, robust, and scaled
 curated_fit_metrics <- function(fit_metrics) {
   metric_names <- names(fit_metrics)
   robust_names <- metric_names[grep("\\.robust", metric_names)]

@@ -9,8 +9,10 @@ output:
   html_document:
     toc: true
     toc_depth: 2
-vignette: |
-  %\VignetteIndexEntry{SEMinR} %\VignetteEngine{knitr::rmarkdown} \usepackage[utf8]{inputenc}
+vignette: >
+  %\VignetteIndexEntry{SEMinR}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r echo=FALSE, out.width='25%'}
@@ -18,8 +20,8 @@ knitr::include_graphics('SEMinR_logo.jpg')
 ```
 
 <!-- ![Build Status](https://travis-ci.org/sem-in-r/seminr.svg?branch=master) -->
-[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/seminr)](https://cran.r-project.org/package=seminr)
-[![metacran downloads](https://cranlogs.r-pkg.org/badges/grand-total/seminr)](https://cran.r-project.org/package=seminr)
+<!-- [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/seminr)](https://cran.r-project.org/package=seminr) -->
+<!-- [![metacran downloads](https://cranlogs.r-pkg.org/badges/grand-total/seminr)](https://cran.r-project.org/package=seminr) -->
 
 # Introduction
 
