@@ -1,4 +1,5 @@
-# Simple Style: Seperate declaration of measurement and structural model, no interactions.
+# Demonstration of a higher-order composite with subcomposites
+
 library(seminr)
 
 # Creating measurement mode

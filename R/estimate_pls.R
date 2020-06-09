@@ -1,6 +1,6 @@
 #' seminr estimate_pls() function
 #'
-#' The \code{seminr} package provides a natural syntax for researchers to describe PLS
+#' The \code{seminr} package provides a natural syntax for researchers to describe
 #' structural equation models.
 #'
 #' @param data A \code{dataframe} containing the indicator measurement data.
@@ -55,7 +55,6 @@ estimate_pls <- function(data, measurement_model, structural_model, inner_weight
   cat("Generating the seminr model\n")
   data <- stats::na.omit(data)
   rawdata <- data
-  raw_measurement_model <- measurement_model
   # Generate first order model if necessary
 
   HOCs <- measurement_model[names(measurement_model) == "higher_order_composite"]
@@ -71,26 +70,26 @@ estimate_pls <- function(data, measurement_model, structural_model, inner_weight
     data <- HOM$data
   }
 
-  post_interaction_object <- process_interactions(measurement_model, data, structural_model, inner_weights)
-  measurement_model <- post_interaction_object$measurement_model
-  data <- post_interaction_object$data
+  processed_measurements <- process_interactions(measurement_model, data, structural_model, inner_weights)
+  mmMatrix <- processed_measurements$mmMatrix
+  data <- processed_measurements$data
 
   # warning if the model is incorrectly specified
-  warnings(measurement_model, data, structural_model)
+  warnings(mmMatrix, data, structural_model)
 
   # Make a named list of construct measurement_mode functions
-  measurement_mode_scheme <- sapply(unique(c(structural_model[,1], structural_model[,2])), get_measure_mode, measurement_model, USE.NAMES = TRUE)
+  measurement_mode_scheme <- sapply(unique(c(structural_model[,1], structural_model[,2])), get_measure_mode, mmMatrix, USE.NAMES = TRUE)
 
   # Run the model in simplePLS
-  seminr_model = seminr::simplePLS(obsData = data, smMatrix = structural_model, mmMatrix = measurement_model, inner_weights = inner_weights, measurement_mode_scheme = measurement_mode_scheme)
+  seminr_model = seminr::simplePLS(obsData = data, smMatrix = structural_model, mmMatrix = mmMatrix, inner_weights = inner_weights, measurement_mode_scheme = measurement_mode_scheme)
   seminr_model$data <- data
   seminr_model$rawdata <- rawdata
-  seminr_model$raw_measurement_model <- raw_measurement_model
+  seminr_model$measurement_model <- measurement_model
 
   # Correct for Bias in Reflective models using PLS Consistent
   seminr_model <- model_consistent(seminr_model)
 
-  class(seminr_model) <- "seminr_model"
+  class(seminr_model) <- c("pls_model", "seminr_model")
   return(seminr_model)
 }
 

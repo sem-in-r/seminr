@@ -60,7 +60,7 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
   mmVariables <- mmMatrix[, "measurement"]
 
   #Create list of construct Variables
-  constructs <- unique(c(smMatrix[,1], smMatrix[,2]))
+  constructs <- construct_names(smMatrix)
 
   #Extract and Normalize the measurements for the model
   normData <- scale(obsData[, mmVariables], TRUE, TRUE)
@@ -70,7 +70,7 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
   sdData <- attr(normData, "scaled:scale")
 
   #Identify which variables have incoming paths (endogenous)
-  dependant<-unique(smMatrix[, "target"])
+  dependant <- all_endogenous(smMatrix)
 
   #Create a matrix of outer_weights
   outer_weights <- matrix(data=0,

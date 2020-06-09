@@ -29,9 +29,8 @@
 constructs <- function(...) {
   return_list <- list(...)
   names(return_list) <- lapply(return_list, function(x) class(x)[[3]])
+  class(return_list) <- c(class(return_list), "measurement_model")
   return(return_list)
-#   return(matrix(c(...), ncol = 3, byrow = TRUE,
-#                 dimnames = list(NULL, c("construct", "measurement", "type"))))
 }
 
 #' Reflective construct measurement model specification
@@ -65,7 +64,7 @@ constructs <- function(...) {
 reflective <- function(construct_name, item_names) {
   construct_names <- rep(construct_name, length(item_names))
   construct <- c(rbind(construct_names, item_names, "C"))
-  class(construct) <- append(class(construct), c("construct", "reflective"))
+  class(construct) <- c(class(construct), c("construct", "reflective"))
   return(construct)
 }
 
@@ -106,7 +105,7 @@ composite <- function(construct_name, item_names, weights = correlation_weights)
     stop("Composites must be defined as mode A (correlation weights) or B (regression weights)")
   }
   construct <- c(rbind(construct_name, item_names, composite_type))
-  class(construct) <- append(class(construct), c("construct", "composite"))
+  class(construct) <- c(class(construct), c("construct", "composite"))
   return(construct)
 }
 
@@ -167,7 +166,6 @@ multi_items <- function(item_name, item_numbers, ...) {
 #'   )
 #' @export
 single_item <- function(item) {
-  class(item) <- append(class(item), c("construct","single_item_construct"))
   return(item)
 }
 
@@ -208,6 +206,6 @@ higher_composite <- function(construct_name, dimensions, method = two_stage,  we
     stop("Composites must be defined as mode A (correlation weights) or B (regression weights)")
   }
   construct <- c(rbind(construct_name, dimensions, composite_type))
-  class(construct) <- append(class(construct), c("construct", "higher_order_composite"))
+  class(construct) <- c(class(construct), c("construct", "higher_order_composite"))
   return(construct)
 }

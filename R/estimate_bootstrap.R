@@ -63,7 +63,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
 
       # prepare parameters for cluster export (model parameters)
       d <- seminr_model$rawdata
-      measurement_model <- seminr_model$raw_measurement_model
+      measurement_model <- seminr_model$measurement_model
       structural_model <- seminr_model$smMatrix
       inner_weights <- seminr_model$inner_weights
 

@@ -2,7 +2,13 @@
 % Please edit documentation in R/specify_interactions.R
 \name{two_stage}
 \alias{two_stage}
-\title{\code{two_stage} creates an interaction measurement item by the two-stage approach.}
+\title{Creates an interaction measurement item using a two-stage approach.
+The two-stage procedure for both PLS and CBSEM models estimates construct 
+scores in the first stage, and uses them to produce a single-item product 
+item for the interaction term in the second stage.
+For a PLS model, the first stage uses PLS to compute construct scores. 
+For a CBSEM model, the first stage uses a CFA to produce ten Berge 
+construct scores.}
 \usage{
 # two stage approach as per Henseler & Chin (2010):
  two_stage(iv, moderator, weights)
@@ -17,7 +23,13 @@ specified as \code{correlation_weights} or \code{mode_A} for correlation weights
 \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.}
 }
 \description{
-This function automatically generates an interaction measurement item for a PLS SEM using the two-stage approach.
+Creates an interaction measurement item using a two-stage approach.
+The two-stage procedure for both PLS and CBSEM models estimates construct 
+scores in the first stage, and uses them to produce a single-item product 
+item for the interaction term in the second stage.
+For a PLS model, the first stage uses PLS to compute construct scores. 
+For a CBSEM model, the first stage uses a CFA to produce ten Berge 
+construct scores.
 }
 \examples{
 data(mobi)
@@ -39,8 +51,13 @@ mobi_sm <- relationships(
                  "Image*Expectation"))
 )
 
+# PLS example:
 mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_sm)
 summary(mobi_pls)
+
+# CBSEM example:
+mobi_cbsem <- estimate_cbsem(mobi, as.reflective(mobi_mm), mobi_sm)
+summary(mobi_cbsem)
 
 }
 \references{

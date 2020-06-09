@@ -77,26 +77,51 @@ rho_A <- function(seminr_model) {
 # and Applications. Biometrical Journal 29 (6).
 # Average Variance Extracted as per:  Fornell, C. and D. F. Larcker (February 1981). Evaluating
 # structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5
-rhoC_AVE <- function(seminr_model){
-  dgr <- matrix(NA, nrow=length(seminr_model$constructs), ncol=2)
-  rownames(dgr) <- seminr_model$constructs
+rhoC_AVE <- function(x, ...) {
+  UseMethod("rhoC_AVE", x)
+}
+
+rhoC_AVE.pls_model <- rhoC_AVE.boot_seminr_model <- function(pls_model){
+  dgr <- matrix(NA, nrow=length(pls_model$constructs), ncol=2)
+  rownames(dgr) <- pls_model$constructs
   colnames(dgr) <- c("rhoC", "AVE")
-  for(i in seminr_model$constructs){
-    x <- seminr_model$outer_loadings[, i]
-    ind <- which(x!=0)
-    if(measure_mode(i, seminr_model$mmMatrix)=="B"| measure_mode(i, seminr_model$mmMatrix)=="A"){
-      if(length(ind)==1){
+  for(i in pls_model$constructs){
+    loadings <- pls_model$outer_loadings[, i]
+    ind <- which(loadings != 0)
+    if(measure_mode(i, pls_model$mmMatrix) %in% c("A", "B")) {
+      if(length(ind) == 1) {
         dgr[i, 1:2] <- 1
       } else {
-        x <- x[ind]
-        dgr[i, 1] <- sum(x)^2 / (sum(x)^2 + sum(1-x^2))
-        dgr[i, 2] <- sum(x^2)/length(x)
+        lambdas <- loadings[ind]
+        dgr[i, 1] <- compute_rhoC(lambdas)
+        dgr[i, 2] <- compute_AVE(lambdas)
       }
     } else {
-      x <- x[ind]
+      lambdas <- loadings[ind]
       dgr[i, 1] <- NA
-      dgr[i, 2] <- sum(x^2)/length(x)
+      dgr[i, 2] <- compute_AVE(lambdas)
     }
   }
   return(dgr)
 }
+
+# Assumes factor loadings are in model:
+# lavaan::inspect(fit,what="std")$lambda
+rhoC_AVE.cbsem_model <- rhoC_AVE.cfa_model <-  function(seminr_model) {
+  dgr <- matrix(NA, nrow=length(seminr_model$constructs), ncol=2)
+  rownames(dgr) <- seminr_model$constructs
+  colnames(dgr) <- c("rhoC", "AVE")
+  for(i in seminr_model$constructs) {
+    loadings <- seminr_model$factor_loadings[, i]
+    ind <- which(loadings != 0)
+    if(length(ind) == 1) {
+      dgr[i, 1:2] <- 1
+    } else {
+      lambdas <- loadings[ind]
+      dgr[i, 1] <- compute_rhoC(lambdas)
+      dgr[i, 2] <- compute_AVE(lambdas)
+    }
+  }
+  return(dgr)
+}
+
