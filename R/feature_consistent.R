@@ -81,7 +81,7 @@ PLSc <- function(seminr_model) {
   rSquared <- calc_insample(seminr_model$data, construct_scores, smMatrix, all_endogenous(smMatrix), adj_construct_score_cors)
 
   # get all common-factor constructs (Mode A Consistent) in a vector
-  reflective <- unique(mmMatrix[mmMatrix[, "type"]=="C", "construct"])
+  reflective <- intersect(unique(mmMatrix[mmMatrix[, "type"]=="C", "construct"]),seminr_model$constructs)
 
   # function to adjust the loadings of a common-factor
   adjust_loadings <- function(i) {
