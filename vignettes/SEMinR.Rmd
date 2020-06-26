@@ -3,16 +3,16 @@ title: "SEMinR"
 author: "Soumya Ray & Nicholas Danks"
 date: "June 01, 2020"
 output:
-  pdf_document:
+  html_document:
     toc: true
     toc_depth: 2
-  html_document:
+  pdf_document:
     toc: true
     toc_depth: 2
 vignette: >
   %\VignetteIndexEntry{SEMinR}
-  %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r echo=FALSE, out.width='25%'}
