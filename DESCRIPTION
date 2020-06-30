@@ -16,12 +16,12 @@ Description: A powerful, easy to syntax for specifying and estimating complex
     (2015, MISQ 39(2): 297-316), adjusted interactions as per Henseler & Chin 
     (2010) <doi:10.1080/10705510903439003> and bootstrapping utilizing 
     parallel processing as per Hair et al. (2017, ISBN:978-1483377445). 
-    CBSEM and CFA models use the Lavaan package as per Rosseel (2012, ) for estimation. SEMinR also adds 
+    CBSEM and CFA models use the Lavaan package as per Rosseel (2012) for estimation. SEMinR also adds 
     new features for CBSEM/CFA including ten Berge factor score extraction, 
     Variance Inflation Factor metrics for CBSEM, and two stage interactions for 
     CBSEM.
 Imports:
-    parallel, lavaan
+    parallel, lavaan, MASS
 License: GPL-3
 Depends: R (>= 3.1.0)
 LazyData: TRUE
