@@ -13,6 +13,11 @@ construct_name <- function(construct) {
   construct[1]
 }
 
+# Get all reflective constructs from mmMatrix that are included in the STRUCTURAL MODEL
+all_reflective <- function(mmMatrix, constructs) {
+  unique(mmMatrix[mmMatrix[, "type"]=="C", "construct"])
+}
+
 # Get names of all constructs in a measurement model
 all_construct_names <- function(measurement_model) {
   constructs_only <- mm_constructs(measurement_model)
