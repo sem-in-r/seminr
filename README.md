@@ -69,7 +69,7 @@ SEMinR allows various estimation methods for constructs and SEMs:
       - Adds *VIF* and other validity assessments
   - Confirmatory Factor Analysis (CFA) using Lavaan
       - Uses [Lavaan](https://github.com/yrosseel/lavaan) package and
-        returns syntax
+        returns results and syntax
       - Adds ten Berge *factor score extraction* to get same correlation
         patterns as latent factors
   - Partial Least Squares Path Modeling (PLS-PM)
@@ -79,9 +79,7 @@ SEMinR allows various estimation methods for constructs and SEMs:
         emulating reflective common factors
       - Adjusts for known biases in interaction terms in PLS models
       - Continuously tested against leading PLS-PM software to ensure
-        parity of outcomes: SmartPLS (Ringle et al., 2015), ADANCO
-        (Henseler and Dijkstra, 2015), semPLS (Monecke and Leisch, 2012)
-        and matrixpls (Rönkkö, 2016)
+        parity of outcomes: SmartPLS, ADANCO, semPLS, and matrixpls
       - *High performance, multi-core* bootstrapping function
 
 Researchers can now create a SEM and estimate it using different
@@ -111,6 +109,8 @@ the various examples below for different use cases:
 2.  [Consistent-PLS (PLSc) Example with Common
     Factors](#consistent-pls-plsc-example-with-common-factors)
 3.  [PLS-PM Example with Composites](#pls-pm-example-with-composites)
+4.  [Comparing CBSEM and PLS-PM
+    Example](comparing-cbsem-and-pls-pm-example)
 
 ### CFA + CBSEM Example with Common Factors
 
@@ -119,8 +119,8 @@ composites. SEMinR uses the powerful Lavaan package to estimate CBSEM
 models – you can even inspect the more complicated Lavaan syntax that is
 produced.
 
-A. Describe reflective constructs and
-interactions
+Describe reflective constructs and
+interactions:
 
 ``` r
 # Distinguish and mix composite or reflective (common-factor) measurement models
@@ -134,7 +134,7 @@ measurements <- constructs(
 )
 ```
 
-B. Describe the causal relationships between constructs and interactions
+Describe the causal relationships between constructs and interactions:
 
 ``` r
 # Quickly create multiple paths "from" and "to" sets of constructs
@@ -144,7 +144,7 @@ structure <- relationships(
 )
 ```
 
-C. Put the above elements together to estimate the model using
+Put the above elements together to estimate the model using
 Lavaan:
 
 ``` r
@@ -168,7 +168,7 @@ software models constructs as composites rather than common-factors
 ([see below](#pls-pm-example-with-composites)) but can also do PLSc as a
 special option.
 
-A. We will reuse the measurement and structural models from earlier:
+We will reuse the measurement and structural models from earlier:
 
 ``` r
 # Optionally inspect the measuremnt and structural models
@@ -176,9 +176,8 @@ measurements
 structure
 ```
 
-B. Estimate full model using Consistent-PLS and bootstrap it for
-confidence
-intervals
+Estimate full model using Consistent-PLS and bootstrap it for confidence
+intervals:
 
 ``` r
 # Models with reflective constructs are automatically estimated using PLSc
@@ -197,8 +196,8 @@ of items) rather than common factors. Popular software like SmartPLS
 models composites by default, either as Mode A (correlation weights) or
 Mode B (regression weights). We also support second-order composites.
 
-A. Describe measurement model for each composite, interaction, or higher
-order composite
+Describe measurement model for each composite, interaction, or higher
+order composite:
 
 ``` r
 # Composites are Mode A (correlation) weighted by default
@@ -213,7 +212,7 @@ mobi_mm <- constructs(
 )
 ```
 
-B. Define a structural (inner) model for our PLS-PM
+Define a structural (inner) model for our PLS-PM:
 
 ``` r
 mobi_sm <- relationships(
@@ -222,8 +221,8 @@ mobi_sm <- relationships(
 )
 ```
 
-C. Estimate full model using PLS-PM and bootstrap it for confidence
-intervals
+Estimate full model using PLS-PM and bootstrap it for confidence
+intervals:
 
 ``` r
 pls_model <- estimate_pls(
@@ -237,6 +236,34 @@ summary(mobi_pls)
 # Use multi-core parallel processing to speed up bootstraps
 boot_estimates <- bootstrap_model(pls_model, nboot = 1000, cores = 2)
 summary(boot_estimates)
+```
+
+### Comparing CBSEM and PLS-PM Example
+
+We can re-estimate a composite PLS-PM model as a common-factor CBSEM.
+Such a comparison might interest researchers seeking to evaluate how
+their constructs behave when modeled as composites versus
+common-factors.
+
+``` r
+# Define measurements with famliar terms: reflective, multi-item constructs, etc.
+measurements <- constructs(
+  composite("Image",       multi_items("IMAG", 1:5)),
+  composite("Expectation", multi_items("CUEX", 1:3)),
+  composite("Loyalty",     multi_items("CUSL", 1:3)),
+  composite("Complaints",  single_item("CUSCO"))
+)
+
+# Create four relationships (two regressions) in one line!
+structure <- relationships(
+  paths(from = c("Image", "Expectation"), to = c("Complaints", "Loyalty")
+)
+
+# Put together reusable parts of your model to estimate CBSEM results
+cbsem_model <- estimate_cbsem(data = mobi, measurements, structure)
+
+# Re-estimate the model using another estimation technique (Consistent PLS)
+pls_model <- estimate_pls(data = mobi, measurements, structure)
 ```
 
 ## Documentation
@@ -268,13 +295,15 @@ installation.
 
 ## Contact Us
 
-**Facebook Group**: <https://www.facebook.com/groups/seminr/> You will
-find the developers and other users here who might also be able to help
-or discuss.
+**Facebook Group**: <https://www.facebook.com/groups/seminr>
 
-**Issue Tracker**: <https://github.com/sem-in-r/seminr/issues> This is
-the official place to submit potential bugs or request new features for
-consideration.
+You will find the developers and other users here who might also be able
+to help or discuss.
+
+**Issue Tracker**: <https://github.com/sem-in-r/seminr/issues>
+
+This is the official place to submit potential bugs or request new
+features for consideration.
 
 ## About Us
 
@@ -285,10 +314,11 @@ Primary Authors:
 
 Key Contributors:
 
-  - James Uanhoro (ten Berge factor extraction, advice on
-    covariance-based methods)
-  - Arturo Heynar Cano Bejar (evaluation and testing of PLS and CBSEM
-    models)
+  - [James Uanhoro](http://jamesuanhoro.com/) (ten Berge factor
+    extraction, advice on covariance-based methods)
+  - [Arturo Heynar Cano
+    Bejar](https://www.iss.nthu.edu.tw/PhD/PhD-Students/arturo-h-cano-bejar)
+    (evaluation and testing of PLS and CBSEM models)
 
 And many thanks to the growing number of folks who have reached out with
 feature requests, bug reports, and encouragement. You keep us going\!
