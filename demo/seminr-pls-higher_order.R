@@ -1,4 +1,5 @@
-# Simple Style: Seperate declaration of measurement and structural model, no interactions.
+# Demonstration of a higher-order composite with subcomposites
+
 library(seminr)
 
 # Creating measurement mode
@@ -10,7 +11,7 @@ mobi_mm <- constructs(
   composite("Expectation",  multi_items("CUEX", 1:3)),
   composite("Quality",      multi_items("PERQ", 1:7)),
   composite("Value",        multi_items("PERV", 1:2)),
-  higher_composite("Satisfaction", dimensions = c("Image","Value"), method = two_stage, ),
+  higher_composite("Satisfaction", dimensions = c("Image","Value"), method = two_stage),
   composite("Complaints",   single_item("CUSCO")),
   composite("Loyalty",      multi_items("CUSL", 1:3))
 )

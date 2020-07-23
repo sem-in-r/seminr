@@ -13,7 +13,7 @@ You can specify formative or reflective constructs:
 ``` r
 simple_mm <- measure(
   reflective("Expectation", multi_items("CUEX", 1:3)),
-  causal("Quality", multi_items("PERQ", 1:7))
+  composite("Quality", multi_items("PERQ", 1:7))
 )
 ```
 
@@ -31,9 +31,9 @@ simple_mm <- measure(
 
 ## Structure
 
-Notice there are multiple ways to specify the same strucural model.
+Notice there are multiple ways to specify the same structural model.
 
-### Structural style:
+### Structural style
 
 There are many ways to specify the same structure, depending on how you perceive the model. The following example shows three ways to specify the same structural model.
 

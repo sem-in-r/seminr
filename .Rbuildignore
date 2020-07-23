@@ -13,4 +13,6 @@
 ^doc$
 ^Meta$
 ^CHANGELOG.md
-^references.md
+^references.csv
+^references.yml
+^R/library-references\.R$

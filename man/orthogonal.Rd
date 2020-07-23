@@ -2,7 +2,8 @@
 % Please edit documentation in R/specify_interactions.R
 \name{orthogonal}
 \alias{orthogonal}
-\title{\code{orthogonal} creates interaction measurement items by using the orthogonalized approach..}
+\title{\code{orthogonal} creates interaction measurement items by using the 
+orthogonalized approach wherein}
 \usage{
 # orthogonalization approach as per Henseler & Chin (2010):
  orthogonal(iv, moderator, weights)

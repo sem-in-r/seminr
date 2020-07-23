@@ -1,4 +1,4 @@
-context("SEMinR correctly estimates the model R-Squared\n")
+context("SEMinR correctly estimates the model R-Squared and fSquared\n")
 
 # Test cases
 ## Regular case
@@ -42,6 +42,39 @@ test_that("Seminr estimates the Rsquared correctly", {
   expect_equal(rsquared[1:2,1], rsquared_control[1:2,1], tolerance = 0.00001)
 })
 
+test_that("Seminr estimates the fSquared correctly", {
+  expect_equal(fsquared, fsquared_control[1,1], tolerance = 0.00001)
+})
+
+## Single structural path case
+
+# seminr syntax for creating measurement model
+mobi_mm <- constructs(
+  composite("Image",        multi_items("IMAG", 1:5),weights = mode_A),
+  composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A)
+)
+
+
+# structural model: note that name of the interactions construct should be
+#  the names of its two main constructs joined by a '*' in between.
+mobi_sm <- relationships(
+  paths(to = "Satisfaction",  from = c("Image"))
+)
+
+# Load data, assemble model, and estimate using semPLS
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm)
+
+# Load outputs
+fsquared <- fSquared(seminr_model, "Image", "Satisfaction")
+
+## Output originally created using following lines
+# write.csv(fSquared(seminr_model, "Image", "Satisfaction"), file = "tests/fixtures/V_3_5_X/fsquared2.csv")
+# write.csv(fSquared(seminr_model, "Image", "Satisfaction"), file = "tests/fixtures/V_3_6_0/fsquared2.csv")
+
+# Load controls
+fsquared_control <- as.matrix(read.csv(file = paste(test_folder,"fsquared2.csv", sep = ""), row.names = 1))
+
+# Testing
 test_that("Seminr estimates the fSquared correctly", {
   expect_equal(fsquared, fsquared_control[1,1], tolerance = 0.00001)
 })

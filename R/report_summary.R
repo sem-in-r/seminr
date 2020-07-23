@@ -2,24 +2,28 @@
 #' @export
 summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
   stopifnot(inherits(object, "seminr_model"))
+
   path_reports <- report_paths(object, digits)
   metrics <- evaluate_model(object)
   iterations <- object$iterations
   composite_scores <- return_only_composite_scores(object)
   descriptives <- descriptives(object)
   fSquare <- model_fsquares(object)
-  model_summary <- list(iterations = iterations,
-                        paths = path_reports,
-                        loadings = object$outer_loadings,
-                        weights = object$outer_weights,
-                        cross_loadings = metrics$validity$cross_loadings,
-                        vif_items = metrics$validity$item_vifs,
-                        reliability = metrics$reliability,
-                        composite_scores = composite_scores,
-                        vif_antecedents = metrics$validity$antecedent_vifs,
-                        fSquare = fSquare,
-                        htmt = metrics$validity$htmt,
-                        descriptives = descriptives)
+  model_summary <- list(
+    meta = list(seminr = seminr_info()), # other estimation engines could go here in future
+    iterations = iterations,
+    paths = path_reports,
+    loadings = object$outer_loadings,
+    weights = object$outer_weights,
+    cross_loadings = metrics$validity$cross_loadings,
+    vif_items = metrics$validity$item_vifs,
+    reliability = metrics$reliability,
+    composite_scores = composite_scores,
+    vif_antecedents = metrics$validity$antecedent_vifs,
+    fSquare = fSquare,
+    htmt = metrics$validity$htmt,
+    descriptives = descriptives
+  )
   class(model_summary) <- "summary.seminr_model"
   model_summary
 }
@@ -27,7 +31,9 @@ summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
 # print summary function for seminr
 #' @export
 print.summary.seminr_model <- function(x, na.print=".", digits=3, ...) {
-  cat("\n", sprintf("Total Iterations: %s", x$iterations))
+  cat("\n")
+  print_pkginfo("Results from", x$meta$seminr)
+  # cat("Total Iterations: ", x$iterations)
 
   cat("\nPath Coefficients:\n")
   print(x$paths, na.print = na.print, digits=digits)
@@ -73,7 +79,9 @@ print_matrix <- function(pmatrix, na.print=".", digits=3) {
 # Print for summary of bootstrapped seminr model
 #' @export
 print.summary.boot_seminr_model <- function(x, na.print=".", digits=3, ...) {
-  cat("\n", sprintf("Bootstrap resamples: %s", x$nboot))
+  cat("\n")
+  print_pkginfo("Results from", x$meta$seminr)
+  cat("Bootstrap resamples: ", x$nboot)
 
   cat("\n\nBootstrapped Structural Paths:\n")
   print_matrix(x$bootstrapped_paths[,c(1,2,3,4,5,6)], na.print, digits)

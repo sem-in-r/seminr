@@ -1,24 +1,24 @@
 Package: seminr
 Type: Package
-Title: Domain-Specific Language for Building PLS Structural Equation Models
-Version: 1.0.1
-Date: 2019-12-11
-Authors@R: c(person("Soumya", "Ray",
-              email = "soumya.ray@gmail.com", role = c("aut", "ths")),
-             person("Nicholas Patrick", "Danks",
-              email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
-             person("Juan Manuel Velasquez", "Estrada", role = "aut"))
-Description: A powerful, easy to write and easy to modify syntax for
-    specifying and estimating Partial Least Squares (PLS) path models allowing for the latest estimation methods
-    for Consistent PLS as per Dijkstra & Henseler (2015, MISQ 39(2): 297-316), adjusted interactions as per 
-    Henseler & Chin (2010) <doi:10.1080/10705510903439003> and bootstrapping utilizing 
-    parallel processing as per Hair et al. (2017, ISBN:978-1483377445). 
+Title: Domain-Specific Language for Building and Estimating Structural Equation Models
+Version: 1.1.0
+Date: 2020-07-23
+Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("aut", "ths")),
+             person("Nicholas Patrick", "Danks", email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
+             person("Juan Manuel Velasquez", "Estrada", role = "aut"),
+             person("James", "Uanhoro", role = "ctr", email = "James.uanhoro@gmail.com"),
+             person("Arturo Heynar Cano", "Bejar", role = "ctr", email = "arturocano997@gmail.com"))
+Description: A powerful, easy to syntax for specifying and estimating complex 
+    Structural Equation Models. Models can be estimated using Partial 
+    Least Squares Path Modeling or Covariance-Based Structural Equation 
+    Modeling or covariance based Confirmatory Factor Analysis. 
+
 Imports:
-    parallel
+    parallel, lavaan, MASS
 License: GPL-3
 Depends: R (>= 3.1.0)
 LazyData: TRUE
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0
 Suggests: knitr, testthat, rmarkdown
 VignetteBuilder: knitr
 Encoding: UTF-8
