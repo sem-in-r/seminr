@@ -22,3 +22,6 @@ This is a resubmission. In this version I have:
   - R^2 and VIFs computed using correlation matrices instead of `lm()`
 - Updated summary objects to hold meta information of estimation method
 - Vignette updated to show new features
+- Fixed a broken URI: Found the following (possibly) invalid file URI:
+   URI: comparing-cbsem-and-pls-pm-example
+     From: README.md
