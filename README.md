@@ -112,6 +112,7 @@ the various examples below for different use cases:
 4.  [Comparing CBSEM and PLS-PM
     Example](#comparing-cbsem-and-pls-pm-example)
 
+
 ### CFA + CBSEM Example with Common Factors
 
 Note that CBSEM models reflective common-factor constructs, not
@@ -196,6 +197,7 @@ of items) rather than common factors. Popular software like SmartPLS
 models composites either as Mode A (correlation weights) or Mode B
 (regression weights). We also support both modes as well as second-order
 composites.
+
 
 Describe measurement model for each composite, interaction, or higher
 order composite:

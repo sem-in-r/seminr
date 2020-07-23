@@ -189,6 +189,9 @@ PLS-PM typically models composites (constructs that are weighted average of item
 rather than common factors. Popular software like SmartPLS models composites 
 either as Mode A (correlation weights) or Mode B (regression weights). 
 We also support both modes as well as second-order composites.
+rather than common factors. Popular software like SmartPLS models composites by default,
+either as Mode A (correlation weights) or Mode B (regression weights). We also support
+second-order composites.
 
 Describe measurement model for each composite, interaction, or higher order composite:
 
@@ -259,6 +262,7 @@ cbsem_model <- estimate_cbsem(data = mobi, as.reflective(measurements), structur
 
 # Re-estimate the model using common factors in Consistent PLS (PLSc)
 pls_model <- estimate_pls(data = mobi, as.reflective(measurements), structure)
+
 ```
 
 
