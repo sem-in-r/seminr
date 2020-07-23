@@ -110,7 +110,8 @@ the various examples below for different use cases:
     Factors](#consistent-pls-plsc-example-with-common-factors)
 3.  [PLS-PM Example with Composites](#pls-pm-example-with-composites)
 4.  [Comparing CBSEM and PLS-PM
-    Example](comparing-cbsem-and-pls-pm-example)
+    Example](#comparing-cbsem-and-pls-pm-example)
+
 
 ### CFA + CBSEM Example with Common Factors
 
@@ -193,8 +194,10 @@ summary(boot_estimates)
 
 PLS-PM typically models composites (constructs that are weighted average
 of items) rather than common factors. Popular software like SmartPLS
-models composites by default, either as Mode A (correlation weights) or
-Mode B (regression weights). We also support second-order composites.
+models composites either as Mode A (correlation weights) or Mode B
+(regression weights). We also support both modes as well as second-order
+composites.
+
 
 Describe measurement model for each composite, interaction, or higher
 order composite:
@@ -259,11 +262,15 @@ structure <- relationships(
   paths(from = c("Image", "Expectation"), to = c("Complaints", "Loyalty")
 )
 
-# Put together reusable parts of your model to estimate CBSEM results
-cbsem_model <- estimate_cbsem(data = mobi, measurements, structure)
-
-# Re-estimate the model using another estimation technique (Consistent PLS)
+# First, estimate the model using PLS
 pls_model <- estimate_pls(data = mobi, measurements, structure)
+
+# Reusable parts of the model to estimate CBSEM results
+# note: we are using the `as.reflective()` function to convert composites to common factors
+cbsem_model <- estimate_cbsem(data = mobi, as.reflective(measurements), structure)
+
+# Re-estimate the model using common factors in Consistent PLS (PLSc)
+pls_model <- estimate_pls(data = mobi, as.reflective(measurements), structure)
 ```
 
 ## Documentation
