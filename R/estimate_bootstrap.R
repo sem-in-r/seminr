@@ -103,22 +103,17 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         bootstrapMatrix <- cbind(bootstrapMatrix, matrix(apply(bootmatrix,1,mean), nrow = rows, ncol = cols))
         bootstrapMatrix <- cbind(bootstrapMatrix, matrix(apply(bootmatrix,1,stats::sd), nrow = rows, ncol = cols))
 
-        # Create paths matrix
+        # Subset paths matrix (take care to not be stranded with a single column/row vector)
         paths_descriptives <- matrix(bootstrapMatrix[1:(cols-1), c(1:(3*cols))], nrow=(cols-1), ncol=(3*cols))
         dimnames(paths_descriptives) <- list(
           rownames(bootstrapMatrix)[1:(cols-1)],
           colnames(bootstrapMatrix)[1:(3*cols)]
         )
 
-        # Clean the empty paths
+        # Clean the empty paths (take care to not be stranded with a single column/row vector)
         filled_cols <- apply(paths_descriptives != 0, 2, any, na.rm=TRUE)
         filled_rows <- apply(paths_descriptives != 0, 1, any, na.rm=TRUE)
-        paths_dimnames <- dimnames(paths_descriptives)
-        paths_descriptives <- matrix(paths_descriptives[filled_rows, filled_cols], nrow=sum(filled_rows), ncol=sum(filled_cols))
-        dimnames(paths_descriptives) <- list(
-          paths_dimnames[[1]][filled_rows],
-          paths_dimnames[[2]][filled_cols]
-        )
+        paths_descriptives <- subset(paths_descriptives, filled_rows, filled_cols)
 
         # Get the number of DVs
         if (length(unique(structural_model[,"target"])) == 1) {
