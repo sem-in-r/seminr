@@ -1,9 +1,28 @@
-context("SEMinR correctly bootstraps the simple model\n")
+context("SEMinR correctly bootstraps simple models\n")
+
+# Test cases
+## One antecedent model cases
+set.seed(123)
+
+inn_mm <- constructs(
+  composite("INN_P", multi_items("IMAG", 1:4)),
+  composite("INN_M", multi_items("PERQ", 1:4)),
+  composite("THIRD", multi_items("CUEX", 1:3))
+)
+
+inn_sm <- relationships(paths(from = "INN_P", to = "INN_M"))
+pls <- estimate_pls(data = mobi, inn_mm, inn_sm)
+expect_error(bootstrap_model(seminr_model = pls, nboot = 5), NA)
+
+inn_sm <- relationships(paths(from = "INN_P", to = c("INN_M", "THIRD")))
+pls <- estimate_pls(data = mobi, inn_mm, inn_sm)
+expect_error(bootstrap_model(seminr_model = pls, nboot = 5), NA)
+
 
 # Test cases
 ## Simple case
 set.seed(123)
-# seminr syntax for creating measurement model
+
 mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5), weights = mode_A),
   composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
@@ -11,8 +30,6 @@ mobi_mm <- constructs(
   composite("Satisfaction", multi_items("CUSA", 1:3), weights = mode_A)
 )
 
-# structural model: note that name of the interactions construct should be
-#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value"))
@@ -46,7 +63,6 @@ context("SEMinR correctly bootstraps the interaction model\n")
 # Test cases
 ## Interaction case
 
-# seminr syntax for creating measurement model
 mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5), weights = correlation_weights),
   composite("Expectation",  multi_items("CUEX", 1:3), weights = correlation_weights),
@@ -56,8 +72,6 @@ mobi_mm <- constructs(
   interaction_term(iv = "Image", moderator = "Value", method = orthogonal, weights = mode_A)
 )
 
-# structural model: note that name of the interactions construct should be
-#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",
@@ -91,7 +105,6 @@ context("SEMinR correctly bootstraps the model weights - composite measurement m
 # Test cases
 ## Regular model
 
-# seminr syntax for creating measurement model
 mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5), weights = correlation_weights),
   composite("Expectation",  multi_items("CUEX", 1:3), weights = correlation_weights),
@@ -99,8 +112,6 @@ mobi_mm <- constructs(
   composite("Satisfaction", multi_items("CUSA", 1:3), weights = correlation_weights)
 )
 
-# structural model: note that name of the interactions construct should be
-#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value"))
@@ -133,7 +144,6 @@ context("SEMinR correctly bootstraps the model loadings - factor measurement mod
 # Test cases
 ## Regular model
 
-# seminr syntax for creating measurement model
 mobi_mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Expectation",  multi_items("CUEX", 1:3)),
@@ -141,8 +151,6 @@ mobi_mm <- constructs(
   reflective("Satisfaction", multi_items("CUSA", 1:3))
 )
 
-# structural model: note that name of the interactions construct should be
-#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value"))
@@ -199,7 +207,6 @@ context("SEMinR correctly reports the confidence interval bootstrapped paths\n")
 # Test cases
 ## Simple case
 set.seed(123)
-# seminr syntax for creating measurement model
 mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5), weights = mode_A),
   composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
@@ -207,8 +214,6 @@ mobi_mm <- constructs(
   composite("Satisfaction", multi_items("CUSA", 1:3), weights = mode_A)
 )
 
-# structural model: note that name of the interactions construct should be
-#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value")),

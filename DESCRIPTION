@@ -2,9 +2,7 @@ Package: seminr
 Type: Package
 Title: Domain-Specific Language for Building and Estimating Structural Equation Models
 Version: 1.1.0
-
 Date: 2020-07-23
-
 Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("aut", "ths")),
              person("Nicholas Patrick", "Danks", email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
              person("Juan Manuel Velasquez", "Estrada", role = "aut"),
@@ -14,7 +12,6 @@ Description: A powerful, easy to syntax for specifying and estimating complex
     Structural Equation Models. Models can be estimated using Partial 
     Least Squares Path Modeling or Covariance-Based Structural Equation 
     Modeling or covariance based Confirmatory Factor Analysis. 
-
 Imports:
     parallel, lavaan, MASS
 License: GPL-3
