@@ -5,3 +5,4 @@ seminr-pls-interaction   A demonstration of modeling an interaction using SEMinR
 seminr-alternative-models   A demonstration of alternate model specification, quick and easy
 seminr-pls-higher_order   A demonstration of modeling a higher order construct in SEMinR syntax
 seminr-cbsem-cfa-ecsi   A demonstration of the CBSEM estimation of the ECSI model using SEMinR syntax
+seminr-primer-chap4   A demonstration of the coe used in Chapter 4 of the PLS Primer for R Workbook
