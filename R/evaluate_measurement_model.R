@@ -10,9 +10,10 @@ evaluate_model <- function(seminr_model) {
 
 # Reliability ----
 reliability <- function(seminr_model) {
+  alpha <- cronbachs_alpha(seminr_model)
   mat1 <- rhoC_AVE(seminr_model)
   mat2 <- rho_A(seminr_model)
-  return(cbind(mat1, mat2))
+  return(cbind(alpha, mat1, mat2))
 }
 
 # Validity ----
