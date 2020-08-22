@@ -54,7 +54,7 @@ plot_scores <- function(seminr_model, constructs=NULL) {
 #'
 #' @export
 plot_reliability <- function(summary_object, criteria, limit) {
-  vec <- summary_corp_rep$reliability[,criteria]
+  vec <- summary_object$reliability[,criteria]
   barplot(vec,
           col = ifelse(vec > limit, "green", "red"),
           main = criteria,
