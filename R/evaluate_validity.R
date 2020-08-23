@@ -39,8 +39,8 @@ HTMT <- function(seminr_model) {
                  dimnames = list(seminr_model$constructs,seminr_model$constructs))
   for (constructi in seminr_model$constructs[1:(length(seminr_model$constructs)-1)]) {
     for (constructj in seminr_model$constructs[(which(seminr_model$constructs == constructi)+1):length(seminr_model$constructs)]) {
-      manifesti <- seminr_model$mmVariables[seminr_model$mmMatrix[, 1] == constructi]
-      manifestj <- seminr_model$mmVariables[seminr_model$mmMatrix[, 1] == constructj]
+      manifesti <- seminr_model$mmMatrix[seminr_model$mmMatrix[, 1] == constructi, "measurement"]
+      manifestj <- seminr_model$mmMatrix[seminr_model$mmMatrix[, 1] == constructj, "measurement"]
       item_correlation_matrix <- abs(stats::cor(seminr_model$data[, manifesti],seminr_model$data[, manifestj]))
       HTHM <- mean(item_correlation_matrix)
       if(length(manifesti)>1 ) {

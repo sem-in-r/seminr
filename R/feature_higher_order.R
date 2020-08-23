@@ -36,13 +36,17 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs) {
   new_mm <- matrix(unlist(mm[!(substr(names(mm), nchar(names(mm))-10, nchar(names(mm))) == "interaction") & !(names(mm) == "higher_order_composite")]), ncol = 3, byrow = TRUE,
          dimnames = list(NULL, c("construct", "measurement", "type")))
   orig_sm <- sm
+
+
   # Rebuild model for first stage
   # Add new HOC paths to SM
   dimensions <- c()
   for (construct in HOCs) {
-    obj <- substitute_dimensions_for_HOC(construct, sm, new_mm)
-    sm <- obj$sm
-    dimensions <- c(dimensions, obj$dimensions)
+    if (construct[[1]] %in% unique(as.vector(orig_sm))) {
+      obj <- substitute_dimensions_for_HOC(construct, sm, new_mm)
+      sm <- obj$sm
+      dimensions <- c(dimensions, obj$dimensions)
+    }
   }
   # Remove interactions from the sm
   sm <- sm[sm[, "source"] %in% unique(new_mm[, "construct"]),]
