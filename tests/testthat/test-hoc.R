@@ -32,8 +32,9 @@ weights <- seminr_model$outer_weights
 ## Output originally created using following lines
 # write.csv(paths, file = "tests/fixtures/V_3_6_0/hoc-paths.csv")
 # write.csv(loadings, file = "tests/fixtures/V_3_6_0/hoc-loadings.csv")
+# write.csv(loadings, file = "tests/fixtures/V_3_5_X/hoc-loadings.csv")
 # write.csv(weights, file = "tests/fixtures/V_3_6_0/hoc-weights.csv")
-
+# write.csv(weights, file = "tests/fixtures/V_3_5_X/hoc-weights.csv")
 
 # Load controls
 paths_control <- as.matrix(read.csv(file = paste(test_folder,"hoc-paths.csv", sep = ""), row.names = 1))

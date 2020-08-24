@@ -21,7 +21,7 @@ summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
     composite_scores = composite_scores,
     vif_antecedents = metrics$validity$antecedent_vifs,
     fSquare = fSquare,
-    htmt = metrics$validity$htmt,
+    htmt = t(metrics$validity$htmt),
     descriptives = descriptives
   )
   class(model_summary) <- "summary.seminr_model"

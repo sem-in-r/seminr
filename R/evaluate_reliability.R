@@ -60,7 +60,7 @@ rho_A <- function(seminr_model) {
     #If the measurement model is Reflective Calculate RhoA
     if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1] %in% c("C", "A", "HOCA")) {#| mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="A"|){
       #if the construct is a single item rhoA = 1
-      if(nrow(mmMatrix_per_construct(i, mmMatrix)) == 1) {
+      if(nrow(mmMatrix_per_construct(i, mmMatrix)) == 1 | grepl("\\*", i)) {
         rho[i, 1] <- 1
       } else {
         # Calculate rhoA

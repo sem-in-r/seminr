@@ -74,3 +74,23 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs) {
               sm = orig_sm,
               mm = mm))
 }
+
+# Function to check that the HOCs exist in the structural model under analysis
+HOCs_in_sm <- function(measurement_model, structural_model) {
+  HOCs <- measurement_model[names(measurement_model) == "higher_order_composite"]
+  if (length(HOCs) > 0) {
+    output <- list()
+    for (i in 1:length(HOCs)) {
+      if(HOCs[[i]][1] %in% construct_names(structural_model)) {
+        output[[i]] <- HOCs[[i]]
+      }
+    }
+  } else {
+    output <- c()
+  }
+  return(output)
+}
+
+
+
+

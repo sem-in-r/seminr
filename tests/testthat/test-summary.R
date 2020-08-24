@@ -28,7 +28,8 @@ reliability <- summary_object$reliability
 ## Output originally created using following lines
 # write.csv(summary_object$metrics$Validity$HTMT, file = "tests/fixtures/htmt.csv")
 # write.csv(summary_object$cross_loadings, file = "tests/fixtures/cross_loadings.csv")
-# write.csv(summary_object$reliability, file = "tests/fixtures/reliability.csv")
+# write.csv(summary_object$reliability, file = "tests/fixtures/V_3_6_0/reliability.csv")
+# write.csv(summary_object$reliability, file = "tests/fixtures/V_3_5_X/reliability.csv")
 
 # Remove HTMT
 #htmt_control <- as.matrix(read.csv("../fixtures/V_3_5_X/htmt.csv", row.names = 1))

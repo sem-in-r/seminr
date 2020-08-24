@@ -60,5 +60,5 @@ HTMT <- function(seminr_model) {
       HTMT[constructi, constructj] <- HTHM / MTHM
     }
   }
-  return(t(HTMT))
+  return(HTMT)
 }

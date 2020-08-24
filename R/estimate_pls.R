@@ -55,9 +55,9 @@ estimate_pls <- function(data, measurement_model, structural_model, inner_weight
   cat("Generating the seminr model\n")
   data <- stats::na.omit(data)
   rawdata <- data
-  # Generate first order model if necessary
 
-  HOCs <- measurement_model[names(measurement_model) == "higher_order_composite"]
+  # Generate first order model if necessary
+  HOCs <- HOCs_in_sm(measurement_model, structural_model)
 
   if ( length(HOCs)>0 ) {
     HOM <- prepare_higher_order_model(data = data,

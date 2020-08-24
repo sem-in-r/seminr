@@ -5,7 +5,7 @@
 library(seminr)
 
 # Loading and cleaning Data ----
-corp_rep_data <- read.csv(file = "Corporate Reputation Data.csv", sep = ";")
+corp_rep_data <- corp_rep_data
 cleaned_data <- mean_replacement(data = corp_rep_data,
                                  missing_value_ind = -99)
 
