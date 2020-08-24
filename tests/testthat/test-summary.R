@@ -48,7 +48,7 @@ test_that("Seminr estimates the cross-loadings correctly", {
 })
 
 test_that("Seminr estimates the reliability correctly", {
-  expect_equal(reliability, reliability_control, tolerance = 0.00001)
+  expect_equal(reliability[1:4,1:4], reliability_control, tolerance = 0.00001)
 })
 
 context("SEMinR correctly returns the summary object for class boot_seminr_model\n")

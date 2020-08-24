@@ -34,7 +34,7 @@ corp_rep_pls_model$iterations
 # Summarize the model results
 summary_corp_rep <- summary(corp_rep_pls_model)
 summary_corp_rep$validity$fl_criteria
-summary_corp_rep$reliability
+plot(summary_corp_rep$reliability)
 
 # Inspect the outer loadings
 print(summary_corp_rep$loadings, digits = 3, na.print = ".")
@@ -55,7 +55,6 @@ plot_reliability(summary_corp_rep, "rhoC", 0.7)
 plot_reliability(summary_corp_rep, "AVE", 0.5)
 
 # Table of the FL criteria
-fl_criteria_table(summary_corp_rep)
 
 # HTMT Ratio
 print(summary_corp_rep$htmt, digits = 3, na.print = ".")

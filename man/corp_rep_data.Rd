@@ -7,23 +7,24 @@
 \format{
 A data frame with 344 rows and 46 variables:
 \describe{
-  \item{serviceprovider}{A categorical variable for the service provider.}
-  \item{servicetype}{A categorical variable for the service type.}
+  \item{serviceprovider}{A categorical variable for the service provider: 1, 2, 3, or 4.}
+  \item{servicetype}{A categorical variable for the service type: 1=Prepaid plan (n=125); 2=Contract plan (n=219).}
   \item{csor_1}{The company behaves in a socially conscious way.}
   \item{csor_2}{The company is forthright in giving information to the public.}
   \item{csor_3}{The company has a fair attitude toward competitors.}
   \item{csor_4}{The company is concerned about the preservation of the environment.}
   \item{csor_5}{The company is not only concerned about the profits.}
-  \item{csor_global}{The company is not only concerned about the profits.}
-  \item{comp_1}{The company is a top competitor in its market.}
-  \item{comp_2}{As far as I know, the company is recognized worldwide.}
-  \item{comp_3}{I believe that the company performs at a premium level.}
-  \item{like_1}{The company is a copany that I can better identify with than other companies.}
-  \item{like_2}{The company is a company that I would regret more not having if it no longer existed than other companies.}
-  \item{like_3}{I regard the company as a likeable company.}
-  \item{cusl_1}{I would recommend the company to friends and relatives.}
-  \item{cusl_2}{If I had to choose again, I would choose the company as my mobile phone services provider.}
-  \item{cusl_3}{I will remain a customer of the company in the future.}
+  \item{csor_global}{Please assess the extent to which the company acts in socially conscious ways 0 (not at all) to 7 (definitely).}
+  \item{attr_1}{The company is succesful in attracting high-quality employees.}
+  \item{attr_2}{I could see myself working at the company.}
+  \item{attr_3}{I like the physical appearance of the company/buildings/shops, etc.}
+  \item{attr_global}{Please assess the company’s overall attractiveness; 0=very low; 7=very high.}
+  \item{perf_1}{The company is a very well managed company.}
+  \item{perf_2}{The company is an economically stable company.}
+  \item{perf_3}{The business risk for the company is modest compared to its competitors.}
+  \item{perf_4}{The company has growth potential.}
+  \item{perf_5}{The company has a clear vision about the future of the company.}
+  \item{perf_global}{Please assess the company’s overall performance; 0=very low; 7=very high.}
   \item{qual_1}{The products/services offered by the company are of high quality.}
   \item{qual_2}{The company is an innovator, rather than an imitator with respect to industry.}
   \item{qual_3}{The company's services/products offer good quality for money.}
@@ -32,14 +33,25 @@ A data frame with 344 rows and 46 variables:
   \item{qual_6}{The company is a reliable partner for customers.}
   \item{qual_7}{The company is a trustworthy company.}
   \item{qual_8}{I have a lot of respect for the company.}
-  \item{perf_1}{The company is a very well managed company.}
-  \item{perf_2}{The company is an economically stable company.}
-  \item{perf_3}{The business risk for the company is modest compared to its competitors.}
-  \item{perf_4}{The company has growth potential.}
-  \item{perf_5}{The company has a clear vision about the future of the company.}
-  \item{attr_1}{The company is succesful in attracting high-quality employees.}
-  \item{attr_2}{I could see myself working at the company.}
-  \item{attr_3}{I like the physical appearance of the company/buildings/shops, etc.}
+  \item{qual_global}{Please assess the overall quality of the company’s activities; 0=very low; 7=very high.}
+  \item{like_1}{The company is a copany that I can better identify with than other companies.}
+  \item{like_2}{The company is a company that I would regret more not having if it no longer existed than other companies.}
+  \item{like_3}{I regard the company as a likeable company.}
+  \item{comp_1}{The company is a top competitor in its market.}
+  \item{comp_2}{As far as I know, the company is recognized worldwide.}
+  \item{comp_3}{I believe that the company performs at a premium level.}
+  \item{cusl_1}{I would recommend the company to friends and relatives.}
+  \item{cusl_2}{If I had to choose again, I would choose the company as my mobile phone services provider.}
+  \item{cusl_3}{I will remain a customer of the company in the future.}
+  \item{cusa}{I am satisfied with company.}
+  \item{nphh}{?}
+  \item{age}{?}
+  \item{education}{?}
+  \item{occupation}{?}
+  \item{mga_1}{Multi Group Analysis 1.}
+  \item{mga_2}{Multi Group Analysis 2.}
+  \item{mga_3}{Multi Group Analysis 3.}
+  \item{mga_4}{Multi Group Analysis 4.}
 }
 }
 \usage{

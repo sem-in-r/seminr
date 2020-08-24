@@ -66,5 +66,5 @@ test_that("Seminr computes the antecedent VIFs correctly for multiple endogenous
 })
 
 test_that("Seminr computes the Fornell Larcker criteria correctly", {
-  expect_equal(unname(fl_table), unname(correct_fl_table), tolerance = 0.00001)
+  expect_equal(unname(fl_table[1:4,1:4]), unname(correct_fl_table), tolerance = 0.00001)
 })
