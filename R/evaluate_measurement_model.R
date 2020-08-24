@@ -23,8 +23,8 @@ validity <- function(seminr_model) {
     cross_loadings  = cross_loadings(seminr_model),
     item_vifs       = item_vifs(seminr_model),
     # TODO: consider if antecedent vifs should be part of structural results
-    antecedent_vifs = antecedent_vifs(
-      seminr_model$smMatrix, stats::cor(seminr_model$construct_scores))
+    antecedent_vifs = antecedent_vifs(seminr_model$smMatrix, stats::cor(seminr_model$construct_scores)),
+    fl_criteria = fl_criteria_table(seminr_model)
   )
 }
 

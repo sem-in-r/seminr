@@ -139,7 +139,7 @@ cronbachs_alpha <- function(seminr_model) {
   for (i in seminr_model$constructs) {
     items <- seminr_model$mmMatrix[seminr_model$mmMatrix[,"construct"] == i,"measurement"]
     if (length(items) > 1) {
-      cov_mat <- cor(seminr_model$data, seminr_model$data)[items, items]
+      cov_mat <- stats::cor(seminr_model$data, seminr_model$data)[items, items]
       alpha_vec[[i]] <- cron_alpha(cov_mat)
     } else {
       alpha_vec[[i]] <- 1

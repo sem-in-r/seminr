@@ -15,13 +15,14 @@ summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
     paths = path_reports,
     loadings = object$outer_loadings,
     weights = object$outer_weights,
-    cross_loadings = metrics$validity$cross_loadings,
-    vif_items = metrics$validity$item_vifs,
+    validity = list(vif_items = metrics$validity$item_vifs,
+                    htmt = t(metrics$validity$htmt),
+                    fl_criteria = metrics$validity$fl_criteria,
+                    cross_loadings = metrics$validity$cross_loadings),
     reliability = metrics$reliability,
     composite_scores = composite_scores,
     vif_antecedents = metrics$validity$antecedent_vifs,
     fSquare = fSquare,
-    htmt = t(metrics$validity$htmt),
     descriptives = descriptives
   )
   class(model_summary) <- "summary.seminr_model"

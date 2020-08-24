@@ -10,7 +10,7 @@
 #' @param missing_value_ind The indicator to be used to indicate which values are missing. E.g -99, "NA" or "" are often used.
 #'
 #' @usage
-#' mean_replacement(data, missing_value_ind = -99)
+#' mean_replacement(data, missing_value_ind)
 #'
 #' @references Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on Partial Least Squares
 #'  Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.

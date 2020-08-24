@@ -22,7 +22,7 @@ summary_object <- summary(seminr_model)
 # Load outputs
 # Remove HTMT
 #htmt <- summary_object$metrics$Validity$HTMT
-cross_loadings <- summary_object$cross_loadings
+cross_loadings <- summary_object$validity$cross_loadings
 reliability <- summary_object$reliability
 
 ## Output originally created using following lines

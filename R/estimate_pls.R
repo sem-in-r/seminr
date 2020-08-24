@@ -14,9 +14,17 @@
 #' @param inner_weights A parameter declaring which inner weighting scheme should be used
 #'   path_weighting is default, alternately path_factorial can be used.
 #'
+#' @param missing_values_action A parameter declaring which missing values scheme should be used
+#'   to replace the missing values. Mean replacement is default.
+#'
+#' @param missing_value_ind A parameter declaring which value to indicate to be used to indicate
+#'   missing values in the data. "-99" is used by default.
+#'
 #' @usage
 #' estimate_pls(data, measurement_model, structural_model,
-#'              inner_weights = path_weighting)
+#'              inner_weights = path_weighting,
+#'              missing_values_action = mean_replacement,
+#'              missing_value_ind = "-99")
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
 #'          \code{\link{bootstrap_model}}
@@ -46,13 +54,16 @@
 #'
 #' mobi_pls <- estimate_pls(data = mobi,
 #'                          measurement_model = mobi_mm,
-#'                          structural_model = mobi_sm)
+#'                          structural_model = mobi_sm,
+#'                          missing_values_action = mean_replacement,
+#'                          missing_value_ind = "-99")
 #'
 #' summary(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
-estimate_pls <- function(data, measurement_model, structural_model, inner_weights = path_weighting) {
+estimate_pls <- function(data, measurement_model, structural_model, inner_weights = path_weighting, missing_values_action = mean_replacement, missing_value_ind = "-99") {
   cat("Generating the seminr model\n")
+  data <- missing_values_action(data, missing_value_ind)
   data <- stats::na.omit(data)
   rawdata <- data
 

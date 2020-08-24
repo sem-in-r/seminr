@@ -62,3 +62,12 @@ HTMT <- function(seminr_model) {
   }
   return(HTMT)
 }
+
+#' fl_criteria_table can be used to generate simple and effective table for checking Fornell Larcker criteria.
+#' Fornell, C., & Larcker, D. F. (1981). Evaluating structural equation models with unobservable variables and measurement error. Journal of marketing research, 18(1), 39-50.
+fl_criteria_table <- function(seminr_model) {
+  table <- stats::cor(seminr_model$construct_scores)
+  table[upper.tri(table)] <- NA
+  diag(table) <- sqrt(rhoC_AVE(seminr_model)[,"AVE"])
+  return(table)
+}
