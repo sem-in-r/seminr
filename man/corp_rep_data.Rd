@@ -5,8 +5,16 @@
 \alias{corp_rep_data}
 \title{Measurement Instrument for the Corporate Reputation Model}
 \format{
-A data frame with 250 rows and 24 variables:
+A data frame with 344 rows and 46 variables:
 \describe{
+  \item{serviceprovider}{A categorical variable for the service provider.}
+  \item{servicetype}{A categorical variable for the service type.}
+  \item{csor_1}{The company behaves in a socially conscious way.}
+  \item{csor_2}{The company is forthright in giving information to the public.}
+  \item{csor_3}{The company has a fair attitude toward competitors.}
+  \item{csor_4}{The company is concerned about the preservation of the environment.}
+  \item{csor_5}{The company is not only concerned about the profits.}
+  \item{csor_global}{The company is not only concerned about the profits.}
   \item{comp_1}{The company is a top competitor in its market.}
   \item{comp_2}{As far as I know, the company is recognized worldwide.}
   \item{comp_3}{I believe that the company performs at a premium level.}
@@ -29,11 +37,6 @@ A data frame with 250 rows and 24 variables:
   \item{perf_3}{The business risk for the company is modest compared to its competitors.}
   \item{perf_4}{The company has growth potential.}
   \item{perf_5}{The company has a clear vision about the future of the company.}
-  \item{csor_1}{The company behaves in a socially conscious way.}
-  \item{csor_2}{The company is forthright in giving information to the public.}
-  \item{csor_3}{The company has a fair attitude toward competitors.}
-  \item{csor_4}{The company is concerned about the preservation of the environment.}
-  \item{csor_5}{The company is not only concerned about the profits.}
   \item{attr_1}{The company is succesful in attracting high-quality employees.}
   \item{attr_2}{I could see myself working at the company.}
   \item{attr_3}{I like the physical appearance of the company/buildings/shops, etc.}

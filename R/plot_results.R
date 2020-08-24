@@ -8,18 +8,14 @@ plot_scores <- function(seminr_model, constructs=NULL) {
 }
 
 
-#' Plot Reliability can be used to generate simple and effective bar plots for reliability stats.
+#' Plot Reliability Tablecan be used to generate simple and effective bar plots for reliability stats.
 #'
-#' The \code{plot_reliability} function generates a bar plot of reliability measures with a specified cut-off.
+#' The \code{plot.reliability_table} function generates a series of bar plots of reliability measures with a specified cut-off.
 #'
-#' @param summary_object A \code{summary.seminr_model} containing the summarized seminr model.
-#'
-#' @param criteria The reliability criteria to be viasualizes, AVE, RhoA, RhoC, or alpha.
-#'
-#' @param limit The upper limit for reliability such as 0.7 for RhoA and 0.5 for AVE.
+#' @param reliability_table A \code{reliability_table} containing the measurement model reliability of the seminr model.
 #'
 #' @usage
-#' plot_reliability(sum_mobi_pls, "rhoA", 0.7))
+#' plot(sum_mobi_pls$reliability)
 #'
 #' @references Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on Partial Least Squares
 #'  Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.
@@ -50,14 +46,18 @@ plot_scores <- function(seminr_model, constructs=NULL) {
 #'                            structural_model = mobi_sm)
 #'
 #' sum_mobi_pls <- summary(mobi_pls)
-#' plot_reliability(sum_mobi_pls, "rhoA", 0.7)
+#' plot(sum_mobi_pls$reliability)
 #'
 #' @export
-plot_reliability <- function(summary_object, criteria, limit) {
-  vec <- summary_object$reliability[,criteria]
-  barplot(vec,
-          col = ifelse(vec > limit, "green", "red"),
-          main = criteria,
-          panel.first = grid())
-  abline(h = limit, lty = 2, col = "blue")
+plot.reliability_table <- function(object) {
+  stopifnot(inherits(object, "reliability_table"))
+  limit <- c(0.7,0.7,0.5,0.7)
+  for (i in 1:ncol(object)) {
+    vec <- object[,i]
+    barplot(vec,
+            col = ifelse(vec > limit[i], "green", "red"),
+            main = colnames(object)[i],
+            panel.first = grid())
+    abline(h = limit[i], lty = 2, col = "blue")
+  }
 }

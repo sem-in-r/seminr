@@ -4,7 +4,7 @@
 \alias{mean_replacement}
 \title{Function to clean data of ommitted values by mean replacement}
 \usage{
-mean_replacement(data, missing_value_ind = -99)
+mean_replacement(data, missing_value_ind)
 }
 \arguments{
 \item{data}{A dataset to be used for estimating a SEMinR model}

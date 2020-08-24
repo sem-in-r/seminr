@@ -106,5 +106,7 @@ print.table_output <- function(x, na.print=".", digits=3, ...) {
   class(x) <- "matrix"
   print(x, na.print = na.print, digits=digits)
   cat("\n")
+  cat(comment(x))
+  cat("\n")
   invisible(x)
 }

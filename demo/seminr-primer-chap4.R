@@ -33,6 +33,8 @@ corp_rep_pls_model$iterations
 
 # Summarize the model results
 summary_corp_rep <- summary(corp_rep_pls_model)
+summary_corp_rep$validity$fl_criteria
+summary_corp_rep$reliability
 
 # Inspect the outer loadings
 print(summary_corp_rep$loadings, digits = 3, na.print = ".")

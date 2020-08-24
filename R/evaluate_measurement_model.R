@@ -13,7 +13,10 @@ reliability <- function(seminr_model) {
   alpha <- cronbachs_alpha(seminr_model)
   mat1 <- rhoC_AVE(seminr_model)
   mat2 <- rho_A(seminr_model)
-  return(cbind(alpha, mat1, mat2))
+  table <- cbind(alpha, mat1, mat2)
+  class(table) <- append(class(table), c("table_output", "reliability_table"))
+  comment(table) <- "Alpha, rhoC, and rhoA should exceed 0.7 while AVE should exceed 0.5"
+  return(table)
 }
 
 # Validity ----
