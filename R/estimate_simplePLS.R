@@ -145,6 +145,7 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
 
   #Calculate Outer Loadings
   outer_loadings <- calculate_loadings(weights_matrix, construct_scores, normData)
+  class(outer_loadings) <- append(class(outer_loadings), "table_output")
 
   #Calculate and assign path coefficients
   path_coef <- estimate_path_coef(smMatrix, construct_scores, dependant, paths_matrix)

@@ -159,7 +159,7 @@ test_that("Seminr evaluates the factor indicator reliability correctly", {
 })
 
 test_that("Seminr evaluates the factor reliability correctly", {
-  expect_equal(factor_discriminant_validity,factor_discriminant_validity_control, tolerance = 0.00001)
+  expect_equal(factor_discriminant_validity[,1:4],factor_discriminant_validity_control, tolerance = 0.00001)
 })
 
 context("SEMinR:::evaluate_measurement_model() correctly evaluates COMPOSITES for class seminr_model\n")

@@ -44,10 +44,11 @@ A data frame with 344 rows and 46 variables:
   \item{cusl_2}{If I had to choose again, I would choose the company as my mobile phone services provider.}
   \item{cusl_3}{I will remain a customer of the company in the future.}
   \item{cusa}{I am satisfied with company.}
-  \item{nphh}{?}
   \item{age}{?}
-  \item{education}{?}
-  \item{occupation}{?}
+  \item{education}{Categorical for education.}
+  \item{occupation}{Categorical for type of occupation.}
+  \item{nphh}{?}
+  \item{sample_type}{?}
   \item{mga_1}{Multi Group Analysis 1.}
   \item{mga_2}{Multi Group Analysis 2.}
   \item{mga_3}{Multi Group Analysis 3.}

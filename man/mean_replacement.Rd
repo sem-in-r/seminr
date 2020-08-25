@@ -4,17 +4,17 @@
 \alias{mean_replacement}
 \title{Function to clean data of ommitted values by mean replacement}
 \usage{
-mean_replacement(data, missing_value_ind)
+mean_replacement(data)
 }
 \arguments{
 \item{data}{A dataset to be used for estimating a SEMinR model}
-
-\item{missing_value_ind}{The indicator to be used to indicate which values are missing. E.g -99, "NA" or "" are often used.}
 }
 \description{
 The \code{seminr} package provides a natural syntax for researchers to describe PLS
 structural equation models.
-\code{mean_replacement} provides the verb for replacing all ommitted values in the dataset with
+}
+\details{
+\code{mean_replacement} provides the verb for replacing all ommitted values (NA only) in the dataset with
 the mean of the variable.
 }
 \references{

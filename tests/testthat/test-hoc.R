@@ -49,7 +49,7 @@ test_that("Seminr estimates paths correctly\n", {
 })
 
 test_that("Seminr estimates loadings correctly\n", {
-  expect_equal(loadings, loadings_control, tolerance = 0.00001)
+  expect_equal(loadings[,1:5], loadings_control, tolerance = 0.00001)
 })
 
 test_that("Seminr estimates weights correctly\n", {

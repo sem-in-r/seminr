@@ -100,13 +100,14 @@ print.summary.boot_seminr_model <- function(x, na.print=".", digits=3, ...) {
   invisible(x)
 }
 
-# Print for generic tables of output
 #' @export
 print.table_output <- function(x, na.print=".", digits=3, ...) {
   class(x) <- "matrix"
   print(x, na.print = na.print, digits=digits)
-  cat("\n")
-  cat(comment(x))
-  cat("\n")
+  if(length(comment(x)) > 0) {
+    cat("\n")
+    cat(comment(x))
+    cat("\n")
+  }
   invisible(x)
 }

@@ -6,10 +6,6 @@ demo("seminr-primer-chap5")
 # Loading the data
 corp_rep_data <- corp_rep_data
 
-# Cleaning the data ----
-cleaned_data <- mean_replacement(data = corp_rep_data,
-                                 missing_value_ind = -99)
-
 # Creating measurement model ----
 corp_rep_mm_ext <- constructs(
   composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
@@ -30,7 +26,7 @@ corp_rep_sm_ext <- relationships(
 )
 
 # Estimating the model
-corp_rep_pls_model_ext <- estimate_pls(data              = cleaned_data,
+corp_rep_pls_model_ext <- estimate_pls(data              = corp_rep_data,
                                        measurement_model = corp_rep_mm_ext,
                                        structural_model  = corp_rep_sm_ext)
 

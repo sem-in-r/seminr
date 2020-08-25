@@ -7,19 +7,19 @@ plot_scores <- function(seminr_model, constructs=NULL) {
                  col = grDevices::rgb(0.5, 0.5, 0.5, alpha = 0.6))
 }
 
-
-#' Plot Reliability Tablecan be used to generate simple and effective bar plots for reliability stats.
 #' @export
-plot.reliability_table <- function(object) {
-  stopifnot(inherits(object, "reliability_table"))
-  limit <- c(0.7,0.7,0.5,0.7)
-  for (i in 1:ncol(object)) {
-    vec <- object[,i]
-    graphics::barplot(vec,
-            col = ifelse(vec > limit[i], "green", "red"),
-            main = colnames(object)[i],
-            panel.first = graphics::grid())
-    graphics::abline(h = limit[i], lty = 2, col = "blue")
-  }
-  invisible(object)
+plot.reliability_table <- function(x, ...) {
+  stopifnot(inherits(x, "reliability_table"))
+  graphics::barplot(t(x[,c(1,2,4)]),
+                    # col=colors()[c(23,89,12)] ,
+                    col = ifelse(t(x[,c(1,2,4)]) > 0.7, c("palegreen4"), "orangered3"),
+                    border="white",
+                    font.axis=1,
+                    beside=T,
+                    xlab="Reliability",
+                    font.lab=2,
+                    names.arg =rep(rownames(t(x[,c(1,2,4)])),ncol(t(x[,c(1,2,4)]))),
+                    las = 2)
+  graphics::abline(h = 0.708, lty = 2, col = "blue")
+  invisible(x)
 }

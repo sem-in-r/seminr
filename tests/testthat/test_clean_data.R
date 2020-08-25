@@ -19,8 +19,8 @@ corp_rep_sm <- relationships(
 corp_rep_pls_model <- estimate_pls(data              = corp_rep_data,
                                    measurement_model = corp_rep_mm,
                                    structural_model  = corp_rep_sm,
-                                   missing_values_action = mean_replacement,
-                                   missing_value_ind = "-99")
+                                   missing           = mean_replacement,
+                                   missing_value     = "-99")
 
 # Load outputs
 path_coef <- corp_rep_pls_model$path_coef

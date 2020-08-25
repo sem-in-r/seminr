@@ -4,12 +4,10 @@
 # Load the SEMinR library
 library(seminr)
 
-# Loading and cleaning Data ----
+# Load the data ----
 corp_rep_data <- corp_rep_data
-cleaned_data <- mean_replacement(data = corp_rep_data,
-                                 missing_value_ind = -99)
 
-# Creating measurement model ----
+# Create measurement model ----
 corp_rep_mm <- constructs(
   composite("COMP", multi_items("comp_", 1:3)),
   composite("LIKE", multi_items("like_", 1:3)),
@@ -17,55 +15,49 @@ corp_rep_mm <- constructs(
   composite("CUSL", multi_items("cusl_", 1:3))
 )
 
-# Creating structural model ----
+# Create structural model ----
 corp_rep_sm <- relationships(
   paths(from = c("COMP", "LIKE"), to = c("CUSA", "CUSL")),
-  paths(from = c("CUSA"),         to = c("CUSL"))
+  paths(from = c("CUSA"), to = c("CUSL"))
 )
 
-# Estimating the model
-corp_rep_pls_model <- estimate_pls(data              = cleaned_data,
+# Estimate the model
+corp_rep_pls_model <- estimate_pls(data = corp_rep_data,
                                    measurement_model = corp_rep_mm,
-                                   structural_model  = corp_rep_sm)
+                                   structural_model  = corp_rep_sm,
+                                   missing = mean_replacement,
+                                   missing_value = "-99")
 
-# Iterations to converge
+# Inspect iterations
 corp_rep_pls_model$iterations
 
 # Summarize the model results
 summary_corp_rep <- summary(corp_rep_pls_model)
-summary_corp_rep$validity$fl_criteria
-plot(summary_corp_rep$reliability)
 
 # Inspect the outer loadings
-print(summary_corp_rep$loadings, digits = 3, na.print = ".")
+summary_corp_rep$loadings
 
 # Inspect the indicator reliability
-print(summary_corp_rep$loadings^2, digits = 3, na.print = ".")
+summary_corp_rep$loadings^2
 
 # Inspect the composite reliability
-print(summary_corp_rep$reliability, digits = 3, na.print = ".")
+summary_corp_rep$reliability
 
-# Plot the rhoA reliabilities
-plot_reliability(summary_corp_rep, "rhoA", 0.7)
-
-# Plot the rhoC reliabilities
-plot_reliability(summary_corp_rep, "rhoC", 0.7)
-
-# Plot the AVE reliabilities
-plot_reliability(summary_corp_rep, "AVE", 0.5)
+# Plot the reliabilities of constructs
+plot(summary_corp_rep$reliability)
 
 # Table of the FL criteria
+summary_corp_rep$validity$fl_criteria
 
 # HTMT Ratio
-print(summary_corp_rep$htmt, digits = 3, na.print = ".")
+summary_corp_rep$validity$htmt
 
 # Bootstrap the model
 boot_corp_rep <- bootstrap_model(seminr_model = corp_rep_pls_model,
-                                 nboot =        5000)
+                                 nboot = 5000)
 
 # Store the summary of the bootstrapped model
 sum_boot_corp_rep <- summary(boot_corp_rep)
 
 # Extract the bootstrapped loadings
 sum_boot_corp_rep$bootstrapped_HTMT
-
