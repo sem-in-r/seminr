@@ -80,6 +80,7 @@ estimate_pls <- function(data, measurement_model, structural_model, inner_weight
     measurement_model <- HOM$mm
     structural_model <- HOM$sm
     data <- HOM$data
+    first_stage_model <- HOM$first_stage_model
   }
 
   processed_measurements <- process_interactions(measurement_model, data, structural_model, inner_weights)
@@ -97,7 +98,9 @@ estimate_pls <- function(data, measurement_model, structural_model, inner_weight
   seminr_model$data <- data
   seminr_model$rawdata <- rawdata
   seminr_model$measurement_model <- measurement_model
-
+  if ( length(HOCs)>0 ) {
+    seminr_model$first_stage_model <- first_stage_model
+  }
   # Correct for Bias in Reflective models using PLS Consistent
   seminr_model <- model_consistent(seminr_model)
 

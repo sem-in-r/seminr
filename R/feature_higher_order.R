@@ -72,7 +72,8 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs) {
   # pass the updated mm, sm and data back to estimate_model()
   return(list(data = data,
               sm = orig_sm,
-              mm = mm))
+              mm = mm,
+              first_stage_model = new_model))
 }
 
 # Function to check that the HOCs exist in the structural model under analysis
