@@ -1,6 +1,6 @@
 library(seminr)
 
-# Loade the data
+# Load the data
 corp_rep_data <- corp_rep_data
 
 # Create measurement model ----

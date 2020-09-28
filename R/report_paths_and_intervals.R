@@ -186,9 +186,13 @@ parse_boot_array <- function(original_matrix, boot_array, alpha = 0.05) {
         original <- append(original, original_matrix[i,j])
         boot_mean <- append(boot_mean, mean(boot_array[i,j,]))
         boot_SD <- append(boot_SD, stats::sd(boot_array[i,j,]))
-        t_stat <- append(t_stat,  original_matrix[i,j]/ stats::sd(boot_array[i,j,]))
-        lower <- append(lower, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[1]])
-        upper <- append(upper, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[2]])
+        if (original_matrix[i,j]/ stats::sd(boot_array[i,j,]) > 999999999) {
+          t_stat <- append(t_stat, NA)
+        } else {
+          t_stat <- append(t_stat,  original_matrix[i,j]/ stats::sd(boot_array[i,j,]))
+        }
+        lower <- append(lower, (seminr:::conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[1]])
+        upper <- append(upper, (seminr:::conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[2]])
       }
     }
   }

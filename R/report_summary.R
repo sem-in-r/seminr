@@ -61,12 +61,15 @@ summary.boot_seminr_model <- function(object, alpha = 0.05, ...) {
   loadings_summary <- parse_boot_array(object$outer_loadings, object$boot_loadings, alpha = alpha)
   # bootstrapped HTMT
   htmt_summary <- parse_boot_array(HTMT(object), object$boot_HTMT, alpha = alpha)
+  # bootstrapped total paths
+  total_paths_summary <- parse_boot_array(total_effects(object$path_coef), object$boot_total_paths, alpha = alpha)
 
   boot_summary <- list(nboot = object$boots,
                        bootstrapped_paths = paths_summary,
                        bootstrapped_weights = weights_summary,
                        bootstrapped_loadings = loadings_summary,
-                       bootstrapped_HTMT = htmt_summary)
+                       bootstrapped_HTMT = htmt_summary,
+                       bootstrapped_total_paths = total_paths_summary)
   class(boot_summary) <- "summary.boot_seminr_model"
   boot_summary
 }
@@ -96,6 +99,9 @@ print.summary.boot_seminr_model <- function(x, na.print=".", digits=3, ...) {
   cat("\nBootstrapped HTMT:\n")
   print_matrix(x$bootstrapped_HTMT[,c(1,2,3,5,6)], na.print, digits)
 
+  cat("\nBootstrapped Total Paths:\n")
+  print_matrix(x$bootstrapped_total_paths[,c(1,2,3,5,6)], na.print, digits)
+
   cat("\n")
   invisible(x)
 }
@@ -103,7 +109,7 @@ print.summary.boot_seminr_model <- function(x, na.print=".", digits=3, ...) {
 #' @export
 print.table_output <- function(x, na.print=".", digits=3, ...) {
   class(x) <- "matrix"
-  print(x, na.print = na.print, digits=digits)
+  print_matrix(x, na.print = na.print, digits=digits)
   if(length(comment(x)) > 0) {
     cat("\n")
     cat(comment(x))
