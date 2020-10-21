@@ -3,7 +3,7 @@
 summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
   stopifnot(inherits(object, "seminr_model"))
 
-  path_reports <- report_paths(object, digits)
+  path_reports <- report_paths(object)
   metrics <- evaluate_model(object)
   iterations <- object$iterations
   composite_scores <- return_only_composite_scores(object)
@@ -115,5 +115,42 @@ print.table_output <- function(x, na.print=".", digits=3, ...) {
     cat(comment(x))
     cat("\n")
   }
+  invisible(x)
+}
+
+# Summary for predicted seminr model
+#' @export
+summary.predict_pls_model <- function(object, alpha = 0.05, ...) {
+  stopifnot(inherits(object, "predict_pls_model"))
+
+  # Item evaluation
+  item_evaluation <- item_metrics(object)
+
+  model_summary <- list(PLS_in_sample = item_evaluation$PLS_item_prediction_metrics_IS,
+                        PLS_out_of_sample = item_evaluation$PLS_item_prediction_metrics_OOS,
+                        LM_in_sample = item_evaluation$LM_item_prediction_metrics_IS,
+                        LM_out_of_sample = item_evaluation$LM_item_prediction_metrics_OOS)
+  class(model_summary) <- "summary.predict_pls_model"
+  return(model_summary)
+}
+
+# Print summary method for PLSpredict
+#' @export
+print.summary.predict_pls_model <- function(x, na.print=".", digits=3, ...) {
+  stopifnot(inherits(x, "summary.predict_pls_model"))
+
+  # Print the item metrics PLS & LM
+  cat("\nPLS in-sample metrics:\n")
+  print(x$PLS_in_sample, na.print = na.print, digits = digits)
+
+  cat("\nPLS out-of-sample metrics:\n")
+  print(x$PLS_out_of_sample, na.print = na.print, digits = digits)
+
+  cat("\nLM in-sample metrics:\n")
+  print(x$LM_in_sample, na.print = na.print, digits = digits)
+
+  cat("\nLM out-of-sample metrics:\n")
+  print(x$LM_out_of_sample, na.print = na.print, digits = digits)
+
   invisible(x)
 }

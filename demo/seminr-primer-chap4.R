@@ -40,7 +40,7 @@ summary_corp_rep$loadings
 # Inspect the indicator reliability
 summary_corp_rep$loadings^2
 
-# Inspect the composite reliability
+# Inspect the internal consistency and reliability
 summary_corp_rep$reliability
 
 # Plot the reliabilities of constructs
@@ -59,5 +59,5 @@ boot_corp_rep <- bootstrap_model(seminr_model = corp_rep_pls_model,
 # Store the summary of the bootstrapped model
 sum_boot_corp_rep <- summary(boot_corp_rep)
 
-# Extract the bootstrapped loadings
+# Extract the bootstrapped HTMT
 sum_boot_corp_rep$bootstrapped_HTMT

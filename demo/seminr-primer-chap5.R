@@ -32,6 +32,37 @@ corp_rep_pls_model_ext <- estimate_pls(data              = corp_rep_data,
 # Iterations to converge
 corp_rep_pls_model_ext$iterations
 
+# Store the summary of the bootstrapped model
+sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext)
+
+# Inspect the outer loadings
+summary_corp_rep_ext$loadings
+
+# Inspect the indicator reliability
+summary_corp_rep_ext$loadings^2
+
+# Inspect the internal consistency and reliability
+summary_corp_rep_ext$reliability
+
+# Table of the FL criteria
+summary_corp_rep_ext$validity$fl_criteria
+
+# HTMT Ratio
+summary_corp_rep_ext$validity$htmt
+
+# Summarize the model results
+summary_corp_rep_ext <- summary(corp_rep_pls_model_ext)
+
+# Bootstrap the model
+boot_corp_rep_ext <- bootstrap_model(seminr_model = corp_rep_pls_model_ext,
+                                     nboot = 10000)
+
+# Store the summary of the bootstrapped model
+sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext)
+
+# Extract the bootstrapped HTMT
+sum_boot_corp_rep_ext$bootstrapped_HTMT
+
 # Redundancy analysis ----
 # ATTR ----
 # Create measurement model

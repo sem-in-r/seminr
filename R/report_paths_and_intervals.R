@@ -67,7 +67,8 @@ report_paths <- function(seminr_model, digits=3) {
   # round and print
   # Remove BIC for now
   #final_paths <- round(path_matrix[c("R^2","AdjR^2","BIC", exogenous), endogenous, drop=FALSE], digits)
-  final_paths <- round(path_matrix[c("R^2","AdjR^2", exogenous), endogenous, drop=FALSE], digits)
+  final_paths <- path_matrix[c("R^2","AdjR^2", exogenous), endogenous, drop=FALSE]
+  class(final_paths) <- append(class(final_paths), "table_output")
   final_paths
 }
 

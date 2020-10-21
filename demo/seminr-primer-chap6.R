@@ -48,3 +48,24 @@ summary_corp_rep_ext$vif_antecedents
 # Inspect the structural paths
 summary_boot_corp_rep_ext$bootstrapped_paths
 
+# Inspect the total effects
+summary_boot_corp_rep_ext$bootstrapped_total_paths
+
+# Inspect the model RSquares
+summary_corp_rep_ext$paths
+
+# Inspect the effect sizes
+summary_corp_rep_ext$fSquare
+
+# Generate the model predictions
+predict_corp_rep_ext <- predict_pls(
+  model = corp_rep_pls_model_ext,
+  technique = predict_DA,
+  noFolds = 10,
+  reps = 10)
+
+# Summarize the prediction results
+sum_predict_corp_rep_ext <- summary(predict_corp_rep_ext)
+
+# Inspect the results
+sum_predict_corp_rep_ext

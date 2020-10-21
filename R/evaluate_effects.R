@@ -87,6 +87,6 @@ model_fsquares <- function(seminr_model) {
                                           dv = dv)
     }
   }
-
+  class(fsquared_matrix) <- append(class(fsquared_matrix), "table_output")
   return(fsquared_matrix)
 }

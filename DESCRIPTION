@@ -17,7 +17,7 @@ Imports:
 License: GPL-3
 Depends: R (>= 3.1.0)
 LazyData: TRUE
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Suggests: knitr, testthat, rmarkdown
 VignetteBuilder: knitr
 Encoding: UTF-8
