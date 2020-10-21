@@ -15,6 +15,9 @@ plot.reliability_table <- function(x, ...) {
   plot(metrics[,1:2], xlim=c(1, nrow(metrics[,-1])), ylim=c(min(metrics[,-1]), max(metrics[,-1])),
        frame.plot = FALSE, xaxt='n', ylab='', xlab = '', pch='')
 
+  # Grid
+  grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted")
+
   # rhoA line and shape
   graphics::segments(metrics[,1]-0.2, metrics[, "rhoA"], metrics[,1]+0.2, metrics[, "rhoA"])
   graphics::points(metrics[,1], metrics[, "rhoA"], pch=15)
