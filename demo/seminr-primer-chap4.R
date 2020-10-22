@@ -28,11 +28,11 @@ corp_rep_pls_model <- estimate_pls(data = corp_rep_data,
                                    missing = mean_replacement,
                                    missing_value = "-99")
 
-# Inspect iterations
-corp_rep_pls_model$iterations
-
 # Summarize the model results
 summary_corp_rep <- summary(corp_rep_pls_model)
+
+# Inspect iterations
+summary_corp_rep$iterations
 
 # Inspect the outer loadings
 summary_corp_rep$loadings

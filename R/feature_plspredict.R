@@ -141,20 +141,20 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
 item_metrics <- function(pls_prediction_kfold) {
 
   # Genereate IS PLS metrics
-  PLS_item_prediction_metrics_IS <- apply(pls_prediction_kfold$PLS_in_sample_residuals, 2, prediction_metrics)
-  class(PLS_item_prediction_metrics_IS) <- append(class(PLS_item_prediction_metrics_IS), "table_output")
+  PLS_item_prediction_metrics_IS <- convert_to_table_output(
+    apply(pls_prediction_kfold$PLS_in_sample_residuals, 2, prediction_metrics))
 
   # Generate OOS PLS metrics
-  PLS_item_prediction_metrics_OOS <- apply(pls_prediction_kfold$PLS_out_of_sample_residuals, 2, prediction_metrics)
-  class(PLS_item_prediction_metrics_OOS) <- append(class(PLS_item_prediction_metrics_OOS), "table_output")
+  PLS_item_prediction_metrics_OOS <- convert_to_table_output(
+    apply(pls_prediction_kfold$PLS_out_of_sample_residuals, 2, prediction_metrics))
 
   # Generate IS LM metrics
-  LM_item_prediction_metrics_IS <- apply(pls_prediction_kfold$lm_in_sample_residuals, 2, prediction_metrics)
-  class(LM_item_prediction_metrics_IS) <- append(class(LM_item_prediction_metrics_IS), "table_output")
+  LM_item_prediction_metrics_IS <- convert_to_table_output(
+    apply(pls_prediction_kfold$lm_in_sample_residuals, 2, prediction_metrics))
 
   # Generate OOS LM metrics
-  LM_item_prediction_metrics_OOS <- apply(pls_prediction_kfold$lm_out_of_sample_residuals, 2, prediction_metrics)
-  class(LM_item_prediction_metrics_OOS) <- append(class(LM_item_prediction_metrics_OOS), "table_output")
+  LM_item_prediction_metrics_OOS <- convert_to_table_output(
+    apply(pls_prediction_kfold$lm_out_of_sample_residuals, 2, prediction_metrics))
 
   # Assign rownames to matrices
   rownames(PLS_item_prediction_metrics_IS) <- rownames(PLS_item_prediction_metrics_OOS) <- rownames(LM_item_prediction_metrics_OOS) <- c("RMSE","MAD")
@@ -502,4 +502,8 @@ predict_DA <- function(smMatrix, path_coef, construct_scores) {
   return_matrix <- construct_scores%*%path_coef
   return_matrix[,only_exogenous] <- construct_scores[,only_exogenous]
   return(return_matrix)
+}
+
+return_predict_error <- function(object, indicator) {
+  object$prediction_error[,indicator]
 }

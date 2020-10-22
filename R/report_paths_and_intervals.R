@@ -68,8 +68,7 @@ report_paths <- function(seminr_model, digits=3) {
   # Remove BIC for now
   #final_paths <- round(path_matrix[c("R^2","AdjR^2","BIC", exogenous), endogenous, drop=FALSE], digits)
   final_paths <- path_matrix[c("R^2","AdjR^2", exogenous), endogenous, drop=FALSE]
-  class(final_paths) <- append(class(final_paths), "table_output")
-  final_paths
+  convert_to_table_output(final_paths)
 }
 
 # report_bootstrapped_paths <- function(boot_seminr_model, na.print=".", digits=3) {
@@ -200,6 +199,5 @@ parse_boot_array <- function(original_matrix, boot_array, alpha = 0.05) {
   return_matrix <- cbind(original, boot_mean, boot_SD, t_stat, lower, upper)
   colnames(return_matrix) <- c( "Original Est.", "Bootstrap Mean", "Bootstrap SD", "T Stat.",paste(alpha_text, "% CI", sep = ""),paste((100-alpha_text), "% CI", sep = ""))
   rownames(return_matrix) <- Path
-  class(return_matrix) <- append(class(return_matrix), "table_output")
-  return(return_matrix)
+  convert_to_table_output(return_matrix)
 }

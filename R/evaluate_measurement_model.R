@@ -14,9 +14,8 @@ reliability <- function(seminr_model) {
   mat1 <- rhoC_AVE(seminr_model)
   mat2 <- rho_A(seminr_model)
   table <- cbind(alpha, mat1, mat2)
-  class(table) <- append(class(table), c("table_output", "reliability_table"))
   comment(table) <- "Alpha, rhoC, and rhoA should exceed 0.7 while AVE should exceed 0.5"
-  return(table)
+  convert_to_table_output(table)
 }
 
 # Validity ----
@@ -32,7 +31,8 @@ validity <- function(seminr_model) {
 }
 
 cross_loadings <- function(seminr_model) {
-  return(stats::cor(seminr_model$data[, seminr_model$mmVariables], seminr_model$construct_scores))
+  ret <- stats::cor(seminr_model$data[, seminr_model$mmVariables], seminr_model$construct_scores)
+  convert_to_table_output(ret)
 }
 
 # Measurement Model Evaluation ----

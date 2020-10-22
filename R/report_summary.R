@@ -1,6 +1,6 @@
 # summary function for seminr
 #' @export
-summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
+summary.seminr_model <- function(object, ...) {
   stopifnot(inherits(object, "seminr_model"))
 
   path_reports <- report_paths(object)
@@ -13,8 +13,8 @@ summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
     meta = list(seminr = seminr_info()), # other estimation engines could go here in future
     iterations = iterations,
     paths = path_reports,
-    loadings = object$outer_loadings,
-    weights = object$outer_weights,
+    loadings = convert_to_table_output(object$outer_loadings),
+    weights = convert_to_table_output(object$outer_weights),
     validity = list(vif_items = metrics$validity$item_vifs,
                     htmt = t(metrics$validity$htmt),
                     fl_criteria = metrics$validity$fl_criteria,
@@ -23,7 +23,8 @@ summary.seminr_model <- function(object, na.print=".", digits=3, ...) {
     composite_scores = composite_scores,
     vif_antecedents = metrics$validity$antecedent_vifs,
     fSquare = fSquare,
-    descriptives = descriptives
+    descriptives = descriptives,
+    it_criteria = calculate_itcriteria(object)
   )
   class(model_summary) <- "summary.seminr_model"
   model_summary
@@ -118,6 +119,17 @@ print.table_output <- function(x, na.print=".", digits=3, ...) {
   invisible(x)
 }
 
+#' @export
+print.list_output <- function(x, na.print=".", digits=4, ...) {
+  class(x) <- "list"
+  print.listof(x, na.print = na.print, digits=digits)
+  if(length(comment(x)) > 0) {
+    cat("\n")
+    cat(comment(x))
+    cat("\n")
+  }
+  invisible(x)
+}
 # Summary for predicted seminr model
 #' @export
 summary.predict_pls_model <- function(object, alpha = 0.05, ...) {
@@ -129,7 +141,8 @@ summary.predict_pls_model <- function(object, alpha = 0.05, ...) {
   model_summary <- list(PLS_in_sample = item_evaluation$PLS_item_prediction_metrics_IS,
                         PLS_out_of_sample = item_evaluation$PLS_item_prediction_metrics_OOS,
                         LM_in_sample = item_evaluation$LM_item_prediction_metrics_IS,
-                        LM_out_of_sample = item_evaluation$LM_item_prediction_metrics_OOS)
+                        LM_out_of_sample = item_evaluation$LM_item_prediction_metrics_OOS,
+                        prediction_error = object$PLS_out_of_sample_residuals)
   class(model_summary) <- "summary.predict_pls_model"
   return(model_summary)
 }
@@ -153,4 +166,16 @@ print.summary.predict_pls_model <- function(x, na.print=".", digits=3, ...) {
   print(x$LM_out_of_sample, na.print = na.print, digits = digits)
 
   invisible(x)
+}
+
+# Plot summary method for PLSpredict
+#' @export
+plot.summary.predict_pls_model <- function(x, indicator) {
+  stopifnot(inherits(x, "summary.predict_pls_model"))
+
+  # Plot the indicator error
+  plot(density(seminr:::return_predict_error(x,indicator)),
+       main = paste("Distribution of predictive error of", indicator))
+  # Grid
+  grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted")
 }

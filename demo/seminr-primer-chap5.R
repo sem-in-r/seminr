@@ -29,11 +29,18 @@ corp_rep_pls_model_ext <- estimate_pls(data              = corp_rep_data,
                                        missing = mean_replacement,
                                        missing_value = "-99")
 
-# Iterations to converge
-corp_rep_pls_model_ext$iterations
+# Summarize the model results
+summary_corp_rep_ext <- summary(corp_rep_pls_model_ext)
+
+# Bootstrap the model
+boot_corp_rep_ext <- bootstrap_model(seminr_model = corp_rep_pls_model_ext,
+                                     nboot = 10000)
 
 # Store the summary of the bootstrapped model
 sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext)
+
+# Iterations to converge
+summary_corp_rep_ext$iterations
 
 # Inspect the outer loadings
 summary_corp_rep_ext$loadings
@@ -49,16 +56,6 @@ summary_corp_rep_ext$validity$fl_criteria
 
 # HTMT Ratio
 summary_corp_rep_ext$validity$htmt
-
-# Summarize the model results
-summary_corp_rep_ext <- summary(corp_rep_pls_model_ext)
-
-# Bootstrap the model
-boot_corp_rep_ext <- bootstrap_model(seminr_model = corp_rep_pls_model_ext,
-                                     nboot = 10000)
-
-# Store the summary of the bootstrapped model
-sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext)
 
 # Extract the bootstrapped HTMT
 sum_boot_corp_rep_ext$bootstrapped_HTMT
@@ -146,7 +143,6 @@ PERF_redundancy_pls_model$path_coef
 QUAL_redundancy_pls_model$path_coef
 
 # Collinearity analysis ----
-summary_corp_rep_ext <- summary(corp_rep_pls_model_ext)
 summary_corp_rep_ext$validity$vif_items
 
 # Bootstrap the model ----
@@ -162,8 +158,8 @@ boot_corp_rep_ext <- bootstrap_model(seminr_model = corp_rep_pls_model_ext,
 
 # Summarize the results of the bootstrap
 # alpha sets the specified level for significance, i.e. 0.05
-summary_boot_corp_rep_ext <- summary(boot_corp_rep_ext,
+sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext,
                                      alpha = 0.05)
 
 # Inspect the bootstrapping results for outer weights
-summary_boot_corp_rep_ext$bootstrapped_weights
+sum_boot_corp_rep_ext$bootstrapped_weights

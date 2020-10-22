@@ -308,3 +308,8 @@ mult <- function(col, iv2_data) {
 name_items <- function(item_name, iv2_items) {
   sapply(iv2_items, function(item2, item1 = item_name) paste(item1, item2, sep = "*"))
 }
+
+convert_to_table_output <- function(matrix) {
+  class(matrix) <- append(class(matrix), "table_output")
+  return(matrix)
+}

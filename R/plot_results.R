@@ -12,11 +12,23 @@ plot.reliability_table <- function(x, ...) {
   stopifnot(inherits(x, "reliability_table"))
 
   metrics <- cbind(1:nrow(x), x)
-  plot(metrics[,1:2], xlim=c(1, nrow(metrics[,-1])), ylim=c(min(metrics[,-1]), max(metrics[,-1])),
+  plot(metrics[,1:2], xlim=c(1, nrow(metrics[,-1])), ylim=c(min(metrics[,-1] - 0.1), max(metrics[,-1])),
        frame.plot = FALSE, xaxt='n', ylab='', xlab = '', pch='')
 
   # Grid
   grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted")
+
+  # Add a legend
+  legend("bottom",
+         legend = c("alpha", "RhoA", "RhoC"),
+         col = c("black", "black", "black"),
+         pch = c(19, 15,17),
+         bty = "n",
+         pt.cex = 1,
+         cex = 1,
+         text.col = "black",
+         horiz = T ,
+         inset = c(0.1, 0.1))
 
   # rhoA line and shape
   graphics::segments(metrics[,1]-0.2, metrics[, "rhoA"], metrics[,1]+0.2, metrics[, "rhoA"])

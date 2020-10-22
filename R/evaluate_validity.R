@@ -16,12 +16,14 @@ item_vifs <- function(seminr_model) {
   item_vifs <- sapply(all_constructs, independent_vifs,
                       items_of_construct, seminr_model,
                       data = seminr_model$data)
+  class(item_vifs) <- append(class(item_vifs), "list_output")
+  item_vifs
 }
 
 # Calculate VIF of all antecedents of each construct
 antecedent_vifs <- function(smMatrix, cor_matrix) {
   endogenous_names <- all_endogenous(smMatrix)
-  sapply(endogenous_names, function(outcome) {
+  ret <- sapply(endogenous_names, function(outcome) {
     antecedents <- antecedents_of(outcome, smMatrix)
     if (length(antecedents) == 1) {
       structure(NA, names=antecedents)
@@ -29,6 +31,8 @@ antecedent_vifs <- function(smMatrix, cor_matrix) {
       cor_vifs(cor_matrix, antecedents)
     }
   }, simplify=FALSE, USE.NAMES=TRUE)
+  class(ret) <- append(class(ret), "list_output")
+  ret
 }
 
 # HTMT as per Henseler, J., Ringle, C. M., & Sarstedt, M. (2014). A new criterion for assessing discriminant validity in
@@ -60,8 +64,7 @@ HTMT <- function(seminr_model) {
       HTMT[constructi, constructj] <- HTHM / MTHM
     }
   }
-  class(HTMT) <- append(class(HTMT), "table_output")
-  return(HTMT)
+  convert_to_table_output(HTMT)
 }
 
 # fl_criteria_table can be used to generate simple and effective table for checking Fornell Larcker criteria.
@@ -71,6 +74,5 @@ fl_criteria_table <- function(seminr_model) {
   table[upper.tri(table)] <- NA
   diag(table) <- sqrt(rhoC_AVE(seminr_model)[,"AVE"])
   comment(table) <- "FL Criteria table reports square root of AVE on the diagonal and construct correlations on the lower triangle."
-  class(table) <- append(class(table), "table_output")
-  return(table)
+  convert_to_table_output(table)
 }
