@@ -169,6 +169,34 @@ confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alp
   return(quantiles)
 }
 
+confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alpha = 0.05) {
+  path_array <- boot_seminr_model$boot_paths
+  if (is.null(through)) {
+    coefficient <- path_array[from, to,]
+  } else {
+    if (length(through) > 4) {
+      message("Bootstrapping encountered this ERROR: ")
+      return(NULL)
+    } else {
+      coefficient <- switch(length(through),
+                            path_array[from, through[1],] * path_array[through[1], to,],
+                            path_array[from, through[1],] * path_array[through[1], through[2],] * path_array[through[2], to,],
+                            path_array[from, through[1],] * path_array[through[1], through[2],] * path_array[through[2], through[3],] * path_array[through[3], to,],
+                            path_array[from, through[1],] * path_array[through[1], through[2],] * path_array[through[2], through[3],] * path_array[through[3], through[4],] * path_array[through[4], to, ])
+    }
+  }
+  quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
+  return(quantiles)
+}
+
+total_indirect_ci <- function(boot_seminr_model, from, to, alpha = 0.05) {
+  path_array <- boot_seminr_model$boot_paths
+  total_array <- boot_seminr_model$boot_total_paths
+  coefficient <- total_array[from, to,] - path_array[from, to,]
+  quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
+  return(quantiles)
+}
+
 parse_boot_array <- function(original_matrix, boot_array, alpha = 0.05) {
   Path <- c()
   original <- c()

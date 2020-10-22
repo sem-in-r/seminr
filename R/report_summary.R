@@ -13,6 +13,8 @@ summary.seminr_model <- function(object, ...) {
     meta = list(seminr = seminr_info()), # other estimation engines could go here in future
     iterations = iterations,
     paths = path_reports,
+    total_effects = convert_to_table_output(total_effects(object$path_coef)),
+    total_indirect_effects = convert_to_table_output(total_indirect_effects(object$path_coef)),
     loadings = convert_to_table_output(object$outer_loadings),
     weights = convert_to_table_output(object$outer_weights),
     validity = list(vif_items = metrics$validity$item_vifs,
