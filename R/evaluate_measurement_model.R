@@ -15,7 +15,8 @@ reliability <- function(seminr_model) {
   mat2 <- rho_A(seminr_model)
   table <- cbind(alpha, mat1, mat2)
   comment(table) <- "Alpha, rhoC, and rhoA should exceed 0.7 while AVE should exceed 0.5"
-  convert_to_table_output(table)
+  class(table) <- append(class(table), c("table_output","reliability_table"))
+  return(table)
 }
 
 # Validity ----

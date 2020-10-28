@@ -53,6 +53,10 @@ A data frame with 344 rows and 46 variables:
   \item{mga_2}{Multi Group Analysis 2.}
   \item{mga_3}{Multi Group Analysis 3.}
   \item{mga_4}{Multi Group Analysis 4.}
+  \item{switch_1}{It takes me a great deal of time to switch to another company.}
+  \item{switch_2}{It costs me too much to switch to another company.}
+  \item{switch_3}{It takes a lot of effort to get used to a new company with its specific "rules" and practices.}
+  \item{switch_4}{In general, it would be a hassle switching to another company.}
 }
 }
 \usage{
