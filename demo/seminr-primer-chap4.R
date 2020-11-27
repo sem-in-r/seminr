@@ -1,5 +1,5 @@
 ### Accompanying Code for the PLS Primer in R Workbook
-## Chapter 4: Reflective Model Assessment
+## Chapter 4: Evaluation of reflective measurement models
 
 # Load the SEMinR library
 library(seminr)
@@ -12,21 +12,20 @@ corp_rep_mm <- constructs(
   composite("COMP", multi_items("comp_", 1:3)),
   composite("LIKE", multi_items("like_", 1:3)),
   composite("CUSA", single_item("cusa")),
-  composite("CUSL", multi_items("cusl_", 1:3))
-)
+  composite("CUSL", multi_items("cusl_", 1:3)))
 
 # Create structural model ----
 corp_rep_sm <- relationships(
   paths(from = c("COMP", "LIKE"), to = c("CUSA", "CUSL")),
-  paths(from = c("CUSA"), to = c("CUSL"))
-)
+  paths(from = c("CUSA"), to = c("CUSL")))
 
 # Estimate the model
-corp_rep_pls_model <- estimate_pls(data = corp_rep_data,
-                                   measurement_model = corp_rep_mm,
-                                   structural_model  = corp_rep_sm,
-                                   missing = mean_replacement,
-                                   missing_value = "-99")
+corp_rep_pls_model <- estimate_pls(
+  data = corp_rep_data,
+  measurement_model = corp_rep_mm,
+  structural_model  = corp_rep_sm,
+  missing = mean_replacement,
+  missing_value = "-99")
 
 # Summarize the model results
 summary_corp_rep <- summary(corp_rep_pls_model)

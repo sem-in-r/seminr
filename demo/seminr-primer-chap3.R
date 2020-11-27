@@ -1,18 +1,26 @@
 ### Accompanying Code for the PLS Primer in R Workbook
 ## Chapter 3: Introduction to SEMinR
 
-# Load the SEMinR library
+# Download and install the SEMinR package;
+# You only need to do this once to equip RStudio on your computer with SEMinR
+install.packages("seminr")
+
+# Make the SEMinR library read to use;
+# You must do this everytime you restart RStudio and wish to use SEMinR
 library(seminr)
 
-# Inspect the head of corp_rep_data dataset ----
+# Load the corporate reputation data
+corp_rep_data <- read.csv(file = "Corporate Reputation Data.csv",
+                          header = TRUE, sep = ";")
+
+# Show the first several rows of the corporate reputation data
 head(corp_rep_data)
 
 # Create measurement model ----
 simple_mm <- constructs(
   composite("COMP", multi_items("comp_", 1:3), weights = mode_A),
   composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
-  composite("ATTR", multi_items("attr_", 1:3), weights = mode_B)
-)
+  composite("ATTR", multi_items("attr_", 1:3), weights = mode_B))
 
 # Create structural model ----
 simple_sm <- relationships(

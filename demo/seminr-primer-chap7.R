@@ -1,3 +1,7 @@
+### Accompanying Code for the PLS Primer in R Workbook
+## Chapter 7: Mediation analysis
+
+# Load the SEMinR library
 library(seminr)
 
 # Load the data
@@ -23,24 +27,25 @@ corp_rep_sm_ext <- relationships(
 )
 
 # Estimate the model ----
-corp_rep_pls_model_ext <- estimate_pls(data              = corp_rep_data,
-                                       measurement_model = corp_rep_mm_ext,
-                                       structural_model  = corp_rep_sm_ext,
-                                       missing = mean_replacement,
-                                       missing_value = "-99")
+corp_rep_pls_model_ext <- estimate_pls(
+  data = corp_rep_data,
+  measurement_model = corp_rep_mm_ext,
+  structural_model  = corp_rep_sm_ext,
+  missing = mean_replacement,
+  missing_value = "-99")
 
 # Extract the summary
 summary_corp_rep_ext <- summary(corp_rep_pls_model_ext)
 
 # Bootstrap the model ----
-boot_corp_rep_ext <- bootstrap_model(seminr_model = corp_rep_pls_model_ext,
-                                     nboot = 10000,
-                                     cores = parallel::detectCores(),
-                                     seed = 123)
+boot_corp_rep_ext <- bootstrap_model(
+  seminr_model = corp_rep_pls_model_ext,
+  nboot = 10000,
+  cores = parallel::detectCores(),
+  seed = 123)
 
 # Summarize the results of the bootstrap
-summary_boot_corp_rep_ext <- summary(boot_corp_rep_ext,
-                                     alpha = 0.05)
+summary_boot_corp_rep_ext <- summary(boot_corp_rep_ext, alpha = 0.05)
 
 # Inspect indirect effects
 summary_corp_rep_ext$total_indirect_effects

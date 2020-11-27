@@ -189,6 +189,7 @@ confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alp
   return(quantiles)
 }
 
+#' @export
 total_indirect_ci <- function(boot_seminr_model, from, to, alpha = 0.05) {
   path_array <- boot_seminr_model$boot_paths
   total_array <- boot_seminr_model$boot_total_paths

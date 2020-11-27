@@ -1,3 +1,7 @@
+### Accompanying Code for the PLS Primer in R Workbook
+## Chapter 8: Moderation analysis
+
+# Load the SEMinR library
 library(seminr)
 
 # Load the data
@@ -14,8 +18,7 @@ corp_rep_mm_mod <- constructs(
   composite("CUSA", single_item("cusa")),
   composite("SC", multi_items("switch_", 1:4)),
   composite("CUSL", multi_items("cusl_", 1:3)),
-  interaction_term(iv = "CUSA", moderator = "SC", method = two_stage, weights = mode_A)
-)
+  interaction_term(iv = "CUSA", moderator = "SC", method = two_stage, weights = mode_A))
 
 # Create structural model ----
 corp_rep_sm_mod <- relationships(
@@ -25,7 +28,8 @@ corp_rep_sm_mod <- relationships(
 )
 
 # Estimate the model ----
-corp_rep_pls_model_mod <- estimate_pls(data = corp_rep_data,
+corp_rep_pls_model_mod <- estimate_pls(
+  data = corp_rep_data,
   measurement_model = corp_rep_mm_mod,
   structural_model  = corp_rep_sm_mod,
   missing = mean_replacement,
@@ -39,15 +43,15 @@ boot_corp_rep_mod <- bootstrap_model(seminr_model = corp_rep_pls_model_mod,
                                      nboot = 10000)
 
 # Summarize the results of the bootstrap
-sum_boot_corp_rep_mod <- summary(boot_corp_rep_mod,
-                                 alpha = 0.05)
+sum_boot_corp_rep_mod <- summary(boot_corp_rep_mod, alpha = 0.05)
 
 # Inspect the bootstrapped structural paths
 sum_boot_corp_rep_mod$bootstrapped_paths
 
 # Simple slope analysis plot
-slope_analysis(moderated_model = corp_rep_pls_model_mod,
-               dv = "CUSL",
-               moderator = "SC",
-               iv = "CUSA",
-               leg_place = "bottomright")
+slope_analysis(
+  moderated_model = corp_rep_pls_model_mod,
+  dv = "CUSL",
+  moderator = "SC",
+  iv = "CUSA",
+  leg_place = "bottomright")

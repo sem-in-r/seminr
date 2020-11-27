@@ -772,7 +772,7 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 </ol>
 <pre class="r"><code>summary(mobi_pls)
 #&gt; 
-#&gt; Results from  package seminr (1.1.0)
+#&gt; Results from  package seminr (1.1.1)
 #&gt; 
 #&gt; Path Coefficients:
 #&gt;                   Satisfaction
@@ -785,13 +785,15 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 #&gt; Image*Value              0.023
 #&gt; 
 #&gt; Reliability:
-#&gt;                    rhoC   AVE rhoA
-#&gt; Image             0.818 0.478    1
-#&gt; Expectation       0.733 0.481    1
-#&gt; Value             0.918 0.848    1
-#&gt; Image*Expectation 0.833 0.291    1
-#&gt; Image*Value       0.918 0.574    1
-#&gt; Satisfaction      0.871 0.693    1</code></pre>
+#&gt;                   alpha  rhoC   AVE  rhoA
+#&gt; Image             0.723 0.818 0.478 0.745
+#&gt; Expectation       0.452 0.733 0.481 0.462
+#&gt; Value             0.824 0.918 0.848 0.858
+#&gt; Image*Expectation 0.802 0.833 0.291 1.000
+#&gt; Image*Value       0.810 0.918 0.574 1.000
+#&gt; Satisfaction      0.779 0.871 0.693 0.784
+#&gt; 
+#&gt; Alpha, rhoC, and rhoA should exceed 0.7 while AVE should exceed 0.5</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li><code>model_summary &lt;- summary(seminr_model)</code> returns an object of class <code>summary.seminr_model</code> which contains the following accessible objects (might vary depending on CBSEM or PLS model):
 <ul>
@@ -879,17 +881,15 @@ confidence_interval(boot_seminr_model = boot_seminr_model,
                    to = &quot;Satisfaction&quot;,
                    alpha = 0.05)
 #&gt;        2.5%       97.5% 
-#&gt; -0.02417628  0.07042586
-
+#&gt; -0.01140366  0.08867581
 
 # Calculate the 10% confidence interval for direct path Image -&gt; Satisfaction
 confidence_interval(boot_seminr_model = boot_seminr_model,
                    from = &quot;Image&quot;,
                    to = &quot;Satisfaction&quot;,
                    alpha = 0.10)
-#&gt;         5%        95% 
-#&gt; 0.09981528 0.24877224</code></pre>
-
+#&gt;        5%       95% 
+#&gt; 0.1019433 0.2582691</code></pre>
 </div>
 <div id="reporting-data-descriptive-statistics-and-construct-descriptive-statistics" class="section level2">
 <h2>Reporting data descriptive statistics and construct descriptive statistics</h2>

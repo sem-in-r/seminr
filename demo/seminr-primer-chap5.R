@@ -1,6 +1,10 @@
+### Accompanying Code for the PLS Primer in R Workbook
+## Chapter 5: Evaluation of formative measurement models
+
+# Load the SEMinR library
 library(seminr)
 
-# Load the data
+# Load the corporate repuation data
 corp_rep_data <- corp_rep_data
 
 # Create measurement model ----
@@ -23,14 +27,18 @@ corp_rep_sm_ext <- relationships(
 )
 
 # Estimate the model ----
-corp_rep_pls_model_ext <- estimate_pls(data              = corp_rep_data,
-                                       measurement_model = corp_rep_mm_ext,
-                                       structural_model  = corp_rep_sm_ext,
-                                       missing = mean_replacement,
-                                       missing_value = "-99")
+corp_rep_pls_model_ext <- estimate_pls(
+  data = corp_rep_data,
+  measurement_model = corp_rep_mm_ext,
+  structural_model  = corp_rep_sm_ext,
+  missing = mean_replacement,
+  missing_value = "-99")
 
 # Summarize the model results
 summary_corp_rep_ext <- summary(corp_rep_pls_model_ext)
+
+# Iterations to converge
+summary_corp_rep_ext$iterations
 
 # Bootstrap the model
 boot_corp_rep_ext <- bootstrap_model(seminr_model = corp_rep_pls_model_ext,
@@ -38,9 +46,6 @@ boot_corp_rep_ext <- bootstrap_model(seminr_model = corp_rep_pls_model_ext,
 
 # Store the summary of the bootstrapped model
 sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext)
-
-# Iterations to converge
-summary_corp_rep_ext$iterations
 
 # Inspect the outer loadings
 summary_corp_rep_ext$loadings
@@ -80,6 +85,9 @@ ATTR_redundancy_pls_model <- estimate_pls(data = corp_rep_data,
                                           missing = mean_replacement,
                                           missing_value = "-99")
 
+# Summarize the model
+sum_ATTR_red_model <- summary(ATTR_redundancy_pls_model)
+
 # CSOR ----
 # Create measurement model
 CSOR_redundancy_mm <- constructs(
@@ -99,6 +107,9 @@ CSOR_redundancy_pls_model <- estimate_pls(data = corp_rep_data,
                                           missing = mean_replacement,
                                           missing_value = "-99")
 
+# Summarize the model
+sum_CSOR_red_model <- summary(CSOR_redundancy_pls_model)
+
 # PERF ----
 # Create measurement model
 PERF_redundancy_mm <- constructs(
@@ -117,6 +128,10 @@ PERF_redundancy_pls_model <- estimate_pls(data = corp_rep_data,
                                           structural_model  = PERF_redundancy_sm,
                                           missing = mean_replacement,
                                           missing_value = "-99")
+
+# Summarize the model
+sum_PERF_red_model <- summary(PERF_redundancy_pls_model)
+
 # QUAL ----
 # Create measurement model
 QUAL_redundancy_mm <- constructs(
@@ -136,11 +151,14 @@ QUAL_redundancy_pls_model <- estimate_pls(data = corp_rep_data,
                                           missing = mean_replacement,
                                           missing_value = "-99")
 
+# Summarize the model
+sum_QUAL_red_model <- summary(QUAL_redundancy_pls_model)
+
 # Check the path coefficients for convergent validity
-ATTR_redundancy_pls_model$path_coef
-CSOR_redundancy_pls_model$path_coef
-PERF_redundancy_pls_model$path_coef
-QUAL_redundancy_pls_model$path_coef
+sum_ATTR_red_model$paths
+sum_CSOR_red_model$paths
+sum_PERF_red_model$paths
+sum_QUAL_red_model$paths
 
 # Collinearity analysis ----
 summary_corp_rep_ext$validity$vif_items
@@ -150,16 +168,16 @@ summary_corp_rep_ext$validity$vif_items
 # nboot is the number of bootstrap iterations to run
 # cores is the number of cpu cores to use in multicore bootstrapping
 # parallel::detectCores() allows for using the maximum cores on your device
-# seed is the seed to be used for making sure the random process in
-boot_corp_rep_ext <- bootstrap_model(seminr_model = corp_rep_pls_model_ext,
-                                     nboot = 10000,
-                                     cores = parallel::detectCores(),
-                                     seed = 123)
+# seed is the seed to be used for making bootstrap replicable
+boot_corp_rep_ext <- bootstrap_model(
+  seminr_model = corp_rep_pls_model_ext,
+  nboot = 10000,
+  cores = parallel::detectCores(),
+  seed = 123)
 
 # Summarize the results of the bootstrap
 # alpha sets the specified level for significance, i.e. 0.05
-sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext,
-                                     alpha = 0.05)
+sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext, alpha = 0.05)
 
 # Inspect the bootstrapping results for outer weights
 sum_boot_corp_rep_ext$bootstrapped_weights
