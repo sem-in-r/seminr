@@ -61,7 +61,7 @@ AIC_func <- function(rsq, pk, N, construct_score){
 return_AIC_BIC <- function(i, seminr_model) {
   antecedents <- antecedents_of(outcome = i, smMatrix = seminr_model$smMatrix)
   pk <- length(antecedents)
-  rsq <- cor_rsq(cor(seminr_model$construct_scores), dv_name = i, iv_names = antecedents)
+  rsq <- cor_rsq(stats::cor(seminr_model$construct_scores), dv_name = i, iv_names = antecedents)
   N <- nrow(seminr_model$construct_scores)
   construct_score <- seminr_model$construct_scores[,i]
   construct_AIC <- AIC_func(rsq,pk,N,construct_score)
@@ -70,7 +70,7 @@ return_AIC_BIC <- function(i, seminr_model) {
 }
 
 calculate_itcriteria <- function(seminr_model) {
-  endogenous <- seminr:::all_endogenous(seminr_model$smMatrix)
+  endogenous <- all_endogenous(seminr_model$smMatrix)
   ret <- sapply(endogenous, return_AIC_BIC, seminr_model = seminr_model)
   rownames(ret) <- c("AIC", "BIC")
   convert_to_table_output(ret)
@@ -94,8 +94,12 @@ compute_construct_rhoA <- function(weights, mmMatrix, construct, obsData) {
   return((t(w) %*% w)^2 * ((t(w) %*% (S) %*% w)/(t(w) %*% AAnondiag %*% w)))
 }
 
+#' Function to calculate Akaike weights for IT Criteria
+#'
+#' @param vector_of_itcriteria This argument is a vector consisting of the IT criterion estimated
+#'   value for each model.
+#'
 #' @export
-## Function to calculate Akaike weights for IT Criteria
 compute_itcriteria_weights <- function(vector_of_itcriteria) {
   delta_itcriteria <- vector_of_itcriteria - min(vector_of_itcriteria)
   rel_likelihoods <- exp(-0.5 * delta_itcriteria)

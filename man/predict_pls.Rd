@@ -4,7 +4,7 @@
 \alias{predict_pls}
 \title{Predict_pls performs either k-fold or LOOCV on a SEMinR PLS model and generates predictions}
 \usage{
-predict_pls(model, technique, noFolds, cores)
+predict_pls(model, technique, noFolds, reps, cores)
 }
 \arguments{
 \item{model}{A SEMinR model that has been estimated on the FULL dataset.}
@@ -14,6 +14,8 @@ Direct Antecedents (DA) \code{predict_DA}}
 
 \item{noFolds}{The required number of folds to use in k-fold cross validation. If NULL, then parallel LOOCV will be executed.
 Default is NULL.}
+
+\item{reps}{The number of times the cross-validation will be repeated. Default is NULL.}
 
 \item{cores}{The number of cores to use for parallel LOOCV processing. If k-fold is used, the process will not be parallelized.}
 }
@@ -26,7 +28,6 @@ cross validation technique can be k-fold if a number of folds are specified, or 
 arew specified. LOOCV is recommended for small datasets.
 }
 \examples{
-library(seminr)
 data(mobi)
 
 # seminr syntax for creating measurement model
@@ -42,7 +43,7 @@ mobi_sm <- relationships(
         from = c("Image", "Expectation", "Value"))
 )
 
-mobi_pls <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm)
+mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_sm)
 cross_validated_predictions <- predict_pls(model = mobi_pls,
                                            technique = predict_DA,
                                            noFolds = 10,

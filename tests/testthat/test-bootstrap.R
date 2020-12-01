@@ -16,7 +16,7 @@
 #
 # inn_sm <- relationships(paths(from = "INN_P", to = c("INN_M", "THIRD")))
 # pls <- estimate_pls(data = mobi, inn_mm, inn_sm)
-# seminr:::expect_error(bootstrap_model(seminr_model = pls, nboot = 5), NA)
+# expect_error(bootstrap_model(seminr_model = pls, nboot = 5), NA)
 
 
 # Test cases

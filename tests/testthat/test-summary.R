@@ -118,7 +118,7 @@ test_that("Seminr summarizes the bootstrapped htmt correctly", {
   expect_equal(as.vector(htmt[1, 1:6]), as.vector(htmt_control[1, 1:6]), tolerance = 0.00001)
 })
 
-context("SEMinR:::evaluate_measurement_model() correctly evaluates FACTORS for class seminr_model\n")
+context("evaluate_measurement_model() correctly evaluates FACTORS for class seminr_model\n")
 
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
@@ -137,8 +137,8 @@ mobi_sm <- relationships(
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm,  mobi_sm,inner_weights = path_weighting)
 boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2, seed = 123)
-utils::capture.output(summary_object <- seminr:::evaluate_measurement_model(seminr_model))
-utils::capture.output(boot_summary_object <- seminr:::boot_evaluate_measurement_model(boot_seminr_model))
+utils::capture.output(summary_object <- evaluate_measurement_model(seminr_model))
+utils::capture.output(boot_summary_object <- boot_evaluate_measurement_model(boot_seminr_model))
 
 # Load outputs
 factor_reliability <- summary_object$factor_reliability
@@ -169,7 +169,7 @@ test_that("Seminr evaluates the factor reliability correctly", {
   expect_equal(factor_discriminant_validity[,1:4],factor_discriminant_validity_control, tolerance = 0.00001)
 })
 
-context("SEMinR:::evaluate_measurement_model() correctly evaluates COMPOSITES for class seminr_model\n")
+context("evaluate_measurement_model() correctly evaluates COMPOSITES for class seminr_model\n")
 
 # Load outputs
 composite_indicator_reliability <- summary_object$composite_indicator_reliability
@@ -193,7 +193,7 @@ test_that("Seminr evaluates the composite collinearity correctly", {
   expect_equal(composite_collinearity[1:5],composite_collinearity_control[1:5,1], tolerance = 0.00001)
 })
 
-context("SEMinR:::boot_evaluate_measurement_model() correctly evaluates FACTORS for class boot_seminr_model\n")
+context("boot_evaluate_measurement_model() correctly evaluates FACTORS for class boot_seminr_model\n")
 
 # Load outputs
 factor_discriminant_validity_t_values <- boot_summary_object$factor_discriminant_validity_t_values
@@ -219,7 +219,7 @@ test_that("Seminr evaluates the factor discriminant validity p_values correctly"
   expect_equal(factor_discriminant_validity_p_values, factor_discriminant_validity_p_values_control, tolerance = 0.00001)
 })
 
-context("SEMinR:::boot_evaluate_measurement_model() correctly evaluates COMPOSITES for class boot_seminr_model\n")
+context("boot_evaluate_measurement_model() correctly evaluates COMPOSITES for class boot_seminr_model\n")
 
 # Load outputs
 composite_indicator_weights_t_values <- boot_summary_object$composite_indicator_weights_t_values

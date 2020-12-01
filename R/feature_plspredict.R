@@ -52,14 +52,15 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
 #' @param noFolds The required number of folds to use in k-fold cross validation. If NULL, then parallel LOOCV will be executed.
 #' Default is NULL.
 #'
+#' @param reps The number of times the cross-validation will be repeated. Default is NULL.
+#'
 #' @param cores The number of cores to use for parallel LOOCV processing. If k-fold is used, the process will not be parallelized.
 #'
 #' @usage
 #'
-#' predict_pls(model, technique, noFolds, cores)
+#' predict_pls(model, technique, noFolds, reps, cores)
 #'
 #' @examples
-#' library(seminr)
 #' data(mobi)
 #'
 #' # seminr syntax for creating measurement model
@@ -75,7 +76,7 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
 #'         from = c("Image", "Expectation", "Value"))
 #' )
 #'
-#' mobi_pls <- estimate_pls(mobi, mobi_mm, interactions = NULL, mobi_sm)
+#' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_sm)
 #' cross_validated_predictions <- predict_pls(model = mobi_pls,
 #'                                            technique = predict_DA,
 #'                                            noFolds = 10,

@@ -35,7 +35,7 @@
 #' )
 #'
 #' #  structural model: note that name of the interactions construct should be
-#' #  the names of its two main constructs joined by a '.' in between.
+#' #  the names of its two main constructs joined by a '*' in between.
 #' mobi_sm <- relationships(
 #'   paths(to = "Satisfaction",
 #'         from = c("Image", "Expectation", "Value"))
@@ -110,7 +110,7 @@ report_paths <- function(seminr_model, digits=3) {
 #'
 #' @param to A parameter specifying the outcome composite for the path.
 #'
-#' @param through A parameter to specify the mediator for the path. Default is NULL.
+#' @param through A parameter to specify a vector of mediators for the path. Default is NULL.
 #'
 #' @param alpha A parameter for specifying the alpha for the confidence interval. Default is 0.05.
 #'
@@ -154,21 +154,10 @@ report_paths <- function(seminr_model, digits=3) {
 #'
 #' confidence_interval(boot_seminr_model = boot_seminr_model,
 #'                     from = "Image",
-#'                     through = "Expectation",
-#'                     to = "Satisfaction",
+#'                     through = c("Expectation", "Satisfaction","Complaints"),
+#'                     to = "Loyalty",
 #'                     alpha = 0.05)
 #' @export
-confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alpha = 0.05) {
-  path_array <- boot_seminr_model$boot_paths
-  if (is.null(through)) {
-    coefficient <- path_array[from, to,]
-  } else {
-    coefficient <- path_array[from, through,] * path_array[through, to,]
-  }
-  quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
-  return(quantiles)
-}
-
 confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alpha = 0.05) {
   path_array <- boot_seminr_model$boot_paths
   if (is.null(through)) {
@@ -189,6 +178,73 @@ confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alp
   return(quantiles)
 }
 
+# confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alpha = 0.05) {
+#   path_array <- boot_seminr_model$boot_paths
+#   if (is.null(through)) {
+#     coefficient <- path_array[from, to,]
+#   } else {
+#     coefficient <- path_array[from, through,] * path_array[through, to,]
+#   }
+#   quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
+#   return(quantiles)
+# }
+
+
+#' seminr total indirect confidence intervals function
+#'
+#' \code{total_indirect_ci} provides the verb for calculating the total indirect confidence intervals of a
+#' direct or mediated path in a bootstrapped SEMinR model.
+#'
+#' @param boot_seminr_model A bootstrapped model returned by the \code{bootstrap_model} function.
+#'
+#' @param from A parameter specifying the antecedent composite for the path.
+#'
+#' @param to A parameter specifying the outcome composite for the path.
+#'
+#' @param alpha A parameter for specifying the alpha for the confidence interval. Default is 0.05.
+#'
+#' @usage
+#' total_indirect_ci(boot_seminr_model, from, to, alpha)
+#'
+#' @seealso \code{\link{bootstrap_model}}
+#'
+#' @references Zhao, X., Lynch Jr, J. G., & Chen, Q. (2010). Reconsidering Baron and Kenny: Myths and truths
+#' about mediation analysis. Journal of consumer research, 37(2), 197-206.
+#'
+#' @examples
+#' mobi_mm <- constructs(
+#' composite("Image",        multi_items("IMAG", 1:5)),
+#' composite("Expectation",  multi_items("CUEX", 1:3)),
+#' composite("Quality",      multi_items("PERQ", 1:7)),
+#' composite("Value",        multi_items("PERV", 1:2)),
+#' composite("Satisfaction", multi_items("CUSA", 1:3)),
+#' composite("Complaints",   single_item("CUSCO")),
+#' composite("Loyalty",      multi_items("CUSL", 1:3))
+#' )
+#'
+#' # Creating structural model
+#' mobi_sm <- relationships(
+#'   paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+#'   paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
+#'   paths(from = "Quality",      to = c("Value", "Satisfaction")),
+#'   paths(from = "Value",        to = c("Satisfaction")),
+#'   paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
+#'   paths(from = "Complaints",   to = "Loyalty")
+#' )
+#'
+#' # Estimating the model
+#' mobi_pls <- estimate_pls(data = mobi,
+#'                          measurement_model = mobi_mm,
+#'                          structural_model = mobi_sm)
+#'
+#' # Load data, assemble model, and bootstrap
+#' boot_seminr_model <- bootstrap_model(seminr_model = mobi_pls,
+#'                                      nboot = 50, cores = 2, seed = NULL)
+#'
+#' total_indirect_ci(boot_seminr_model = boot_seminr_model,
+#'                   from = "Image",
+#'                   to = "Loyalty",
+#'                   alpha = 0.05)
 #' @export
 total_indirect_ci <- function(boot_seminr_model, from, to, alpha = 0.05) {
   path_array <- boot_seminr_model$boot_paths
@@ -220,8 +276,8 @@ parse_boot_array <- function(original_matrix, boot_array, alpha = 0.05) {
         } else {
           t_stat <- append(t_stat,  original_matrix[i,j]/ stats::sd(boot_array[i,j,]))
         }
-        lower <- append(lower, (seminr:::conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[1]])
-        upper <- append(upper, (seminr:::conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[2]])
+        lower <- append(lower, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[1]])
+        upper <- append(upper, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[2]])
       }
     }
   }

@@ -172,12 +172,12 @@ print.summary.predict_pls_model <- function(x, na.print=".", digits=3, ...) {
 
 # Plot summary method for PLSpredict
 #' @export
-plot.summary.predict_pls_model <- function(x, indicator) {
+plot.summary.predict_pls_model <- function(x, indicator, ...) {
   stopifnot(inherits(x, "summary.predict_pls_model"))
 
   # Plot the indicator error
-  plot(density(seminr:::return_predict_error(x,indicator)),
+  graphics::plot(stats::density(return_predict_error(x,indicator)),
        main = paste("Distribution of predictive error of", indicator))
   # Grid
-  grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted")
+  graphics::grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted")
 }
