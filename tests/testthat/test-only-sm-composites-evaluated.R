@@ -58,5 +58,5 @@ test_that("Seminr retains the full measurement model", {
 })
 
 test_that("Seminr correctly summarizes the model", {
-  expect_equal(output_paths, output_paths_control, tolerance = 0.00001)
+  expect_equal(c(round(output_paths,3)[1:3,1],round(output_paths,3)[1:3,2]), c(output_paths_control[1:3,1],output_paths_control[1:3,2]), tolerance = 0.00001)
 })

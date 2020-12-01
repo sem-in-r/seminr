@@ -40,7 +40,7 @@ reliability_control <- as.matrix(read.csv(file = paste(test_folder,"plsc-interac
 # Testing
 
 test_that("Seminr estimates paths and R2 correctly\n", {
-  expect_equal(sum$paths, paths_control, tolerance = 0.00001)
+  expect_equal(round(sum$paths[1:6,1],3), paths_control[1:6,1], tolerance = 0.00001)
 })
 
 test_that("Seminr estimates rhoA, AVE, rhoC (reliability) correctly\n", {
