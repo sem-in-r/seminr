@@ -55,7 +55,7 @@ test_that("Seminr estimates the cross-loadings correctly", {
 })
 
 test_that("Seminr estimates the reliability correctly", {
-  expect_equal(reliability[1:4,1:4], reliability_control, tolerance = 0.00001)
+  expect_equal(as.numeric(reliability), as.numeric(reliability_control), tolerance = 0.00001)
 })
 
 context("SEMinR correctly returns the summary object for class boot_seminr_model\n")
@@ -158,7 +158,7 @@ factor_discriminant_validity_control <- as.matrix(read.csv(file = paste(test_fol
 # Testing
 
 test_that("Seminr evaluates the factor reliability correctly", {
-  expect_equal(factor_reliability,factor_reliability_control, tolerance = 0.00001)
+  expect_equal(as.numeric(factor_reliability),as.numeric(factor_reliability_control), tolerance = 0.00001)
 })
 
 test_that("Seminr evaluates the factor indicator reliability correctly", {

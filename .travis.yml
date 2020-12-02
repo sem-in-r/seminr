@@ -4,7 +4,7 @@ language: r
 r:
   - oldrel
   - release
-  - bioc-devel
+  - devel
 
 os:
   - linux

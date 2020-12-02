@@ -69,7 +69,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
 
       if (nboot > 0) {
         # Initialize the cluster
-        suppressWarnings(ifelse(is.null(cores), cl <- parallel::makeCluster(parallel::detectCores()), cl <- parallel::makeCluster(cores)))
+        suppressWarnings(ifelse(is.null(cores), cl <- parallel::makeCluster(parallel::detectCores(), setup_strategy = "sequential"), cl <- parallel::makeCluster(cores, setup_strategy = "sequential")))
 
         # Initialize the Estimates Matrix
         bootstrapMatrix <- rbind(seminr_model$path_coef, seminr_model$outer_loadings, seminr_model$outer_weights, HTMT(seminr_model), total_effects(seminr_model$path_coef))
