@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project largely adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2020-12-31
+
+### [1.2.0] Added
+
+- A new feature to plot interaction plots
+- Demo files for PLS Primer in R Workbook
+- PLSpredict feature
+- total paths and indirect effects
+- New visualization for reliability
+- Cronbachs alpha to reliability
+- new datasets = corp_rep_data2 and corp_rep_data
+- new method for calculating AIC and BIC
+
+### [1.2.0] Changed
+
+- Changed output of summary() to generate standardized matrices and lists with an S3 print method
+
+###[1.2.0] Removed
+- old test fixtures for V 3.5.X (deprecated by R)
+
 ## [1.1.0] - 2020-07-01
 
 ### [1.1.0] Added

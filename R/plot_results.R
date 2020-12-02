@@ -20,32 +20,33 @@ plot_scores <- function(seminr_model, constructs=NULL) {
 #' @param ... All other arguments inherited from \code{plot}.
 #'
 #' @examples
-#' data(mobi)
-#'
-#' # seminr syntax for creating measurement model
-#' mobi_mm <- constructs(
-#'   composite("Image",        multi_items("IMAG", 1:5)),
-#'   composite("Expectation",  multi_items("CUEX", 1:3)),
-#'   composite("Value",        multi_items("PERV", 1:2)),
-#'   composite("Satisfaction", multi_items("CUSA", 1:3))
-#' )
-#'
-#' #  structural model: note that name of the interactions construct should be
-#' #  the names of its two main constructs joined by a '*' in between.
-#' mobi_sm <- relationships(
-#'   paths(to = "Satisfaction",
-#'         from = c("Image", "Expectation", "Value"))
-#' )
-#'
-#' mobi_pls <- estimate_pls(mobi, measurement_model = mobi_mm, structural_model = mobi_sm)
-#' plot(summary(mobi_pls)$reliability)
-#'
+data(mobi)
+
+# seminr syntax for creating measurement model
+mobi_mm <- constructs(
+  composite("Image",        multi_items("IMAG", 1:5)),
+  composite("Expectation",  multi_items("CUEX", 1:3)),
+  composite("Value",        multi_items("PERV", 1:2)),
+  composite("Satisfaction", multi_items("CUSA", 1:3))
+)
+
+#  structural model: note that name of the interactions construct should be
+#  the names of its two main constructs joined by a '*' in between.
+mobi_sm <- relationships(
+  paths(to = "Satisfaction",
+        from = c("Image", "Expectation", "Value"))
+)
+
+mobi_pls <- estimate_pls(mobi, measurement_model = mobi_mm, structural_model = mobi_sm)
+plot(summary(mobi_pls)$reliability)
+
 #' @export
 plot.reliability_table <- function(x, ...) {
   stopifnot(inherits(x, "reliability_table"))
 
   metrics <- cbind(1:nrow(x), x)
-  graphics::plot(metrics[,1:2], xlim=c(0.7, nrow(metrics[,-1])+0.3), ylim=c(min(metrics[,-1] - 0.1), max(metrics[,-1])),
+  lower_lim <- ifelse(min(as.numeric(metrics[,-1]) - 0.1) >= 0.6, 0.6, min(as.numeric(metrics[,-1]) - 0.1))
+  graphics::plot(metrics[,1:2], xlim=c(0.7, nrow(metrics[,-1])+0.2), ylim=c(lower_lim, max(as.numeric(metrics[,-1]))),
        frame.plot = FALSE, xaxt='n', ylab='', xlab = '', pch='')
 
   # Grid
@@ -64,16 +65,16 @@ plot.reliability_table <- function(x, ...) {
          inset = c(0.1, 0.1))
 
   # rhoA line and shape
-  graphics::segments(metrics[,1]-0.2, metrics[, "rhoA"], metrics[,1]+0.2, metrics[, "rhoA"])
-  graphics::points(metrics[,1], metrics[, "rhoA"], pch=15)
+  graphics::segments(unlist(metrics[,1])-0.2, unlist(metrics[, "rhoA"]), unlist(metrics[,1])+0.2, unlist(metrics[, "rhoA"]))
+  graphics::points(unlist(metrics[,1]), unlist(metrics[, "rhoA"]), pch=15)
 
   # alpha line and shape
-  graphics::segments(metrics[,1]-0.1, metrics[, "rhoA"], metrics[,1]-0.1, metrics[, "alpha"])
-  graphics::points(metrics[,1]-0.1, metrics[, "alpha"], pch=19)
+  graphics::segments(unlist(metrics[,1])-0.1, unlist(metrics[, "rhoA"]), unlist(metrics[,1])-0.1, unlist(metrics[, "alpha"]))
+  graphics::points(unlist(metrics[,1])-0.1, unlist(metrics[, "alpha"]), pch=19)
 
   # rhoC line and shape
-  graphics::segments(metrics[,1]+0.1, metrics[, "rhoA"], metrics[,1]+0.1, metrics[, "rhoC"])
-  graphics::points(metrics[,1]+0.1, metrics[, "rhoC"], pch=17)
+  graphics::segments(unlist(metrics[,1])+0.1, unlist(metrics[, "rhoA"]), unlist(metrics[,1])+0.1, unlist(metrics[, "rhoC"]))
+  graphics::points(unlist(metrics[,1])+0.1, unlist(metrics[, "rhoC"]), pch=17)
 
   # threshhold line
   graphics::abline(h = 0.708, lty = 2, col = "blue")
