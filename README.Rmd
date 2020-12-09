@@ -30,6 +30,7 @@ or Partial Least Squares Path Modeling (PLS-PM, such as SmartPLS/semPLS).
 - [Installation](#installation)
 - [Usage and Examples](#usage-and-examples)
 - [Documentation](#documentation)
+- [Partner Projects](#partner-projects)
 - [Contact Us](#contact-us)
 - [About Us](#about-us)
 
@@ -280,6 +281,16 @@ The **vignette** for Seminr can be found on [CRAN](https://cran.r-project.org/pa
 - [seminr-pls-interaction.R](demo/seminr-pls-interaction.R): Define interactions between constructs in SEM models
 - [seminr-plsc-ecsi.R](demo/seminr-plsc-ecsi.R): Run PLSc to emulate common factors using in PLSc
 - [seminr-style-contained.R](demo/seminr-style-contained.R): Create and execute a SEM model in one function call
+
+## Partner Projects
+
+We communicate and collaborate with several other open-source projects on SEM related issues.
+
+- [plspm package for R](https://github.com/gastonstat/plspm): an early and limited PLS path 
+modeling package for R that inspired the development of SEMinR, among others; it is no longer maintained.
+- [plspm package for Python](https://github.com/GoogleCloudPlatform/plspm-python): a well-maintained PLS modeling pakage for Python; it is tested against SEMinR and borrows some syntactic ideas from SEMinR.
+- [cSEM](https://github.com/M-E-Rademaker/cSEM): an well-maintained and comprehensive 
+composite analysis project implementing PLS and GSCA for R, using Lavaan style syntax
 
 ## Contact Us
 
