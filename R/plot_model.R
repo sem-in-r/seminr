@@ -1,5 +1,3 @@
-
-
 #' Generating graphviz code for a model object.
 #'
 #' @param model A model object generated from seminr (can be a PLS, PLSc, lavaan or a bootstrapped model).
@@ -111,7 +109,7 @@ plot_model <- function(model, use_outer_weights = FALSE,
 
 
 
-#
+
 getFormattedNode <- function(construct, model, adjusted = FALSE, rounding = 3){
 
   rs <- ""
@@ -211,6 +209,18 @@ if (FALSE) {
 
 
 
+#' Creates a style definition for edges
+#'
+#' @param color Color of edge
+#' @param fontsize Size of the text
+#' @param fontname Font-type
+#' @param forward direction of arrow
+#' @param minlen minimal length of line
+#'
+#' @return dot-String for styling edges
+#' @export
+#'
+# @examples
 createEdgeStyle <- function(color = "black", fontsize = 7, fontname = "helvetica", forward = TRUE, minlen = NA){
 
   arrowdir <-
@@ -239,18 +249,53 @@ createEdgeStyle <- function(color = "black", fontsize = 7, fontname = "helvetica
              ")
 }
 
+
+#' Function to determine the edges for a measurement model
+#'
+#' @param color color of edge
+#' @param fontsize Size of text
+#' @param forward direction of arrow
+#' @param minlen minimal length of arrow
+#'
+#' @return dot-string for styling edges
+#' @export
+#'
+# @examples
 createOuterWeightStyle <- function(color = "dimgray", fontsize = 7, forward = FALSE, minlen = 1){
   createEdgeStyle(color = color,
                   fontsize = fontsize,
                   forward = forward, minlen = minlen)
 }
 
+
+#' Function to determine the edges for a structural model
+#'
+#' @param color color of edge
+#' @param fontsize Size of text
+#' @param forward direction of arrow
+#' @param minlen minimal length of arrow
+#'
+#' @return dot-string for styling edges
+#' @export
+#'
+# @examples
 createInnerWeightStyle <- function(color = "black", fontsize = 9, forward = TRUE){
   createEdgeStyle(color = color, fontsize = fontsize, forward = forward)
 }
 
 
-
+#' Creates a style definition for measurement items
+#'
+#' @param color Color of node
+#' @param fill fill of the node
+#' @param fontsize Size of the text
+#' @param height the height of the node
+#' @param width the width of the node
+#'
+#' @return dot-String for styling nodes
+#' @export
+#'
+# @examples
 createItemStyle <- function(color = "dimgray", fill = "white", fontsize = 8, height = 0.2, width = 0.4){
   createStyle(shape = "box",
               color = color,
@@ -260,6 +305,18 @@ createItemStyle <- function(color = "dimgray", fill = "white", fontsize = 8, hei
               height = height)
 }
 
+#' Creates a style definition for measurement constructs
+#'
+#' @param color Color of node
+#' @param fill fill of the node
+#' @param fontsize Size of the text
+#' @param height the height of the node
+#' @param width the width of the node
+#'
+#' @return dot-String for styling nodes
+#' @export
+#'
+# @examples
 createConstructStyle <- function(color = "black", fill = "white", fontsize = 12, height = 0.5, width = 1){
   createStyle(shape = "ellipse",
               color = color,
@@ -269,6 +326,20 @@ createConstructStyle <- function(color = "black", fill = "white", fontsize = 12,
               height = height)
 }
 
+#' Creates a style definition for nodes
+#'
+#' @param shape the shape for the node
+#' @param color Color of node
+#' @param fill fill of the node
+#' @param fontsize Size of the text
+#' @param height the height of the node
+#' @param width the width of the node
+#' @param fontname Font-type
+#'
+#' @return dot-String for styling nodes
+#' @export
+#'
+# @examples
 createStyle <- function(shape = "box", color = "dimgray", fill = "white", fontsize = 8, height = 0.2, width = 0.4, fontname = "helvetica"){
   style <- glue::glue("
               shape = {shape},
@@ -287,6 +358,17 @@ createStyle <- function(shape = "box", color = "dimgray", fill = "white", fontsi
 
 
 
+#' Factory for creating a theme object
+#'
+#' @param item_style the dot-style for an item
+#' @param construct_style the dot-style for a construct
+#' @param outer_weight_style the dot-style for the measurement model
+#' @param inner_weight_style the dot-style for the structural model
+#'
+#' @return a theme object used in the plot_model function
+#' @export
+#'
+# @examples
 create_theme <- function(item_style = createItemStyle(),
                          construct_style = createConstructStyle(),
                          outer_weight_style = createOuterWeightStyle(),
@@ -296,8 +378,5 @@ create_theme <- function(item_style = createItemStyle(),
        outer_weight_style = outer_weight_style,
        inner_weight_style = inner_weight_style)
 }
-
-
-
 
 

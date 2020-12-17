@@ -1,4 +1,5 @@
 test_that("plot_model does not fail", {
+  set.seed(123)
    mobi <- mobi
 
    #seminr syntax for creating measurement model
@@ -31,6 +32,7 @@ test_that("plot_model does not fail", {
 
 
 test_that("model2", {
+  set.seed(123)
   mobi <- mobi
 
   #seminr syntax for creating measurement model
