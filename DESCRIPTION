@@ -13,7 +13,13 @@ Description: A powerful, easy to syntax for specifying and estimating complex
     Least Squares Path Modeling or Covariance-Based Structural Equation 
     Modeling or covariance based Confirmatory Factor Analysis. 
 Imports:
-    parallel, lavaan, MASS
+    parallel,
+    lavaan,
+    MASS,
+    glue,
+    dplyr,
+    magrittr,
+    stringr
 License: GPL-3
 Depends: R (>= 3.1.0)
 LazyData: TRUE
