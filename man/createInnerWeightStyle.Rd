@@ -12,8 +12,6 @@ createInnerWeightStyle(color = "black", fontsize = 9, forward = TRUE)
 \item{fontsize}{Size of text}
 
 \item{forward}{direction of arrow}
-
-\item{minlen}{minimal length of arrow}
 }
 \value{
 dot-string for styling edges
