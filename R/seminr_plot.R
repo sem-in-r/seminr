@@ -166,9 +166,15 @@ getMMedges <- function(model, theme, weights = 1000) {
 
 
 
-#' Generates dot-Code from a model.
+#' Generates dot-Code from a model. With the help of the DiagrammR package this
+#' code can then be plotted in various contexts.
 #'
-#' @param model The simulated model.
+#' Current limitations:
+#' - Only plots PLS Models
+#' - no higher order constructs
+#' - No interaction terms
+#'
+#' @param model The PLS-model used for plotting.
 #' @param title an optional title for the plot
 #' @param theme an optional theme object
 #'
@@ -202,10 +208,21 @@ getMMedges <- function(model, theme, weights = 1000) {
 #'                          measurement_model = mobi_mm,
 #'                          structural_model = mobi_sm)
 #'
-#' seminr_plot(mobi_pls)
+#' # generate dot-Notation
+#' res <- seminr_plot(mobi_pls)
+#'
+#' \dontrun{
+#' DiagrammR::grViz(res)
+#' }
 seminr_plot <- function(model, title = "", theme = NULL) {
 
-
+  # adatp when necessary
+  if (!c("pls_model" %in% class(model))) {
+    stop(
+      paste("Currently only pls_models are supported. You supplied", paste(class(model), collapse = ",")),
+      call. = FALSE
+    )
+  }
 
   if (is.null(theme)) {
     thm <- seminr_theme_get()

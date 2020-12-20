@@ -2,12 +2,13 @@
 % Please edit documentation in R/seminr_plot.R
 \name{seminr_plot}
 \alias{seminr_plot}
-\title{Generates dot-Code from a model.}
+\title{Generates dot-Code from a model. With the help of the DiagrammR package this
+code can then be plotted in various contexts.}
 \usage{
 seminr_plot(model, title = "", theme = NULL)
 }
 \arguments{
-\item{model}{The simulated model.}
+\item{model}{The PLS-model used for plotting.}
 
 \item{title}{an optional title for the plot}
 
@@ -17,7 +18,10 @@ seminr_plot(model, title = "", theme = NULL)
 dot-Code
 }
 \description{
-Generates dot-Code from a model.
+Current limitations:
+- Only plots PLS Models
+- no higher order constructs
+- No interaction terms
 }
 \examples{
 mobi <- mobi
@@ -46,5 +50,10 @@ mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
                          structural_model = mobi_sm)
 
-seminr_plot(mobi_pls)
+# generate dot-Notation
+res <- seminr_plot(mobi_pls)
+
+\dontrun{
+DiagrammR::grViz(res)
+}
 }
