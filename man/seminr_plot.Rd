@@ -2,8 +2,7 @@
 % Please edit documentation in R/seminr_plot.R
 \name{seminr_plot}
 \alias{seminr_plot}
-\title{Generates dot-Code from a model. With the help of the DiagrammR package this
-code can then be plotted in various contexts.}
+\title{Generates dot-Code from a model.}
 \usage{
 seminr_plot(model, title = "", theme = NULL)
 }
@@ -18,6 +17,10 @@ seminr_plot(model, title = "", theme = NULL)
 dot-Code
 }
 \description{
+With the help of the \code{DiagrammeR} package this code can then be plotted in
+various contexts.
+}
+\details{
 Current limitations:
 - Only plots PLS Models
 - no higher order constructs
@@ -54,6 +57,6 @@ mobi_pls <- estimate_pls(data = mobi,
 res <- seminr_plot(mobi_pls)
 
 \dontrun{
-DiagrammR::grViz(res)
+DiagrammeR::grViz(res)
 }
 }

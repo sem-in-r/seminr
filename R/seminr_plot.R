@@ -166,8 +166,10 @@ getMMedges <- function(model, theme, weights = 1000) {
 
 
 
-#' Generates dot-Code from a model. With the help of the DiagrammR package this
-#' code can then be plotted in various contexts.
+#' Generates dot-Code from a model.
+#'
+#' With the help of the \code{DiagrammeR} package this code can then be plotted in
+#' various contexts.
 #'
 #' Current limitations:
 #' - Only plots PLS Models
@@ -212,7 +214,7 @@ getMMedges <- function(model, theme, weights = 1000) {
 #' res <- seminr_plot(mobi_pls)
 #'
 #' \dontrun{
-#' DiagrammR::grViz(res)
+#' DiagrammeR::grViz(res)
 #' }
 seminr_plot <- function(model, title = "", theme = NULL) {
 
