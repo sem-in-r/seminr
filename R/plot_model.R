@@ -90,8 +90,8 @@ create_theme <- function(plot.title = "",
                          mm.node.color = "dimgrey",
                          mm.node.fill = "white",
                          mm.node.label.fontsize = 8,
-                         mm.node.height = 0.2,
-                         mm.node.width = 0.4,
+                         #mm.node.height = 0.2,
+                         #mm.node.width = 0.4,
                          mm.edge.color = "dimgrey",
                          mm.edge.label.fontsize = 7,
                          mm.edge.minlen = 1,
@@ -99,8 +99,8 @@ create_theme <- function(plot.title = "",
                          sm.node.color = "black",
                          sm.node.fill = "white",
                          sm.node.label.fontsize = 12,
-                         sm.node.height = 0.5,
-                         sm.node.width = 1,
+                         #sm.node.height = 0.5,
+                         #sm.node.width = 1,
                          sm.edge.color = "black",
                          sm.edge.label.fontsize = 9,
                          sm.edge.minlen = NA) {
@@ -110,8 +110,8 @@ create_theme <- function(plot.title = "",
                 mm.node.color = mm.node.color,
                 mm.node.fill = mm.node.fill,
                 mm.node.label.fontsize = mm.node.label.fontsize,
-                mm.node.height = mm.node.height,
-                mm.node.width = mm.node.width,
+                mm.node.height = 1,
+                mm.node.width = 1,
                 mm.edge.color = mm.edge.color,
                 mm.edge.label.fontsize = mm.edge.label.fontsize,
                 mm.edge.minlen = mm.edge.minlen,
@@ -119,8 +119,8 @@ create_theme <- function(plot.title = "",
                 sm.node.color = sm.node.color,
                 sm.node.fill = sm.node.fill,
                 sm.node.label.fontsize = sm.node.label.fontsize,
-                sm.node.height = sm.node.height,
-                sm.node.width = sm.node.width,
+                sm.node.height = 1,
+                sm.node.width = 1,
                 sm.edge.color = sm.edge.color,
                 sm.edge.label.fontsize = sm.edge.label.fontsize,
                 sm.edge.minlen = sm.edge.minlen)
@@ -142,9 +142,45 @@ create_theme <- function(plot.title = "",
 # @examples
 dot_graph <- function(model, theme = create_theme()) {
 
+
+  # adatp when necessary
+  if (!c("pls_model" %in% class(model))) {
+    stop(
+      paste("Currently only pls_models are supported. You supplied", paste(class(model), collapse = ",")),
+      call. = FALSE
+    )
+  }
+
   global_style <- get_global_style(theme = theme)
-  sm <- dot_component_sm(model = model, theme = theme)
-  mm <- dot_component_mm(model = model, theme = theme)
+
+  thm <-  theme
+  #rewrite construct size
+  #c_width_offst <- 0.1
+  #if (thm$construct_nodes$shape %in% c("ellipse", "oval")) {
+    c_width_offst <- 0.4
+  #}
+  # HERE ----
+  construct_width <- model$constructs %>% graphics::strwidth(.,font = thm$sm.node.label.fontsize, units = "in") %>% max() + c_width_offst
+  construct_height <- model$constructs %>% graphics::strheight(.,font = thm$sm.node.label.fontsize, units = "in") %>% max() + c_width_offst
+
+  thm$sm.node.width  <- construct_width
+  thm$sm.node.height <- construct_height * 2
+
+  # rewrite item size
+  i_width_offst <- 0.1
+  #if (thm$item_nodes$shape %in% c("ellipse", "oval")) {
+  #  i_width_offst <- 0.4
+  #}
+  item_width <- model$mmVariables %>% graphics::strwidth(.,font = thm$mm.node.label.fontsize, units = "in") %>% max() + i_width_offst
+  item_height <- model$mmVariables %>% graphics::strheight(.,font = thm$mm.node.label.fontsize, units = "in") %>% max() + i_width_offst
+
+  thm$mm.node.width <- item_width
+  thm$mm.node.height <- item_height
+
+
+
+  sm <- dot_component_sm(model = model, theme = thm)
+  mm <- dot_component_mm(model = model, theme = thm)
 
   glue_dot(paste0("digraph G {\n",
                   "\n<<global_style>>\n",
