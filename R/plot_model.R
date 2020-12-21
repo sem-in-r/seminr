@@ -87,6 +87,9 @@ extract_mm_coding <- function(model) {
 create_theme <- function(plot.title = "",
                          plot.title.fontsize = 24,
                          plot.fontname = "helvetica",
+                         plot.splines = TRUE,
+                         plot.rounding = 3,
+                         plot.adj = TRUE,
                          mm.node.color = "dimgrey",
                          mm.node.fill = "white",
                          mm.node.label.fontsize = 8,
@@ -107,6 +110,9 @@ create_theme <- function(plot.title = "",
   theme <- list(plot.title = plot.title,
                 plot.title.fontsize = plot.title.fontsize,
                 plot.fontname = plot.fontname,
+                plot.splines = plot.splines,
+                plot.rounding = plot.rounding,
+                plot.adj = plot.adj,
                 mm.node.color = mm.node.color,
                 mm.node.fill = mm.node.fill,
                 mm.node.label.fontsize = mm.node.label.fontsize,
@@ -140,7 +146,7 @@ create_theme <- function(plot.title = "",
 #' @export
 #'
 # @examples
-dot_graph <- function(model, theme = create_theme()) {
+dot_graph <- function(model, theme = NULL) {
 
 
   # adatp when necessary
@@ -151,9 +157,14 @@ dot_graph <- function(model, theme = create_theme()) {
     )
   }
 
-  global_style <- get_global_style(theme = theme)
+  if (is.null(theme)) {
+    thm <- seminr_theme_get()
+  } else {
+    thm <- theme
+  }
 
-  thm <-  theme
+  global_style <- get_global_style(theme = thm)
+
   #rewrite construct size
   #c_width_offst <- 0.1
   #if (thm$construct_nodes$shape %in% c("ellipse", "oval")) {
@@ -208,7 +219,7 @@ get_global_style <- function(theme) {
                   "fontname = <<theme$plot.fontname>>,\n",
                   "rankdir = LR,\n",
                   "labelloc = t,\n",
-                  "//splines = false\n",
+                  "splines = <<theme$plot.splines>>\n",
                   "]\n"))
 }
 
@@ -217,9 +228,9 @@ get_global_style <- function(theme) {
 
 # construct structural model subgraph
 dot_component_sm <- function(model, theme) {
-  sm_nodes <- extract_sm_nodes(model)
+  sm_nodes <- extract_sm_nodes(model, theme)
   sm_node_style <- get_sm_node_style(theme)
-  sm_edges <- extract_sm_edges(model)
+  sm_edges <- extract_sm_edges(model, theme)
   sm_edge_style <- get_sm_edge_style(theme)
   glue_dot(paste0("// --------------------\n",
                   "// The structural model\n",
@@ -238,19 +249,24 @@ dot_component_sm <- function(model, theme) {
 }
 
 # extract structural model nodes from a seminr model
-extract_sm_nodes <- function(model, adjusted = FALSE, rounding = 3) {
+extract_sm_nodes <- function(model, theme) {
   sm_nodes <- gsub("\\*", "_x_", model$constructs)
-  sm_nodes <- sapply(sm_nodes, format_sm_node, model, adjusted, rounding)
+  sm_nodes <- sapply(sm_nodes, format_sm_node, model, theme)
   sm_nodes <- paste0(sm_nodes, collapse = "\n")
   return(sm_nodes)
 }
 
 # format structural model node where appropriate
-format_sm_node <- function(construct, model, adjusted = FALSE, rounding = 3){
+format_sm_node <- function(construct, model, theme){
+
+  # this is the unicode symbol for ^2
+  squared_symbol <- "\U00B2"
+
   formatted_node <- ""
+  #TODO switch to adjusted
   if (construct %in% colnames(model$rSquared)) {
     formatted_node <- paste0(construct,
-                             " [label='", construct, "\nr²=", round(model$rSquared[1, construct], rounding), "']")
+                             " [label='", construct, "\nr",squared_symbol,"=", round(model$rSquared[1, construct], theme$plot.rounding), "']")
   } else {
     formatted_node <- paste0(construct)
   }
@@ -270,7 +286,7 @@ get_sm_node_style <- function(theme) {
 }
 
 # extract structural model edges from a seminr model
-extract_sm_edges <- function(model, weights = 1, rounding = 3) {
+extract_sm_edges <- function(model, theme, weights = 1) {
   if ("boot_seminr_model" %in% class(model)) {
     cat("Using a bootstrapped PLS model\n")
     model$paths_descriptives
@@ -283,11 +299,22 @@ extract_sm_edges <- function(model, weights = 1, rounding = 3) {
   sm <- model$smMatrix
   sm_edges <- c()
 
+  # Unicode for small mathematical symbols
+  beta <- "\U0001D6FD"
+  #print(beta)
+  gamma <- "\U0001D6FE"
+  #print(gamma)
+
   for (i in 1:nrow(sm)) {
-    coef <- round(model$path_coef[sm[i, 1], sm[i,2]], rounding)
+    letter <- beta
+    if ( !(sm[i,1] %in% colnames(model$rSquared))) {
+      letter <- gamma
+    }
+
+    coef <- round(model$path_coef[sm[i, 1], sm[i,2]], theme$plot.rounding)
     sm_edges <- c(sm_edges,
                   paste0(sm[i, 1], " -> {", sm[i, 2], "}",
-                         "[weight = ", weights, ", label = '&beta; = ", coef, "', penwidth = ", abs(coef * 5),"]"))
+                         "[weight = ", weights, ", label = '",letter," = ", coef, "', penwidth = ", abs(coef * 5),"]"))
   }
   sm_edges <- paste0(sm_edges, collapse = "\n")
   sm_edges <- gsub("\\*", "_x_", sm_edges)
@@ -408,30 +435,43 @@ extract_mm_nodes <- function(index, model) {
 }
 
 
-extract_mm_edges <- function(index, model, theme, weights = 1000, rounding = 3) {
+extract_mm_edges <- function(index, model, theme, weights = 1000) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
   mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ]
   edges <- ""
 
+
+  # determine letter to use (What is with A and B type constructs?)
+  # Small mathematical lamda
+  lamda <- "\U0001D706"
+  #print(lamda)
+
+
   if (is.vector(mm_matrix_subset)) {
     if (theme$mm.edge.use_outer_weights) {
-      loading <- round(model$outer_weights[mm_matrix_subset[2], mm_matrix_subset[1]], rounding)
+      loading <- round(model$outer_weights[mm_matrix_subset[2], mm_matrix_subset[1]], theme$plot.rounding)
     } else {
-      loading <- round(model$outer_loadings[mm[i, 2], mm[i, 1]], rounding)
+      loading <- round(model$outer_loadings[mm_matrix_subset[2], mm_matrix_subset[1]], rounding)
     }
 
     if (grepl("\\*", mm_matrix_subset[2])) {
       # show interaction indicators?
     } else {
+
+      #
+      letter <- "w"
+      if ( mm_matrix_subset[3] == "C") {
+        letter <- lamda
+      }
       edges <- paste0(edges,
                       mm_matrix_subset[2], " -> {", mm_matrix_subset[1], "}",
-                      "[weight = ", weights, ", label = ", loading ,", penwidth = ", loading * 3, "]\n")
+                      "[weight = ", weights, ", label = '", letter, " = ", loading ,"', penwidth = ", loading * 3, "]\n")
     }
-  } else {
+  } else {# is.matrix() == TRUE
     for (i in 1:nrow(mm_matrix_subset)) {
       if (theme$mm.edge.use_outer_weights) {
-        loading <- round(model$outer_weights[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], rounding)
+        loading <- round(model$outer_weights[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
       } else {
         loading <- round(model$outer_loadings[mm[i, 2], mm[i, 1]], rounding)
       }
@@ -439,9 +479,14 @@ extract_mm_edges <- function(index, model, theme, weights = 1000, rounding = 3) 
       if (grepl("\\*", mm_matrix_subset[i, 2])) {
         # show interaction indicators?
       } else {
+        #
+        letter <- "w"
+        if ( mm_matrix_subset[i,3] == "C") {
+          letter <- lamda
+        }
         edges <- paste0(edges,
                         mm_matrix_subset[i, 2], " -> {", mm_matrix_subset[i, 1], "}",
-                        "[weight = ", weights, ", label = ", loading ,", penwidth = ", loading * 3, "]\n")
+                        "[weight = ", weights, ", label = '", letter, " = ", loading ,"', penwidth = ", loading * 3, "]\n")
       }
     }
   }

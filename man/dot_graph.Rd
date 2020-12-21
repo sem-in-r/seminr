@@ -4,7 +4,7 @@
 \alias{dot_graph}
 \title{Convert a seminr model to Graphviz representation}
 \usage{
-dot_graph(model, theme = create_theme())
+dot_graph(model, theme = NULL)
 }
 \arguments{
 \item{model}{Model created with \code{seminr}.}

@@ -1,92 +1,52 @@
+
+
 #' The theme function for a basic b/w theme
 #'
-#' @param title_fontsize Title font size
-#' @param construct_fontsize Font size for constructs
-#' @param item_fontsize Font size for measurement variables
-#' @param path_fontsize Font size for path edges
-#' @param mm_fontsize  Font size for measurement model
+#' @param plot.title.fontsize Title font size
+#' @param sm.node.label.fontsize Font size for constructs
+#' @param mm.node.label.fontsize Font size for measurement variables
+#' @param sm.edge.label.fontsize Font size for path edges
+#' @param mm.edge.label.fontsize  Font size for measurement model edges
 #'
-#' @return the basic theme object
+#' @return a theme object
 #' @export
 #'
 # @examples
-seminr_theme_default <-
-  function(title_fontsize = 24,
-           construct_fontsize = 14,
-           item_fontsize = 8,
-           path_fontsize = 12,
-           mm_fontsize = 8) {
+seminr_theme_default <- function(plot.title.fontsize = 24,
+                                 mm.node.label.fontsize = 8,
+                                 sm.node.label.fontsize = 12,
+                                 mm.edge.label.fontsize = 7,
+                                 sm.edge.label.fontsize = 9
+){
 
-    new_seminr_theme(
-      title_font = "helvetica",
-      title_size = title_fontsize,
-      splines = TRUE,
-      rounding = 3,
-      adjusted = TRUE,
-      # Construct
-      construct_nodes = seminr_theme_node(
-        shape = "ellipse",
-        color = "black",
-        fill = "white",
-        fontsize = construct_fontsize
-      ),
-      # items
-      item_nodes = new_seminr_theme_node(
-        shape = "box",
-        fill = "white",
-        color = "black",
-        fontsize = item_fontsize
-      ),
-      #edges
-      outer_edges = new_seminr_theme_edge(color = "dimgray", fontsize = mm_fontsize),
-      inner_edges = new_seminr_theme_edge(fontsize = path_fontsize)
-    )
-  }
+  create_theme(plot.title.fontsize = plot.title.fontsize,
+               mm.node.label.fontsize = mm.node.label.fontsize,
+               sm.node.label.fontsize = sm.node.label.fontsize,
+               mm.edge.label.fontsize = mm.edge.label.fontsize,
+               sm.edge.label.fontsize = sm.edge.label.fontsize
+               )
+}
+
 
 
 
 # alternate SmartPLS theme ----
-
-#' A SmartPLS inspired theme
-#'
-#' @param title_fontsize Title font size
-#' @param construct_fontsize Font size for constructs
-#' @param item_fontsize Font size for measurement variables
-#' @param path_fontsize Font size for path edges
-#' @param mm_fontsize  Font size for measurement model
-#'
-#' @return the theme object
+#' A SmartPLS-based theme
+#' @rdname seminr_theme_default
 #' @export
-#'
-# @examples
-seminr_theme_smartpls <- function(title_fontsize = 24,
-                                  construct_fontsize = 14,
-                                  item_fontsize = 8,
-                                  path_fontsize = 12,
-                                  mm_fontsize = 8
+seminr_theme_smartpls <- function(plot.title.fontsize = 24,
+                                  mm.node.label.fontsize = 8,
+                                  sm.node.label.fontsize = 12,
+                                  mm.edge.label.fontsize = 7,
+                                  sm.edge.label.fontsize = 9
 ){
-  new_seminr_theme(
-    title_font = "helvetica",
-    title_size = title_fontsize,
-    splines = TRUE,
-    rounding = 3,
-    adjusted = TRUE,
-    # Constructs
-    construct_nodes = new_seminr_theme_node(
-      shape = "oval",
-      color = "black",
-      fill = "lightcyan",
-      fontsize = construct_fontsize
-    ),
-    # Items
-    item_nodes = new_seminr_theme_node(
-      shape = "box",
-      fill = "lightgoldenrodyellow",
-      color = "black",
-      fontsize = item_fontsize
-    ),
-    # edges
-    outer_edges = new_seminr_theme_edge(color = "dimgray", fontsize = mm_fontsize),
-    inner_edges = new_seminr_theme_edge(fontsize = path_fontsize)
+
+  create_theme(plot.title.fontsize = plot.title.fontsize,
+               mm.node.label.fontsize = mm.node.label.fontsize,
+               sm.node.label.fontsize = sm.node.label.fontsize,
+               mm.edge.label.fontsize = mm.edge.label.fontsize,
+               sm.edge.label.fontsize = sm.edge.label.fontsize,
+               sm.node.fill = "lightcyan",
+               mm.node.fill = "lightgoldenrodyellow"
   )
 }
