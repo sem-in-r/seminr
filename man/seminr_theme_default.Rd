@@ -2,30 +2,41 @@
 % Please edit documentation in R/theme_defaults.R
 \name{seminr_theme_default}
 \alias{seminr_theme_default}
+\alias{seminr_theme_smartpls}
 \title{The theme function for a basic b/w theme}
 \usage{
 seminr_theme_default(
-  title_fontsize = 24,
-  construct_fontsize = 14,
-  item_fontsize = 8,
-  path_fontsize = 12,
-  mm_fontsize = 8
+  plot.title.fontsize = 24,
+  mm.node.label.fontsize = 8,
+  sm.node.label.fontsize = 12,
+  mm.edge.label.fontsize = 7,
+  sm.edge.label.fontsize = 9
+)
+
+seminr_theme_smartpls(
+  plot.title.fontsize = 24,
+  mm.node.label.fontsize = 8,
+  sm.node.label.fontsize = 12,
+  mm.edge.label.fontsize = 7,
+  sm.edge.label.fontsize = 9
 )
 }
 \arguments{
-\item{title_fontsize}{Title font size}
+\item{plot.title.fontsize}{Title font size}
 
-\item{construct_fontsize}{Font size for constructs}
+\item{mm.node.label.fontsize}{Font size for measurement variables}
 
-\item{item_fontsize}{Font size for measurement variables}
+\item{sm.node.label.fontsize}{Font size for constructs}
 
-\item{path_fontsize}{Font size for path edges}
+\item{mm.edge.label.fontsize}{Font size for measurement model edges}
 
-\item{mm_fontsize}{Font size for measurement model}
+\item{sm.edge.label.fontsize}{Font size for path edges}
 }
 \value{
-the basic theme object
+a theme object
 }
 \description{
 The theme function for a basic b/w theme
+
+A SmartPLS-based theme
 }

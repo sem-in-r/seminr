@@ -8,3 +8,4 @@ seminr_global <- new.env(parent = emptyenv())
 # in file "theme-current.R". This setup avoids circular dependencies among
 # the various source files.
 seminr_global$theme_current <- list()
+

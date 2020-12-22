@@ -21,3 +21,5 @@ seminr_theme_set <- function(new) {
   seminr_global$theme_current <- new
   invisible(old)
 }
+
+
