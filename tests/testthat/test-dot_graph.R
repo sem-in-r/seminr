@@ -26,7 +26,7 @@ test_that("seminr_plot does not fail for a demo data set", {
                             measurement_model = mobi_mm,
                             structural_model = mobi_sm)
 
-  expect_error(seminr_plot(mobi_pls), NA)
+  expect_error(dot_graph(mobi_pls), NA)
 })
 
 test_that("seminr_plot does fail for non pls models", {
@@ -60,8 +60,8 @@ test_that("seminr_plot does fail for non pls models", {
                              structural_model = mobi_sm)
 
   # not yet supported
-  expect_error(seminr_plot(model_boot))
-  expect_error(seminr_plot(model_cb))
+  expect_error(dot_graph(model_boot))
+  expect_error(dot_graph(model_cb))
 
 
 
@@ -82,5 +82,5 @@ test_that("seminr_plot does fail for non pls models", {
 
   # CONFIRMATORY FACTOR ANALYSIS
   mobi_cfa <- estimate_cfa(mobi, mobi_mm, mobi_am)
-  expect_error(seminr_plot(mobi_cfa))
+  expect_error(dot_graph(mobi_cfa))
 })

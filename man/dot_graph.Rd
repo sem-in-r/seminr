@@ -4,10 +4,12 @@
 \alias{dot_graph}
 \title{Convert a seminr model to Graphviz representation}
 \usage{
-dot_graph(model, theme = NULL)
+dot_graph(model, title = "", theme = NULL)
 }
 \arguments{
 \item{model}{Model created with \code{seminr}.}
+
+\item{title}{An optional title for the plot}
 
 \item{theme}{Theme created with \code{\link{create_theme}}.}
 }
@@ -15,5 +17,46 @@ dot_graph(model, theme = NULL)
 The path model as a formatted string in dot language.
 }
 \description{
-Convert a seminr model to Graphviz representation
+With the help of the \code{DiagrammeR} package this code can then be plotted in
+various contexts.
+}
+\details{
+Current limitations:
+- Only plots PLS Models
+- no higher order constructs
+- No interaction terms
+}
+\examples{
+mobi <- mobi
+
+#seminr syntax for creating measurement model
+mobi_mm <- constructs(
+             reflective("Image",        multi_items("IMAG", 1:5)),
+             reflective("Expectation",  multi_items("CUEX", 1:3)),
+             reflective("Quality",      multi_items("PERQ", 1:7)),
+             reflective("Value",        multi_items("PERV", 1:2)),
+             reflective("Satisfaction", multi_items("CUSA", 1:3)),
+             reflective("Complaints",   single_item("CUSCO")),
+             reflective("Loyalty",      multi_items("CUSL", 1:3))
+           )
+#seminr syntax for creating structural model
+mobi_sm <- relationships(
+  paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+  paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
+  paths(from = "Quality",      to = c("Value", "Satisfaction")),
+  paths(from = "Value",        to = c("Satisfaction")),
+  paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
+  paths(from = "Complaints",   to = "Loyalty")
+)
+
+mobi_pls <- estimate_pls(data = mobi,
+                         measurement_model = mobi_mm,
+                         structural_model = mobi_sm)
+
+# generate dot-Notation
+res <- dot_graph(mobi_pls, title = "Example plot")
+
+\dontrun{
+DiagrammeR::grViz(res)
+}
 }

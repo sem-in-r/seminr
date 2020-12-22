@@ -35,7 +35,7 @@ if (FALSE) {
 }
 
 
-
+globalVariables(c("."))
 
 # Utilities ----
 
@@ -59,14 +59,16 @@ extract_mm_coding <- function(model) {
 
 #' Create a theme for a seminr graph visualization
 #'
-#' @param plot.title Title of the plot.
 #' @param plot.title.fontsize Font size of the title.
 #' @param plot.fontname Font to be used throughout the plot.
+#' @param plot.splines Whether or not to use splines as edges.
+#' @param plot.rounding The amount of decimals to keep for rounding.
+#' @param plot.adj Whether or not to use adjusted r^2 in constructs
 #' @param mm.node.color Color of the measurement model nodes.
 #' @param mm.node.fill Fill of the measurement model nodes.
 #' @param mm.node.label.fontsize Font size of the measurement model node labels.
-#' @param mm.node.height Height of the measurement model nodes.
-#' @param mm.node.width Width of the measurement model nodes.
+# @param mm.node.height Height of the measurement model nodes.
+# @param mm.node.width Width of the measurement model nodes.
 #' @param mm.edge.color Color of the measurement model edges.
 #' @param mm.edge.label.fontsize Font size of the measurement model edge labels.
 #' @param mm.edge.minlen Minimum length of the measurement model edges.
@@ -74,8 +76,8 @@ extract_mm_coding <- function(model) {
 #' @param sm.node.color Color of the structural model nodes.
 #' @param sm.node.fill Fill of the structural model nodes.
 #' @param sm.node.label.fontsize Font size of the structural model node labels.
-#' @param sm.node.height Height of the structural model nodes.
-#' @param sm.node.width Width of the structural model nodes.
+# @param sm.node.height Height of the structural model nodes.
+# @param sm.node.width Width of the structural model nodes.
 #' @param sm.edge.color Color of the structural model edges.
 #' @param sm.edge.label.fontsize Font size of the structural model edge labels.
 #' @param sm.edge.minlen Minimum length of the structural model edges.
@@ -84,8 +86,7 @@ extract_mm_coding <- function(model) {
 #' @export
 #'
 # @examples
-create_theme <- function(plot.title = "",
-                         plot.title.fontsize = 24,
+create_theme <- function(plot.title.fontsize = 24,
                          plot.fontname = "helvetica",
                          plot.splines = TRUE,
                          plot.rounding = 3,
@@ -107,7 +108,7 @@ create_theme <- function(plot.title = "",
                          sm.edge.color = "black",
                          sm.edge.label.fontsize = 9,
                          sm.edge.minlen = NA) {
-  theme <- list(plot.title = plot.title,
+  theme <- list(plot.title = "",
                 plot.title.fontsize = plot.title.fontsize,
                 plot.fontname = plot.fontname,
                 plot.splines = plot.splines,
@@ -139,14 +140,55 @@ create_theme <- function(plot.title = "",
 
 #' Convert a seminr model to Graphviz representation
 #'
+#' With the help of the \code{DiagrammeR} package this code can then be plotted in
+#' various contexts.
+#'
+#' Current limitations:
+#' - Only plots PLS Models
+#' - no higher order constructs
+#' - No interaction terms
+#'
 #' @param model Model created with \code{seminr}.
+#' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{create_theme}}.
 #'
 #' @return The path model as a formatted string in dot language.
 #' @export
 #'
-# @examples
-dot_graph <- function(model, theme = NULL) {
+#' @examples
+#' mobi <- mobi
+#'
+#' #seminr syntax for creating measurement model
+#' mobi_mm <- constructs(
+#'              reflective("Image",        multi_items("IMAG", 1:5)),
+#'              reflective("Expectation",  multi_items("CUEX", 1:3)),
+#'              reflective("Quality",      multi_items("PERQ", 1:7)),
+#'              reflective("Value",        multi_items("PERV", 1:2)),
+#'              reflective("Satisfaction", multi_items("CUSA", 1:3)),
+#'              reflective("Complaints",   single_item("CUSCO")),
+#'              reflective("Loyalty",      multi_items("CUSL", 1:3))
+#'            )
+#' #seminr syntax for creating structural model
+#' mobi_sm <- relationships(
+#'   paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+#'   paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
+#'   paths(from = "Quality",      to = c("Value", "Satisfaction")),
+#'   paths(from = "Value",        to = c("Satisfaction")),
+#'   paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
+#'   paths(from = "Complaints",   to = "Loyalty")
+#' )
+#'
+#' mobi_pls <- estimate_pls(data = mobi,
+#'                          measurement_model = mobi_mm,
+#'                          structural_model = mobi_sm)
+#'
+#' # generate dot-Notation
+#' res <- dot_graph(mobi_pls, title = "Example plot")
+#'
+#' \dontrun{
+#' DiagrammeR::grViz(res)
+#' }
+dot_graph <- function(model, title = "", theme = NULL) {
 
 
   # adatp when necessary
@@ -162,6 +204,8 @@ dot_graph <- function(model, theme = NULL) {
   } else {
     thm <- theme
   }
+
+  thm$plot.title <- title
 
   global_style <- get_global_style(theme = thm)
 
@@ -452,7 +496,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     if (theme$mm.edge.use_outer_weights) {
       loading <- round(model$outer_weights[mm_matrix_subset[2], mm_matrix_subset[1]], theme$plot.rounding)
     } else {
-      loading <- round(model$outer_loadings[mm_matrix_subset[2], mm_matrix_subset[1]], rounding)
+      loading <- round(model$outer_loadings[mm_matrix_subset[2], mm_matrix_subset[1]], theme$plot.rounding)
     }
 
     if (grepl("\\*", mm_matrix_subset[2])) {
@@ -473,7 +517,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
       if (theme$mm.edge.use_outer_weights) {
         loading <- round(model$outer_weights[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
       } else {
-        loading <- round(model$outer_loadings[mm[i, 2], mm[i, 1]], rounding)
+        loading <- round(model$outer_loadings[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
       }
 
       if (grepl("\\*", mm_matrix_subset[i, 2])) {

@@ -5,7 +5,6 @@
 \title{Create a theme for a seminr graph visualization}
 \usage{
 create_theme(
-  plot.title = "",
   plot.title.fontsize = 24,
   plot.fontname = "helvetica",
   plot.splines = TRUE,
@@ -27,11 +26,15 @@ create_theme(
 )
 }
 \arguments{
-\item{plot.title}{Title of the plot.}
-
 \item{plot.title.fontsize}{Font size of the title.}
 
 \item{plot.fontname}{Font to be used throughout the plot.}
+
+\item{plot.splines}{Whether or not to use splines as edges.}
+
+\item{plot.rounding}{The amount of decimals to keep for rounding.}
+
+\item{plot.adj}{Whether or not to use adjusted r^2 in constructs}
 
 \item{mm.node.color}{Color of the measurement model nodes.}
 
@@ -58,14 +61,6 @@ create_theme(
 \item{sm.edge.label.fontsize}{Font size of the structural model edge labels.}
 
 \item{sm.edge.minlen}{Minimum length of the structural model edges.}
-
-\item{mm.node.height}{Height of the measurement model nodes.}
-
-\item{mm.node.width}{Width of the measurement model nodes.}
-
-\item{sm.node.height}{Height of the structural model nodes.}
-
-\item{sm.node.width}{Width of the structural model nodes.}
 }
 \value{
 A \code{seminr.theme} object that can be supplied to \code{\link{dot_graph}}
