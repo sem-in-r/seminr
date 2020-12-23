@@ -510,7 +510,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
       }
       edges <- paste0(edges,
                       mm_matrix_subset[2], " -> {", mm_matrix_subset[1], "}",
-                      "[weight = ", weights, ", label = '", letter, " = ", loading ,"', penwidth = ", loading * 3, "]\n")
+                      "[weight = ", weights, ", label = '", letter, " = ", loading ,"', penwidth = ", abs(loading * 3), "]\n")
     }
   } else {# is.matrix() == TRUE
     for (i in 1:nrow(mm_matrix_subset)) {
@@ -530,7 +530,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
         }
         edges <- paste0(edges,
                         mm_matrix_subset[i, 2], " -> {", mm_matrix_subset[i, 1], "}",
-                        "[weight = ", weights, ", label = '", letter, " = ", loading ,"', penwidth = ", loading * 3, "]\n")
+                        "[weight = ", weights, ", label = '", letter, " = ", loading ,"', penwidth = ", abs(loading * 3), "]\n")
       }
     }
   }
