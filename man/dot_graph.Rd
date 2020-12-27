@@ -4,7 +4,13 @@
 \alias{dot_graph}
 \title{Convert a seminr model to Graphviz representation}
 \usage{
-dot_graph(model, title = "", theme = NULL)
+dot_graph(
+  model,
+  title = "",
+  theme = NULL,
+  measurement_only = FALSE,
+  structure_only = FALSE
+)
 }
 \arguments{
 \item{model}{Model created with \code{seminr}.}
@@ -12,6 +18,10 @@ dot_graph(model, title = "", theme = NULL)
 \item{title}{An optional title for the plot}
 
 \item{theme}{Theme created with \code{\link{create_theme}}.}
+
+\item{measurement_only}{Plot only measurement part}
+
+\item{structure_only}{Plot only structure part}
 }
 \value{
 The path model as a formatted string in dot language.
