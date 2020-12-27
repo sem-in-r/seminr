@@ -1,5 +1,5 @@
 test_that("Plotting Measurement model", {
-  library(seminr)
+  #library(seminr)
 
   mobi <- mobi
   # #seminr syntax for creating measurement model
@@ -15,8 +15,7 @@ test_that("Plotting Measurement model", {
 
 
 
-   res <- dot_graph.measurement_model(measurement_model, title = "Example plot")
-
-   DiagrammeR::grViz(res)
+  #dot_graph.measurement_model(measurement_model, title = "Example plot")
+  expect_error(dot_graph.measurement_model(measurement_model, title = "Example plot"), NA)
 
 })

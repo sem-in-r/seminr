@@ -25,8 +25,7 @@ if (FALSE) {
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
 
-  plot_theme <- create_theme(plot.title = "1 nices beispil",
-                             plot.title.fontsize = 40,
+  plot_theme <- create_theme(plot.title.fontsize = 40,
                              plot.fontname = "Times",
                              mm.node.fill = "firebrick",
                              sm.node.fill = "pink")
@@ -44,6 +43,7 @@ glue_dot <- function(x) {
 }
 
 # TODO: document purpose of this function
+#
 extract_mm_coding <- function(model) {
   construct_names <- c()
   construct_types <- c()
@@ -379,7 +379,7 @@ format_sm_node <- function(construct, model, theme){
   squared_symbol <- "\U00B2"
 
   formatted_node <- ""
-  #TODO switch to adjusted
+  #TODO: switch to adjusted
   if (construct %in% colnames(model$rSquared)) {
     formatted_node <- paste0(construct,
                              " [label='", construct, "\nr",squared_symbol,"=", round(model$rSquared[1, construct], theme$plot.rounding), "']")
