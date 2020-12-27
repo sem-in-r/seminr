@@ -43,6 +43,7 @@ glue_dot <- function(x) {
   glue::glue(x, .open = "<<", .close = ">>", .envir = parent.frame())
 }
 
+# TODO: document purpose of this function
 extract_mm_coding <- function(model) {
   construct_names <- c()
   construct_types <- c()
@@ -137,6 +138,70 @@ create_theme <- function(plot.title.fontsize = 24,
 
 
 
+#' Convert a seminr measurement model to a Graphviz representation
+#'
+#' The function also tries to run a CFA on the measurement model and uses the loadings
+#' in plots.
+#' With the help of the \code{DiagrammeR} package this code can then be plotted in
+#' various contexts.
+#'
+#' Current limitations:
+#' - experimental
+#'
+#' @param measurement_model Model created with \code{seminr}.
+#' @param title An optional title for the plot
+#' @param theme Theme created with \code{\link{create_theme}}.
+#'
+#' @return The path model as a formatted string in dot language.
+#' @export
+#'
+#' @examples
+#' mobi <- mobi
+#'
+#' #seminr syntax for creating measurement model
+#' mobi_mm <- constructs(
+#'              reflective("Image",        multi_items("IMAG", 1:5)),
+#'              reflective("Expectation",  multi_items("CUEX", 1:3)),
+#'              reflective("Quality",      multi_items("PERQ", 1:7)),
+#'              reflective("Value",        multi_items("PERV", 1:2)),
+#'              reflective("Satisfaction", multi_items("CUSA", 1:3)),
+#'              reflective("Complaints",   single_item("CUSCO")),
+#'              reflective("Loyalty",      multi_items("CUSL", 1:3))
+#'            )
+#' res <- dot_graph.measurement_model(mobi_mm, title = "Example plot")
+#'
+#' \dontrun{
+#' DiagrammeR::grViz(res)
+#' }
+dot_graph.measurement_model <- function(measurement_model, title, theme = NULL){
+  if (!c("measurement_model" %in% class(measurement_model))) {
+    stop(
+      paste("This functions plots a measurement model. You supplied a ", paste(class(model), collapse = ",")),
+      call. = FALSE
+    )
+  }
+
+  # THIS IS AN ARTIFICAL MODEL THAT LETS ME REUSE THE OLD PLOTTING FUNCTION,
+  # THIS is uneccessary complex.
+  mm <- measurement_model %>% mm2matrix()
+  mm %>% as.data.frame() -> mmodel
+  model <- list(measurement_model = measurement_model,
+                mmMatrix = mm,
+                outer_weights = matrix(c(1), # add only 1s
+                                       ncol = length(mmodel$construct %>% unique()),
+                                       dimnames = list(mmodel$measurement %>% unique, mmodel$construct %>% unique()),
+                                       nrow = length(mmodel$measurement %>% unique())
+                                       ),
+                constructs = mmodel$construct %>% unique(),
+                mmVariables = mmodel$measurement %>% unique()
+  )
+
+  class(model) <- "pls_model"
+
+  dot_graph(model, title = title, theme = theme, measurement_only = TRUE)
+
+}
+
 
 #' Convert a seminr model to Graphviz representation
 #'
@@ -151,6 +216,8 @@ create_theme <- function(plot.title.fontsize = 24,
 #' @param model Model created with \code{seminr}.
 #' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{create_theme}}.
+#' @param measurement_only Plot only measurement part
+#' @param structure_only Plot only structure part
 #'
 #' @return The path model as a formatted string in dot language.
 #' @export
@@ -188,10 +255,10 @@ create_theme <- function(plot.title.fontsize = 24,
 #' \dontrun{
 #' DiagrammeR::grViz(res)
 #' }
-dot_graph <- function(model, title = "", theme = NULL) {
+dot_graph <- function(model, title = "", theme = NULL, measurement_only = FALSE, structure_only = FALSE) {
 
 
-  # adatp when necessary
+  # adapt when necessary
   if (!c("pls_model" %in% class(model))) {
     stop(
       paste("Currently only pls_models are supported. You supplied", paste(class(model), collapse = ",")),
@@ -232,10 +299,15 @@ dot_graph <- function(model, title = "", theme = NULL) {
   thm$mm.node.width <- item_width
   thm$mm.node.height <- item_height
 
+  mm <- ""
+  sm <- ""
+  if (!measurement_only) {
+    sm <- dot_component_sm(model = model, theme = thm)
+  }
+  if (!structure_only) {
+    mm <- dot_component_mm(model = model, theme = thm)
+  }
 
-
-  sm <- dot_component_sm(model = model, theme = thm)
-  mm <- dot_component_mm(model = model, theme = thm)
 
   glue_dot(paste0("digraph G {\n",
                   "\n<<global_style>>\n",
@@ -510,7 +582,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
       }
       edges <- paste0(edges,
                       mm_matrix_subset[2], " -> {", mm_matrix_subset[1], "}",
-                      "[weight = ", weights, ", label = '", letter, " = ", loading ,"', penwidth = ", loading * 3, "]\n")
+                      "[weight = ", weights, ", label = '", letter, " = ", loading ,"', penwidth = ", abs(loading * 3), "]\n")
     }
   } else {# is.matrix() == TRUE
     for (i in 1:nrow(mm_matrix_subset)) {
@@ -530,7 +602,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
         }
         edges <- paste0(edges,
                         mm_matrix_subset[i, 2], " -> {", mm_matrix_subset[i, 1], "}",
-                        "[weight = ", weights, ", label = '", letter, " = ", loading ,"', penwidth = ", loading * 3, "]\n")
+                        "[weight = ", weights, ", label = '", letter, " = ", loading ,"', penwidth = ", abs(loading * 3), "]\n")
       }
     }
   }
