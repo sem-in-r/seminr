@@ -19,7 +19,7 @@ seminr_theme_default <- function(plot.title.fontsize = 24,
                                  sm.edge.label.fontsize = 9
 ){
 
-  create_theme(plot.title.fontsize = plot.title.fontsize,
+  seminr_theme_create(plot.title.fontsize = plot.title.fontsize,
                mm.node.label.fontsize = mm.node.label.fontsize,
                sm.node.label.fontsize = sm.node.label.fontsize,
                mm.edge.label.fontsize = mm.edge.label.fontsize,
@@ -41,7 +41,7 @@ seminr_theme_smartpls <- function(plot.title.fontsize = 24,
                                   sm.edge.label.fontsize = 9
 ){
 
-  create_theme(plot.title.fontsize = plot.title.fontsize,
+  seminr_theme_create(plot.title.fontsize = plot.title.fontsize,
                mm.node.label.fontsize = mm.node.label.fontsize,
                sm.node.label.fontsize = sm.node.label.fontsize,
                mm.edge.label.fontsize = mm.edge.label.fontsize,

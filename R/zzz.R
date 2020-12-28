@@ -3,7 +3,7 @@
 .onLoad <- function(...) {
 
   # set the current theme to default
-  seminr_global$theme_current <- create_theme()
+  seminr_global$theme_current <- seminr_theme_create()
 
 }
 
