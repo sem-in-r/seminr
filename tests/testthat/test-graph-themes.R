@@ -1,3 +1,4 @@
+context("SEMinR dot_graph themes can be created.\n")
 test_that("Basic themes are created without error", {
 
   expect_error({
