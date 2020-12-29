@@ -2,7 +2,7 @@ test_that("interaction terms work", {
   set.seed(123)
   mobi <- mobi
 
-  {
+
   #seminr syntax for creating measurement model
   mobi_mm <- constructs(
     reflective("Image",        multi_items("IMAG", 1:5)),
@@ -19,12 +19,11 @@ test_that("interaction terms work", {
   mobi_pls <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
-  } # with interaction
 
-  summary(mobi_pls)
-  dot_graph(mobi_pls)
+  #summary(mobi_pls)
+  #dot_graph(mobi_pls)
 
 
   #DiagrammeR::grViz(dot_graph(mobi_pls))
-  expect_error(dot_graph(mobi_pls), NA)
+  testthat::expect_error(dot_graph(mobi_pls), NA)
 })

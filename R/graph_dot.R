@@ -50,6 +50,37 @@ esc_node <- function(x){
 }
 
 
+
+#' Format p values for the output and removes trailing numbers when p > .10
+#'
+#' @param pvals A vector with p-values
+#' @param sig.limit The lowest threshold for full reporting
+#' @param digits the amount of digits to report when sig.limit < p < .10
+#'
+#' @return A string formated p-value including equal and less-than sign
+# @export
+#'
+# @examples
+#' pvalr(c(0.432, 0.05, 0.00001))
+pvalr <- function(pvals, sig.limit = .001, digits = 3) {
+
+  roundr <- function(x, digits = 1) {
+    res <- sprintf(paste0('%.', digits, 'f'), x) #generate sprintf string
+    zzz <- paste0('0.', paste(rep('0', digits), collapse = ''))
+    res[res == paste0('-', zzz)] <- zzz
+    paste0("= ",res)
+  }
+
+  sapply(pvals, function(x, sig.limit) {
+    if (x < sig.limit)
+      return(sprintf('< %s', format(sig.limit)))
+    if (x > .1)
+      return(roundr(x, digits = 2))
+    else
+      return(roundr(x, digits = digits))
+  }, sig.limit = sig.limit)
+}
+
 # DOT GRAPH ----
 
 #' Generate a dot graph from various SEMinR models
@@ -240,6 +271,7 @@ dot_graph.structural_model <-
   }
 
 
+
 #' Convert a seminr model to Graphviz representation
 #'
 #' With the help of the \code{DiagrammeR} package this code can then be plotted in
@@ -248,7 +280,36 @@ dot_graph.structural_model <-
 #' Current limitations:
 #' - Only plots PLS Models
 #' - no higher order constructs
-#' - No interaction terms
+#'
+#' @rdname dot_graph
+#' @param model Model created with \code{seminr}.
+#' @param title An optional title for the plot
+#' @param theme Theme created with \code{\link{seminr_theme_create}}.
+#' @param measurement_only Plot only measurement part
+#' @param structure_only Plot only structure part
+#'
+# @return The path model as a formatted string in dot language.
+#' @export
+#'
+# @examples
+dot_graph.boot_seminr_model <- function(model,
+                                title = "",
+                                theme = NULL,
+                                measurement_only = FALSE,
+                                structure_only = FALSE, ...
+) {
+  dot_graph.pls_model(model, title, theme, measurement_only, structure_only, ...)
+}
+
+
+#' Convert a seminr model to Graphviz representation
+#'
+#' With the help of the \code{DiagrammeR} package this code can then be plotted in
+#' various contexts.
+#'
+#' Current limitations:
+#' - Only plots PLS Models
+#' - no higher order constructs
 #'
 #' @rdname dot_graph
 #' @param model Model created with \code{seminr}.
@@ -469,6 +530,10 @@ get_value_dependent_edge_style <- function(value, theme){
   edge_style
 }
 
+
+
+
+
 # extract structural model edges from a seminr model
 extract_sm_edges <- function(model, theme, weights = 1) {
 
@@ -490,16 +555,61 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       letter <- gamma # when it is determined only by exogenous variables use gamma
     }
 
-    coef <- round(model$path_coef[sm[i, 1], sm[i,2]], theme$plot.rounding)
+    # format bootstrapped ----
+    coef <- ""
+    edge_width <- ""
+    edge_style <- ""
+    # get the label
+    if ("boot_seminr_model" %in% class(model)) {
+      smry <- summary(model)
+      row_index <- paste0(sm[i, 1], "  ->  ", sm[i,2])
+      bmean <- round(smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 2], theme$plot.rounding)
+      blower <- round(smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 5], theme$plot.rounding)
+      bupper <- round(smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 6], theme$plot.rounding)
+      bt <- smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 4]
+      # TODO: Verify method to calculate p values
+      bp <- stats::pt(bt, nrow(model$data) - nrow(smry$bootstrapped_paths), lower = FALSE)
 
+
+      tstring <- NULL
+      pstring <- NULL
+      cistring <- NULL
+
+      if (theme$sm.edge.boot.show_t_value) {
+        tstring <- paste0("t = ", round(bt, theme$plot.rounding))
+      }
+      if (theme$sm.edge.boot.show_p_value) {
+        pstring <- paste0("p ", pvalr(bp))
+      }
+      if (theme$sm.edge.boot.show_ci) {
+        cistring <- paste0("95% CI [", blower, ", ", bupper, "]")
+      }
+
+      suffix <- paste0(c(tstring, pstring, cistring), collapse = ", ")
+
+      if (nchar(suffix) > 0) {
+        suffix <- paste0(" (", suffix, ")")
+      }
+
+      coef <- paste0(bmean, suffix)
+      edge_width <- paste0(", penwidth = ", abs(bmean * theme$sm.edge.width_multiplier))
+      edge_style <- get_value_dependent_edge_style(bmean, theme)
+    } else # format regular pls model ----
+      {
+      coef <- round(model$path_coef[sm[i, 1], sm[i,2]], theme$plot.rounding)
+      edge_width <- paste0(", penwidth = ", abs(coef * theme$sm.edge.width_multiplier))
+      edge_style <- get_value_dependent_edge_style(coef, theme)
+    }
+
+
+    # build the label
     edge_label <- ""
     if (theme$sm.edge.label.show) {
       edge_label <- paste0(", label = '", letter, " = ", coef, "'")
     }
 
+    # add the weight
     edge_weight <- paste0("weight = ", weights)
-    edge_width <- paste0(", penwidth = ", abs(coef * theme$sm.edge.width_multiplier))
-    edge_style <- get_value_dependent_edge_style(coef, theme)
     sm_edges <- c(sm_edges,
                   paste0("'", sm[i, 1], "' -> {'", sm[i, 2], "'}","[", edge_weight, edge_label, edge_width, edge_style, "]"))
   }
@@ -571,9 +681,15 @@ dot_subcomponent_mm <- function(index, model, theme) {
   node_style <- get_mm_node_style(theme)
 
   mm_coding <- extract_mm_coding(model)
+
+  # test component type
   is_reflective <- mm_coding[index, 2] == "reflective"
   is_interaction <- mm_coding[index, 2] == "scaled_interaction"
-  if (is_interaction) {
+  is_higher_order <- mm_coding[index, 2] == "higher_order_composite"
+
+  #debug: print(mm_coding[index, ])
+  # no measurement for interaction terms or higher order composite scores
+  if (is_interaction || is_higher_order) {
     return("")
   }
 
@@ -694,6 +810,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     }
   } else {# is.matrix() == TRUE
     for (i in 1:nrow(mm_matrix_subset)) {
+      # XXX HOC fails here ----
       if (theme$mm.edge.use_outer_weights) {
         loading <- round(model$outer_weights[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
       } else {

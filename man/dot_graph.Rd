@@ -3,12 +3,22 @@
 \name{dot_graph}
 \alias{dot_graph}
 \alias{dot_graph.measurement_model}
+\alias{dot_graph.boot_seminr_model}
 \alias{dot_graph.pls_model}
 \title{Generate a dot graph from various SEMinR models}
 \usage{
 dot_graph(model, title = "", theme = NULL, ...)
 
 \method{dot_graph}{measurement_model}(model, title = "", theme = NULL, ...)
+
+\method{dot_graph}{boot_seminr_model}(
+  model,
+  title = "",
+  theme = NULL,
+  measurement_only = FALSE,
+  structure_only = FALSE,
+  ...
+)
 
 \method{dot_graph}{pls_model}(
   model,
@@ -45,12 +55,18 @@ various contexts.
 
 With the help of the \code{DiagrammeR} package this code can then be plotted in
 various contexts.
+
+With the help of the \code{DiagrammeR} package this code can then be plotted in
+various contexts.
 }
 \details{
 Current limitations:
 - Only plots PLS Models
 - no higher order constructs
-- No interaction terms
+
+Current limitations:
+- Only plots PLS Models
+- no higher order constructs
 }
 \examples{
 # - - - - - - - - - - - - - - - -

@@ -17,6 +17,9 @@
 #' @param sm.node.color Color of the structural model nodes.
 #' @param sm.node.fill Fill of the structural model nodes.
 #' @param sm.node.label.fontsize Font size of the structural model node labels.
+#' @param sm.edge.boot.show_t_value Should boot-strapped path coefficients show a t-value
+#' @param sm.edge.boot.show_p_value Should boot-strapped path coefficients show a p-value
+#' @param sm.edge.boot.show_ci Should boot-strapped path coefficients show a 95 percent confidence interval
 #' @param sm.edge.color Color of the structural model edges.
 #' @param sm.edge.label.fontsize Font size of the structural model edge labels.
 #' @param sm.edge.minlen Minimum length of the structural model edges.
@@ -40,6 +43,9 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          sm.node.color = "black",
                          sm.node.fill = "white",
                          sm.node.label.fontsize = 12,
+                         sm.edge.boot.show_t_value = FALSE,
+                         sm.edge.boot.show_p_value = TRUE,
+                         sm.edge.boot.show_ci = FALSE,
                          sm.edge.color = "black",
                          sm.edge.label.fontsize = 9,
                          sm.edge.minlen = NA) {
@@ -68,7 +74,10 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
             is.numeric(sm.edge.label.fontsize))
   stopifnot(is.logical(plot.splines))
   stopifnot(is.logical(plot.adj))
-  stopifnot(is.logical(mm.edge.use_outer_weights))
+  stopifnot(is.logical(mm.edge.use_outer_weights),
+            is.logical(sm.edge.boot.show_t_value),
+            is.logical(sm.edge.boot.show_p_value),
+            is.logical(sm.edge.boot.show_ci))
 
   theme <- list(plot.title = "",
                 plot.title.fontsize = plot.title.fontsize,
@@ -95,6 +104,9 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 sm.edge.color = sm.edge.color,
                 sm.edge.label.fontsize = sm.edge.label.fontsize,
                 sm.edge.label.show = TRUE,
+                sm.edge.boot.show_t_value = sm.edge.boot.show_t_value,
+                sm.edge.boot.show_p_value = sm.edge.boot.show_p_value,
+                sm.edge.boot.show_ci = sm.edge.boot.show_ci,
                 sm.edge.width_multiplier = 5,
                 sm.edge.minlen = sm.edge.minlen)
   class(theme) <- "seminr.theme"

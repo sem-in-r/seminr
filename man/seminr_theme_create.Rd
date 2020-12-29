@@ -20,6 +20,9 @@ seminr_theme_create(
   sm.node.color = "black",
   sm.node.fill = "white",
   sm.node.label.fontsize = 12,
+  sm.edge.boot.show_t_value = FALSE,
+  sm.edge.boot.show_p_value = TRUE,
+  sm.edge.boot.show_ci = FALSE,
   sm.edge.color = "black",
   sm.edge.label.fontsize = 9,
   sm.edge.minlen = NA
@@ -55,6 +58,12 @@ seminr_theme_create(
 \item{sm.node.fill}{Fill of the structural model nodes.}
 
 \item{sm.node.label.fontsize}{Font size of the structural model node labels.}
+
+\item{sm.edge.boot.show_t_value}{Should boot-strapped path coefficients show a t-value}
+
+\item{sm.edge.boot.show_p_value}{Should boot-strapped path coefficients show a p-value}
+
+\item{sm.edge.boot.show_ci}{Should boot-strapped path coefficients show a 95 percent confidence interval}
 
 \item{sm.edge.color}{Color of the structural model edges.}
 
