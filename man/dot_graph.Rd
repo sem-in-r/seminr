@@ -2,14 +2,21 @@
 % Please edit documentation in R/graph_dot.R
 \name{dot_graph}
 \alias{dot_graph}
-\title{Convert a seminr model to Graphviz representation}
+\alias{dot_graph.measurement_model}
+\alias{dot_graph.pls_model}
+\title{Generate a dot graph from various SEMinR models}
 \usage{
-dot_graph(
+dot_graph(model, title = "", theme = NULL, ...)
+
+\method{dot_graph}{measurement_model}(model, title = "", theme = NULL, ...)
+
+\method{dot_graph}{pls_model}(
   model,
   title = "",
   theme = NULL,
   measurement_only = FALSE,
-  structure_only = FALSE
+  structure_only = FALSE,
+  ...
 )
 }
 \arguments{
@@ -17,7 +24,9 @@ dot_graph(
 
 \item{title}{An optional title for the plot}
 
-\item{theme}{Theme created with \code{\link{create_theme}}.}
+\item{theme}{Theme created with \code{\link{seminr_theme_create}}.}
+
+\item{...}{Unused}
 
 \item{measurement_only}{Plot only measurement part}
 
@@ -27,6 +36,13 @@ dot_graph(
 The path model as a formatted string in dot language.
 }
 \description{
+With the help of the \code{DiagrammeR} package this dot graph can then be plotted in
+various in RMarkdown, shiny, and other contexts.
+Depending on the type of model, different parameters can be used.
+
+With the help of the \code{DiagrammeR} package this code can then be plotted in
+various contexts.
+
 With the help of the \code{DiagrammeR} package this code can then be plotted in
 various contexts.
 }
@@ -37,6 +53,24 @@ Current limitations:
 - No interaction terms
 }
 \examples{
+# - - - - - - - - - - - - - - - -
+# Example for plotting a measurement model
+mobi_mm <- constructs(
+             reflective("Image",        multi_items("IMAG", 1:5)),
+             reflective("Expectation",  multi_items("CUEX", 1:3)),
+             reflective("Quality",      multi_items("PERQ", 1:7)),
+             reflective("Value",        multi_items("PERV", 1:2)),
+             reflective("Satisfaction", multi_items("CUSA", 1:3)),
+             reflective("Complaints",   single_item("CUSCO")),
+             reflective("Loyalty",      multi_items("CUSL", 1:3))
+           )
+res <- dot_graph(mobi_mm, title = "Preview measurement model")
+
+\dontrun{
+DiagrammeR::grViz(res)
+}
+# - - - - - - - - - - - - - - - -
+# Example for plotting a PLS-Model
 mobi <- mobi
 
 #seminr syntax for creating measurement model
@@ -64,7 +98,7 @@ mobi_pls <- estimate_pls(data = mobi,
                          structural_model = mobi_sm)
 
 # generate dot-Notation
-res <- dot_graph(mobi_pls, title = "Example plot")
+res <- dot_graph(mobi_pls, title = "PLS-Model plot")
 
 \dontrun{
 DiagrammeR::grViz(res)

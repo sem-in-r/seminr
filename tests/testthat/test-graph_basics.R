@@ -25,7 +25,7 @@ test_that("dot_graph does not fail for a demo data set", {
    mobi_pls <- estimate_pls(data = mobi,
                             measurement_model = mobi_mm,
                             structural_model = mobi_sm)
-
+  DiagrammeR::grViz(dot_graph(mobi_pls))
    # This creates an unwanted Rplots.pdf file? Why?
   expect_error(dot_graph(mobi_pls), NA)
 })
