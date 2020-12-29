@@ -42,6 +42,13 @@ glue_dot <- function(x) {
   glue::glue(x, .open = "<<", .close = ">>", .envir = parent.frame())
 }
 
+#' Wrap a text in single quotes
+#'
+#' @param x a character string
+esc_node <- function(x){
+  paste0("'", x ,"'")
+}
+
 
 # DOT GRAPH ----
 
@@ -428,13 +435,15 @@ format_sm_node <- function(construct, model, theme){
   # this is the unicode symbol for ^2
   squared_symbol <- "\U00B2"
 
+
+
   formatted_node <- ""
   #TODO: switch to adjusted
   if (construct %in% colnames(model$rSquared)) {
     formatted_node <- paste0("'", construct, "'",
                              " [label='", construct, "\nr",squared_symbol,"=", round(model$rSquared[1, construct], theme$plot.rounding), "']")
   } else {
-    formatted_node <- paste0("'", construct, "'")
+    formatted_node <- paste0("'", construct, "'" , "[label='",gsub("_x_","\\*", construct),"']")
   }
   return(formatted_node)
 }
@@ -449,6 +458,15 @@ get_sm_node_style <- function(theme) {
                   "width = <<theme$sm.node.width>>,\n",
                   "fontname = <<theme$plot.fontname>>,\n",
                   "fixedsize = true\n"))
+}
+
+
+get_value_dependent_edge_style <- function(value, theme){
+  edge_style <- paste0(", style = solid")
+  if (value < 0) {
+    edge_style <- paste0(", style = dashed") # TODO possible color to red?
+  }
+  edge_style
 }
 
 # extract structural model edges from a seminr model
@@ -479,10 +497,11 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       edge_label <- paste0(", label = '", letter, " = ", coef, "'")
     }
 
-    edge_width <- paste0(", penwidth = ", abs(coef * theme$sm.edge.width_multiplier))
     edge_weight <- paste0("weight = ", weights)
+    edge_width <- paste0(", penwidth = ", abs(coef * theme$sm.edge.width_multiplier))
+    edge_style <- get_value_dependent_edge_style(coef, theme)
     sm_edges <- c(sm_edges,
-                  paste0("'", sm[i, 1], "' -> {'", sm[i, 2], "'}","[", edge_weight, edge_label, edge_width, "]"))
+                  paste0("'", sm[i, 1], "' -> {'", sm[i, 2], "'}","[", edge_weight, edge_label, edge_width, edge_style, "]"))
   }
   sm_edges <- paste0(sm_edges, collapse = "\n")
   sm_edges <- gsub("\\*", "_x_", sm_edges)
@@ -514,8 +533,15 @@ extract_mm_coding <- function(model) {
   construct_names <- c()
   construct_types <- c()
   for (i in seq_along(model$measurement_model)) {
-    c(construct_names, model$measurement_model[[i]][[1]]) -> construct_names
     c(construct_types, names(model$measurement_model)[i]) -> construct_types
+    if (names(model$measurement_model)[i] != "scaled_interaction") {
+      # cannot call this as it is a function
+      c(construct_names, model$measurement_model[[i]][[1]]) -> construct_names
+
+      #c(construct_names, model$constructs[i]) -> construct_names
+    } else {
+      c(construct_names, model$constructs[i]) -> construct_names # can we always use this? NO order is not the same
+    }
   }
   mm_coding <- matrix(nrow = length(construct_names),
                       ncol = 2,
@@ -546,6 +572,11 @@ dot_subcomponent_mm <- function(index, model, theme) {
 
   mm_coding <- extract_mm_coding(model)
   is_reflective <- mm_coding[index, 2] == "reflective"
+  is_interaction <- mm_coding[index, 2] == "scaled_interaction"
+  if (is_interaction) {
+    return("")
+  }
+
   if (is_reflective) {
     edge_style <- get_mm_edge_style(theme, forward = FALSE)
   } else {
@@ -656,9 +687,10 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
       if (theme$mm.edge.label.show) {
         edge_label <- paste0(", label = '", letter, " = ", loading, "'")
       }
+      edge_style <- get_value_dependent_edge_style(loading, theme)
       edges <- paste0(edges,
                       "'",mm_matrix_subset[2], "' -> {'", mm_matrix_subset[1], "'}",
-                      "[weight = ", weights, edge_label ,", penwidth = ", abs(loading * theme$mm.edge.width_multiplier), "]\n")
+                      "[weight = ", weights, edge_label ,", penwidth = ", abs(loading * theme$mm.edge.width_multiplier), edge_style, "]\n")
     }
   } else {# is.matrix() == TRUE
     for (i in 1:nrow(mm_matrix_subset)) {
@@ -681,15 +713,36 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
         if (theme$mm.edge.label.show) {
           edge_label <- paste0(", label = '", letter, " = ", loading, "'")
         }
+        edge_style <- get_value_dependent_edge_style(loading, theme)
         edges <- paste0(edges,
                         "'",mm_matrix_subset[i, 2], "' -> {'", mm_matrix_subset[i, 1], "'}",
-                        "[weight = ", weights, edge_label,", penwidth = ", abs(loading * theme$mm.edge.width_multiplier), "]\n")
+                        "[weight = ", weights, edge_label,", penwidth = ", abs(loading * theme$mm.edge.width_multiplier), edge_style, "]\n")
       }
     }
   }
 
-  edges <- gsub("\\*", "_x_", edges)
+  # we don't show interaction term measurement items
+  #edges <- gsub("\\*", "_x_", edges)
   return(edges)
 }
 
+
+
+# EXPERIMENTAL STUFF ----
+
+hyperedge <- function(){
+  dot <- "digraph {
+  A [label = IV]
+  B [label = DV]
+  C [label = Moderator]
+  empty [label = '', shape = point, width = 0, height = 0]
+
+  A -> empty  [arrowhead = none, weight = 1000]
+  empty -> B [weight = 1000]
+  C -> empty [constraint = FALSE]
+  C -> B
+}
+"
+  #DiagrammeR::grViz(dot)
+}
 
