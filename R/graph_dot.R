@@ -784,22 +784,22 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
   lamda <- "\U0001D706"
   #print(lamda)
 
-
-  if (is.vector(mm_matrix_subset)) {
-    cat("We're in vector land.")
+  for (i in 1:nrow(mm_matrix_subset)) {
+    # XXX HOC fails here ----
     if (theme$mm.edge.use_outer_weights) {
-      loading <- round(model$outer_weights[mm_matrix_subset[2], mm_matrix_subset[1]], theme$plot.rounding)
+      loading <-
+        round(model$outer_weights[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
     } else {
-      loading <- round(model$outer_loadings[mm_matrix_subset[2], mm_matrix_subset[1]], theme$plot.rounding)
+      loading <-
+        round(model$outer_loadings[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
     }
 
-    if (grepl("\\*", mm_matrix_subset[2])) {
+    if (grepl("\\*", mm_matrix_subset[i, 2])) {
       # show interaction indicators?
     } else {
-
       #
       letter <- "w"
-      if ( mm_matrix_subset[3] == "C") {
+      if (mm_matrix_subset[i, 3] == "C") {
         letter <- lamda
       }
 
@@ -808,39 +808,24 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
         edge_label <- paste0(", label = '", letter, " = ", loading, "'")
       }
       edge_style <- get_value_dependent_edge_style(loading, theme)
-      edges <- paste0(edges,
-                      "'",mm_matrix_subset[2], "' -> {'", mm_matrix_subset[1], "'}",
-                      "[weight = ", weights, edge_label ,", penwidth = ", abs(loading * theme$mm.edge.width_multiplier), edge_style, "]\n")
-    }
-  } else {# is.matrix() == TRUE
-    for (i in 1:nrow(mm_matrix_subset)) {
-      # XXX HOC fails here ----
-      if (theme$mm.edge.use_outer_weights) {
-        loading <- round(model$outer_weights[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
-      } else {
-        loading <- round(model$outer_loadings[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
-      }
-
-      if (grepl("\\*", mm_matrix_subset[i, 2])) {
-        # show interaction indicators?
-      } else {
-        #
-        letter <- "w"
-        if ( mm_matrix_subset[i,3] == "C") {
-          letter <- lamda
-        }
-
-        edge_label <- ""
-        if (theme$mm.edge.label.show) {
-          edge_label <- paste0(", label = '", letter, " = ", loading, "'")
-        }
-        edge_style <- get_value_dependent_edge_style(loading, theme)
-        edges <- paste0(edges,
-                        "'",mm_matrix_subset[i, 2], "' -> {'", mm_matrix_subset[i, 1], "'}",
-                        "[weight = ", weights, edge_label,", penwidth = ", abs(loading * theme$mm.edge.width_multiplier), edge_style, "]\n")
-      }
+      edges <- paste0(
+        edges,
+        "'",
+        mm_matrix_subset[i, 2],
+        "' -> {'",
+        mm_matrix_subset[i, 1],
+        "'}",
+        "[weight = ",
+        weights,
+        edge_label,
+        ", penwidth = ",
+        abs(loading * theme$mm.edge.width_multiplier),
+        edge_style,
+        "]\n"
+      )
     }
   }
+
 
   # we don't show interaction term measurement items
   #edges <- gsub("\\*", "_x_", edges)
