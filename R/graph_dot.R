@@ -36,49 +36,116 @@ if (FALSE) {
 
 globalVariables(c("."))
 
-# Utilities ----
 
-glue_dot <- function(x) {
-  glue::glue(x, .open = "<<", .close = ">>", .envir = parent.frame())
+
+#' Plot various SEMinR models
+#'
+#' With the help of the \code{DiagrammeR} package this dot graph can then be plotted in
+#' various in RMarkdown, shiny, and other contexts.
+#' Depending on the type of model, different parameters can be used.
+#' Please check the \code{\link{dot_graph}} function for additional parameters.
+#'
+#' @param model The model description
+#' @param title An optional title for the plot
+#' @param theme Theme created with \code{\link{seminr_theme_create}}.
+#' @param ... Additional parameters
+#'
+#' @return Returns the plot.
+#' @export
+plot_model <- function(model,
+                       title = "",
+                       theme = NULL,
+                       ...){
+  if (requireNamespace("DiagrammeR", quietly = TRUE)) {
+    res <- DiagrammeR::grViz(dot_graph(model, title, theme, ...))
+    set_last_seminr_plot(res)
+    res
+  } else {
+    message("This function requires the DiagrammeR package. You can install it by calling: install.packages(\"DiagrammeR\")")
+  }
 }
 
-#' Wrap a text in single quotes
-#'
-#' @param x a character string
-esc_node <- function(x){
-  paste0("'", x ,"'")
-}
 
-
-
-#' Format p values for the output and removes trailing numbers when p > .10
+#' Saves a SEMinR model plot to file
 #'
-#' @param pvals A vector with p-values
-#' @param sig.limit The lowest threshold for full reporting
-#' @param digits the amount of digits to report when sig.limit < p < .10
+#' Saves a SEMinR model plot to a graphical file. Default output is RPlots.pdf.
 #'
-#' @return A string formated p-value including equal and less-than sign
-# @export
+#' @param filename The name of the file output (can be png, pdf, webp, ps, or svg.)
+#' @param plot A plot that is created from the \code{\link{plot_model}} function. By default it uses the last plot created.
+#' @param width An optional parameter for width in pixels.
+#' @param height An optional parameter for height in pixels.
 #'
-# @examples
-#' pvalr(c(0.432, 0.05, 0.00001))
-pvalr <- function(pvals, sig.limit = .001, digits = 3) {
-
-  roundr <- function(x, digits = 1) {
-    res <- sprintf(paste0('%.', digits, 'f'), x) #generate sprintf string
-    zzz <- paste0('0.', paste(rep('0', digits), collapse = ''))
-    res[res == paste0('-', zzz)] <- zzz
-    paste0("= ",res)
+#' @return Does not return a value
+#' @export
+#'
+#' @examples
+#' mobi <- mobi
+#'
+#' # seminr syntax for creating measurement model
+#' mobi_mm <- constructs(
+#'              reflective("Image",        multi_items("IMAG", 1:5)),
+#'              reflective("Expectation",  multi_items("CUEX", 1:3)),
+#'              reflective("Quality",      multi_items("PERQ", 1:7)),
+#'              reflective("Value",        multi_items("PERV", 1:2)),
+#'              reflective("Satisfaction", multi_items("CUSA", 1:3)),
+#'              reflective("Complaints",   single_item("CUSCO")),
+#'              reflective("Loyalty",      multi_items("CUSL", 1:3))
+#'            )
+#' # seminr syntax for creating structural model
+#' mobi_sm <- relationships(
+#'   paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+#'   paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
+#'   paths(from = "Quality",      to = c("Value", "Satisfaction")),
+#'   paths(from = "Value",        to = c("Satisfaction")),
+#'   paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
+#'   paths(from = "Complaints",   to = "Loyalty")
+#' )
+#'
+#' # estimate the model
+#' mobi_pls <- estimate_pls(data = mobi,
+#'                          measurement_model = mobi_mm,
+#'                          structural_model = mobi_sm)
+#' \dontrun{
+#' # generate the plot
+#' plot_model(mobi_pls)
+#' # save to file
+#' save_plot("myplot.pdf")
+#' }
+#'
+save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width = NULL, height = NULL){
+  if (!requireNamespace("DiagrammeRsvg", quietly = TRUE)) {
+    stop("This function requires the DiagrammeRsvg package. You can install it by calling: install.packages(\"DiagrammeRsvg\")")
+  }
+  if (!requireNamespace("rsvg", quietly = TRUE)) {
+    stop("This function requires the rsvg package. You can install it by calling: install.packages(\"rsvg\")")
   }
 
-  sapply(pvals, function(x, sig.limit) {
-    if (x < sig.limit)
-      return(sprintf('< %s', format(sig.limit)))
-    if (x > .1)
-      return(roundr(x, digits = 2))
-    else
-      return(roundr(x, digits = digits))
-  }, sig.limit = sig.limit)
+
+  #svg <- my_model %>%
+  #  dot_graph() %>%
+  #  grViz() %>%
+  svg <- plot %>%
+    DiagrammeRsvg::export_svg() %>% charToRaw()
+
+  ext <- tolower(tools::file_ext(filename))
+  result = switch(
+    ext,
+    "pdf" = {svg %>% rsvg::rsvg_pdf(filename, width = width, height = height)},
+    "png" = {svg %>% rsvg::rsvg_png(filename, width = width, height = height)},
+    "ps" = {svg %>% rsvg::rsvg_ps(filename, width = width, height = height)},
+    "svg" = {svg %>% rsvg::rsvg_svg(filename, width = width, height = height)},
+    "webp" = {
+      if (!requireNamespace("webp", quietly = TRUE)) {
+        stop("Plotting to webp-files requires the webp package. You can install it by calling: install.packages(\"webp\")")
+      }
+      svg %>% rsvg::rsvg_webp(filename, width = width, height = height)
+      },
+    #"raw" = {svg %>% rsvg::rsvg_raw(filename, width = width, height = height)},
+
+    {message(paste0("Unsuported file type: '",ext, "'. Please use either png, pdf, webp, ps, svg, or raw."))}
+  )
+
+
 }
 
 # DOT GRAPH ----
@@ -89,6 +156,10 @@ pvalr <- function(pvals, sig.limit = .001, digits = 3) {
 #' various in RMarkdown, shiny, and other contexts.
 #' Depending on the type of model, different parameters can be used.
 #'
+#' Current limitations:
+#' - Only plots PLS Models
+#' - no higher order constructs
+#'
 #' @param model The model description
 #' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
@@ -97,7 +168,47 @@ pvalr <- function(pvals, sig.limit = .001, digits = 3) {
 #' @return The path model as a formatted string in dot language.
 #' @export
 #'
-# @examples
+#' @examples
+#' mobi <- mobi
+#'
+#' #seminr syntax for creating measurement model
+#' mobi_mm <- constructs(
+#'              reflective("Image",        multi_items("IMAG", 1:5)),
+#'              reflective("Expectation",  multi_items("CUEX", 1:3)),
+#'              reflective("Quality",      multi_items("PERQ", 1:7)),
+#'              reflective("Value",        multi_items("PERV", 1:2)),
+#'              reflective("Satisfaction", multi_items("CUSA", 1:3)),
+#'              reflective("Complaints",   single_item("CUSCO")),
+#'              reflective("Loyalty",      multi_items("CUSL", 1:3))
+#'            )
+#' #seminr syntax for creating structural model
+#' mobi_sm <- relationships(
+#'   paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+#'   paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
+#'   paths(from = "Quality",      to = c("Value", "Satisfaction")),
+#'   paths(from = "Value",        to = c("Satisfaction")),
+#'   paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
+#'   paths(from = "Complaints",   to = "Loyalty")
+#' )
+#'
+#' mobi_pls <- estimate_pls(data = mobi,
+#'                          measurement_model = mobi_mm,
+#'                          structural_model = mobi_sm)
+#'
+#' # adapt nboot for better results
+#' mobi_boot <- bootstrap_model(mobi_pls, nboot = 20, cores = 1)
+#' # generate dot-Notation
+#' res <- dot_graph(mobi_pls, title = "PLS-Model plot")
+#'
+#' \dontrun{
+#' DiagrammeR::grViz(res)}
+#'
+#' # generate dot-Notation
+#' res <- dot_graph(mobi_boot, title = "Bootstrapped PLS-Model plot")
+#'
+#' \dontrun{
+#' DiagrammeR::grViz(res)}
+#'
 dot_graph <- function(model,
                       title = "",
                       theme = NULL,
@@ -105,15 +216,12 @@ dot_graph <- function(model,
   UseMethod("dot_graph")
 }
 
-dot_graph.default <- function(x, ...){
-  stop("Whoops. This shouldn't have happened. Please let us know if this happens and how.")
+
+dot_graph.default <- function(...){
+  stop("Whoops. This shouldn't have happened. Did you use an unsupported model type? Please let us know if this happens and how.")
 }
 
 #' Convert a seminr measurement model to a Graphviz representation
-#'
-#' With the help of the \code{DiagrammeR} package this code can then be plotted in
-#' various contexts.
-#'
 #'
 #' @rdname dot_graph
 #' @param model Model created with \code{seminr}.
@@ -136,11 +244,7 @@ dot_graph.default <- function(x, ...){
 #'              reflective("Complaints",   single_item("CUSCO")),
 #'              reflective("Loyalty",      multi_items("CUSL", 1:3))
 #'            )
-#' res <- dot_graph(mobi_mm, title = "Preview measurement model")
-#'
-#' \dontrun{
-#' DiagrammeR::grViz(res)
-#' }
+#' dot_graph(mobi_mm, title = "Preview measurement model")
 dot_graph.measurement_model <-
   function(model,
            title = "",
@@ -186,10 +290,6 @@ dot_graph.measurement_model <-
 
 #' Convert a seminr measurement model to a Graphviz representation
 #'
-#' With the help of the \code{DiagrammeR} package this code can then be plotted in
-#' various contexts.
-#'
-#'
 # @rdname dot_graph
 #' @param model Model created with \code{seminr}.
 #' @param title An optional title for the plot
@@ -201,17 +301,16 @@ dot_graph.measurement_model <-
 #'
 #' @examples
 #' # - - - - - - - - - - - - - - - -
-#' # Example for plotting a measurement model
-#' mobi_mm <- constructs(
-#'              reflective("Image",        multi_items("IMAG", 1:5)),
-#'              reflective("Expectation",  multi_items("CUEX", 1:3)),
-#'              reflective("Quality",      multi_items("PERQ", 1:7)),
-#'              reflective("Value",        multi_items("PERV", 1:2)),
-#'              reflective("Satisfaction", multi_items("CUSA", 1:3)),
-#'              reflective("Complaints",   single_item("CUSCO")),
-#'              reflective("Loyalty",      multi_items("CUSL", 1:3))
-#'            )
-#' res <- dot_graph(mobi_mm, title = "Preview measurement model")
+#' # Example for plotting a structural model
+#' mobi_sm <- relationships(
+#'   paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+#'   paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
+#'   paths(from = "Quality",      to = c("Value", "Satisfaction")),
+#'   paths(from = "Value",        to = c("Satisfaction")),
+#'   paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
+#'   paths(from = "Complaints",   to = "Loyalty")
+#' )
+#' res <- dot_graph(mobi_sm, title = "Preview structural model")
 #'
 #' \dontrun{
 #' DiagrammeR::grViz(res)
@@ -274,13 +373,6 @@ dot_graph.structural_model <-
 
 #' Convert a seminr model to Graphviz representation
 #'
-#' With the help of the \code{DiagrammeR} package this code can then be plotted in
-#' various contexts.
-#'
-#' Current limitations:
-#' - Only plots PLS Models
-#' - no higher order constructs
-#'
 #' @rdname dot_graph
 #' @param model Model created with \code{seminr}.
 #' @param title An optional title for the plot
@@ -298,18 +390,12 @@ dot_graph.boot_seminr_model <- function(model,
                                 measurement_only = FALSE,
                                 structure_only = FALSE, ...
 ) {
+  # the origingal pls method is capable of plotting boot strapped models
   dot_graph.pls_model(model, title, theme, measurement_only, structure_only, ...)
 }
 
 
 #' Convert a seminr model to Graphviz representation
-#'
-#' With the help of the \code{DiagrammeR} package this code can then be plotted in
-#' various contexts.
-#'
-#' Current limitations:
-#' - Only plots PLS Models
-#' - no higher order constructs
 #'
 #' @rdname dot_graph
 #' @param model Model created with \code{seminr}.
@@ -321,41 +407,6 @@ dot_graph.boot_seminr_model <- function(model,
 # @return The path model as a formatted string in dot language.
 #' @export
 #'
-#' @examples
-#' # - - - - - - - - - - - - - - - -
-#' # Example for plotting a PLS-Model
-#' mobi <- mobi
-#'
-#' #seminr syntax for creating measurement model
-#' mobi_mm <- constructs(
-#'              reflective("Image",        multi_items("IMAG", 1:5)),
-#'              reflective("Expectation",  multi_items("CUEX", 1:3)),
-#'              reflective("Quality",      multi_items("PERQ", 1:7)),
-#'              reflective("Value",        multi_items("PERV", 1:2)),
-#'              reflective("Satisfaction", multi_items("CUSA", 1:3)),
-#'              reflective("Complaints",   single_item("CUSCO")),
-#'              reflective("Loyalty",      multi_items("CUSL", 1:3))
-#'            )
-#' #seminr syntax for creating structural model
-#' mobi_sm <- relationships(
-#'   paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
-#'   paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
-#'   paths(from = "Quality",      to = c("Value", "Satisfaction")),
-#'   paths(from = "Value",        to = c("Satisfaction")),
-#'   paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
-#'   paths(from = "Complaints",   to = "Loyalty")
-#' )
-#'
-#' mobi_pls <- estimate_pls(data = mobi,
-#'                          measurement_model = mobi_mm,
-#'                          structural_model = mobi_sm)
-#'
-#' # generate dot-Notation
-#' res <- dot_graph(mobi_pls, title = "PLS-Model plot")
-#'
-#' \dontrun{
-#' DiagrammeR::grViz(res)
-#' }
 dot_graph.pls_model <- function(model,
                                 title = "",
                                 theme = NULL,
@@ -399,7 +450,8 @@ dot_graph.pls_model <- function(model,
   # generate components ----
   sm <- ""
   mm <- ""
-  # replace needed parts do not break if-else blocks as some artificial models only work with either function
+  # replace needed parts
+  # do not change the order in if-else statement as some artificial models only work with either function
   if (measurement_only) {
     sm <- dot_component_sm_parts(model = model, theme = thm)
   } else {
@@ -410,6 +462,7 @@ dot_graph.pls_model <- function(model,
   } else {
     mm <- dot_component_mm(model = model, theme = thm)
   }
+  # do not change end - - - -
 
   glue_dot(paste0("digraph G {\n",
                   "\n<<global_style>>\n",
@@ -424,7 +477,9 @@ dot_graph.pls_model <- function(model,
 
 # GLOBAL ------------------
 
-# get global theme options
+#' Get dot string for global theme options
+#' @keywords internal
+#' @param theme a theme
 get_global_style <- function(theme) {
   glue_dot(paste0("// ----------------------\n",
                   "// General graph settings\n",
@@ -446,6 +501,9 @@ get_global_style <- function(theme) {
 
 dot_component_sm_parts <- function(model, theme){
   #used for plotting measurement models
+  # This is a "hacky" solution. Because we create artificial models
+  # and did not want to create an aritificial measurement model
+  # this function is used to plot only the SM part.
   sm_nodes <- extract_sm_nodes(model, theme)
   sm_node_style <- get_sm_node_style(theme)
   glue_dot(paste0("// --------------------\n",
@@ -496,13 +554,20 @@ format_sm_node <- function(construct, model, theme){
   # this is the unicode symbol for ^2
   squared_symbol <- "\U00B2"
 
-
-
   formatted_node <- ""
-  #TODO: switch to adjusted
+
+  # decide whether or not to use adj r^2
+  r_index <- 1
+  r_string <- ""
+  if (theme$plot.adj) {
+    r_index <- 2
+    r_string <- "adj. "
+  }
   if (construct %in% colnames(model$rSquared)) {
-    formatted_node <- paste0("'", construct, "'",
-                             " [label='", construct, "\nr",squared_symbol,"=", round(model$rSquared[1, construct], theme$plot.rounding), "']")
+    formatted_node <- paste0("'", construct, "' ",
+                             "[label='", construct, "\n",
+                             r_string, "r",squared_symbol,"=", round(model$rSquared[r_index, construct], theme$plot.rounding),
+                             "']")
   } else {
     formatted_node <- paste0("'", construct, "'" , "[label='",gsub("_x_","\\*", construct),"']")
   }
@@ -585,10 +650,10 @@ extract_sm_edges <- function(model, theme, weights = 1) {
         cistring <- paste0("95% CI [", blower, ", ", bupper, "]")
       }
 
-      suffix <- paste0(c(tstring, pstring, cistring), collapse = ", ")
+      suffix <- paste0(c(tstring, pstring, cistring), collapse = "\n")
 
       if (nchar(suffix) > 0) {
-        suffix <- paste0(" (", suffix, ")")
+        suffix <- paste0("\n", suffix, "") # <FONT POINT-SIZE="20"> ?
       }
 
       coef <- paste0(bmean, suffix)
@@ -627,6 +692,7 @@ get_sm_edge_style <- function(theme){
                   "fontsize = <<theme$sm.edge.label.fontsize>>,\n",
                   "fontname = <<theme$plot.fontname>>,\n",
                   "<<minlen_str>>",
+                  #"constraint=false,", # TODO: consider optional parameter
                   "dir = both,\n",
                   "arrowhead = normal,\n",
                   "arrowtail = none"))
@@ -759,12 +825,14 @@ get_mm_edge_style <- function(theme, forward){
 extract_mm_nodes <- function(index, model) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
-  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ]
-  if (!is.vector(mm_matrix_subset)) {
+  # I added drop = FALSE to ensure this is always a matrix. should make things easier
+  #
+  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ,drop = FALSE] # Should now always be a matrix
+  #if (!is.vector(mm_matrix_subset)) {
     nodes <- paste0(mm_matrix_subset[, 2], collapse = "\n")
-  } else {
-    nodes <- paste0(mm_matrix_subset[2], collapse = "\n")
-  }
+  #} else {
+  #  nodes <- paste0(mm_matrix_subset[2], collapse = "\n")
+  #}
   return(nodes)
 }
 
@@ -772,7 +840,7 @@ extract_mm_nodes <- function(index, model) {
 extract_mm_edges <- function(index, model, theme, weights = 1000) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
-  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ]
+  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ,drop = FALSE]
   edges <- ""
 
 
@@ -781,21 +849,22 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
   lamda <- "\U0001D706"
   #print(lamda)
 
-
-  if (is.vector(mm_matrix_subset)) {
+  for (i in 1:nrow(mm_matrix_subset)) {
+    # XXX HOC fails here ----
     if (theme$mm.edge.use_outer_weights) {
-      loading <- round(model$outer_weights[mm_matrix_subset[2], mm_matrix_subset[1]], theme$plot.rounding)
+      loading <-
+        round(model$outer_weights[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
     } else {
-      loading <- round(model$outer_loadings[mm_matrix_subset[2], mm_matrix_subset[1]], theme$plot.rounding)
+      loading <-
+        round(model$outer_loadings[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
     }
 
-    if (grepl("\\*", mm_matrix_subset[2])) {
+    if (grepl("\\*", mm_matrix_subset[i, 2])) {
       # show interaction indicators?
     } else {
-
       #
       letter <- "w"
-      if ( mm_matrix_subset[3] == "C") {
+      if (mm_matrix_subset[i, 3] == "C") {
         letter <- lamda
       }
 
@@ -804,39 +873,24 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
         edge_label <- paste0(", label = '", letter, " = ", loading, "'")
       }
       edge_style <- get_value_dependent_edge_style(loading, theme)
-      edges <- paste0(edges,
-                      "'",mm_matrix_subset[2], "' -> {'", mm_matrix_subset[1], "'}",
-                      "[weight = ", weights, edge_label ,", penwidth = ", abs(loading * theme$mm.edge.width_multiplier), edge_style, "]\n")
-    }
-  } else {# is.matrix() == TRUE
-    for (i in 1:nrow(mm_matrix_subset)) {
-      # XXX HOC fails here ----
-      if (theme$mm.edge.use_outer_weights) {
-        loading <- round(model$outer_weights[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
-      } else {
-        loading <- round(model$outer_loadings[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
-      }
-
-      if (grepl("\\*", mm_matrix_subset[i, 2])) {
-        # show interaction indicators?
-      } else {
-        #
-        letter <- "w"
-        if ( mm_matrix_subset[i,3] == "C") {
-          letter <- lamda
-        }
-
-        edge_label <- ""
-        if (theme$mm.edge.label.show) {
-          edge_label <- paste0(", label = '", letter, " = ", loading, "'")
-        }
-        edge_style <- get_value_dependent_edge_style(loading, theme)
-        edges <- paste0(edges,
-                        "'",mm_matrix_subset[i, 2], "' -> {'", mm_matrix_subset[i, 1], "'}",
-                        "[weight = ", weights, edge_label,", penwidth = ", abs(loading * theme$mm.edge.width_multiplier), edge_style, "]\n")
-      }
+      edges <- paste0(
+        edges,
+        "'",
+        mm_matrix_subset[i, 2],
+        "' -> {'",
+        mm_matrix_subset[i, 1],
+        "'}",
+        "[weight = ",
+        weights,
+        edge_label,
+        ", penwidth = ",
+        abs(loading * theme$mm.edge.width_multiplier),
+        edge_style,
+        "]\n"
+      )
     }
   }
+
 
   # we don't show interaction term measurement items
   #edges <- gsub("\\*", "_x_", edges)
@@ -862,4 +916,17 @@ hyperedge <- function(){
 "
   #DiagrammeR::grViz(dot)
 }
+
+# Font things
+dot <- "digraph {
+  A [label = IV]
+  B [label = DV]
+
+  A -> B [label = < <FONT POINT-SIZE='20'> <B><I>lamda</I> &nbsp; = 0.3</B></FONT> <BR />  <I>p</I> &lt; 0.001 >]
+}"
+
+#DiagrammeR::grViz(dot)
+
+
+
 

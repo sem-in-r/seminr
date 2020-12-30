@@ -36,6 +36,7 @@ mobi_boot %>% dot_graph() %>% grViz()
 # Plot bootstrapped PLS model and show CI
 thm <- seminr_theme_get()
 thm$sm.edge.boot.show_ci <- TRUE
+thm$sm.edge.boot.show_t_value <- TRUE
 seminr_theme_set(thm)
 mobi_boot %>% dot_graph() %>% grViz()
 
