@@ -36,50 +36,33 @@ if (FALSE) {
 
 globalVariables(c("."))
 
-# Utilities ----
 
-glue_dot <- function(x) {
-  glue::glue(x, .open = "<<", .close = ">>", .envir = parent.frame())
-}
 
-#' Wrap a text in single quotes
+#' Plot various SEMinR models
 #'
-#' @param x a character string
-esc_node <- function(x){
-  paste0("'", x ,"'")
-}
-
-
-
-#' Format p values for the output and removes trailing numbers when p > .10
+#' With the help of the \code{DiagrammeR} package this dot graph can then be plotted in
+#' various in RMarkdown, shiny, and other contexts.
+#' Depending on the type of model, different parameters can be used.
+#' Please check the \code{\link{dot_graph}} function for additional parameters
 #'
-#' @param pvals A vector with p-values
-#' @param sig.limit The lowest threshold for full reporting
-#' @param digits the amount of digits to report when sig.limit < p < .10
+#' @param model The model description
+#' @param title An optional title for the plot
+#' @param theme Theme created with \code{\link{seminr_theme_create}}.
+#' @param ... Additional parameters
 #'
-#' @return A string formated p-value including equal and less-than sign
-# @export
-#'
-# @examples
-#' pvalr(c(0.432, 0.05, 0.00001))
-pvalr <- function(pvals, sig.limit = .001, digits = 3) {
-
-  roundr <- function(x, digits = 1) {
-    res <- sprintf(paste0('%.', digits, 'f'), x) #generate sprintf string
-    zzz <- paste0('0.', paste(rep('0', digits), collapse = ''))
-    res[res == paste0('-', zzz)] <- zzz
-    paste0("= ",res)
+#' @return The path model as a formatted string in dot language.
+#' @export
+plot_model <- function(model,
+                       title = "",
+                       theme = NULL,
+                       ...){
+  if (requireNamespace("DiagrammeR", quietly = TRUE)) {
+    DiagrammeR::grViz(dot_graph(model, title, theme, ...))
+  } else {
+    message("This function requires the DiagrammeR package. You can install it by calling: install.packages(\"DiagrammeR\")")
   }
-
-  sapply(pvals, function(x, sig.limit) {
-    if (x < sig.limit)
-      return(sprintf('< %s', format(sig.limit)))
-    if (x > .1)
-      return(roundr(x, digits = 2))
-    else
-      return(roundr(x, digits = digits))
-  }, sig.limit = sig.limit)
 }
+
 
 # DOT GRAPH ----
 
@@ -298,6 +281,7 @@ dot_graph.boot_seminr_model <- function(model,
                                 measurement_only = FALSE,
                                 structure_only = FALSE, ...
 ) {
+  # the origingal pls method is capable of plotting boot strapped models
   dot_graph.pls_model(model, title, theme, measurement_only, structure_only, ...)
 }
 
@@ -853,12 +837,14 @@ hyperedge <- function(){
 }
 
 # Font things
-DiagrammeR::grViz("digraph {
+dot <- "digraph {
   A [label = IV]
   B [label = DV]
 
   A -> B [label = < <FONT POINT-SIZE='20'> <B><I>lamda</I> &nbsp; = 0.3</B></FONT> <BR />  <I>p</I> &lt; 0.001 >]
-}")
+}"
+
+#DiagrammeR::grViz(dot)
 
 
 
