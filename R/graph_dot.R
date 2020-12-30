@@ -585,10 +585,10 @@ extract_sm_edges <- function(model, theme, weights = 1) {
         cistring <- paste0("95% CI [", blower, ", ", bupper, "]")
       }
 
-      suffix <- paste0(c(tstring, pstring, cistring), collapse = ", ")
+      suffix <- paste0(c(tstring, pstring, cistring), collapse = "\n")
 
       if (nchar(suffix) > 0) {
-        suffix <- paste0(" (", suffix, ")")
+        suffix <- paste0("\n", suffix, "") # <FONT POINT-SIZE="20"> ?
       }
 
       coef <- paste0(bmean, suffix)
@@ -627,6 +627,7 @@ get_sm_edge_style <- function(theme){
                   "fontsize = <<theme$sm.edge.label.fontsize>>,\n",
                   "fontname = <<theme$plot.fontname>>,\n",
                   "<<minlen_str>>",
+                  #"constraint=false,", # TODO: consider optional parameter
                   "dir = both,\n",
                   "arrowhead = normal,\n",
                   "arrowtail = none"))
@@ -759,12 +760,14 @@ get_mm_edge_style <- function(theme, forward){
 extract_mm_nodes <- function(index, model) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
-  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ]
-  if (!is.vector(mm_matrix_subset)) {
+  # I added drop = FALSE to ensure this is always a matrix. should make things easier
+  #
+  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ,drop = FALSE] # Should now always be a matrix
+  #if (!is.vector(mm_matrix_subset)) {
     nodes <- paste0(mm_matrix_subset[, 2], collapse = "\n")
-  } else {
-    nodes <- paste0(mm_matrix_subset[2], collapse = "\n")
-  }
+  #} else {
+  #  nodes <- paste0(mm_matrix_subset[2], collapse = "\n")
+  #}
   return(nodes)
 }
 
@@ -772,7 +775,7 @@ extract_mm_nodes <- function(index, model) {
 extract_mm_edges <- function(index, model, theme, weights = 1000) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
-  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ]
+  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ,drop = FALSE]
   edges <- ""
 
 
@@ -783,6 +786,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
 
 
   if (is.vector(mm_matrix_subset)) {
+    cat("We're in vector land.")
     if (theme$mm.edge.use_outer_weights) {
       loading <- round(model$outer_weights[mm_matrix_subset[2], mm_matrix_subset[1]], theme$plot.rounding)
     } else {
@@ -862,4 +866,15 @@ hyperedge <- function(){
 "
   #DiagrammeR::grViz(dot)
 }
+
+# Font things
+DiagrammeR::grViz("digraph {
+  A [label = IV]
+  B [label = DV]
+
+  A -> B [label = < <FONT POINT-SIZE='20'> <B><I>lamda</I> &nbsp; = 0.3</B></FONT> <BR />  <I>p</I> &lt; 0.001 >]
+}")
+
+
+
 
