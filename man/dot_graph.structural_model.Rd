@@ -16,22 +16,20 @@
 \item{...}{Unused}
 }
 \description{
-With the help of the \code{DiagrammeR} package this code can then be plotted in
-various contexts.
+Convert a seminr measurement model to a Graphviz representation
 }
 \examples{
 # - - - - - - - - - - - - - - - -
-# Example for plotting a measurement model
-mobi_mm <- constructs(
-             reflective("Image",        multi_items("IMAG", 1:5)),
-             reflective("Expectation",  multi_items("CUEX", 1:3)),
-             reflective("Quality",      multi_items("PERQ", 1:7)),
-             reflective("Value",        multi_items("PERV", 1:2)),
-             reflective("Satisfaction", multi_items("CUSA", 1:3)),
-             reflective("Complaints",   single_item("CUSCO")),
-             reflective("Loyalty",      multi_items("CUSL", 1:3))
-           )
-res <- dot_graph(mobi_mm, title = "Preview measurement model")
+# Example for plotting a structural model
+mobi_sm <- relationships(
+  paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+  paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
+  paths(from = "Quality",      to = c("Value", "Satisfaction")),
+  paths(from = "Value",        to = c("Satisfaction")),
+  paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
+  paths(from = "Complaints",   to = "Loyalty")
+)
+res <- dot_graph(mobi_sm, title = "Preview structural model")
 
 \dontrun{
 DiagrammeR::grViz(res)

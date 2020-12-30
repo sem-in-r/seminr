@@ -24,6 +24,12 @@ License: GPL-3
 Depends: R (>= 3.1.0)
 LazyData: TRUE
 RoxygenNote: 7.1.1
-Suggests: knitr, testthat, rmarkdown, DiagrammeR
+Suggests: 
+    knitr,
+    testthat,
+    rmarkdown,
+    DiagrammeR (>= 1.0.6), 
+    DiagrammeRsvg (>= 0.1), 
+    rsvg (>= 2.1)
 VignetteBuilder: knitr
 Encoding: UTF-8

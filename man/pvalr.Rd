@@ -21,3 +21,4 @@ pvalr(c(0.432, 0.05, 0.00001))
 \description{
 Format p values for the output and removes trailing numbers when p > .10
 }
+\keyword{internal}

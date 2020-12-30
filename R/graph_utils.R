@@ -14,7 +14,7 @@ esc_node <- function(x){
 
 
 #' Format p values for the output and removes trailing numbers when p > .10
-#'
+#' @keywords internal
 #' @param pvals A vector with p-values
 #' @param sig.limit The lowest threshold for full reporting
 #' @param digits the amount of digits to report when sig.limit < p < .10

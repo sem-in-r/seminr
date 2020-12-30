@@ -16,11 +16,11 @@ plot_model(model, title = "", theme = NULL, ...)
 \item{...}{Additional parameters}
 }
 \value{
-The path model as a formatted string in dot language.
+Returns the plot.
 }
 \description{
 With the help of the \code{DiagrammeR} package this dot graph can then be plotted in
 various in RMarkdown, shiny, and other contexts.
 Depending on the type of model, different parameters can be used.
-Please check the \code{\link{dot_graph}} function for additional parameters
+Please check the \code{\link{dot_graph}} function for additional parameters.
 }
