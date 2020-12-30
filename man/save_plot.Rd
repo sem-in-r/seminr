@@ -12,7 +12,7 @@ save_plot(
 )
 }
 \arguments{
-\item{filename}{The name of the file output (can be png, pdf, webp, ps, svg, or raw.)}
+\item{filename}{The name of the file output (can be png, pdf, webp, ps, or svg.)}
 
 \item{plot}{A plot that is created from the \code{\link{plot_model}} function. By default it uses the last plot created.}
 

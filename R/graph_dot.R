@@ -70,7 +70,7 @@ plot_model <- function(model,
 #'
 #' Saves a SEMinR model plot to a graphical file. Default output is RPlots.pdf.
 #'
-#' @param filename The name of the file output (can be png, pdf, webp, ps, svg, or raw.)
+#' @param filename The name of the file output (can be png, pdf, webp, ps, or svg.)
 #' @param plot A plot that is created from the \code{\link{plot_model}} function. By default it uses the last plot created.
 #' @param width An optional parameter for width in pixels.
 #' @param height An optional parameter for height in pixels.
@@ -132,10 +132,15 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
     ext,
     "pdf" = {svg %>% rsvg::rsvg_pdf(filename, width = width, height = height)},
     "png" = {svg %>% rsvg::rsvg_png(filename, width = width, height = height)},
-    "webp" = {svg %>% rsvg::rsvg_webp(filename, width = width, height = height)},
     "ps" = {svg %>% rsvg::rsvg_ps(filename, width = width, height = height)},
     "svg" = {svg %>% rsvg::rsvg_svg(filename, width = width, height = height)},
-    "raw" = {svg %>% rsvg::rsvg_raw(filename, width = width, height = height)},
+    "webp" = {
+      if (!requireNamespace("webp", quietly = TRUE)) {
+        stop("Plotting to webp-files requires the webp package. You can install it by calling: install.packages(\"webp\")")
+      }
+      svg %>% rsvg::rsvg_webp(filename, width = width, height = height)
+      },
+    #"raw" = {svg %>% rsvg::rsvg_raw(filename, width = width, height = height)},
 
     {message(paste0("Unsuported file type: '",ext, "'. Please use either png, pdf, webp, ps, svg, or raw."))}
   )

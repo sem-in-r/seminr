@@ -28,11 +28,16 @@ test_that("Saving a plot works", {
 
   # generate the plot
   p <- plot_model(mobi_pls)
-  # save to file
-  fname <- "testplot.pdf"
-  save_plot(fname, p)
-  testthat::expect_equal(file.exists(fname), TRUE)
-  testthat::expect_gt(file.info(fname)$size, expected = 0)
-  unlink(fname)
+
+  extensions <- c("pdf", "png", "ps", "webp", "svg")
+
+  for (ext in extensions) {
+    # save to file
+    fname <- paste0("testplot.", ext)
+    save_plot(fname, p)
+    testthat::expect_equal(file.exists(fname), TRUE)
+    testthat::expect_gt(file.info(fname)$size, expected = 0)
+    unlink(fname)
+  }
 
 })
