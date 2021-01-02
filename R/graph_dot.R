@@ -633,7 +633,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       bupper <- round(smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 6], theme$plot.rounding)
       bt <- smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 4]
       # TODO: Verify method to calculate p values
-      bp <- stats::pt(bt, nrow(model$data) - nrow(smry$bootstrapped_paths), lower = FALSE)
+      bp <- stats::pt(bt, nrow(model$data) - 1, lower = FALSE)
 
 
       tstring <- NULL
