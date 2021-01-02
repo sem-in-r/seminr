@@ -24,6 +24,11 @@ test_that("bootstrapped models work", {
 
   expect_error(dot_graph(mobi_boot), NA)
 
-  #DiagrammeR::grViz(dot_graph(mobi_boot))
+  if (FALSE) {
+    seminr::seminr_theme_set(seminr::seminr_theme_create(sm.edge.boot.show_t_value = T,
+                                                         sm.edge.boot.show_ci = T))
+    DiagrammeR::grViz(dot_graph(mobi_boot))
+  }
+
 
 })

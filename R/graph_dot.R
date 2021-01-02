@@ -644,33 +644,36 @@ extract_sm_edges <- function(model, theme, weights = 1) {
         tstring <- paste0("t = ", round(bt, theme$plot.rounding))
       }
       if (theme$sm.edge.boot.show_p_value) {
-        pstring <- paste0("p ", pvalr(bp))
+        pstring <- paste0("p ", pvalr(bp, html = TRUE))
       }
       if (theme$sm.edge.boot.show_ci) {
         cistring <- paste0("95% CI [", blower, ", ", bupper, "]")
       }
 
-      suffix <- paste0(c(tstring, pstring, cistring), collapse = "\n")
+      suffix <- paste0(c(tstring, pstring, cistring), collapse = "<BR />")
 
       if (nchar(suffix) > 0) {
-        suffix <- paste0("\n", suffix, "") # <FONT POINT-SIZE="20"> ?
+        fsize <- theme$sm.edge.label.fontsize - 2
+        suffix <- paste0("<BR /><FONT POINT-SIZE='", fsize, "'>", suffix, "</FONT>") # <FONT POINT-SIZE="20"> ?
       }
 
-      coef <- paste0(bmean, suffix)
       edge_width <- paste0(", penwidth = ", abs(bmean * theme$sm.edge.width_multiplier))
       edge_style <- get_value_dependent_edge_style(bmean, theme)
+      coef <- bmean
     } else # format regular pls model ----
       {
       coef <- round(model$path_coef[sm[i, 1], sm[i,2]], theme$plot.rounding)
       edge_width <- paste0(", penwidth = ", abs(coef * theme$sm.edge.width_multiplier))
       edge_style <- get_value_dependent_edge_style(coef, theme)
+      suffix <- ""
     }
 
 
     # build the label
     edge_label <- ""
     if (theme$sm.edge.label.show) {
-      edge_label <- paste0(", label = '", letter, " = ", coef, "'")
+      edge_label <- paste0(", label = < <B>", letter, " = ", coef, "</B>" , suffix, " >")
+      cat(edge_label)
     }
 
     # add the weight
@@ -837,6 +840,30 @@ extract_mm_nodes <- function(index, model) {
 }
 
 
+extract_mm_edge_label <- function(model, theme, indicator, construct){
+  if ("boot_seminr_model" %in% class(model)) {
+    boot_construct <- paste0(construct, " Boot Mean")
+    if (theme$mm.edge.use_outer_weights) {
+      loading <-
+        round(model$weights_descriptives[indicator, boot_construct], theme$plot.rounding)
+    } else {
+      loading <-
+        round(model$loadings_descriptives[indicator, boot_construct], theme$plot.rounding)
+    }
+  }
+  if ("pls_model" %in% class(model)) {
+    if (theme$mm.edge.use_outer_weights) {
+      loading <-
+        round(model$outer_weights[indicator, construct], theme$plot.rounding)
+    } else {
+      loading <-
+        round(model$outer_loadings[indicator, construct], theme$plot.rounding)
+    }
+  }
+  return(loading)
+}
+
+
 extract_mm_edges <- function(index, model, theme, weights = 1000) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
@@ -851,13 +878,20 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
 
   for (i in 1:nrow(mm_matrix_subset)) {
     # XXX HOC fails here ----
-    if (theme$mm.edge.use_outer_weights) {
-      loading <-
-        round(model$outer_weights[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
-    } else {
-      loading <-
-        round(model$outer_loadings[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
-    }
+    # TODO add bootstrapped
+
+
+    #if (theme$mm.edge.use_outer_weights) {
+    #  loading <-
+    #    round(model$outer_weights[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
+    #} else {
+    #  loading <-
+    #    round(model$outer_loadings[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
+    #}
+
+    loading <- extract_mm_edge_label(model, theme,
+                                     indicator = mm_matrix_subset[i, 2],
+                                     construct = mm_matrix_subset[i, 1])
 
     if (grepl("\\*", mm_matrix_subset[i, 2])) {
       # show interaction indicators?
