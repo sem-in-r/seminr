@@ -4,7 +4,7 @@
 \alias{pvalr}
 \title{Format p values for the output and removes trailing numbers when p > .10}
 \usage{
-pvalr(pvals, sig.limit = 0.001, digits = 3)
+pvalr(pvals, sig.limit = 0.001, digits = 3, html = FALSE)
 }
 \arguments{
 \item{pvals}{A vector with p-values}
@@ -12,6 +12,8 @@ pvalr(pvals, sig.limit = 0.001, digits = 3)
 \item{sig.limit}{The lowest threshold for full reporting}
 
 \item{digits}{the amount of digits to report when sig.limit < p < .10}
+
+\item{html}{whether to use html coded output}
 }
 \value{
 A string formated p-value including equal and less-than sign
