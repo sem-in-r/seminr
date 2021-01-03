@@ -1,42 +1,5 @@
-# TEST
-if (FALSE) {
-  library(seminr)
-
-  mobi <- mobi
-
-  #seminr syntax for creating measurement model
-  mobi_mm <- constructs(reflective("Image",        multi_items("IMAG", 1:5)),
-                        reflective("Expectation",  multi_items("CUEX", 1:3)),
-                        reflective("Quality",      multi_items("PERQ", 1:7)),
-                        reflective("Value",        multi_items("PERV", 1:2)),
-                        reflective("Satisfaction", multi_items("CUSA", 1:3)),
-                        reflective("Complaints",   single_item("CUSCO")),
-                        composite("Loyalty",      multi_items("CUSL", 1:3)))
-
-  #seminr syntax for creating structural model
-  mobi_sm <- relationships(paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
-                           paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
-                           paths(from = "Quality",      to = c("Value", "Satisfaction")),
-                           paths(from = "Value",        to = c("Satisfaction")),
-                           paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
-                           paths(from = "Complaints",   to = "Loyalty"))
-
-  mobi_pls <- estimate_pls(data = mobi,
-                           measurement_model = mobi_mm,
-                           structural_model = mobi_sm)
-
-  plot_theme <- create_theme(plot.title.fontsize = 40,
-                             plot.fontname = "Times",
-                             mm.node.fill = "firebrick",
-                             sm.node.fill = "pink")
-
-  dot_graph(mobi_pls, theme = plot_theme) %>% DiagrammeR::grViz()
-}
-
-
+# To allow some dot notation here and there
 globalVariables(c("."))
-
-
 
 #' Plot various SEMinR models
 #'
@@ -57,11 +20,23 @@ plot_model <- function(model,
                        theme = NULL,
                        ...){
   if (requireNamespace("DiagrammeR", quietly = TRUE)) {
+    # lavaan models
+    if (inherits(model, "cfa_model")) {
+      message("Plotting of lavaan models using semPlot.")
+      dot_graph.cfa_model(model, ...)
+      return()
+    }
+    if (inherits(model, "cbsem_model")) {
+      message("Plotting of lavaan models using semPlot.")
+      dot_graph.cbsem_model(model, ...)
+      return()
+    }
+
     res <- DiagrammeR::grViz(dot_graph(model, title, theme, ...))
     set_last_seminr_plot(res)
     res
   } else {
-    message("This function requires the DiagrammeR package. You can install it by calling: install.packages(\"DiagrammeR\")")
+    stop("This function requires the DiagrammeR package. You can install it by calling: install.packages(\"DiagrammeR\")")
   }
 }
 
@@ -118,6 +93,10 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
   }
   if (!requireNamespace("rsvg", quietly = TRUE)) {
     stop("This function requires the rsvg package. You can install it by calling: install.packages(\"rsvg\")")
+  }
+
+  if (is.null(plot)) {
+    stop("No compatible plot was created.")
   }
 
 
@@ -216,6 +195,43 @@ dot_graph <- function(model,
   UseMethod("dot_graph")
 }
 
+#' Plotting of confirmatory factor analysis models using semPLOT
+#'
+#' For a full description of parameters see \link[semPlot]{semPaths}
+#'
+#' @param model the CFA model
+#' @param title Unused
+#' @param theme Unused
+#' @param what The metric to use for edges ("path", "est", "std", "eq", "col")
+#' @param whatLabels The metric to use for edge labels
+#' @param ... Parameters passed to the \link[semPlot]{semPaths} function
+#' @export
+dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
+  if (!requireNamespace("semPlot", quietly = TRUE)) {
+    stop("Plotting models from lavaan is not implemented yet. As a fallback you can install \"semPlot\" and then utilized.")
+  }
+
+  semPlot::semPaths(model$lavaan_model, what = what, whatLabels = whatLabels,...)
+}
+
+#' Plotting of covariance based SEMs models using semPLOT
+#'
+#' For a full description of parameters see \link[semPlot]{semPaths}
+#'
+#' @param model the CBSEM model
+#' @param title Unused
+#' @param theme Unused
+#' @param what The metric to use for edges ("path", "est", "std", "eq", "col")
+#' @param whatLabels The metric to use for edge labels
+#' @param ... Parameters passed to the \link[semPlot]{semPaths} function
+#' @export
+dot_graph.cbsem_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
+  if (!requireNamespace("semPlot", quietly = TRUE)) {
+    stop("Plotting models from lavaan is not implemented yet. As a fallback you can install \"semPlot\" and then utilized.")
+  }
+
+semPlot::semPaths(model$lavaan_model, what = what, whatLabels = whatLabels,...)
+}
 
 dot_graph.default <- function(...){
   stop("Whoops. This shouldn't have happened. Did you use an unsupported model type? Please let us know if this happens and how.")
@@ -633,7 +649,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       bupper <- round(smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 6], theme$plot.rounding)
       bt <- smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 4]
       # TODO: Verify method to calculate p values
-      bp <- stats::pt(bt, nrow(model$data) - nrow(smry$bootstrapped_paths), lower = FALSE)
+      bp <- stats::pt(bt, nrow(model$data) - 1, lower = FALSE)
 
 
       tstring <- NULL
@@ -644,33 +660,36 @@ extract_sm_edges <- function(model, theme, weights = 1) {
         tstring <- paste0("t = ", round(bt, theme$plot.rounding))
       }
       if (theme$sm.edge.boot.show_p_value) {
-        pstring <- paste0("p ", pvalr(bp))
+        pstring <- paste0("p ", pvalr(bp, html = TRUE))
       }
       if (theme$sm.edge.boot.show_ci) {
         cistring <- paste0("95% CI [", blower, ", ", bupper, "]")
       }
 
-      suffix <- paste0(c(tstring, pstring, cistring), collapse = "\n")
+      suffix <- paste0(c(tstring, pstring, cistring), collapse = "<BR />")
 
       if (nchar(suffix) > 0) {
-        suffix <- paste0("\n", suffix, "") # <FONT POINT-SIZE="20"> ?
+        fsize <- theme$sm.edge.label.fontsize - 2
+        suffix <- paste0("<BR /><FONT POINT-SIZE='", fsize, "'>", suffix, "</FONT>") # <FONT POINT-SIZE="20"> ?
       }
 
-      coef <- paste0(bmean, suffix)
       edge_width <- paste0(", penwidth = ", abs(bmean * theme$sm.edge.width_multiplier))
       edge_style <- get_value_dependent_edge_style(bmean, theme)
+      coef <- bmean
     } else # format regular pls model ----
       {
       coef <- round(model$path_coef[sm[i, 1], sm[i,2]], theme$plot.rounding)
       edge_width <- paste0(", penwidth = ", abs(coef * theme$sm.edge.width_multiplier))
       edge_style <- get_value_dependent_edge_style(coef, theme)
+      suffix <- ""
     }
 
 
     # build the label
     edge_label <- ""
     if (theme$sm.edge.label.show) {
-      edge_label <- paste0(", label = '", letter, " = ", coef, "'")
+      edge_label <- paste0(", label = < <B>", letter, " = ", coef, "</B>" , suffix, " >")
+      #cat(edge_label)
     }
 
     # add the weight
@@ -837,6 +856,30 @@ extract_mm_nodes <- function(index, model) {
 }
 
 
+extract_mm_edge_label <- function(model, theme, indicator, construct){
+  if ("boot_seminr_model" %in% class(model)) {
+    boot_construct <- paste0(construct, " Boot Mean")
+    if (theme$mm.edge.use_outer_weights) {
+      loading <-
+        round(model$weights_descriptives[indicator, boot_construct], theme$plot.rounding)
+    } else {
+      loading <-
+        round(model$loadings_descriptives[indicator, boot_construct], theme$plot.rounding)
+    }
+  }
+  if ("pls_model" %in% class(model)) {
+    if (theme$mm.edge.use_outer_weights) {
+      loading <-
+        round(model$outer_weights[indicator, construct], theme$plot.rounding)
+    } else {
+      loading <-
+        round(model$outer_loadings[indicator, construct], theme$plot.rounding)
+    }
+  }
+  return(loading)
+}
+
+
 extract_mm_edges <- function(index, model, theme, weights = 1000) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
@@ -851,13 +894,20 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
 
   for (i in 1:nrow(mm_matrix_subset)) {
     # XXX HOC fails here ----
-    if (theme$mm.edge.use_outer_weights) {
-      loading <-
-        round(model$outer_weights[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
-    } else {
-      loading <-
-        round(model$outer_loadings[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
-    }
+    # TODO add bootstrapped
+
+
+    #if (theme$mm.edge.use_outer_weights) {
+    #  loading <-
+    #    round(model$outer_weights[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
+    #} else {
+    #  loading <-
+    #    round(model$outer_loadings[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
+    #}
+
+    loading <- extract_mm_edge_label(model, theme,
+                                     indicator = mm_matrix_subset[i, 2],
+                                     construct = mm_matrix_subset[i, 1])
 
     if (grepl("\\*", mm_matrix_subset[i, 2])) {
       # show interaction indicators?
