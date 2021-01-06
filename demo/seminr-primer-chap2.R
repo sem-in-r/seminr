@@ -1,4 +1,7 @@
-### Accompanying Code for the PLS Primer in R Workbook
+### Accompanying Code for:
+## Partial Least Squares Structural Equation Modeling (PLS-SEM) Using R - A Workbook (2021)
+## Hair, J.F. (Jr), Hult, T.M., Ringle, C.M., Sarstedt, M., Danks, N.P., and Ray, S.
+
 ## Chapter 2: Introduction to R and R Studio
 
 # Create a vector of integers
@@ -19,11 +22,11 @@ swirl()
 # Check all vignettes available in R
 vignette()
 
-# Load the Sweave vignette from utils package
-vignette("Sweave")
+# Load the SEMinR vignette
+vignette("SEMinR")
 
 # Check all demos available in R
 demo()
 
-# Load the LM demo for stats package
-demo("lm.glm")
+# Load the SEMinR ECSI demo
+demo("seminr-pls-ecsi")

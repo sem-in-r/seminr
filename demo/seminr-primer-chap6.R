@@ -1,4 +1,7 @@
-### Accompanying Code for the PLS Primer in R Workbook
+### Accompanying Code for:
+## Partial Least Squares Structural Equation Modeling (PLS-SEM) Using R - A Workbook (2021)
+## Hair, J.F. (Jr), Hult, T.M., Ringle, C.M., Sarstedt, M., Danks, N.P., and Ray, S.
+
 ## Chapter 6: Evaluation of the structural model
 
 # Load the SEMinR library

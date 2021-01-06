@@ -1,11 +1,14 @@
-### Accompanying Code for the PLS Primer in R Workbook
+### Accompanying Code for:
+## Partial Least Squares Structural Equation Modeling (PLS-SEM) Using R - A Workbook (2021)
+## Hair, J.F. (Jr), Hult, T.M., Ringle, C.M., Sarstedt, M., Danks, N.P., and Ray, S.
+
 ## Chapter 3: Introduction to SEMinR
 
 # Download and install the SEMinR package;
 # You only need to do this once to equip RStudio on your computer with SEMinR
 install.packages("seminr")
 
-# Make the SEMinR library read to use;
+# Make the SEMinR library read to use
 # You must do this everytime you restart RStudio and wish to use SEMinR
 library(seminr)
 
@@ -18,14 +21,15 @@ head(corp_rep_data)
 
 # Create measurement model ----
 simple_mm <- constructs(
-  composite("COMP", multi_items("comp_", 1:3), weights = mode_A),
-  composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
-  composite("ATTR", multi_items("attr_", 1:3), weights = mode_B))
+  composite("COMP", multi_items("comp_", 1:3)),
+  composite("LIKE", multi_items("like_", 1:3)),
+  composite("CUSA", single_item("cusa")),
+  composite("CUSL", multi_items("cusl_", 1:3)))
 
 # Create structural model ----
 simple_sm <- relationships(
-  paths(from = c("CSOR", "ATTR"), to = "COMP")
-)
+  paths(from = c("COMP", "LIKE"), to = c("CUSA", "CUSL")),
+  paths(from = c("CUSA"), to = c("CUSL")))
 
 # Estimate the model
 corp_rep_simple_model <- estimate_pls(data = corp_rep_data,
@@ -38,7 +42,8 @@ corp_rep_simple_model <- estimate_pls(data = corp_rep_data,
 # Estimate the model with default settings
 corp_rep_simple_model <- estimate_pls(data = corp_rep_data,
   measurement_model = simple_mm,
-  structural_model  = simple_sm)
+  structural_model  = simple_sm,
+  missing_value = "-99")
 
 # Summarize the model results
 summary_simple_corp_rep <- summary(corp_rep_simple_model)
