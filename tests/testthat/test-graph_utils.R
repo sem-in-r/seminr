@@ -3,5 +3,5 @@ test_that("glue_dot works", {
   testthat::expect_equal(seminr:::glue_dot("<<a>>"), glue::glue("{a}"))
 })
 
-# esc_node
+# TODO: esc_node
 # pvalr

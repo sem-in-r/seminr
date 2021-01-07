@@ -7,7 +7,10 @@ Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("a
              person("Nicholas Patrick", "Danks", email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
              person("Juan Manuel Velasquez", "Estrada", role = "aut"),
              person("James", "Uanhoro", role = "ctr", email = "James.uanhoro@gmail.com"),
-             person("Arturo Heynar Cano", "Bejar", role = "ctr", email = "arturocano997@gmail.com"))
+             person("Arturo Heynar Cano", "Bejar", role = "ctr", email = "arturocano997@gmail.com"),
+             person("André", "Calero Valdez", role = "ctr", email = "andrecalerovaldez@gmail.com"),
+             person("Johannes", "Nakayama", role = "ctr", email = "johannes.nakayama@rwth-aachen.de")
+             )
 Description: A powerful, easy to syntax for specifying and estimating complex 
     Structural Equation Models. Models can be estimated using Partial 
     Least Squares Path Modeling or Covariance-Based Structural Equation 
@@ -16,10 +19,7 @@ Imports:
     parallel,
     lavaan,
     MASS,
-    glue,
-    dplyr,
-    magrittr,
-    stringr
+    glue
 License: GPL-3
 Depends: R (>= 3.1.0)
 LazyData: TRUE

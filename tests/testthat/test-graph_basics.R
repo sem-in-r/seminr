@@ -61,6 +61,7 @@ test_that("dot_graph can handle both composite measurement types", {
                            structural_model = mobi_sm)
 
   expect_error(dot_graph(mobi_pls), NA)
+  unlink("Rplots.pdf")
 })
 
 

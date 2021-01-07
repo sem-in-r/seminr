@@ -20,14 +20,22 @@ test_that("bootstrapped models work", {
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
 
-  mobi_boot <- bootstrap_model(mobi_pls, nboot = 10, cores = 1)
+  mobi_boot <- bootstrap_model(mobi_pls, nboot = 100, cores = 1)
 
   expect_error(dot_graph(mobi_boot), NA)
 
+  # As a backup for testing manually
   if (FALSE) {
     seminr::seminr_theme_set(seminr::seminr_theme_create(sm.edge.boot.show_t_value = T,
                                                          sm.edge.boot.show_ci = T))
     DiagrammeR::grViz(dot_graph(mobi_boot))
+
+    seminr::seminr_theme_set(seminr::seminr_theme_create(sm.edge.boot.show_t_value = T,
+                                                         sm.edge.boot.show_ci = T,
+                                                         sm.edge.boot.template =
+                                                           "<B>{variable} = {value}</B><BR/><FONT POINT-SIZE='7'><I>{tvalue}, {pvalue}</I><BR/>{civalue}</FONT>"))
+    DiagrammeR::grViz(dot_graph(mobi_boot))
+
   }
 
 

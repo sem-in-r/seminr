@@ -17,4 +17,6 @@ test_that("Graphing confirmatory factory analysis works", {
      plot_model(mobi_cfa)
    }
 
+   # TODO: prevent creation?
+   unlink("Rplots.pdf")
 })
