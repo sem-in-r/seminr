@@ -47,7 +47,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          sm.edge.boot.show_t_value = FALSE,
                          sm.edge.boot.show_p_value = TRUE,
                          sm.edge.boot.show_ci = FALSE,
-                         sm.edge.boot.template = "<B>{variable} = {value}</B><BR /><FONT POINT-SIZE='7'>{tvalue} - {pvalue}<BR/>{civalue}</FONT>",
+                         sm.edge.boot.template = default_edge_template(),
                          sm.edge.color = "black",
                          sm.edge.label.fontsize = 9,
                          sm.edge.minlen = NA) {
@@ -117,6 +117,15 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
 }
 
 
+#' The default template for labeling bootstrapped edges
+#'
+#' @return The default string
+#' @export
+default_edge_template <- function(){
+  paste0("<B>{variable} = {value}</B>",
+         "<BR /><FONT POINT-SIZE='7'>{tvalue}   {pvalue}",
+         "<BR/>{civalue}</FONT>")
+}
 
 
 

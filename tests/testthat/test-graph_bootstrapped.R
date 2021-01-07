@@ -26,8 +26,8 @@ test_that("bootstrapped models work", {
 
   # As a backup for testing manually
   if (FALSE) {
-    seminr::seminr_theme_set(seminr::seminr_theme_create(sm.edge.boot.show_t_value = T,
-                                                         sm.edge.boot.show_ci = T))
+    seminr::seminr_theme_set(seminr::seminr_theme_create(sm.edge.boot.show_t_value = F,
+                                                         sm.edge.boot.show_ci = F))
     DiagrammeR::grViz(dot_graph(mobi_boot))
 
     seminr::seminr_theme_set(seminr::seminr_theme_create(sm.edge.boot.show_t_value = T,
