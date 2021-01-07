@@ -20,6 +20,7 @@
 #' @param sm.edge.boot.show_t_value Should boot-strapped path coefficients show a t-value
 #' @param sm.edge.boot.show_p_value Should boot-strapped path coefficients show a p-value
 #' @param sm.edge.boot.show_ci Should boot-strapped path coefficients show a 95 percent confidence interval
+#' @param sm.edge.boot.template A template string for HTML formatting of edges
 #' @param sm.edge.color Color of the structural model edges.
 #' @param sm.edge.label.fontsize Font size of the structural model edge labels.
 #' @param sm.edge.minlen Minimum length of the structural model edges.
@@ -46,6 +47,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          sm.edge.boot.show_t_value = FALSE,
                          sm.edge.boot.show_p_value = TRUE,
                          sm.edge.boot.show_ci = FALSE,
+                         sm.edge.boot.template = "<B>{variable} = {value}</B><BR /><FONT POINT-SIZE='7'>{tvalue} - {pvalue}<BR/>{civalue}</FONT>",
                          sm.edge.color = "black",
                          sm.edge.label.fontsize = 9,
                          sm.edge.minlen = NA) {
@@ -107,11 +109,13 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 sm.edge.boot.show_t_value = sm.edge.boot.show_t_value,
                 sm.edge.boot.show_p_value = sm.edge.boot.show_p_value,
                 sm.edge.boot.show_ci = sm.edge.boot.show_ci,
+                sm.edge.boot.template = sm.edge.boot.template,
                 sm.edge.width_multiplier = 5,
                 sm.edge.minlen = sm.edge.minlen)
   class(theme) <- "seminr.theme"
   return(theme)
 }
+
 
 
 

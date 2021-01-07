@@ -36,10 +36,13 @@ test_that("Modify theme edge multipliers", {
  thm$sm.edge.width_multiplier <- 1
  thm$mm.edge.width_multiplier <- 1
 
- DiagrammeR::grViz(dot_graph(mobi_pls, theme = thm))
- DiagrammeR::grViz(dot_graph(mobi_pls, theme = thm, measurement_only = T))
- DiagrammeR::grViz(dot_graph(mobi_pls, theme = thm, structure_only = T))
- DiagrammeR::grViz(dot_graph(mobi_mm, theme = thm))
- DiagrammeR::grViz(dot_graph(mobi_sm, theme = thm))
+ if (FALSE) {
+   DiagrammeR::grViz(dot_graph(mobi_pls, theme = thm))
+   DiagrammeR::grViz(dot_graph(mobi_pls, theme = thm, measurement_only = T))
+   DiagrammeR::grViz(dot_graph(mobi_pls, theme = thm, structure_only = T))
+   DiagrammeR::grViz(dot_graph(mobi_mm, theme = thm))
+   DiagrammeR::grViz(dot_graph(mobi_sm, theme = thm))
+ }
  testthat::expect_error(dot_graph(mobi_pls, theme = thm), NA)
+ unlink("Rplots.pdf")
 })

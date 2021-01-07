@@ -16,6 +16,10 @@ test_that("Plotting Measurement model", {
 
 
   #dot_graph.measurement_model(measurement_model, title = "Example plot")
-  expect_error(dot_graph.measurement_model(measurement_model, title = "Example plot"), NA)
+  expect_error(dot_graph(measurement_model, title = "Example plot"), NA)
 
+ # plot_model(measurement_model)
+
+  unlink("Rplots.pdf")
+  # Todo: RPlots
 })

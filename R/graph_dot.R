@@ -103,21 +103,20 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
   #svg <- my_model %>%
   #  dot_graph() %>%
   #  grViz() %>%
-  svg <- plot %>%
-    DiagrammeRsvg::export_svg() %>% charToRaw()
+  svg <- charToRaw( DiagrammeRsvg::export_svg(plot) )
 
   ext <- tolower(tools::file_ext(filename))
   result = switch(
     ext,
-    "pdf" = {svg %>% rsvg::rsvg_pdf(filename, width = width, height = height)},
-    "png" = {svg %>% rsvg::rsvg_png(filename, width = width, height = height)},
-    "ps" = {svg %>% rsvg::rsvg_ps(filename, width = width, height = height)},
-    "svg" = {svg %>% rsvg::rsvg_svg(filename, width = width, height = height)},
+    "pdf" = {rsvg::rsvg_pdf(svg, filename, width = width, height = height)},
+    "png" = {rsvg::rsvg_png(svg, filename, width = width, height = height)},
+    "ps" = {rsvg::rsvg_ps(svg, filename, width = width, height = height)},
+    "svg" = {rsvg::rsvg_svg(svg, filename, width = width, height = height)},
     "webp" = {
       if (!requireNamespace("webp", quietly = TRUE)) {
         stop("Plotting to webp-files requires the webp package. You can install it by calling: install.packages(\"webp\")")
       }
-      svg %>% rsvg::rsvg_webp(filename, width = width, height = height)
+      rsvg::rsvg_webp(svg, filename, width = width, height = height)
       },
     #"raw" = {svg %>% rsvg::rsvg_raw(filename, width = width, height = height)},
 
@@ -279,17 +278,18 @@ dot_graph.measurement_model <-
 
   # THIS IS AN ARTIFICAL MODEL THAT LETS ME REUSE THE OLD PLOTTING FUNCTION,
   # THIS is unnecessary complex(?).
-  mm <- model %>% mm2matrix()
-  mm %>% as.data.frame() -> mmodel
+  mm <- mm2matrix(model)
+  as.data.frame(mm) -> mmodel
   a_model <- list(measurement_model = model,
                 mmMatrix = mm,
                 outer_weights = matrix(c(1), # add only 1s
-                                       ncol = length(mmodel$construct %>% unique()),
-                                       dimnames = list(mmodel$measurement %>% unique, mmodel$construct %>% unique()),
-                                       nrow = length(mmodel$measurement %>% unique())
+                                       ncol = length(unique(mmodel$construct) ),
+                                       dimnames = list(unique(mmodel$measurement),
+                                                       unique(mmodel$construct) ),
+                                       nrow = length(unique(mmodel$measurement) )
                                        ),
-                constructs = mmodel$construct %>% unique(),
-                mmVariables = mmodel$measurement %>% unique()
+                constructs = unique(mmodel$construct),
+                mmVariables = unique(mmodel$measurement)
   )
 
   class(a_model) <- "pls_model"
@@ -351,28 +351,29 @@ dot_graph.structural_model <-
 
     # THIS IS AN ARTIFICAL MODEL THAT LETS ME REUSE THE OLD PLOTTING FUNCTION,
     # THIS is unnecessary complex(?).
-    sm_constructs <- c(model[,1], model[,2]) %>% unique()
+    sm_constructs <- unique( c(model[,1], model[,2]) )
     mm_list <- list()
     for (i in sm_constructs) {
       mm_list[[i]] <- reflective(i, paste0(i,"_dummy"))
     }
     measurement_model <- do.call(constructs, mm_list)
-    mm <- measurement_model %>% mm2matrix()
-    mm %>% as.data.frame() -> mmodel
+    mm <- mm2matrix( measurement_model )
+    as.data.frame(mm) -> mmodel
     a_model <- list(measurement_model = measurement_model,
                   mmMatrix = matrix(),
                   smMatrix = model,
                   outer_weights = matrix(c(1), # add only 1s
-                                         ncol = length(mmodel$construct %>% unique()),
-                                         dimnames = list(mmodel$measurement %>% unique, mmodel$construct %>% unique()),
-                                         nrow = length(mmodel$measurement %>% unique())
+                                         ncol = length(unique(mmodel$construct)),
+                                         dimnames = list(unique(mmodel$measurement),
+                                                         unique(mmodel$construct)),
+                                         nrow = length(unique(mmodel$measurement))
                   ),
                   path_coef = matrix(c(1),
                                      ncol = length(sm_constructs),
                                      nrow = length(sm_constructs),
                                      dimnames = list(sm_constructs, sm_constructs)),
-                  constructs = mmodel$construct %>% unique(),
-                  mmVariables = mmodel$measurement %>% unique()
+                  constructs = unique(mmodel$construct),
+                  mmVariables = unique(mmodel$measurement)
     )
 
     class(a_model) <- "pls_model"
@@ -445,8 +446,12 @@ dot_graph.pls_model <- function(model,
   #if (thm$construct_nodes$shape %in% c("ellipse", "oval")) {
     c_width_offst <- 0.4
   #}
-  construct_width <- model$constructs %>% graphics::strwidth(.,font = thm$sm.node.label.fontsize, units = "in") %>% max() + c_width_offst
-  construct_height <- model$constructs %>% graphics::strheight(.,font = thm$sm.node.label.fontsize, units = "in") %>% max() + c_width_offst
+  construct_width <- max(
+    graphics::strwidth(model$constructs,font = thm$sm.node.label.fontsize, units = "in")
+    ) + c_width_offst
+  construct_height <- max(
+    graphics::strheight(model$constructs,font = thm$sm.node.label.fontsize, units = "in")
+    ) + c_width_offst
 
   thm$sm.node.width  <- construct_width
   thm$sm.node.height <- construct_height * 2
@@ -456,8 +461,12 @@ dot_graph.pls_model <- function(model,
   #if (thm$item_nodes$shape %in% c("ellipse", "oval")) {
   #  i_width_offst <- 0.4
   #}
-  item_width <- model$mmVariables %>% graphics::strwidth(.,font = thm$mm.node.label.fontsize, units = "in") %>% max() + i_width_offst
-  item_height <- model$mmVariables %>% graphics::strheight(.,font = thm$mm.node.label.fontsize, units = "in") %>% max() + i_width_offst
+  item_width <- max(
+    graphics::strwidth(model$mmVariables,font = thm$mm.node.label.fontsize, units = "in")
+    ) + i_width_offst
+  item_height <- max(
+    graphics::strheight(model$mmVariables,font = thm$mm.node.label.fontsize, units = "in")
+    ) + i_width_offst
 
   thm$mm.node.width <- item_width
   thm$mm.node.height <- item_height
@@ -613,7 +622,9 @@ get_value_dependent_edge_style <- function(value, theme){
 
 
 
-
+format_sm_edge_label <- function(theme, variable, value, tvalue, pvalue, civalue){
+  glue::glue(theme$sm.edge.boot.template)
+}
 
 # extract structural model edges from a seminr model
 extract_sm_edges <- function(model, theme, weights = 1) {
@@ -652,21 +663,22 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       bp <- stats::pt(bt, nrow(model$data) - 1, lower = FALSE)
 
 
-      tstring <- NULL
-      pstring <- NULL
-      cistring <- NULL
+      tvalue <- NULL
+      pvalue <- NULL
+      civalue <- NULL
 
       if (theme$sm.edge.boot.show_t_value) {
-        tstring <- paste0("t = ", round(bt, theme$plot.rounding))
+        tvalue <- paste0("t = ", round(bt, theme$plot.rounding))
       }
       if (theme$sm.edge.boot.show_p_value) {
-        pstring <- paste0("p ", pvalr(bp, html = TRUE))
+        pvalue <- paste0("p ", pvalr(bp, html = TRUE))
       }
       if (theme$sm.edge.boot.show_ci) {
-        cistring <- paste0("95% CI [", blower, ", ", bupper, "]")
+        civalue <- paste0("95% CI [", blower, ", ", bupper, "]")
       }
 
-      suffix <- paste0(c(tstring, pstring, cistring), collapse = "<BR />")
+      suffix <- paste0(c(tvalue, pvalue, civalue), collapse = "<BR />")
+
 
       if (nchar(suffix) > 0) {
         fsize <- theme$sm.edge.label.fontsize - 2
@@ -678,6 +690,9 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       coef <- bmean
     } else # format regular pls model ----
       {
+      tvalue <- ""
+      pvalue <- ""
+      civalue <- ""
       coef <- round(model$path_coef[sm[i, 1], sm[i,2]], theme$plot.rounding)
       edge_width <- paste0(", penwidth = ", abs(coef * theme$sm.edge.width_multiplier))
       edge_style <- get_value_dependent_edge_style(coef, theme)
@@ -688,8 +703,10 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     # build the label
     edge_label <- ""
     if (theme$sm.edge.label.show) {
-      edge_label <- paste0(", label = < <B>", letter, " = ", coef, "</B>" , suffix, " >")
+      #edge_label <- paste0(", label = < <B>", letter, " = ", coef, "</B>" , suffix, " >")
       #cat(edge_label)
+      edge_label <- paste0(", label = < ", format_sm_edge_label(theme, variable = letter, value = coef, tvalue, pvalue, civalue ), " >")
+      #cat(format_sm_edge_label(theme, value = coef, tvalue, pvalue, civalue ))
     }
 
     # add the weight

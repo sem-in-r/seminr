@@ -28,5 +28,4 @@ test_that("higher order composits are plotted", {
   # FAILS
   #DiagrammeR::grViz(dot_graph(mobi_pls))
   testthat::expect_error(dot_graph(mobi_pls))
-  testthat::expect_equal(2, 2)
 })
