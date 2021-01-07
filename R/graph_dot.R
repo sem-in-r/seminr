@@ -112,15 +112,15 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
     "png" = {rsvg::rsvg_png(svg, filename, width = width, height = height)},
     "ps" = {rsvg::rsvg_ps(svg, filename, width = width, height = height)},
     "svg" = {rsvg::rsvg_svg(svg, filename, width = width, height = height)},
-    "webp" = {
-      if (!requireNamespace("webp", quietly = TRUE)) {
-        stop("Plotting to webp-files requires the webp package. You can install it by calling: install.packages(\"webp\")")
-      }
-      rsvg::rsvg_webp(svg, filename, width = width, height = height)
-      },
+    #"webp" = {
+    #  if (!requireNamespace("webp", quietly = TRUE)) {
+    #    stop("Plotting to webp-files requires the webp package. You can install it by calling: install.packages(\"webp\")")
+    #  }
+    #  rsvg::rsvg_webp(svg, filename, width = width, height = height)
+    #  },
     #"raw" = {svg %>% rsvg::rsvg_raw(filename, width = width, height = height)},
 
-    {message(paste0("Unsuported file type: '",ext, "'. Please use either png, pdf, webp, ps, svg, or raw."))}
+    {message(paste0("Unsuported file type: '",ext, "'. Please use either png, pdf, ps, or svg"))}
   )
 
 
@@ -663,9 +663,9 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       bp <- stats::pt(bt, nrow(model$data) - 1, lower = FALSE)
 
 
-      tvalue <- NULL
-      pvalue <- NULL
-      civalue <- NULL
+      tvalue <- ""
+      pvalue <- ""
+      civalue <- ""
 
       if (theme$sm.edge.boot.show_t_value) {
         tvalue <- paste0("t = ", round(bt, theme$plot.rounding))
@@ -705,8 +705,9 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     if (theme$sm.edge.label.show) {
       #edge_label <- paste0(", label = < <B>", letter, " = ", coef, "</B>" , suffix, " >")
       #cat(edge_label)
-      edge_label <- paste0(", label = < ", format_sm_edge_label(theme, variable = letter, value = coef, tvalue, pvalue, civalue ), " >")
-      #cat(format_sm_edge_label(theme, value = coef, tvalue, pvalue, civalue ))
+      elab <- format_sm_edge_label(theme, variable = letter, value = coef, tvalue, pvalue, civalue )
+      edge_label <- paste0(", label = < ", elab, " >")
+      #cat(elab)
     }
 
     # add the weight
