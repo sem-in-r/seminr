@@ -318,3 +318,50 @@ convert_to_table_output <- function(matrix) {
   class(matrix) <- append(class(matrix), "table_output")
   return(matrix)
 }
+
+combine_mm_matrices <- function(model1, model2, mmMatrix) {
+  appended_mmVariables <- unique(c(model2$mmVariables, model1$mmVariables))
+  appended_constructs <- unique(c(model2$constructs, model1$constructs))
+  normData <- scale(model2$data[, appended_mmVariables], TRUE, TRUE)
+  HOC_items <- setdiff(model1$mmVariables, model2$mmVariables)
+  HOC_constructs <- setdiff(model1$constructs, model2$constructs)
+  weights_matrix <- matrix(data=0,
+                           nrow=length(appended_mmVariables),
+                           ncol=length(appended_constructs),
+                           dimnames = list(appended_mmVariables,appended_constructs))
+  for (i in 1:length(appended_constructs))  {
+    weights_matrix[mmMatrix[mmMatrix[, "construct"]==appended_constructs[i], "measurement"], appended_constructs[i]] =1
+  }
+  # # Calculate new loadings matrix
+  # appended_construct_scores <- cbind(model2$construct_scores, normData[,setdiff( model1$constructs,model2$constructs)])
+  # new_loadings <- seminr:::calculate_loadings(weights_matrix,appended_construct_scores, normData)
+  #
+  new_loadings <- weights_matrix
+  for (row_it in rownames(model2$outer_loadings)) {
+    for (col_it in colnames(model2$outer_loadings)) {
+      new_loadings[row_it, col_it] <- model2$outer_loadings[row_it, col_it]
+    }
+  }
+  for (row_it in HOC_items) {
+    for (col_it in HOC_constructs) {
+      new_loadings[row_it, col_it] <- model1$outer_loadings[row_it, col_it]
+    }
+  }
+
+  # # Calculate new weights matrix
+  # HOC_items <- setdiff(first_stage_model$mmVariables, seminr_model$mmVariables)
+  # HOC_constructs <- setdiff(first_stage_model$constructs, seminr_model$constructs)
+  new_weights <- weights_matrix
+  for (row_it in rownames(model2$outer_weights)) {
+    for (col_it in colnames(model2$outer_weights)) {
+      new_weights[row_it, col_it] <- model2$outer_weights[row_it, col_it]
+    }
+  }
+  for (row_it in HOC_items) {
+    for (col_it in HOC_constructs) {
+      new_weights[row_it, col_it] <- model1$outer_weights[row_it, col_it]
+    }
+  }
+  return(list(new_outer_weights = new_weights,
+              new_outer_loadings = new_loadings))
+}

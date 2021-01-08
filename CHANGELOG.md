@@ -17,10 +17,13 @@ and this project largely adheres to [Semantic Versioning](https://semver.org/spe
 - Cronbachs alpha to reliability
 - new datasets = corp_rep_data2 and corp_rep_data
 - new method for calculating AIC and BIC
+- new demonstration files for an accompanying textbook
 
 ### [1.2.0] Changed
 
 - Changed output of summary() to generate standardized matrices and lists with an S3 print method
+- Changed HOC to combine first and second stage results for outer loadings and outer weights
+- Changed estimate_bootstrap() to process bootstrap matrix in a way that is naive to differences in matrix layouts
 
 ###[1.2.0] Removed
 - old test fixtures for V 3.5.X (deprecated by R)

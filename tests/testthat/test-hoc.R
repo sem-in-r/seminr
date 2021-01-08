@@ -32,9 +32,7 @@ weights <- seminr_model$outer_weights
 ## Output originally created using following lines
 # write.csv(paths, file = "tests/fixtures/V_3_6_0/hoc-paths.csv")
 # write.csv(loadings, file = "tests/fixtures/V_3_6_0/hoc-loadings.csv")
-# write.csv(loadings, file = "tests/fixtures/V_3_5_X/hoc-loadings.csv")
 # write.csv(weights, file = "tests/fixtures/V_3_6_0/hoc-weights.csv")
-# write.csv(weights, file = "tests/fixtures/V_3_5_X/hoc-weights.csv")
 
 # Load controls
 paths_control <- as.matrix(read.csv(file = paste(test_folder,"hoc-paths.csv", sep = ""), row.names = 1))
@@ -49,7 +47,7 @@ test_that("Seminr estimates paths correctly\n", {
 })
 
 test_that("Seminr estimates loadings correctly\n", {
-  expect_equal(loadings[,1:5], loadings_control, tolerance = 0.00001)
+  expect_equal(loadings, loadings_control, tolerance = 0.00001)
 })
 
 test_that("Seminr estimates weights correctly\n", {
@@ -93,10 +91,6 @@ weights <- seminr_model$outer_weights
 # write.csv(paths, file = "tests/fixtures/V_3_6_0/hoc_2si-paths.csv")
 # write.csv(loadings, file = "tests/fixtures/V_3_6_0/hoc_2si-loadings.csv")
 # write.csv(weights, file = "tests/fixtures/V_3_6_0/hoc-_2siweights.csv")
-# write.csv(paths, file = "tests/fixtures/V_3_5_X/hoc_2si-paths.csv")
-# write.csv(loadings, file = "tests/fixtures/V_3_5_X/hoc_2si-loadings.csv")
-# write.csv(weights, file = "tests/fixtures/V_3_5_X/hoc-_2siweights.csv")
-
 
 # Load controls
 paths_control <- as.matrix(read.csv(file = paste(test_folder,"hoc_2si-paths.csv", sep = ""), row.names = 1))
