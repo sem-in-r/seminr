@@ -102,11 +102,12 @@ estimate_pls <- function(data, measurement_model, structural_model, inner_weight
   # Correct for Bias in Reflective models using PLS Consistent
   seminr_model <- model_consistent(seminr_model)
 
-  # Append return list with first stage model and
-  # Combine first and second stage measurement model matrices
   if ( length(HOCs)>0 ) {
+    # Append return list with first stage model and
     seminr_model$first_stage_model <- first_stage_model
-    new_mm <- combine_mm_matrices(model1 = first_stage_model, model2 = seminr_model, mmMatrix)
+
+    # Combine first and second stage measurement model matrices
+    new_mm <- combine_first_order_second_order_matrices(model1 = first_stage_model, model2 = seminr_model, mmMatrix)
     seminr_model$outer_loadings <- new_mm$new_outer_loadings
     seminr_model$outer_weights <- new_mm$new_outer_weights
   }
