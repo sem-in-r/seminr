@@ -197,7 +197,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         colnames(weights_descriptives) <- col_names2
 
         # Collect HTMT matrix
-        HTMT_matrix <- seminr:::HTMT(seminr_model)
+        HTMT_matrix <- HTMT(seminr_model)
 
         # Identify start and end points for HTMT data
         start <- end+1
@@ -226,7 +226,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         colnames(HTMT_descriptives) <- col_names3
 
         # Subset total paths matrix (take care to not be stranded with a single column/row vector)
-        total_matrix <- seminr:::total_effects(seminr_model$path_coef)
+        total_matrix <- total_effects(seminr_model$path_coef)
         start <- end+1
         end <- start+(path_cols*path_rows)-1
 
