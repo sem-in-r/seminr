@@ -1,22 +1,22 @@
-context("SEMinR correctly bootstraps simple models\n")
+# context("SEMinR correctly bootstraps simple models\n")
 
 # Test cases
-## One antecedent model cases
-set.seed(123)
-
-inn_mm <- constructs(
-  composite("INN_P", multi_items("IMAG", 1:4)),
-  composite("INN_M", multi_items("PERQ", 1:4)),
-  composite("THIRD", multi_items("CUEX", 1:3))
-)
-
-inn_sm <- relationships(paths(from = "INN_P", to = "INN_M"))
-pls <- estimate_pls(data = mobi, inn_mm, inn_sm)
-expect_error(bootstrap_model(seminr_model = pls, nboot = 5), NA)
-
-inn_sm <- relationships(paths(from = "INN_P", to = c("INN_M", "THIRD")))
-pls <- estimate_pls(data = mobi, inn_mm, inn_sm)
-expect_error(bootstrap_model(seminr_model = pls, nboot = 5), NA)
+# ## One antecedent model cases
+# set.seed(123)
+#
+# inn_mm <- constructs(
+#   composite("INN_P", multi_items("IMAG", 1:4)),
+#   composite("INN_M", multi_items("PERQ", 1:4)),
+#   composite("THIRD", multi_items("CUEX", 1:3))
+# )
+#
+# inn_sm <- relationships(paths(from = "INN_P", to = "INN_M"))
+# pls <- estimate_pls(data = mobi, inn_mm, inn_sm)
+# expect_error(bootstrap_model(seminr_model = pls, nboot = 5), NA)
+#
+# inn_sm <- relationships(paths(from = "INN_P", to = c("INN_M", "THIRD")))
+# pls <- estimate_pls(data = mobi, inn_mm, inn_sm)
+# expect_error(bootstrap_model(seminr_model = pls, nboot = 5), NA)
 
 
 # Test cases

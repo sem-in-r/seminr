@@ -54,13 +54,13 @@ rho_A <- function(seminr_model) {
 
   for (i in rownames(rho))  {
     #If the measurement model is Formative assign rhoA = 1
-    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="B" | mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="A"){
+    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1] %in% c("B", "HOCB")){ #| mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="A"){
       rho[i, 1] <- 1
     }
     #If the measurement model is Reflective Calculate RhoA
-    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="C"){
+    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1] %in% c("C", "A", "HOCA")) {#| mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="A"|){
       #if the construct is a single item rhoA = 1
-      if(nrow(mmMatrix_per_construct(i, mmMatrix)) == 1) {
+      if(nrow(mmMatrix_per_construct(i, mmMatrix)) == 1 | grepl("\\*", i)) {
         rho[i, 1] <- 1
       } else {
         # Calculate rhoA
@@ -88,7 +88,7 @@ rhoC_AVE.pls_model <- rhoC_AVE.boot_seminr_model <- function(pls_model){
   for(i in pls_model$constructs){
     loadings <- pls_model$outer_loadings[, i]
     ind <- which(loadings != 0)
-    if(measure_mode(i, pls_model$mmMatrix) %in% c("A", "B")) {
+    if(measure_mode(i, pls_model$mmMatrix) %in% c("A", "B", "HOCA", "HOCB")) {
       if(length(ind) == 1) {
         dgr[i, 1:2] <- 1
       } else {
@@ -125,3 +125,25 @@ rhoC_AVE.cbsem_model <- rhoC_AVE.cfa_model <-  function(seminr_model) {
   return(dgr)
 }
 
+cron_alpha <- function(cov_mat) {
+  k <- nrow(cov_mat)
+  cov_i <- sum(diag(cov_mat))
+  # mean_cov <- mean(cov_mat[upper.tri(cov_mat)])
+  # alpha <- (k^2*mean_cov)/sum(cov_mat)
+  alpha <- (k/(k-1))*(1 - (cov_i/sum(cov_mat)))
+  return(alpha)
+}
+
+cronbachs_alpha <- function(seminr_model) {
+  alpha_vec <- c()
+  for (i in seminr_model$constructs) {
+    items <- seminr_model$mmMatrix[seminr_model$mmMatrix[,"construct"] == i,"measurement"]
+    if (length(items) > 1) {
+      cov_mat <- stats::cor(seminr_model$data, seminr_model$data)[items, items]
+      alpha_vec[[i]] <- cron_alpha(cov_mat)
+    } else {
+      alpha_vec[[i]] <- 1
+    }
+  }
+  return(alpha_vec)
+}

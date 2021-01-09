@@ -18,6 +18,7 @@ models (SEM). It allows estimation using either covariance-based SEM
   - [Installation](#installation)
   - [Usage and Examples](#usage-and-examples)
   - [Documentation](#documentation)
+  - [Partner Projects](#partner-projects)
   - [Contact Us](#contact-us)
   - [About Us](#about-us)
 
@@ -46,7 +47,7 @@ measurements <- constructs(
 
 # Create four relationships (two regressions) in one line!
 structure <- relationships(
-  paths(from = c("Image", "Expectation"), to = c("Complaints", "Loyalty")
+  paths(from = c("Image", "Expectation"), to = c("Complaints", "Loyalty"))
 )
 
 # Put together reusable parts of your model to estimate CBSEM results
@@ -112,7 +113,6 @@ the various examples below for different use cases:
 4.  [Comparing CBSEM and PLS-PM
     Example](#comparing-cbsem-and-pls-pm-example)
 
-
 ### CFA + CBSEM Example with Common Factors
 
 Note that CBSEM models reflective common-factor constructs, not
@@ -129,9 +129,9 @@ interactions:
 measurements <- constructs(
   reflective("Image",       multi_items("IMAG", 1:5)),
   reflective("Expectation", multi_items("CUEX", 1:3)),
-  interaction_term(iv = "Image", moderator = "Expectation", method = two_stage)
+  interaction_term(iv = "Image", moderator = "Expectation", method = two_stage),
   reflective("Loyalty",     multi_items("CUSL", 1:3)),
-  reflective("Complaints",  single_item("CUSCO")),
+  reflective("Complaints",  single_item("CUSCO"))
 )
 ```
 
@@ -141,7 +141,7 @@ Describe the causal relationships between constructs and interactions:
 # Quickly create multiple paths "from" and "to" sets of constructs
 structure <- relationships(
   paths(from = c("Image", "Expectation", "Image*Expectation"), to = "Loyalty"),
-  paths(from = "Image", to = c("Complaints", "Loyalty"))
+  paths(from = "Image", to = c("Complaints"))
 )
 ```
 
@@ -151,14 +151,14 @@ Lavaan:
 ``` r
 # Evaluate only the measurement model using Confirmatory Factor Analysis (CFA)
 cfa_model <- estimate_cfa(data = mobi, measurements)
-summary(cbsem_model)
+summary(cfa_model)
 
 # Dynamically compose full SEM models from individual parts
 # - if measurement model includes composites, convert all constructs to reflective using:
 #     as.reflective(measurements)
 cbsem_model <- estimate_cbsem(data = mobi, measurements, structure)
-summary(cbsem_model)
-cbsem_model$meta$syntax # See the Lavaan syntax if you wish
+sum_cbsem_model <- summary(cbsem_model)
+sum_cbsem_model$meta$syntax # See the Lavaan syntax if you wish
 ```
 
 ### Consistent-PLS (PLSc) Example with Common Factors
@@ -196,8 +196,9 @@ PLS-PM typically models composites (constructs that are weighted average
 of items) rather than common factors. Popular software like SmartPLS
 models composites either as Mode A (correlation weights) or Mode B
 (regression weights). We also support both modes as well as second-order
-composites.
-
+composites. rather than common factors. Popular software like SmartPLS
+models composites by default, either as Mode A (correlation weights) or
+Mode B (regression weights). We also support second-order composites.
 
 Describe measurement model for each composite, interaction, or higher
 order composite:
@@ -234,7 +235,7 @@ pls_model <- estimate_pls(
   structural_model = mobi_sm
 )
 
-summary(mobi_pls)
+summary(pls_model)
 
 # Use multi-core parallel processing to speed up bootstraps
 boot_estimates <- bootstrap_model(pls_model, nboot = 1000, cores = 2)
@@ -259,7 +260,7 @@ measurements <- constructs(
 
 # Create four relationships (two regressions) in one line!
 structure <- relationships(
-  paths(from = c("Image", "Expectation"), to = c("Complaints", "Loyalty")
+  paths(from = c("Image", "Expectation"), to = c("Complaints", "Loyalty"))
 )
 
 # First, estimate the model using PLS
@@ -299,6 +300,22 @@ installation.
     common factors using in PLSc
   - [seminr-style-contained.R](demo/seminr-style-contained.R): Create
     and execute a SEM model in one function call
+
+## Partner Projects
+
+We communicate and collaborate with several other open-source projects
+on SEM related issues.
+
+  - [plspm package for R](https://github.com/gastonstat/plspm): an early
+    and limited PLS path modeling package for R that inspired the
+    development of SEMinR, among others; it is no longer maintained.
+  - [plspm package for
+    Python](https://github.com/GoogleCloudPlatform/plspm-python): a
+    well-maintained PLS modeling pakage for Python; it is tested against
+    SEMinR and borrows some syntactic ideas from SEMinR.
+  - [cSEM](https://github.com/M-E-Rademaker/cSEM): an well-maintained
+    and comprehensive composite analysis project implementing PLS and
+    GSCA for R, using Lavaan style syntax
 
 ## Contact Us
 

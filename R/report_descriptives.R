@@ -6,13 +6,9 @@ descriptives <- function(seminr_model, na.rm = TRUE) {
   #constructs
   construct_descriptives <- desc(seminr_model$construct_scores, na.rm = na.rm)
   construct_correlations <- stats::cor(seminr_model$construct_scores)
-  class(item_descriptives) <- append(class(item_descriptives), "table_output")
-  class(item_correlations) <- append(class(item_correlations), "table_output")
-  class(construct_descriptives) <- append(class(construct_descriptives), "table_output")
-  class(construct_correlations) <- append(class(construct_correlations), "table_output")
-  return(list(statistics = list(items = item_descriptives,
-                               constructs = construct_descriptives),
-              correlations = list(items = item_correlations,
-                                  constructs = construct_correlations)))
+  return(list(statistics = list(items = convert_to_table_output(item_descriptives),
+                               constructs = convert_to_table_output(construct_descriptives)),
+              correlations = list(items = convert_to_table_output(item_correlations),
+                                  constructs = convert_to_table_output(construct_correlations))))
 }
 
