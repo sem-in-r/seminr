@@ -28,8 +28,10 @@ mobi_pls <- estimate_pls(data = mobi,
 sum <- summary(mobi_pls)
 
 ## Output originally created using following lines
-# write.csv(sum$paths, file = "tests/fixtures/plsc-interaction-paths.csv")
-# write.csv(sum$reliability, file = "tests/fixtures/plsc-interaction-reliability.csv")
+# write.csv(sum$paths, file = "tests/fixtures/V_3_5_X/plsc-interaction-paths.csv")
+# write.csv(sum$paths, file = "tests/fixtures/V_3_6_0/plsc-interaction-paths.csv")
+# write.csv(sum$reliability, file = "tests/fixtures/V_3_6_0/plsc-interaction-reliability.csv")
+# write.csv(sum$reliability, file = "tests/fixtures/V_3_5_X/plsc-interaction-reliability.csv")
 
 # Load controls
 paths_control <- as.matrix(read.csv(file = paste(test_folder,"plsc-interaction-paths.csv", sep = ""), row.names = 1))
@@ -38,10 +40,10 @@ reliability_control <- as.matrix(read.csv(file = paste(test_folder,"plsc-interac
 # Testing
 
 test_that("Seminr estimates paths and R2 correctly\n", {
-  expect_equal(sum$paths, paths_control, tolerance = 0.00001)
+  expect_equal(round(sum$paths[1:6,1],3), paths_control[1:6,1], tolerance = 0.00001)
 })
 
 test_that("Seminr estimates rhoA, AVE, rhoC (reliability) correctly\n", {
-  expect_equal(sum$reliability, reliability_control, tolerance = 0.00001)
+  expect_equal(as.numeric(sum$reliability), as.numeric(reliability_control), tolerance = 0.00001)
 })
 

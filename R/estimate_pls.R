@@ -14,9 +14,17 @@
 #' @param inner_weights A parameter declaring which inner weighting scheme should be used
 #'   path_weighting is default, alternately path_factorial can be used.
 #'
+#' @param missing A parameter declaring which missing values scheme should be used
+#'   to replace the missing values. Mean replacement is default.
+#'
+#' @param missing_value A parameter declaring which value to indicate to be used to indicate
+#'   missing values in the data. NA is used by default.
+#'
 #' @usage
 #' estimate_pls(data, measurement_model, structural_model,
-#'              inner_weights = path_weighting)
+#'              inner_weights = path_weighting,
+#'              missing = mean_replacement,
+#'              missing_value = NA)
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
 #'          \code{\link{bootstrap_model}}
@@ -46,18 +54,22 @@
 #'
 #' mobi_pls <- estimate_pls(data = mobi,
 #'                          measurement_model = mobi_mm,
-#'                          structural_model = mobi_sm)
+#'                          structural_model = mobi_sm,
+#'                          missing = mean_replacement,
+#'                          missing_value = NA)
 #'
 #' summary(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
-estimate_pls <- function(data, measurement_model, structural_model, inner_weights = path_weighting) {
+estimate_pls <- function(data, measurement_model, structural_model, inner_weights = path_weighting, missing = mean_replacement, missing_value = NA) {
   cat("Generating the seminr model\n")
+  data[data == missing_value] <- NA
+  data <- missing(data)
   data <- stats::na.omit(data)
   rawdata <- data
-  # Generate first order model if necessary
 
-  HOCs <- measurement_model[names(measurement_model) == "higher_order_composite"]
+  # Generate first order model if necessary
+  HOCs <- HOCs_in_sm(measurement_model, structural_model)
 
   if ( length(HOCs)>0 ) {
     HOM <- prepare_higher_order_model(data = data,
@@ -68,6 +80,7 @@ estimate_pls <- function(data, measurement_model, structural_model, inner_weight
     measurement_model <- HOM$mm
     structural_model <- HOM$sm
     data <- HOM$data
+    first_stage_model <- HOM$first_stage_model
   }
 
   processed_measurements <- process_interactions(measurement_model, data, structural_model, inner_weights)
@@ -88,6 +101,16 @@ estimate_pls <- function(data, measurement_model, structural_model, inner_weight
 
   # Correct for Bias in Reflective models using PLS Consistent
   seminr_model <- model_consistent(seminr_model)
+
+  if ( length(HOCs)>0 ) {
+    # Append return list with first stage model and
+    seminr_model$first_stage_model <- first_stage_model
+
+    # Combine first and second stage measurement model matrices
+    new_mm <- combine_first_order_second_order_matrices(model1 = first_stage_model, model2 = seminr_model, mmMatrix)
+    seminr_model$outer_loadings <- new_mm$new_outer_loadings
+    seminr_model$outer_weights <- new_mm$new_outer_weights
+  }
 
   class(seminr_model) <- c("pls_model", "seminr_model")
   return(seminr_model)

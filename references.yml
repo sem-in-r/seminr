@@ -86,4 +86,7 @@
 - code: cohen2013applied
   ref: "Cohen, J. (2013). Statistical power analysis for the behavioral sciences. Routledge."
   cite: Cohen (2013)
+- code: fornelllarcker1981
+  ref: "Fornell, C., & Larcker, D. F. (1981). Evaluating structural equation models with unobservable variables and measurement error. Journal of marketing research, 18(1), 39-50."
+  cite: Fornell & Larcker (1981)
 

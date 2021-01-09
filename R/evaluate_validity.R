@@ -16,12 +16,14 @@ item_vifs <- function(seminr_model) {
   item_vifs <- sapply(all_constructs, independent_vifs,
                       items_of_construct, seminr_model,
                       data = seminr_model$data)
+  class(item_vifs) <- append(class(item_vifs), "list_output")
+  item_vifs
 }
 
 # Calculate VIF of all antecedents of each construct
 antecedent_vifs <- function(smMatrix, cor_matrix) {
   endogenous_names <- all_endogenous(smMatrix)
-  sapply(endogenous_names, function(outcome) {
+  ret <- sapply(endogenous_names, function(outcome) {
     antecedents <- antecedents_of(outcome, smMatrix)
     if (length(antecedents) == 1) {
       structure(NA, names=antecedents)
@@ -29,6 +31,8 @@ antecedent_vifs <- function(smMatrix, cor_matrix) {
       cor_vifs(cor_matrix, antecedents)
     }
   }, simplify=FALSE, USE.NAMES=TRUE)
+  class(ret) <- append(class(ret), "list_output")
+  ret
 }
 
 # HTMT as per Henseler, J., Ringle, C. M., & Sarstedt, M. (2014). A new criterion for assessing discriminant validity in
@@ -39,8 +43,8 @@ HTMT <- function(seminr_model) {
                  dimnames = list(seminr_model$constructs,seminr_model$constructs))
   for (constructi in seminr_model$constructs[1:(length(seminr_model$constructs)-1)]) {
     for (constructj in seminr_model$constructs[(which(seminr_model$constructs == constructi)+1):length(seminr_model$constructs)]) {
-      manifesti <- seminr_model$mmVariables[seminr_model$mmMatrix[, 1] == constructi]
-      manifestj <- seminr_model$mmVariables[seminr_model$mmMatrix[, 1] == constructj]
+      manifesti <- seminr_model$mmMatrix[seminr_model$mmMatrix[, 1] == constructi, "measurement"]
+      manifestj <- seminr_model$mmMatrix[seminr_model$mmMatrix[, 1] == constructj, "measurement"]
       item_correlation_matrix <- abs(stats::cor(seminr_model$data[, manifesti],seminr_model$data[, manifestj]))
       HTHM <- mean(item_correlation_matrix)
       if(length(manifesti)>1 ) {
@@ -60,5 +64,15 @@ HTMT <- function(seminr_model) {
       HTMT[constructi, constructj] <- HTHM / MTHM
     }
   }
-  return(HTMT)
+  convert_to_table_output(HTMT)
+}
+
+# fl_criteria_table can be used to generate simple and effective table for checking Fornell Larcker criteria.
+# Fornell, C., & Larcker, D. F. (1981). Evaluating structural equation models with unobservable variables and measurement error. Journal of marketing research, 18(1), 39-50.
+fl_criteria_table <- function(seminr_model) {
+  table <- stats::cor(seminr_model$construct_scores)
+  table[upper.tri(table)] <- NA
+  diag(table) <- sqrt(rhoC_AVE(seminr_model)[,"AVE"])
+  comment(table) <- "FL Criteria table reports square root of AVE on the diagonal and construct correlations on the lower triangle."
+  convert_to_table_output(table)
 }

@@ -87,6 +87,5 @@ model_fsquares <- function(seminr_model) {
                                           dv = dv)
     }
   }
-
-  return(fsquared_matrix)
+  convert_to_table_output(fsquared_matrix)
 }
