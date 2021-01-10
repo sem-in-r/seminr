@@ -76,12 +76,20 @@ jobs:
         run: rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "warning", check_dir = "check")
         shell: Rscript {0}
 
-      - name: CheckWin
+      - name: BuildWin
         if: runner.os == 'Windows'
         env:
           _R_CHECK_CRAN_INCOMING_REMOTE_: false
-        run: rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran", "--no-build-vignettes", "no-vignettes"), build_args = c("--no-manual", "--no-build-vignettes", "no-vignettes"), error_on = "warning", check_dir = "check")
+        run: R CMD INSTALL --preclean --no-multiarch --with-keep.source seminr
+        shell: bash
+
+      - name: TestWin
+        if: runner.os == 'Windows'
+        env:
+          _R_CHECK_CRAN_INCOMING_REMOTE_: false
+        run: devtools::test()
         shell: Rscript {0}
+
 
       - name: Upload check results
         if: failure()
