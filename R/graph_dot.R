@@ -112,15 +112,15 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
     "png" = {rsvg::rsvg_png(svg, filename, width = width, height = height)},
     "ps" = {rsvg::rsvg_ps(svg, filename, width = width, height = height)},
     "svg" = {rsvg::rsvg_svg(svg, filename, width = width, height = height)},
-    #"webp" = {
-    #  if (!requireNamespace("webp", quietly = TRUE)) {
-    #    stop("Plotting to webp-files requires the webp package. You can install it by calling: install.packages(\"webp\")")
-    #  }
-    #  rsvg::rsvg_webp(svg, filename, width = width, height = height)
-    #  },
-    #"raw" = {svg %>% rsvg::rsvg_raw(filename, width = width, height = height)},
+    "webp" = {
+      if (!requireNamespace("webp", quietly = TRUE)) {
+        stop("Plotting to webp-files requires the webp package. You can install it by calling: install.packages(\"webp\")")
+      }
+      rsvg::rsvg_webp(svg, filename, width = width, height = height)
+      },
+    "raw" = {svg %>% rsvg::rsvg_raw(filename, width = width, height = height)},
 
-    {message(paste0("Unsuported file type: '",ext, "'. Please use either png, pdf, ps, or svg"))}
+    {message(paste0("Unsuported file type: '",ext, "'. Please use either png, pdf, ps, webp, or svg"))}
   )
 
 
