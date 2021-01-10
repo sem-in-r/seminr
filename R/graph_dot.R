@@ -118,7 +118,7 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
       }
       rsvg::rsvg_webp(svg, filename, width = width, height = height)
       },
-    "raw" = {svg %>% rsvg::rsvg_raw(filename, width = width, height = height)},
+    "raw" = {rsvg::rsvg_raw(svg, filename, width = width, height = height)},
 
     {message(paste0("Unsuported file type: '",ext, "'. Please use either png, pdf, ps, webp, or svg"))}
   )
