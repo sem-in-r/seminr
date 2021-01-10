@@ -13,7 +13,7 @@ confidence_interval(boot_seminr_model, from, to, through, alpha)
 
 \item{to}{A parameter specifying the outcome composite for the path.}
 
-\item{through}{A parameter to specify the mediator for the path. Default is NULL.}
+\item{through}{A parameter to specify a vector of mediators for the path. Default is NULL.}
 
 \item{alpha}{A parameter for specifying the alpha for the confidence interval. Default is 0.05.}
 }
@@ -55,8 +55,8 @@ boot_seminr_model <- bootstrap_model(seminr_model = mobi_pls,
 
 confidence_interval(boot_seminr_model = boot_seminr_model,
                     from = "Image",
-                    through = "Expectation",
-                    to = "Satisfaction",
+                    through = c("Expectation", "Satisfaction","Complaints"),
+                    to = "Loyalty",
                     alpha = 0.05)
 }
 \references{

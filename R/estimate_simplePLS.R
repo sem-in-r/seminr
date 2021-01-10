@@ -57,7 +57,7 @@
 simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weighting, maxIt=300, stopCriterion=7, measurement_mode_scheme){
 
   #Create list of Measurements Variables
-  mmVariables <- mmMatrix[, "measurement"]
+  mmVariables <- mmMatrix[mmMatrix[,"construct"] %in% construct_names(smMatrix), "measurement"]
 
   #Create list of construct Variables
   constructs <- construct_names(smMatrix)
