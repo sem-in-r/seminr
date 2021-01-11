@@ -750,6 +750,7 @@ extract_mm_coding <- function(model) {
   construct_types <- c()
   for (i in seq_along(model$measurement_model)) {
     c(construct_types, names(model$measurement_model)[i]) -> construct_types
+    # TODO: deal with HOC ?
     if (names(model$measurement_model)[i] %in% c("scaled_interaction", "two_stage_interaction")) {
       c(construct_names, model$constructs[i]) -> construct_names # can we always use this? NO order is not the same
       #c(construct_names, model$constructs[i]) -> construct_names
@@ -794,6 +795,7 @@ dot_subcomponent_mm <- function(index, model, theme) {
 
   #debug: print(mm_coding[index, ])
   # no measurement for interaction terms or higher order composite scores
+  # TODO: two-stage interaction
   if (is_interaction || is_higher_order) {
     return("")
   }
