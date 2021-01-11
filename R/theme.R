@@ -124,7 +124,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
 default_edge_template <- function(){
   paste0("<B>{variable} = {value}</B>",
          "<BR /><FONT POINT-SIZE='7'>{tvalue}   {pvalue}",
-         "<BR/>{civalue}</FONT>")
+         " {civalue}</FONT>")
 }
 
 

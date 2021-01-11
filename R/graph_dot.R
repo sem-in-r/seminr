@@ -280,6 +280,9 @@ dot_graph.measurement_model <-
   # THIS is unnecessary complex(?).
   mm <- mm2matrix(model)
   as.data.frame(mm) -> mmodel
+
+  hocs <- model$higher_order_composite
+  hocs
   a_model <- list(measurement_model = model,
                 mmMatrix = mm,
                 outer_weights = matrix(c(1), # add only 1s
@@ -747,13 +750,12 @@ extract_mm_coding <- function(model) {
   construct_types <- c()
   for (i in seq_along(model$measurement_model)) {
     c(construct_types, names(model$measurement_model)[i]) -> construct_types
-    if (names(model$measurement_model)[i] != "scaled_interaction") {
-      # cannot call this as it is a function
-      c(construct_names, model$measurement_model[[i]][[1]]) -> construct_names
-
+    if (names(model$measurement_model)[i] %in% c("scaled_interaction", "two_stage_interaction")) {
+      c(construct_names, model$constructs[i]) -> construct_names # can we always use this? NO order is not the same
       #c(construct_names, model$constructs[i]) -> construct_names
     } else {
-      c(construct_names, model$constructs[i]) -> construct_names # can we always use this? NO order is not the same
+      # cannot call this as it is a function
+      c(construct_names, model$measurement_model[[i]][[1]]) -> construct_names
     }
   }
   mm_coding <- matrix(nrow = length(construct_names),

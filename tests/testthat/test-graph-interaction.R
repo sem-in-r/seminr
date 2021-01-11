@@ -22,7 +22,7 @@ test_that("interaction terms work", {
 
   #summary(mobi_pls)
   #dot_graph(mobi_pls)
-
+  plot_model(mobi_pls)
 
   #DiagrammeR::grViz(dot_graph(mobi_pls))
   testthat::expect_error(dot_graph(mobi_pls), NA)
