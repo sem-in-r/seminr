@@ -9,14 +9,16 @@ test_that("higher order composits are plotted", {
     composite("Loyalty",      multi_items("CUSL", 1:3)),
     composite("Value",        multi_items("PERV", 1:2)),
     higher_composite("Nick", dimensions = c("Quality","Loyalty"), method = two_stage, weights = mode_B),
-    composite("Satisfaction", multi_items("CUSA", 1:3))
+    composite("Satisfaction", multi_items("CUSA", 1:3)),
+    interaction_term(iv = "Image", moderator = "Expectation", method = two_stage, weights = mode_A)
   )
 
   # Creating structural model
   # - note, multiple paths can be created in each line
   mobi_sm <- relationships(
     paths(to = "Satisfaction",
-          from = c("Image", "Expectation", "Value","Nick"))
+          from = c("Image", "Expectation", "Value","Nick",
+                   "Image*Expectation"))
   )
 
   # Estimate the model with the HOC
@@ -38,7 +40,7 @@ test_that("higher order composits are plotted", {
 
 
 
-test_that("two higher order composits are plotted", {
+test_that("higher order composits are plotted", {
   set.seed(123)
   mobi <- mobi
 
@@ -52,20 +54,19 @@ test_that("two higher order composits are plotted", {
     composite("Complaints",   single_item("CUSCO")),
     composite("Loyalty",      multi_items("CUSL", 1:3)),
     higher_composite("Reputation", c("Image", "Expectation")),
-    higher_composite("Goodness", c("Quality", "Value"), weights = mode_B)
+    higher_composite("Goodness", c("Quality", "Value"), weights = mode_B),
+    interaction_term("Complaints", "Satisfaction")
   )
   #seminr syntax for creating structural model
   mobi_sm <- relationships(
     paths(from = "Reputation",        to = c("Satisfaction", "Loyalty", "Goodness")),
     paths(from = "Goodness",      to = c("Satisfaction")),
-    paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
-    paths(from = "Complaints",   to = "Loyalty")
+    paths(from = c("Satisfaction", "Complaints", "Complaints*Satisfaction"), to = "Loyalty")
   )
 
   mobi_pls <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
-
 
 
   if (FALSE) {
@@ -79,3 +80,5 @@ test_that("two higher order composits are plotted", {
   # FAILS
   testthat::expect_error(dot_graph(mobi_pls), NA)
 })
+
+

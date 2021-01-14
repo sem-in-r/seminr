@@ -749,16 +749,24 @@ extract_mm_coding <- function(model) {
   construct_names <- c()
   construct_types <- c()
   for (i in seq_along(model$measurement_model)) {
-    c(construct_types, names(model$measurement_model)[i]) -> construct_types
-    # TODO: deal with HOC ?
-    if (names(model$measurement_model)[i] %in% c("scaled_interaction", "two_stage_interaction")) {
-      c(construct_names, model$constructs[i]) -> construct_names # can we always use this? NO order is not the same
+
+    # get the type of the current construct
+    current_type <- names(model$measurement_model)[i]
+    construct_types <- c(construct_types, current_type)
+
+    # get the name of the current construct
+    # TODO: seems to work with HOC ?
+    # TODO: possible error different indexing??
+    if (current_type %in% c("scaled_interaction", "two_stage_interaction")) {
+      construct_names <- c(construct_names, model$constructs[i]) # can we always use this? NO order is not the same
       #c(construct_names, model$constructs[i]) -> construct_names
     } else {
       # cannot call this as it is a function
-      c(construct_names, model$measurement_model[[i]][[1]]) -> construct_names
+      construct_names <- c(construct_names, model$measurement_model[[i]][[1]])
     }
   }
+
+  # create output matrix
   mm_coding <- matrix(nrow = length(construct_names),
                       ncol = 2,
                       data = c(construct_names, construct_types))
@@ -773,6 +781,8 @@ dot_component_mm <- function(model, theme) {
                                 "// The measurement model\n",
                                 "// ---------------------\n"))
 
+
+  # TODO: somehow the componoent with HOC is not generated ??
   for (i in 1:length(model$constructs)) {
     sub_component <- dot_subcomponent_mm(i, model, theme)
     sub_components_mm <- c(sub_components_mm, sub_component)
@@ -796,7 +806,7 @@ dot_subcomponent_mm <- function(index, model, theme) {
   #debug: print(mm_coding[index, ])
   # no measurement for interaction terms or higher order composite scores
   # TODO: two-stage interaction
-  if (is_interaction || is_higher_order) {
+  if (is_interaction) { # || is_higher_order) {
     return("")
   }
 
@@ -905,7 +915,10 @@ extract_mm_edge_label <- function(model, theme, indicator, construct){
 extract_mm_edges <- function(index, model, theme, weights = 1000) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
-  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ,drop = FALSE]
+
+  # get row_index of all matching mm_matrix rows
+  matching_rows <- mm_matrix[, 1] == mm_coding[index, 1]
+  mm_matrix_subset <- mm_matrix[matching_rows, ,drop = FALSE]
   edges <- ""
 
 
@@ -934,8 +947,9 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     if (grepl("\\*", mm_matrix_subset[i, 2])) {
       # show interaction indicators?
     } else {
-      #
+
       letter <- "w"
+      # if construct is reflective?
       if (mm_matrix_subset[i, 3] == "C") {
         letter <- lamda
       }
