@@ -2,7 +2,7 @@
 % Please edit documentation in R/theme_defaults.R
 \name{seminr_theme_default}
 \alias{seminr_theme_default}
-\alias{seminr_theme_smartpls}
+\alias{seminr_theme_smart}
 \title{The theme function for a basic b/w theme}
 \usage{
 seminr_theme_default(
@@ -13,7 +13,7 @@ seminr_theme_default(
   sm.edge.label.fontsize = 9
 )
 
-seminr_theme_smartpls(
+seminr_theme_smart(
   plot.title.fontsize = 24,
   mm.node.label.fontsize = 8,
   sm.node.label.fontsize = 12,

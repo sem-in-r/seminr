@@ -1,4 +1,4 @@
-context("SEMinR dot_graph can plot models that use HOC (not yet).\n")
+context("SEMinR dot_graph can plot models that use HOC")
 test_that("higher order composits are plotted", {
   set.seed(123)
   mobi <- mobi
@@ -23,7 +23,12 @@ test_that("higher order composits are plotted", {
   mobi_pls <- estimate_pls(data = mobi,
                                measurement_model = mobi_mm,
                                structural_model = mobi_sm)
+  # FAILS
+  testthat::expect_error(dot_graph(mobi_pls), NA)
+  testthat::expect_error(plot(mobi_pls), NA)
 
+
+  # Testing
   if (FALSE) {
     summary(mobi_pls)
     plot_model(mobi_mm)
@@ -32,8 +37,7 @@ test_that("higher order composits are plotted", {
     #DiagrammeR::grViz(dot_graph(mobi_pls))
 
   }
-  # FAILS
-  testthat::expect_error(dot_graph(mobi_pls), NA)
+
 })
 
 
@@ -68,6 +72,10 @@ test_that("two higher order composits are plotted", {
 
 
 
+  testthat::expect_error(plot(mobi_pls), NA)
+  testthat::expect_error(dot_graph(mobi_pls), NA)
+
+  # Testing
   if (FALSE) {
     summary(mobi_pls)
     plot_model(mobi_mm)
@@ -76,6 +84,4 @@ test_that("two higher order composits are plotted", {
     #DiagrammeR::grViz(dot_graph(mobi_pls))
 
   }
-  # FAILS
-  testthat::expect_error(dot_graph(mobi_pls), NA)
 })

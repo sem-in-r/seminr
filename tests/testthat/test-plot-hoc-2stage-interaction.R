@@ -26,7 +26,14 @@ test_that("higher order composits are plotted", {
                                measurement_model = mobi_mm,
                                structural_model = mobi_sm)
 
-  if (FALSE) {
+  testthat::expect_error(dot_graph(mobi_pls), NA)
+  testthat::expect_error(plot(mobi_pls), NA)
+
+
+
+
+  # Testing stuff
+    if (FALSE) {
     summary(mobi_pls)
     plot_model(mobi_mm)
     plot_model(mobi_sm)
@@ -34,13 +41,11 @@ test_that("higher order composits are plotted", {
     #DiagrammeR::grViz(dot_graph(mobi_pls))
 
   }
-  # FAILS
-  testthat::expect_error(dot_graph(mobi_pls), NA)
 })
 
 
 
-test_that("higher order composits are plotted", {
+test_that("two higher order composits are plotted", {
   set.seed(123)
   mobi <- mobi
 
@@ -69,16 +74,20 @@ test_that("higher order composits are plotted", {
                            structural_model = mobi_sm)
 
 
-  if (FALSE) {
+  testthat::expect_error(dot_graph(mobi_pls), NA)
+  testthat::expect_error(plot(mobi_pls), NA)
+
+  # Testing
+    if (FALSE) {
     summary(mobi_pls)
-    plot_model(mobi_mm)
-    plot_model(mobi_sm)
-    plot_model(mobi_pls)
+    plot(mobi_mm)
+    plot(mobi_sm)
+    plot(mobi_pls)
     #DiagrammeR::grViz(dot_graph(mobi_pls))
 
   }
-  # FAILS
-  testthat::expect_error(dot_graph(mobi_pls), NA)
 })
 
+# Cleanup
+unlink("Rplots.pdf")
 

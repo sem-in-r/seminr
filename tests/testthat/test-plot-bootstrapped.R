@@ -23,6 +23,9 @@ test_that("bootstrapped models work", {
   mobi_boot <- bootstrap_model(mobi_pls, nboot = 100, cores = 1)
 
   expect_error(dot_graph(mobi_boot), NA)
+  expect_error(plot(mobi_boot), NA)
+
+
 
   # As a backup for testing manually
   if (FALSE) {
@@ -38,5 +41,6 @@ test_that("bootstrapped models work", {
 
   }
 
-
 })
+
+unlink("Rplots.pdf")

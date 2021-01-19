@@ -7,6 +7,7 @@
 #' @param plot.splines Whether or not to use splines as edges.
 #' @param plot.rounding The amount of decimals to keep for rounding.
 #' @param plot.adj Whether or not to use adjusted r^2 in constructs
+#' @param plot.greekletters Whether or not to use greek UTF-8 symbols in plots
 #' @param mm.node.color Color of the measurement model nodes.
 #' @param mm.node.fill Fill of the measurement model nodes.
 #' @param mm.node.label.fontsize Font size of the measurement model node labels.
@@ -24,6 +25,12 @@
 #' @param sm.edge.color Color of the structural model edges.
 #' @param sm.edge.label.fontsize Font size of the structural model edge labels.
 #' @param sm.edge.minlen Minimum length of the structural model edges.
+#' @param construct.reflective.shape Dot shape of reflective constructs
+#' @param construct.compositeA.shape Dot shape of composite constructs using correlation weights
+#' @param construct.compositeB.shape Dot shape of composite constructs using regression weights
+#' @param manifest.reflective.shape Dot shape of manifest variables of reflective constructs
+#' @param manifest.compositeA.shape Dot shape of manifest variables of composite constructs using correlation weights
+#' @param manifest.compositeB.shape Dot shape of manifest variables of composite constructs using regression weights
 #'
 #' @return A \code{seminr.theme} object that can be supplied to \code{\link{dot_graph}}
 #' @export
@@ -34,6 +41,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          plot.splines = TRUE,
                          plot.rounding = 3,
                          plot.adj = TRUE,
+                         plot.greekletters = TRUE,
                          mm.node.color = "dimgrey",
                          mm.node.fill = "white",
                          mm.node.label.fontsize = 8,
@@ -47,10 +55,16 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          sm.edge.boot.show_t_value = FALSE,
                          sm.edge.boot.show_p_value = TRUE,
                          sm.edge.boot.show_ci = FALSE,
-                         sm.edge.boot.template = default_edge_template(),
+                         sm.edge.boot.template = edge_template_default(),
                          sm.edge.color = "black",
                          sm.edge.label.fontsize = 9,
-                         sm.edge.minlen = NA) {
+                         sm.edge.minlen = NA,
+                         construct.reflective.shape = "ellipse",
+                         construct.compositeA.shape = "ellipse",
+                         construct.compositeB.shape = "ellipse",
+                         manifest.reflective.shape = "box",
+                         manifest.compositeA.shape = "box",
+                         manifest.compositeB.shape = "box") {
 
   # Do some sanity checks
   color_options <- grDevices::colors()
@@ -87,6 +101,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 plot.splines = plot.splines,
                 plot.rounding = plot.rounding,
                 plot.adj = plot.adj,
+                plot.greekletters = plot.greekletters,
                 mm.node.color = mm.node.color,
                 mm.node.fill = mm.node.fill,
                 mm.node.label.fontsize = mm.node.label.fontsize,
@@ -111,32 +126,40 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 sm.edge.boot.show_ci = sm.edge.boot.show_ci,
                 sm.edge.boot.template = sm.edge.boot.template,
                 sm.edge.width_multiplier = 5,
-                sm.edge.minlen = sm.edge.minlen)
-  class(theme) <- "seminr.theme"
+                sm.edge.minlen = sm.edge.minlen,
+                construct.reflective.shape = construct.reflective.shape,
+                construct.compositeA.shape = construct.compositeA.shape,
+                construct.compositeB.shape = construct.compositeB.shape,
+                manifest.reflective.shape = manifest.reflective.shape,
+                manifest.compositeA.shape = manifest.compositeA.shape,
+                manifest.compositeB.shape = manifest.compositeB.shape)
+  class(theme) <- "seminr_theme"
   return(theme)
 }
 
 
 #' The default template for labeling bootstrapped edges
 #'
-#' @return The default string
+#' @return The template string
 #' @export
-default_edge_template <- function(){
+edge_template_default <- function(){
   paste0("<B>{variable} = {value}</B>",
          "<BR /><FONT POINT-SIZE='7'>{tvalue}   {pvalue}",
          " {civalue}</FONT>")
 }
 
+#' A minimal template for labeling bootstrapped edges that only shows the
+#' bootstrapped mean value
+#'
+#' @return The template string
+#' @export
+edge_template_minimal <- function(){
+  paste0("{variable} = {value}")
+}
 
 
 #' @export
 print.seminr_theme <- function(x, ...) utils::str(x)
-
-#' Reports whether x is a seminr_theme object
-#' @param x An object to test
-#' @export
-#' @keywords internal
-is.seminr_theme <- function(x) inherits(x, "seminr_theme")
 
 
 

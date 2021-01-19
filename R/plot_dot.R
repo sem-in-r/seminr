@@ -15,11 +15,13 @@ globalVariables(c("."))
 #'
 #' @return Returns the plot.
 #' @export
-plot_model <- function(model,
+plot.seminr_model <- function(model,
                        title = "",
                        theme = NULL,
-                       ...){
-  if (requireNamespace("DiagrammeR", quietly = TRUE)) {
+                       ...) {
+
+  query_install("DiagrammeR", "Alternatively use the dot_graph() function to create a dot graph.")
+
     # lavaan models
     if (inherits(model, "cfa_model")) {
       message("Plotting of lavaan models using semPlot.")
@@ -32,13 +34,42 @@ plot_model <- function(model,
       return()
     }
 
+    if (is(title, "seminr_theme")) {
+      warning(
+        "You have supplied a theme in the title parameter. Please use named parameters to use a specific theme: plot(model, theme = thm)."
+      )
+    }
+
+    # actual plotting
     res <- DiagrammeR::grViz(dot_graph(model, title, theme, ...))
     set_last_seminr_plot(res)
-    res
-  } else {
-    stop("This function requires the DiagrammeR package. You can install it by calling: install.packages(\"DiagrammeR\")")
+    return(res)
+}
+
+
+query_install <- function(pkg_name = "DiagrammeR", failure_msg=""){
+  if (!requireNamespace(pkg_name, quietly = TRUE)) {
+    if (interactive()) {
+      x <- readline(paste0(
+        "----------------------------------------------------------------------\n",
+        "This function requires the ", pkg_name, " package.\n",
+        "You can install it by calling: install.packages(\"", pkg_name, "\")\n",
+        "Do you want to install ", pkg_name, " right now (Y/n)?"
+      ))
+      if (x == "Y") {
+        install.packages(pkg_name)
+      } else {
+        stop(
+          paste0("You have selected no. Please use a capital Y to agree with installing ",pkg_name, " on your machine.\n",
+                 failure_msg
+          )
+        )
+      }
+    }
   }
 }
+
+
 
 
 #' Saves a SEMinR model plot to file
@@ -88,38 +119,30 @@ plot_model <- function(model,
 #' }
 #'
 save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width = NULL, height = NULL){
-  if (!requireNamespace("DiagrammeRsvg", quietly = TRUE)) {
-    stop("This function requires the DiagrammeRsvg package. You can install it by calling: install.packages(\"DiagrammeRsvg\")")
-  }
-  if (!requireNamespace("rsvg", quietly = TRUE)) {
-    stop("This function requires the rsvg package. You can install it by calling: install.packages(\"rsvg\")")
-  }
+  query_install("DiagrammeRsvg")
+  query_install("rsvg")
 
   if (is.null(plot)) {
     stop("No compatible plot was created.")
   }
 
-
-  #svg <- my_model %>%
-  #  dot_graph() %>%
-  #  grViz() %>%
+  # generate svg string
   svg <- charToRaw( DiagrammeRsvg::export_svg(plot) )
 
-  ext <- tolower(tools::file_ext(filename))
+  file_extension <- tolower(tools::file_ext(filename))
   result = switch(
-    ext,
+    file_extension,
     "pdf" = {rsvg::rsvg_pdf(svg, filename, width = width, height = height)},
     "png" = {rsvg::rsvg_png(svg, filename, width = width, height = height)},
     "ps" = {rsvg::rsvg_ps(svg, filename, width = width, height = height)},
     "svg" = {rsvg::rsvg_svg(svg, filename, width = width, height = height)},
     "webp" = {
-      if (!requireNamespace("webp", quietly = TRUE)) {
-        stop("Plotting to webp-files requires the webp package. You can install it by calling: install.packages(\"webp\")")
-      }
+      query_install("webp")
       rsvg::rsvg_webp(svg, filename, width = width, height = height)
       },
     "raw" = {rsvg::rsvg_raw(svg, filename, width = width, height = height)},
 
+    # else
     {message(paste0("Unsuported file type: '",ext, "'. Please use either png, pdf, ps, webp, or svg"))}
   )
 
@@ -206,10 +229,7 @@ dot_graph <- function(model,
 #' @param ... Parameters passed to the \link[semPlot]{semPaths} function
 #' @export
 dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
-  if (!requireNamespace("semPlot", quietly = TRUE)) {
-    stop("Plotting models from lavaan is not implemented yet. As a fallback you can install \"semPlot\" and then utilized.")
-  }
-
+  query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
   semPlot::semPaths(model$lavaan_model, what = what, whatLabels = whatLabels,...)
 }
 
@@ -225,15 +245,13 @@ dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", w
 #' @param ... Parameters passed to the \link[semPlot]{semPaths} function
 #' @export
 dot_graph.cbsem_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
-  if (!requireNamespace("semPlot", quietly = TRUE)) {
-    stop("Plotting models from lavaan is not implemented yet. As a fallback you can install \"semPlot\" and then utilized.")
-  }
-
-semPlot::semPaths(model$lavaan_model, what = what, whatLabels = whatLabels,...)
+  query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
+  semPlot::semPaths(model$lavaan_model, what = what, whatLabels = whatLabels,...)
 }
 
+#' @export
 dot_graph.default <- function(...){
-  stop("Whoops. This shouldn't have happened. Did you use an unsupported model type? Please let us know if this happens and how.")
+  stop("Whoops. This shouldn't have happened. Did you use a SEMinR model? If yes, please let us know if this happens and how.")
 }
 
 #' Convert a seminr measurement model to a Graphviz representation
@@ -297,6 +315,8 @@ dot_graph.measurement_model <-
 
   class(a_model) <- "pls_model"
 
+
+  # adjust themes to correct for aritifical information
   thm$mm.edge.width_multiplier <- 1
   thm$mm.edge.label.show <- FALSE
   dot_graph(a_model, title = title, theme = thm, measurement_only = TRUE)
@@ -386,8 +406,7 @@ dot_graph.structural_model <-
     thm$sm.edge.label.show <- FALSE
 
     dot_graph(a_model, title = title, theme = thm, structure_only = TRUE)
-
-  }
+}
 
 
 
@@ -444,6 +463,7 @@ dot_graph.pls_model <- function(model,
 
   global_style <- get_global_style(theme = thm)
 
+  # TODO could be it's own function
   #rewrite construct size
   #c_width_offst <- 0.1
   #if (thm$construct_nodes$shape %in% c("ellipse", "oval")) {
@@ -457,7 +477,7 @@ dot_graph.pls_model <- function(model,
     ) + c_width_offst
 
   thm$sm.node.width  <- construct_width
-  thm$sm.node.height <- construct_height * 2
+  thm$sm.node.height <- construct_height * 2 # two lines, could be optimized
 
   # rewrite item size
   i_width_offst <- 0.1
@@ -513,9 +533,9 @@ get_global_style <- function(theme) {
                   "// General graph settings\n",
                   "// ----------------------\n",
                   "graph [\n",
-                  "charset = 'UTF-8',\n",
+                  "charset = \"UTF-8\",\n",
                   "layout = dot,\n",
-                  "label = '<<theme$plot.title>>',\n",
+                  "label = \"<<theme$plot.title>>\",\n",
                   "fontsize = <<theme$plot.title.fontsize>>,\n",
                   "fontname = <<theme$plot.fontname>>,\n",
                   "rankdir = LR,\n",
@@ -530,7 +550,7 @@ get_global_style <- function(theme) {
 dot_component_sm_parts <- function(model, theme){
   #used for plotting measurement models
   # This is a "hacky" solution. Because we create artificial models
-  # and did not want to create an aritificial measurement model
+  # and did not want to create an artificial measurement model
   # this function is used to plot only the SM part.
   sm_nodes <- extract_sm_nodes(model, theme)
   sm_node_style <- get_sm_node_style(theme)
@@ -568,6 +588,9 @@ dot_component_sm <- function(model, theme) {
                   "}\n"))
 }
 
+
+
+
 # extract structural model nodes from a seminr model
 extract_sm_nodes <- function(model, theme) {
   sm_nodes <- gsub("\\*", "_x_", model$constructs)
@@ -576,11 +599,16 @@ extract_sm_nodes <- function(model, theme) {
   return(sm_nodes)
 }
 
+## REFACTORING HERE WE ARE  -----
 # format structural model node where appropriate
 format_sm_node <- function(construct, model, theme){
 
   # this is the unicode symbol for ^2
-  squared_symbol <- "\U00B2"
+  if ( theme$plot.greekletters ) {
+    squared_symbol <- "\U00B2"
+  } else {
+    squared_symbol <- "^2"
+  }
 
   formatted_node <- ""
 
@@ -592,12 +620,12 @@ format_sm_node <- function(construct, model, theme){
     r_string <- "adj. "
   }
   if (construct %in% colnames(model$rSquared)) {
-    formatted_node <- paste0("'", construct, "' ",
-                             "[label='", construct, "\n",
+    formatted_node <- paste0("\"", construct, "\"",
+                             "[label=\"", construct, "\n",
                              r_string, "r",squared_symbol,"=", round(model$rSquared[r_index, construct], theme$plot.rounding),
-                             "']")
+                             "\"]")
   } else {
-    formatted_node <- paste0("'", construct, "'" , "[label='",gsub("_x_","\\*", construct),"']")
+    formatted_node <- paste0("\"", construct, "\"" , "[label=\"",gsub("_x_","\\*", construct),"\"]")
   }
   return(formatted_node)
 }
@@ -638,10 +666,13 @@ extract_sm_edges <- function(model, theme, weights = 1) {
   sm_edges <- c()
 
   # Unicode for small mathematical symbols
-  beta <- "\U0001D6FD"
-  #print(beta)
-  gamma <- "\U0001D6FE"
-  #print(gamma)
+  if ( theme$plot.greekletters ) {
+    beta <- "\U0001D6FD"
+    gamma <- "\U0001D6FE"
+  } else {
+    beta <- "beta"
+    gamma <- "gamma"
+  }
 
   # for every path add an edge
   for (i in 1:nrow(sm)) {
@@ -663,7 +694,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       bupper <- round(smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 6], theme$plot.rounding)
       bt <- smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 4]
       # TODO: Verify method to calculate p values
-      bp <- stats::pt(abs(bt), nrow(model$data) - 1, lower = FALSE)
+      bp <- stats::pt(bt, nrow(model$data) - 1, lower = FALSE)
 
 
       tvalue <- ""
@@ -716,7 +747,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     # add the weight
     edge_weight <- paste0("weight = ", weights)
     sm_edges <- c(sm_edges,
-                  paste0("'", sm[i, 1], "' -> {'", sm[i, 2], "'}","[", edge_weight, edge_label, edge_width, edge_style, "]"))
+                  paste0("\"", sm[i, 1], "\" -> {\"", sm[i, 2], "\"}","[", edge_weight, edge_label, edge_width, edge_style, "]"))
   }
   sm_edges <- paste0(sm_edges, collapse = "\n")
   sm_edges <- gsub("\\*", "_x_", sm_edges)
@@ -923,9 +954,12 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
 
 
   # determine letter to use (What is with A and B type constructs?)
-  # Small mathematical lamda
-  lamda <- "\U0001D706"
-  #print(lamda)
+  # Small mathematical lambda
+  if (theme$plot.greekletters) {
+    lambda <- "\U0001D706"
+  } else {
+    lambda <- "lambda"
+  }
 
   for (i in 1:nrow(mm_matrix_subset)) {
     # XXX HOC fails here ----
@@ -951,21 +985,21 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
       letter <- "w"
       # if construct is reflective?
       if (mm_matrix_subset[i, 3] == "C") {
-        letter <- lamda
+        letter <- lambda
       }
 
       edge_label <- ""
       if (theme$mm.edge.label.show) {
-        edge_label <- paste0(", label = '", letter, " = ", loading, "'")
+        edge_label <- paste0(", label = \"", letter, " = ", loading, "\"")
       }
       edge_style <- get_value_dependent_edge_style(loading, theme)
       edges <- paste0(
         edges,
-        "'",
+        "\"",
         mm_matrix_subset[i, 2],
-        "' -> {'",
+        "\" -> {\"",
         mm_matrix_subset[i, 1],
-        "'}",
+        "\"}",
         "[weight = ",
         weights,
         edge_label,
