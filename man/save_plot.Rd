@@ -14,7 +14,7 @@ save_plot(
 \arguments{
 \item{filename}{The name of the file output (can be png, pdf, webp, ps, or svg.)}
 
-\item{plot}{A plot that is created from the \code{\link{plot_model}} function. By default it uses the last plot created.}
+\item{plot}{A plot that is created from the \code{\link{plot}} function. By default it uses the last plot created.}
 
 \item{width}{An optional parameter for width in pixels.}
 
@@ -55,7 +55,7 @@ mobi_pls <- estimate_pls(data = mobi,
                          structural_model = mobi_sm)
 \dontrun{
 # generate the plot
-plot_model(mobi_pls)
+plot(mobi_pls)
 # save to file
 save_plot("myplot.pdf")
 }

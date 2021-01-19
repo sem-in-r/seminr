@@ -8,20 +8,21 @@ globalVariables(c("."))
 #' Depending on the type of model, different parameters can be used.
 #' Please check the \code{\link{dot_graph}} function for additional parameters.
 #'
-#' @param model The model description
+#' @param x The model description
 #' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
 #' @param ... Additional parameters
 #'
 #' @return Returns the plot.
 #' @export
-plot.seminr_model <- function(model,
+plot.seminr_model <- function(x,
                        title = "",
                        theme = NULL,
                        ...) {
 
   query_install("DiagrammeR", "Alternatively use the dot_graph() function to create a dot graph.")
 
+  model <- x
     # lavaan models
     if (inherits(model, "cfa_model")) {
       message("Plotting of lavaan models using semPlot.")
@@ -34,7 +35,7 @@ plot.seminr_model <- function(model,
       return()
     }
 
-    if (is(title, "seminr_theme")) {
+    if (inherits(title, "seminr_theme")) {
       warning(
         "You have supplied a theme in the title parameter. Please use named parameters to use a specific theme: plot(model, theme = thm)."
       )
@@ -57,7 +58,7 @@ query_install <- function(pkg_name = "DiagrammeR", failure_msg=""){
         "Do you want to install ", pkg_name, " right now (Y/n)?"
       ))
       if (x == "Y") {
-        install.packages(pkg_name)
+        utils::install.packages(pkg_name)
       } else {
         stop(
           paste0("You have selected no. Please use a capital Y to agree with installing ",pkg_name, " on your machine.\n",
@@ -77,7 +78,7 @@ query_install <- function(pkg_name = "DiagrammeR", failure_msg=""){
 #' Saves a SEMinR model plot to a graphical file. Default output is RPlots.pdf.
 #'
 #' @param filename The name of the file output (can be png, pdf, webp, ps, or svg.)
-#' @param plot A plot that is created from the \code{\link{plot_model}} function. By default it uses the last plot created.
+#' @param plot A plot that is created from the \code{\link{plot}} function. By default it uses the last plot created.
 #' @param width An optional parameter for width in pixels.
 #' @param height An optional parameter for height in pixels.
 #'
@@ -113,7 +114,7 @@ query_install <- function(pkg_name = "DiagrammeR", failure_msg=""){
 #'                          structural_model = mobi_sm)
 #' \dontrun{
 #' # generate the plot
-#' plot_model(mobi_pls)
+#' plot(mobi_pls)
 #' # save to file
 #' save_plot("myplot.pdf")
 #' }
@@ -143,7 +144,7 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
     "raw" = {rsvg::rsvg_raw(svg, filename, width = width, height = height)},
 
     # else
-    {message(paste0("Unsuported file type: '",ext, "'. Please use either png, pdf, ps, webp, or svg"))}
+    {message(paste0("Unsuported file type: '", file_extension, "'. Please use either png, pdf, ps, webp, or svg"))}
   )
 
 
@@ -593,7 +594,8 @@ dot_component_sm <- function(model, theme) {
 
 # extract structural model nodes from a seminr model
 extract_sm_nodes <- function(model, theme) {
-  sm_nodes <- gsub("\\*", "_x_", model$constructs)
+  sm_nodes <- model$constructs
+
   sm_nodes <- sapply(sm_nodes, format_sm_node, model, theme)
   sm_nodes <- paste0(sm_nodes, collapse = "\n")
   return(sm_nodes)
@@ -625,7 +627,9 @@ format_sm_node <- function(construct, model, theme){
                              r_string, "r",squared_symbol,"=", round(model$rSquared[r_index, construct], theme$plot.rounding),
                              "\"]")
   } else {
-    formatted_node <- paste0("\"", construct, "\"" , "[label=\"",gsub("_x_","\\*", construct),"\"]")
+    formatted_node <- paste0("\"", construct, "\"" , "[label=\"",
+                             construct,
+                             "\"]")
   }
   return(formatted_node)
 }
@@ -653,9 +657,10 @@ get_value_dependent_edge_style <- function(value, theme){
 
 
 
-format_sm_edge_label <- function(theme, variable, value, tvalue, pvalue, civalue){
+format_sm_edge_label <- function(theme, variable, value, tvalue, pvalue, stars, civalue){
   glue::glue(theme$sm.edge.boot.template)
 }
+
 
 # extract structural model edges from a seminr model
 extract_sm_edges <- function(model, theme, weights = 1) {
@@ -700,6 +705,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       tvalue <- ""
       pvalue <- ""
       civalue <- ""
+      stars <- ""
 
       if (theme$sm.edge.boot.show_t_value) {
         tvalue <- paste0("t = ", round(bt, theme$plot.rounding))
@@ -707,13 +713,16 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       if (theme$sm.edge.boot.show_p_value) {
         pvalue <- paste0("p ", pvalr(bp, html = TRUE))
       }
+      if (theme$sm.edge.boot.show_p_stars) {
+        stars <- psignr(bp, html = TRUE)
+      }
       if (theme$sm.edge.boot.show_ci) {
         civalue <- paste0("95% CI [", blower, ", ", bupper, "]")
       }
 
+
+      # Is this code dead?
       suffix <- paste0(c(tvalue, pvalue, civalue), collapse = "<BR />")
-
-
       if (nchar(suffix) > 0) {
         fsize <- theme$sm.edge.label.fontsize - 2
         suffix <- paste0("<BR /><FONT POINT-SIZE='", fsize, "'>", suffix, "</FONT>") # <FONT POINT-SIZE="20"> ?
@@ -727,6 +736,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       tvalue <- ""
       pvalue <- ""
       civalue <- ""
+      stars <- ""
       coef <- round(model$path_coef[sm[i, 1], sm[i,2]], theme$plot.rounding)
       edge_width <- paste0(", penwidth = ", abs(coef * theme$sm.edge.width_multiplier))
       edge_style <- get_value_dependent_edge_style(coef, theme)
@@ -739,7 +749,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     if (theme$sm.edge.label.show) {
       #edge_label <- paste0(", label = < <B>", letter, " = ", coef, "</B>" , suffix, " >")
       #cat(edge_label)
-      elab <- format_sm_edge_label(theme, variable = letter, value = coef, tvalue, pvalue, civalue )
+      elab <- format_sm_edge_label(theme, variable = letter, value = coef, tvalue, pvalue, stars, civalue )
       edge_label <- paste0(", label = < ", elab, " >")
       #cat(elab)
     }
@@ -750,7 +760,6 @@ extract_sm_edges <- function(model, theme, weights = 1) {
                   paste0("\"", sm[i, 1], "\" -> {\"", sm[i, 2], "\"}","[", edge_weight, edge_label, edge_width, edge_style, "]"))
   }
   sm_edges <- paste0(sm_edges, collapse = "\n")
-  sm_edges <- gsub("\\*", "_x_", sm_edges)
   return(sm_edges)
 }
 
@@ -904,6 +913,11 @@ get_mm_edge_style <- function(theme, forward){
 }
 
 
+# not used yet
+format_mm_edge_label <- function(theme, variable, value, tvalue, pvalue, stars, civalue){
+  glue::glue(theme$mm.edge.boot.template)
+}
+
 extract_mm_nodes <- function(index, model) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
@@ -1011,9 +1025,6 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     }
   }
 
-
-  # we don't show interaction term measurement items
-  #edges <- gsub("\\*", "_x_", edges)
   return(edges)
 }
 

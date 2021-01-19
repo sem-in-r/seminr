@@ -4,10 +4,10 @@
 \alias{plot.seminr_model}
 \title{Plot various SEMinR models}
 \usage{
-\method{plot}{seminr_model}(model, title = "", theme = NULL, ...)
+\method{plot}{seminr_model}(x, title = "", theme = NULL, ...)
 }
 \arguments{
-\item{model}{The model description}
+\item{x}{The model description}
 
 \item{title}{An optional title for the plot}
 

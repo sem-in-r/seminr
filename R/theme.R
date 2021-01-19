@@ -15,11 +15,17 @@
 #' @param mm.edge.label.fontsize Font size of the measurement model edge labels.
 #' @param mm.edge.minlen Minimum length of the measurement model edges.
 #' @param mm.edge.use_outer_weights Whether or not to use outer weights as edge labels in the measurement model.
+#' @param mm.edge.boot.show_t_value Should boot-strapped loadings/weights show a t-value
+#' @param mm.edge.boot.show_p_value Should boot-strapped loadings/weights show a p-value
+#' @param mm.edge.boot.show_p_stars Should boot-strapped loadings/weights show significance stars
+#' @param mm.edge.boot.show_ci Should boot-strapped loadings/weights show a 95 percent confidence interval
+#' @param mm.edge.boot.template A template string for HTML formatting of edges for loadings/weights
 #' @param sm.node.color Color of the structural model nodes.
 #' @param sm.node.fill Fill of the structural model nodes.
 #' @param sm.node.label.fontsize Font size of the structural model node labels.
 #' @param sm.edge.boot.show_t_value Should boot-strapped path coefficients show a t-value
 #' @param sm.edge.boot.show_p_value Should boot-strapped path coefficients show a p-value
+#' @param sm.edge.boot.show_p_stars Should boot-strapped path coefficients show significance stars
 #' @param sm.edge.boot.show_ci Should boot-strapped path coefficients show a 95 percent confidence interval
 #' @param sm.edge.boot.template A template string for HTML formatting of edges
 #' @param sm.edge.color Color of the structural model edges.
@@ -49,11 +55,17 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          mm.edge.label.fontsize = 7,
                          mm.edge.minlen = 1,
                          mm.edge.use_outer_weights = TRUE,
+                         mm.edge.boot.show_t_value = FALSE,
+                         mm.edge.boot.show_p_value = FALSE,
+                         mm.edge.boot.show_p_stars = TRUE,
+                         mm.edge.boot.show_ci = FALSE,
+                         mm.edge.boot.template = edge_template_minimal(),
                          sm.node.color = "black",
                          sm.node.fill = "white",
                          sm.node.label.fontsize = 12,
                          sm.edge.boot.show_t_value = FALSE,
                          sm.edge.boot.show_p_value = TRUE,
+                         sm.edge.boot.show_p_stars = TRUE,
                          sm.edge.boot.show_ci = FALSE,
                          sm.edge.boot.template = edge_template_default(),
                          sm.edge.color = "black",
@@ -113,6 +125,11 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 mm.edge.width_multiplier = 3,
                 mm.edge.minlen = mm.edge.minlen,
                 mm.edge.use_outer_weights = mm.edge.use_outer_weights,
+                mm.edge.boot.show_t_value = mm.edge.boot.show_t_value,
+                mm.edge.boot.show_p_value = mm.edge.boot.show_p_value,
+                mm.edge.boot.show_p_stars = mm.edge.boot.show_p_stars,
+                mm.edge.boot.show_ci = mm.edge.boot.show_ci,
+                mm.edge.boot.template = sm.edge.boot.template,
                 sm.node.color = sm.node.color,
                 sm.node.fill = sm.node.fill,
                 sm.node.label.fontsize = sm.node.label.fontsize,
@@ -123,6 +140,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 sm.edge.label.show = TRUE,
                 sm.edge.boot.show_t_value = sm.edge.boot.show_t_value,
                 sm.edge.boot.show_p_value = sm.edge.boot.show_p_value,
+                sm.edge.boot.show_p_stars = sm.edge.boot.show_p_stars,
                 sm.edge.boot.show_ci = sm.edge.boot.show_ci,
                 sm.edge.boot.template = sm.edge.boot.template,
                 sm.edge.width_multiplier = 5,
@@ -143,7 +161,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
 #' @return The template string
 #' @export
 edge_template_default <- function(){
-  paste0("<B>{variable} = {value}</B>",
+  paste0("<B>{variable} = {value}{stars}</B>",
          "<BR /><FONT POINT-SIZE='7'>{tvalue}   {pvalue}",
          " {civalue}</FONT>")
 }
@@ -154,7 +172,7 @@ edge_template_default <- function(){
 #' @return The template string
 #' @export
 edge_template_minimal <- function(){
-  paste0("{variable} = {value}")
+  paste0("{variable} = {value}{stars}")
 }
 
 

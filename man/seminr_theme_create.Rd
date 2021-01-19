@@ -18,11 +18,17 @@ seminr_theme_create(
   mm.edge.label.fontsize = 7,
   mm.edge.minlen = 1,
   mm.edge.use_outer_weights = TRUE,
+  mm.edge.boot.show_t_value = FALSE,
+  mm.edge.boot.show_p_value = FALSE,
+  mm.edge.boot.show_p_stars = TRUE,
+  mm.edge.boot.show_ci = FALSE,
+  mm.edge.boot.template = edge_template_minimal(),
   sm.node.color = "black",
   sm.node.fill = "white",
   sm.node.label.fontsize = 12,
   sm.edge.boot.show_t_value = FALSE,
   sm.edge.boot.show_p_value = TRUE,
+  sm.edge.boot.show_p_stars = TRUE,
   sm.edge.boot.show_ci = FALSE,
   sm.edge.boot.template = edge_template_default(),
   sm.edge.color = "black",
@@ -63,6 +69,16 @@ seminr_theme_create(
 
 \item{mm.edge.use_outer_weights}{Whether or not to use outer weights as edge labels in the measurement model.}
 
+\item{mm.edge.boot.show_t_value}{Should boot-strapped loadings/weights show a t-value}
+
+\item{mm.edge.boot.show_p_value}{Should boot-strapped loadings/weights show a p-value}
+
+\item{mm.edge.boot.show_p_stars}{Should boot-strapped loadings/weights show significance stars}
+
+\item{mm.edge.boot.show_ci}{Should boot-strapped loadings/weights show a 95 percent confidence interval}
+
+\item{mm.edge.boot.template}{A template string for HTML formatting of edges for loadings/weights}
+
 \item{sm.node.color}{Color of the structural model nodes.}
 
 \item{sm.node.fill}{Fill of the structural model nodes.}
@@ -72,6 +88,8 @@ seminr_theme_create(
 \item{sm.edge.boot.show_t_value}{Should boot-strapped path coefficients show a t-value}
 
 \item{sm.edge.boot.show_p_value}{Should boot-strapped path coefficients show a p-value}
+
+\item{sm.edge.boot.show_p_stars}{Should boot-strapped path coefficients show significance stars}
 
 \item{sm.edge.boot.show_ci}{Should boot-strapped path coefficients show a 95 percent confidence interval}
 
