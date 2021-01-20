@@ -61,6 +61,9 @@ pvalr <- function(pvals, sig.limit = .001, digits = 3, html = FALSE) {
 psignr <- function(pvals, sig.limit = c(0.05, 0.01, 0.001), html = FALSE){
   sapply(pvals, function(x, sig.limit){
     res <- ""
+    if (is.na(x)) {
+      return("")
+    }
     if (html) {
       for (i in 1:length(sig.limit)) {
         if (x < sig.limit[i]) {

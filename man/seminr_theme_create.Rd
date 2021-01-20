@@ -26,6 +26,7 @@ seminr_theme_create(
   sm.node.color = "black",
   sm.node.fill = "white",
   sm.node.label.fontsize = 12,
+  sm.node.template = node_template_default(),
   sm.edge.boot.show_t_value = FALSE,
   sm.edge.boot.show_p_value = TRUE,
   sm.edge.boot.show_p_stars = TRUE,
@@ -84,6 +85,8 @@ seminr_theme_create(
 \item{sm.node.fill}{Fill of the structural model nodes.}
 
 \item{sm.node.label.fontsize}{Font size of the structural model node labels.}
+
+\item{sm.node.template}{A template string for the construct nodes}
 
 \item{sm.edge.boot.show_t_value}{Should boot-strapped path coefficients show a t-value}
 

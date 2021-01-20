@@ -36,8 +36,9 @@ plot.seminr_model <- function(x,
     }
 
     if (inherits(title, "seminr_theme")) {
-      warning(
-        "You have supplied a theme in the title parameter. Please use named parameters to use a specific theme: plot(model, theme = thm)."
+      warning(paste0("You have supplied a theme in the title parameter. ",
+                     "Please use named parameters to use a specific theme: ",
+                     "plot(model, theme = thm).")
       )
     }
 
@@ -602,6 +603,19 @@ extract_sm_nodes <- function(model, theme) {
 }
 
 ## REFACTORING HERE WE ARE  -----
+
+format_sm_node_label <- function(theme, name, rstring) {
+  if (rstring == "") {
+    old_template <- theme$sm.node.template
+    # cut everything after a line break
+    new_template <- substr(old_template, 1, grepRaw("<BR />", old_template) - 1)
+    res <- glue::glue(new_template)
+  } else {
+    res <- glue::glue(theme$sm.node.template)
+  }
+  res
+}
+
 # format structural model node where appropriate
 format_sm_node <- function(construct, model, theme){
 
@@ -621,15 +635,22 @@ format_sm_node <- function(construct, model, theme){
     r_index <- 2
     r_string <- "adj. "
   }
+
+  # TODO: detect construct type
+
   if (construct %in% colnames(model$rSquared)) {
-    formatted_node <- paste0("\"", construct, "\"",
-                             "[label=\"", construct, "\n",
-                             r_string, "r",squared_symbol,"=", round(model$rSquared[r_index, construct], theme$plot.rounding),
-                             "\"]")
+    rstring <- paste0(r_string, "r", squared_symbol, " = ",
+                      round(model$rSquared[r_index, construct], theme$plot.rounding))
+
+    label_string <- format_sm_node_label(theme, construct, rstring)
+    formatted_node <- paste0("\"", construct, "\" ",
+                             "[label=<", label_string,
+                             ">]")
   } else {
-    formatted_node <- paste0("\"", construct, "\"" , "[label=\"",
-                             construct,
-                             "\"]")
+    label_string <- format_sm_node_label(theme, construct, "")
+    formatted_node <- paste0("\"", construct, "\"" , " [label=<",
+                             label_string,
+                             ">]")
   }
   return(formatted_node)
 }
@@ -692,12 +713,14 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     edge_style <- ""
     # get the label
     if ("boot_seminr_model" %in% class(model)) {
+      # create a summary for summary stats
       smry <- summary(model)
       row_index <- paste0(sm[i, 1], "  ->  ", sm[i,2])
-      bmean <- round(smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 2], theme$plot.rounding)
-      blower <- round(smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 5], theme$plot.rounding)
-      bupper <- round(smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 6], theme$plot.rounding)
-      bt <- smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 4]
+      ltbl <- smry$bootstrapped_paths
+      bmean <- round(ltbl[rownames(ltbl) == row_index, 2], theme$plot.rounding)
+      blower <- round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding)
+      bupper <- round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding)
+      bt <- ltbl[rownames(ltbl) == row_index, 4]
       # TODO: Verify method to calculate p values
       bp <- stats::pt(bt, nrow(model$data) - 1, lower = FALSE)
 
@@ -933,7 +956,7 @@ extract_mm_nodes <- function(index, model) {
 }
 
 
-extract_mm_edge_label <- function(model, theme, indicator, construct){
+extract_mm_edge_value <- function(model, theme, indicator, construct){
   if ("boot_seminr_model" %in% class(model)) {
     boot_construct <- paste0(construct, " Boot Mean")
     if (theme$mm.edge.use_outer_weights) {
@@ -967,6 +990,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
   edges <- ""
 
 
+
   # determine letter to use (What is with A and B type constructs?)
   # Small mathematical lambda
   if (theme$plot.greekletters) {
@@ -988,11 +1012,15 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     #    round(model$outer_loadings[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
     #}
 
-    loading <- extract_mm_edge_label(model, theme,
-                                     indicator = mm_matrix_subset[i, 2],
-                                     construct = mm_matrix_subset[i, 1])
+    manifest_variable <- mm_matrix_subset[i, 2]
+    construct_variable = mm_matrix_subset[i, 1]
 
-    if (grepl("\\*", mm_matrix_subset[i, 2])) {
+
+    loading <- extract_mm_edge_value(model, theme,
+                                     indicator = manifest_variable,
+                                     construct = construct_variable)
+
+    if (grepl("\\*", manifest_variable)) {
       # show interaction indicators?
     } else {
 
@@ -1002,11 +1030,57 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
         letter <- lambda
       }
 
+
+      # THIS WHOLE CONSTRUCT IS VERY SIMILAR TO WHAT HAPPENS IN SM
+
+      tvalue <- ""
+      pvalue <- ""
+      stars <- ""
+      civalue <- ""
+
+      # is this a bootstrapped model?
+      if (inherits(model, "boot_seminr_model")) {
+        smry <- summary(model)
+        row_index <- paste0(manifest_variable, "  ->  ", construct_variable)
+        ltbl <- smry$bootstrapped_loadings
+        if (theme$mm.edge.use_outer_weights) {
+          ltbl <- smry$bootstrapped_weights
+        }
+        bmean <- round(ltbl[rownames(ltbl) == row_index, 2], theme$plot.rounding)
+        blower <- round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding)
+        bupper <- round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding)
+        bt <- ltbl[rownames(ltbl) == row_index, 4]
+        # TODO: Verify method to calculate p values
+        bp <- stats::pt(bt, nrow(model$data) - 1, lower = FALSE)
+
+      if (theme$mm.edge.boot.show_t_value) {
+        tvalue <- paste0("t = ", round(bt, theme$plot.rounding))
+      }
+      if (theme$mm.edge.boot.show_p_value) {
+        pvalue <- paste0("p ", pvalr(bp, html = TRUE))
+      }
+      if (theme$mm.edge.boot.show_p_stars) {
+        stars <- psignr(bp, html = TRUE)
+      }
+      if (theme$mm.edge.boot.show_ci) {
+        civalue <- paste0("95% CI [", blower, ", ", bupper, "]")
+      }
+    }
+
+
       edge_label <- ""
       if (theme$mm.edge.label.show) {
-        edge_label <- paste0(", label = \"", letter, " = ", loading, "\"")
+        #edge_label <- paste0(", label = \"", letter, " = ", loading, "\"")
+
+        edge_label <- paste0(", label = < ",
+          format_mm_edge_label(theme, letter, loading, tvalue, pvalue, stars, civalue),
+          ">"
+        )
       }
+
       edge_style <- get_value_dependent_edge_style(loading, theme)
+
+      # append edge
       edges <- paste0(
         edges,
         "\"",

@@ -37,15 +37,19 @@ test_that("Modify theme edge multipliers", {
  thm <- seminr_theme_create()
  thm$sm.edge.width_multiplier <- 1
  thm$mm.edge.width_multiplier <- 1
- thm$plot.greekletters <- FALSE
- thm$sm.edge.boot.template <- "<FONT POINT-SIZE='7'>{tvalue}   <I>{pvalue}</I>  oho {civalue}</FONT>"
- thm$sm.edge.boot.show_ci <- T
+ thm$plot.greekletters <- T
+ thm$sm.edge.boot.template <- edge_template_default()
+ #thm$sm.edge.boot.show_ci <- T
+ thm$sm.edge.boot.show_p_stars <- T
 
-
-
+ thm$mm.edge.boot.template <- edge_template_minimal()
+ thm$mm.edge.boot.show_p_stars <- T
+ thm$mm.edge.boot.show_p_value <- T
+ thm$mm.edge.boot.show_t_value <- T
+ thm$mm.edge.boot.show_ci <- T
 
  testthat::expect_error(dot_graph(mobi_pls, theme = thm), NA)
- testthat::expect_error(plot(mobi_boot, theme = thm), NA)
+ testthat::expect_error(plot(mobi_pls, theme = thm), NA)
 
  testthat::expect_warning(plot(mobi_boot, thm))
  #testing

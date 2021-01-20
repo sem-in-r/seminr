@@ -23,6 +23,7 @@
 #' @param sm.node.color Color of the structural model nodes.
 #' @param sm.node.fill Fill of the structural model nodes.
 #' @param sm.node.label.fontsize Font size of the structural model node labels.
+#' @param sm.node.template A template string for the construct nodes
 #' @param sm.edge.boot.show_t_value Should boot-strapped path coefficients show a t-value
 #' @param sm.edge.boot.show_p_value Should boot-strapped path coefficients show a p-value
 #' @param sm.edge.boot.show_p_stars Should boot-strapped path coefficients show significance stars
@@ -63,6 +64,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          sm.node.color = "black",
                          sm.node.fill = "white",
                          sm.node.label.fontsize = 12,
+                         sm.node.template = node_template_default(),
                          sm.edge.boot.show_t_value = FALSE,
                          sm.edge.boot.show_p_value = TRUE,
                          sm.edge.boot.show_p_stars = TRUE,
@@ -135,6 +137,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 sm.node.label.fontsize = sm.node.label.fontsize,
                 sm.node.height = 1,
                 sm.node.width = 1,
+                sm.node.template = sm.node.template,
                 sm.edge.color = sm.edge.color,
                 sm.edge.label.fontsize = sm.edge.label.fontsize,
                 sm.edge.label.show = TRUE,
@@ -153,6 +156,16 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 manifest.compositeB.shape = manifest.compositeB.shape)
   class(theme) <- "seminr_theme"
   return(theme)
+}
+
+
+#' The default template for labeling construct nodes
+#'
+#' @return The template string
+#' @export
+node_template_default <- function(){
+  paste0("<B>{name}</B>",
+         "<BR /><FONT POINT-SIZE='10'>{rstring}</FONT>")
 }
 
 
