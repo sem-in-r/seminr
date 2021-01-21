@@ -10,6 +10,7 @@ seminr_theme_create(
   plot.splines = TRUE,
   plot.rounding = 3,
   plot.adj = TRUE,
+  plot.greekletters = TRUE,
   mm.node.color = "dimgrey",
   mm.node.fill = "white",
   mm.node.label.fontsize = 8,
@@ -17,16 +18,29 @@ seminr_theme_create(
   mm.edge.label.fontsize = 7,
   mm.edge.minlen = 1,
   mm.edge.use_outer_weights = TRUE,
+  mm.edge.boot.show_t_value = FALSE,
+  mm.edge.boot.show_p_value = FALSE,
+  mm.edge.boot.show_p_stars = TRUE,
+  mm.edge.boot.show_ci = FALSE,
+  mm.edge.boot.template = edge_template_minimal(),
   sm.node.color = "black",
   sm.node.fill = "white",
   sm.node.label.fontsize = 12,
+  sm.node.template = node_template_default(),
   sm.edge.boot.show_t_value = FALSE,
   sm.edge.boot.show_p_value = TRUE,
+  sm.edge.boot.show_p_stars = TRUE,
   sm.edge.boot.show_ci = FALSE,
-  sm.edge.boot.template = default_edge_template(),
+  sm.edge.boot.template = edge_template_default(),
   sm.edge.color = "black",
   sm.edge.label.fontsize = 9,
-  sm.edge.minlen = NA
+  sm.edge.minlen = NA,
+  construct.reflective.shape = "ellipse",
+  construct.compositeA.shape = "ellipse",
+  construct.compositeB.shape = "ellipse",
+  manifest.reflective.shape = "box",
+  manifest.compositeA.shape = "box",
+  manifest.compositeB.shape = "box"
 )
 }
 \arguments{
@@ -39,6 +53,8 @@ seminr_theme_create(
 \item{plot.rounding}{The amount of decimals to keep for rounding.}
 
 \item{plot.adj}{Whether or not to use adjusted r^2 in constructs}
+
+\item{plot.greekletters}{Whether or not to use greek UTF-8 symbols in plots}
 
 \item{mm.node.color}{Color of the measurement model nodes.}
 
@@ -54,15 +70,29 @@ seminr_theme_create(
 
 \item{mm.edge.use_outer_weights}{Whether or not to use outer weights as edge labels in the measurement model.}
 
+\item{mm.edge.boot.show_t_value}{Should boot-strapped loadings/weights show a t-value}
+
+\item{mm.edge.boot.show_p_value}{Should boot-strapped loadings/weights show a p-value}
+
+\item{mm.edge.boot.show_p_stars}{Should boot-strapped loadings/weights show significance stars}
+
+\item{mm.edge.boot.show_ci}{Should boot-strapped loadings/weights show a 95 percent confidence interval}
+
+\item{mm.edge.boot.template}{A template string for HTML formatting of edges for loadings/weights}
+
 \item{sm.node.color}{Color of the structural model nodes.}
 
 \item{sm.node.fill}{Fill of the structural model nodes.}
 
 \item{sm.node.label.fontsize}{Font size of the structural model node labels.}
 
+\item{sm.node.template}{A template string for the construct nodes}
+
 \item{sm.edge.boot.show_t_value}{Should boot-strapped path coefficients show a t-value}
 
 \item{sm.edge.boot.show_p_value}{Should boot-strapped path coefficients show a p-value}
+
+\item{sm.edge.boot.show_p_stars}{Should boot-strapped path coefficients show significance stars}
 
 \item{sm.edge.boot.show_ci}{Should boot-strapped path coefficients show a 95 percent confidence interval}
 
@@ -73,6 +103,18 @@ seminr_theme_create(
 \item{sm.edge.label.fontsize}{Font size of the structural model edge labels.}
 
 \item{sm.edge.minlen}{Minimum length of the structural model edges.}
+
+\item{construct.reflective.shape}{Dot shape of reflective constructs}
+
+\item{construct.compositeA.shape}{Dot shape of composite constructs using correlation weights}
+
+\item{construct.compositeB.shape}{Dot shape of composite constructs using regression weights}
+
+\item{manifest.reflective.shape}{Dot shape of manifest variables of reflective constructs}
+
+\item{manifest.compositeA.shape}{Dot shape of manifest variables of composite constructs using correlation weights}
+
+\item{manifest.compositeB.shape}{Dot shape of manifest variables of composite constructs using regression weights}
 }
 \value{
 A \code{seminr.theme} object that can be supplied to \code{\link{dot_graph}}

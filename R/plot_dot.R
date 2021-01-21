@@ -8,18 +8,21 @@ globalVariables(c("."))
 #' Depending on the type of model, different parameters can be used.
 #' Please check the \code{\link{dot_graph}} function for additional parameters.
 #'
-#' @param model The model description
+#' @param x The model description
 #' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
 #' @param ... Additional parameters
 #'
 #' @return Returns the plot.
 #' @export
-plot_model <- function(model,
+plot.seminr_model <- function(x,
                        title = "",
                        theme = NULL,
-                       ...){
-  if (requireNamespace("DiagrammeR", quietly = TRUE)) {
+                       ...) {
+
+  query_install("DiagrammeR", "Alternatively use the dot_graph() function to create a dot graph.")
+
+  model <- x
     # lavaan models
     if (inherits(model, "cfa_model")) {
       message("Plotting of lavaan models using semPlot.")
@@ -32,13 +35,43 @@ plot_model <- function(model,
       return()
     }
 
+    if (inherits(title, "seminr_theme")) {
+      warning(paste0("You have supplied a theme in the title parameter. ",
+                     "Please use named parameters to use a specific theme: ",
+                     "plot(model, theme = thm).")
+      )
+    }
+
+    # actual plotting
     res <- DiagrammeR::grViz(dot_graph(model, title, theme, ...))
     set_last_seminr_plot(res)
-    res
-  } else {
-    stop("This function requires the DiagrammeR package. You can install it by calling: install.packages(\"DiagrammeR\")")
+    return(res)
+}
+
+
+query_install <- function(pkg_name = "DiagrammeR", failure_msg=""){
+  if (!requireNamespace(pkg_name, quietly = TRUE)) {
+    if (interactive()) {
+      x <- readline(paste0(
+        "----------------------------------------------------------------------\n",
+        "This function requires the ", pkg_name, " package.\n",
+        "You can install it by calling: install.packages(\"", pkg_name, "\")\n",
+        "Do you want to install ", pkg_name, " right now (Y/n)?"
+      ))
+      if (x == "Y") {
+        utils::install.packages(pkg_name)
+      } else {
+        stop(
+          paste0("You have selected no. Please use a capital Y to agree with installing ",pkg_name, " on your machine.\n",
+                 failure_msg
+          )
+        )
+      }
+    }
   }
 }
+
+
 
 
 #' Saves a SEMinR model plot to file
@@ -46,7 +79,7 @@ plot_model <- function(model,
 #' Saves a SEMinR model plot to a graphical file. Default output is RPlots.pdf.
 #'
 #' @param filename The name of the file output (can be png, pdf, webp, ps, or svg.)
-#' @param plot A plot that is created from the \code{\link{plot_model}} function. By default it uses the last plot created.
+#' @param plot A plot that is created from the \code{\link{plot}} function. By default it uses the last plot created.
 #' @param width An optional parameter for width in pixels.
 #' @param height An optional parameter for height in pixels.
 #'
@@ -82,45 +115,37 @@ plot_model <- function(model,
 #'                          structural_model = mobi_sm)
 #' \dontrun{
 #' # generate the plot
-#' plot_model(mobi_pls)
+#' plot(mobi_pls)
 #' # save to file
 #' save_plot("myplot.pdf")
 #' }
 #'
 save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width = NULL, height = NULL){
-  if (!requireNamespace("DiagrammeRsvg", quietly = TRUE)) {
-    stop("This function requires the DiagrammeRsvg package. You can install it by calling: install.packages(\"DiagrammeRsvg\")")
-  }
-  if (!requireNamespace("rsvg", quietly = TRUE)) {
-    stop("This function requires the rsvg package. You can install it by calling: install.packages(\"rsvg\")")
-  }
+  query_install("DiagrammeRsvg")
+  query_install("rsvg")
 
   if (is.null(plot)) {
     stop("No compatible plot was created.")
   }
 
-
-  #svg <- my_model %>%
-  #  dot_graph() %>%
-  #  grViz() %>%
+  # generate svg string
   svg <- charToRaw( DiagrammeRsvg::export_svg(plot) )
 
-  ext <- tolower(tools::file_ext(filename))
+  file_extension <- tolower(tools::file_ext(filename))
   result = switch(
-    ext,
+    file_extension,
     "pdf" = {rsvg::rsvg_pdf(svg, filename, width = width, height = height)},
     "png" = {rsvg::rsvg_png(svg, filename, width = width, height = height)},
     "ps" = {rsvg::rsvg_ps(svg, filename, width = width, height = height)},
     "svg" = {rsvg::rsvg_svg(svg, filename, width = width, height = height)},
-    #"webp" = {
-    #  if (!requireNamespace("webp", quietly = TRUE)) {
-    #    stop("Plotting to webp-files requires the webp package. You can install it by calling: install.packages(\"webp\")")
-    #  }
-    #  rsvg::rsvg_webp(svg, filename, width = width, height = height)
-    #  },
-    #"raw" = {svg %>% rsvg::rsvg_raw(filename, width = width, height = height)},
+    "webp" = {
+      query_install("webp")
+      rsvg::rsvg_webp(svg, filename, width = width, height = height)
+      },
+    "raw" = {rsvg::rsvg_raw(svg, filename, width = width, height = height)},
 
-    {message(paste0("Unsuported file type: '",ext, "'. Please use either png, pdf, ps, or svg"))}
+    # else
+    {message(paste0("Unsuported file type: '", file_extension, "'. Please use either png, pdf, ps, webp, or svg"))}
   )
 
 
@@ -206,10 +231,7 @@ dot_graph <- function(model,
 #' @param ... Parameters passed to the \link[semPlot]{semPaths} function
 #' @export
 dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
-  if (!requireNamespace("semPlot", quietly = TRUE)) {
-    stop("Plotting models from lavaan is not implemented yet. As a fallback you can install \"semPlot\" and then utilized.")
-  }
-
+  query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
   semPlot::semPaths(model$lavaan_model, what = what, whatLabels = whatLabels,...)
 }
 
@@ -225,15 +247,13 @@ dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", w
 #' @param ... Parameters passed to the \link[semPlot]{semPaths} function
 #' @export
 dot_graph.cbsem_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
-  if (!requireNamespace("semPlot", quietly = TRUE)) {
-    stop("Plotting models from lavaan is not implemented yet. As a fallback you can install \"semPlot\" and then utilized.")
-  }
-
-semPlot::semPaths(model$lavaan_model, what = what, whatLabels = whatLabels,...)
+  query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
+  semPlot::semPaths(model$lavaan_model, what = what, whatLabels = whatLabels,...)
 }
 
+#' @export
 dot_graph.default <- function(...){
-  stop("Whoops. This shouldn't have happened. Did you use an unsupported model type? Please let us know if this happens and how.")
+  stop("Whoops. This shouldn't have happened. Did you use a SEMinR model? If yes, please let us know if this happens and how.")
 }
 
 #' Convert a seminr measurement model to a Graphviz representation
@@ -280,6 +300,9 @@ dot_graph.measurement_model <-
   # THIS is unnecessary complex(?).
   mm <- mm2matrix(model)
   as.data.frame(mm) -> mmodel
+
+  hocs <- model$higher_order_composite
+  hocs
   a_model <- list(measurement_model = model,
                 mmMatrix = mm,
                 outer_weights = matrix(c(1), # add only 1s
@@ -294,6 +317,8 @@ dot_graph.measurement_model <-
 
   class(a_model) <- "pls_model"
 
+
+  # adjust themes to correct for aritifical information
   thm$mm.edge.width_multiplier <- 1
   thm$mm.edge.label.show <- FALSE
   dot_graph(a_model, title = title, theme = thm, measurement_only = TRUE)
@@ -383,8 +408,7 @@ dot_graph.structural_model <-
     thm$sm.edge.label.show <- FALSE
 
     dot_graph(a_model, title = title, theme = thm, structure_only = TRUE)
-
-  }
+}
 
 
 
@@ -441,6 +465,7 @@ dot_graph.pls_model <- function(model,
 
   global_style <- get_global_style(theme = thm)
 
+  # TODO could be it's own function
   #rewrite construct size
   #c_width_offst <- 0.1
   #if (thm$construct_nodes$shape %in% c("ellipse", "oval")) {
@@ -454,7 +479,7 @@ dot_graph.pls_model <- function(model,
     ) + c_width_offst
 
   thm$sm.node.width  <- construct_width
-  thm$sm.node.height <- construct_height * 2
+  thm$sm.node.height <- construct_height * 2 # two lines, could be optimized
 
   # rewrite item size
   i_width_offst <- 0.1
@@ -510,9 +535,9 @@ get_global_style <- function(theme) {
                   "// General graph settings\n",
                   "// ----------------------\n",
                   "graph [\n",
-                  "charset = 'UTF-8',\n",
+                  "charset = \"UTF-8\",\n",
                   "layout = dot,\n",
-                  "label = '<<theme$plot.title>>',\n",
+                  "label = \"<<theme$plot.title>>\",\n",
                   "fontsize = <<theme$plot.title.fontsize>>,\n",
                   "fontname = <<theme$plot.fontname>>,\n",
                   "rankdir = LR,\n",
@@ -527,7 +552,7 @@ get_global_style <- function(theme) {
 dot_component_sm_parts <- function(model, theme){
   #used for plotting measurement models
   # This is a "hacky" solution. Because we create artificial models
-  # and did not want to create an aritificial measurement model
+  # and did not want to create an artificial measurement model
   # this function is used to plot only the SM part.
   sm_nodes <- extract_sm_nodes(model, theme)
   sm_node_style <- get_sm_node_style(theme)
@@ -565,19 +590,41 @@ dot_component_sm <- function(model, theme) {
                   "}\n"))
 }
 
+
+
+
 # extract structural model nodes from a seminr model
 extract_sm_nodes <- function(model, theme) {
-  sm_nodes <- gsub("\\*", "_x_", model$constructs)
+  sm_nodes <- model$constructs
+
   sm_nodes <- sapply(sm_nodes, format_sm_node, model, theme)
   sm_nodes <- paste0(sm_nodes, collapse = "\n")
   return(sm_nodes)
+}
+
+## REFACTORING HERE WE ARE  -----
+
+format_sm_node_label <- function(theme, name, rstring) {
+  if (rstring == "") {
+    old_template <- theme$sm.node.template
+    # cut everything after a line break
+    new_template <- substr(old_template, 1, grepRaw("<BR />", old_template) - 1)
+    res <- glue::glue(new_template)
+  } else {
+    res <- glue::glue(theme$sm.node.template)
+  }
+  res
 }
 
 # format structural model node where appropriate
 format_sm_node <- function(construct, model, theme){
 
   # this is the unicode symbol for ^2
-  squared_symbol <- "\U00B2"
+  if ( theme$plot.greekletters ) {
+    squared_symbol <- "\U00B2"
+  } else {
+    squared_symbol <- "^2"
+  }
 
   formatted_node <- ""
 
@@ -588,13 +635,22 @@ format_sm_node <- function(construct, model, theme){
     r_index <- 2
     r_string <- "adj. "
   }
+
+  # TODO: detect construct type
+
   if (construct %in% colnames(model$rSquared)) {
-    formatted_node <- paste0("'", construct, "' ",
-                             "[label='", construct, "\n",
-                             r_string, "r",squared_symbol,"=", round(model$rSquared[r_index, construct], theme$plot.rounding),
-                             "']")
+    rstring <- paste0(r_string, "r", squared_symbol, " = ",
+                      round(model$rSquared[r_index, construct], theme$plot.rounding))
+
+    label_string <- format_sm_node_label(theme, construct, rstring)
+    formatted_node <- paste0("\"", construct, "\" ",
+                             "[label=<", label_string,
+                             ">]")
   } else {
-    formatted_node <- paste0("'", construct, "'" , "[label='",gsub("_x_","\\*", construct),"']")
+    label_string <- format_sm_node_label(theme, construct, "")
+    formatted_node <- paste0("\"", construct, "\"" , " [label=<",
+                             label_string,
+                             ">]")
   }
   return(formatted_node)
 }
@@ -622,9 +678,10 @@ get_value_dependent_edge_style <- function(value, theme){
 
 
 
-format_sm_edge_label <- function(theme, variable, value, tvalue, pvalue, civalue){
+format_sm_edge_label <- function(theme, variable, value, tvalue, pvalue, stars, civalue){
   glue::glue(theme$sm.edge.boot.template)
 }
+
 
 # extract structural model edges from a seminr model
 extract_sm_edges <- function(model, theme, weights = 1) {
@@ -635,10 +692,13 @@ extract_sm_edges <- function(model, theme, weights = 1) {
   sm_edges <- c()
 
   # Unicode for small mathematical symbols
-  beta <- "\U0001D6FD"
-  #print(beta)
-  gamma <- "\U0001D6FE"
-  #print(gamma)
+  if ( theme$plot.greekletters ) {
+    beta <- "\U0001D6FD"
+    gamma <- "\U0001D6FE"
+  } else {
+    beta <- "beta"
+    gamma <- "gamma"
+  }
 
   # for every path add an edge
   for (i in 1:nrow(sm)) {
@@ -653,12 +713,14 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     edge_style <- ""
     # get the label
     if ("boot_seminr_model" %in% class(model)) {
+      # create a summary for summary stats
       smry <- summary(model)
       row_index <- paste0(sm[i, 1], "  ->  ", sm[i,2])
-      bmean <- round(smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 2], theme$plot.rounding)
-      blower <- round(smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 5], theme$plot.rounding)
-      bupper <- round(smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 6], theme$plot.rounding)
-      bt <- smry$bootstrapped_paths[rownames(smry$bootstrapped_paths) == row_index, 4]
+      ltbl <- smry$bootstrapped_paths
+      bmean <- round(ltbl[rownames(ltbl) == row_index, 2], theme$plot.rounding)
+      blower <- round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding)
+      bupper <- round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding)
+      bt <- ltbl[rownames(ltbl) == row_index, 4]
       # TODO: Verify method to calculate p values
       bp <- stats::pt(bt, nrow(model$data) - 1, lower = FALSE)
 
@@ -666,6 +728,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       tvalue <- ""
       pvalue <- ""
       civalue <- ""
+      stars <- ""
 
       if (theme$sm.edge.boot.show_t_value) {
         tvalue <- paste0("t = ", round(bt, theme$plot.rounding))
@@ -673,13 +736,16 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       if (theme$sm.edge.boot.show_p_value) {
         pvalue <- paste0("p ", pvalr(bp, html = TRUE))
       }
+      if (theme$sm.edge.boot.show_p_stars) {
+        stars <- psignr(bp, html = TRUE)
+      }
       if (theme$sm.edge.boot.show_ci) {
         civalue <- paste0("95% CI [", blower, ", ", bupper, "]")
       }
 
+
+      # Is this code dead?
       suffix <- paste0(c(tvalue, pvalue, civalue), collapse = "<BR />")
-
-
       if (nchar(suffix) > 0) {
         fsize <- theme$sm.edge.label.fontsize - 2
         suffix <- paste0("<BR /><FONT POINT-SIZE='", fsize, "'>", suffix, "</FONT>") # <FONT POINT-SIZE="20"> ?
@@ -693,6 +759,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       tvalue <- ""
       pvalue <- ""
       civalue <- ""
+      stars <- ""
       coef <- round(model$path_coef[sm[i, 1], sm[i,2]], theme$plot.rounding)
       edge_width <- paste0(", penwidth = ", abs(coef * theme$sm.edge.width_multiplier))
       edge_style <- get_value_dependent_edge_style(coef, theme)
@@ -705,7 +772,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     if (theme$sm.edge.label.show) {
       #edge_label <- paste0(", label = < <B>", letter, " = ", coef, "</B>" , suffix, " >")
       #cat(edge_label)
-      elab <- format_sm_edge_label(theme, variable = letter, value = coef, tvalue, pvalue, civalue )
+      elab <- format_sm_edge_label(theme, variable = letter, value = coef, tvalue, pvalue, stars, civalue )
       edge_label <- paste0(", label = < ", elab, " >")
       #cat(elab)
     }
@@ -713,10 +780,9 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     # add the weight
     edge_weight <- paste0("weight = ", weights)
     sm_edges <- c(sm_edges,
-                  paste0("'", sm[i, 1], "' -> {'", sm[i, 2], "'}","[", edge_weight, edge_label, edge_width, edge_style, "]"))
+                  paste0("\"", sm[i, 1], "\" -> {\"", sm[i, 2], "\"}","[", edge_weight, edge_label, edge_width, edge_style, "]"))
   }
   sm_edges <- paste0(sm_edges, collapse = "\n")
-  sm_edges <- gsub("\\*", "_x_", sm_edges)
   return(sm_edges)
 }
 
@@ -746,16 +812,24 @@ extract_mm_coding <- function(model) {
   construct_names <- c()
   construct_types <- c()
   for (i in seq_along(model$measurement_model)) {
-    c(construct_types, names(model$measurement_model)[i]) -> construct_types
-    if (names(model$measurement_model)[i] != "scaled_interaction") {
-      # cannot call this as it is a function
-      c(construct_names, model$measurement_model[[i]][[1]]) -> construct_names
 
+    # get the type of the current construct
+    current_type <- names(model$measurement_model)[i]
+    construct_types <- c(construct_types, current_type)
+
+    # get the name of the current construct
+    # TODO: seems to work with HOC ?
+    # TODO: possible error different indexing??
+    if (current_type %in% c("scaled_interaction", "two_stage_interaction")) {
+      construct_names <- c(construct_names, model$constructs[i]) # can we always use this? NO order is not the same
       #c(construct_names, model$constructs[i]) -> construct_names
     } else {
-      c(construct_names, model$constructs[i]) -> construct_names # can we always use this? NO order is not the same
+      # cannot call this as it is a function
+      construct_names <- c(construct_names, model$measurement_model[[i]][[1]])
     }
   }
+
+  # create output matrix
   mm_coding <- matrix(nrow = length(construct_names),
                       ncol = 2,
                       data = c(construct_names, construct_types))
@@ -770,6 +844,8 @@ dot_component_mm <- function(model, theme) {
                                 "// The measurement model\n",
                                 "// ---------------------\n"))
 
+
+  # TODO: somehow the componoent with HOC is not generated ??
   for (i in 1:length(model$constructs)) {
     sub_component <- dot_subcomponent_mm(i, model, theme)
     sub_components_mm <- c(sub_components_mm, sub_component)
@@ -792,7 +868,8 @@ dot_subcomponent_mm <- function(index, model, theme) {
 
   #debug: print(mm_coding[index, ])
   # no measurement for interaction terms or higher order composite scores
-  if (is_interaction || is_higher_order) {
+  # TODO: two-stage interaction
+  if (is_interaction) { # || is_higher_order) {
     return("")
   }
 
@@ -859,6 +936,11 @@ get_mm_edge_style <- function(theme, forward){
 }
 
 
+# not used yet
+format_mm_edge_label <- function(theme, variable, value, tvalue, pvalue, stars, civalue){
+  glue::glue(theme$mm.edge.boot.template)
+}
+
 extract_mm_nodes <- function(index, model) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
@@ -874,7 +956,7 @@ extract_mm_nodes <- function(index, model) {
 }
 
 
-extract_mm_edge_label <- function(model, theme, indicator, construct){
+extract_mm_edge_value <- function(model, theme, indicator, construct){
   if ("boot_seminr_model" %in% class(model)) {
     boot_construct <- paste0(construct, " Boot Mean")
     if (theme$mm.edge.use_outer_weights) {
@@ -901,14 +983,21 @@ extract_mm_edge_label <- function(model, theme, indicator, construct){
 extract_mm_edges <- function(index, model, theme, weights = 1000) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
-  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ,drop = FALSE]
+
+  # get row_index of all matching mm_matrix rows
+  matching_rows <- mm_matrix[, 1] == mm_coding[index, 1]
+  mm_matrix_subset <- mm_matrix[matching_rows, ,drop = FALSE]
   edges <- ""
 
 
+
   # determine letter to use (What is with A and B type constructs?)
-  # Small mathematical lamda
-  lamda <- "\U0001D706"
-  #print(lamda)
+  # Small mathematical lambda
+  if (theme$plot.greekletters) {
+    lambda <- "\U0001D706"
+  } else {
+    lambda <- "lambda"
+  }
 
   for (i in 1:nrow(mm_matrix_subset)) {
     # XXX HOC fails here ----
@@ -923,31 +1012,82 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     #    round(model$outer_loadings[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
     #}
 
-    loading <- extract_mm_edge_label(model, theme,
-                                     indicator = mm_matrix_subset[i, 2],
-                                     construct = mm_matrix_subset[i, 1])
+    manifest_variable <- mm_matrix_subset[i, 2]
+    construct_variable = mm_matrix_subset[i, 1]
 
-    if (grepl("\\*", mm_matrix_subset[i, 2])) {
+
+    loading <- extract_mm_edge_value(model, theme,
+                                     indicator = manifest_variable,
+                                     construct = construct_variable)
+
+    if (grepl("\\*", manifest_variable)) {
       # show interaction indicators?
     } else {
-      #
+
       letter <- "w"
+      # if construct is reflective?
       if (mm_matrix_subset[i, 3] == "C") {
-        letter <- lamda
+        letter <- lambda
       }
+
+
+      # THIS WHOLE CONSTRUCT IS VERY SIMILAR TO WHAT HAPPENS IN SM
+
+      tvalue <- ""
+      pvalue <- ""
+      stars <- ""
+      civalue <- ""
+
+      # is this a bootstrapped model?
+      if (inherits(model, "boot_seminr_model")) {
+        smry <- summary(model)
+        row_index <- paste0(manifest_variable, "  ->  ", construct_variable)
+        ltbl <- smry$bootstrapped_loadings
+        if (theme$mm.edge.use_outer_weights) {
+          ltbl <- smry$bootstrapped_weights
+        }
+        bmean <- round(ltbl[rownames(ltbl) == row_index, 2], theme$plot.rounding)
+        blower <- round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding)
+        bupper <- round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding)
+        bt <- ltbl[rownames(ltbl) == row_index, 4]
+        # TODO: Verify method to calculate p values
+        bp <- stats::pt(bt, nrow(model$data) - 1, lower = FALSE)
+
+      if (theme$mm.edge.boot.show_t_value) {
+        tvalue <- paste0("t = ", round(bt, theme$plot.rounding))
+      }
+      if (theme$mm.edge.boot.show_p_value) {
+        pvalue <- paste0("p ", pvalr(bp, html = TRUE))
+      }
+      if (theme$mm.edge.boot.show_p_stars) {
+        stars <- psignr(bp, html = TRUE)
+      }
+      if (theme$mm.edge.boot.show_ci) {
+        civalue <- paste0("95% CI [", blower, ", ", bupper, "]")
+      }
+    }
+
 
       edge_label <- ""
       if (theme$mm.edge.label.show) {
-        edge_label <- paste0(", label = '", letter, " = ", loading, "'")
+        #edge_label <- paste0(", label = \"", letter, " = ", loading, "\"")
+
+        edge_label <- paste0(", label = < ",
+          format_mm_edge_label(theme, letter, loading, tvalue, pvalue, stars, civalue),
+          ">"
+        )
       }
+
       edge_style <- get_value_dependent_edge_style(loading, theme)
+
+      # append edge
       edges <- paste0(
         edges,
-        "'",
+        "\"",
         mm_matrix_subset[i, 2],
-        "' -> {'",
+        "\" -> {\"",
         mm_matrix_subset[i, 1],
-        "'}",
+        "\"}",
         "[weight = ",
         weights,
         edge_label,
@@ -959,9 +1099,6 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     }
   }
 
-
-  # we don't show interaction term measurement items
-  #edges <- gsub("\\*", "_x_", edges)
   return(edges)
 }
 

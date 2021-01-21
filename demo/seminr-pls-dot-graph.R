@@ -21,22 +21,22 @@ mobi_pls <- estimate_pls(data = mobi,
 seminr_theme_set(seminr_theme_smartpls())
 
 # Plot Measurement model
-mobi_mm %>% dot_graph() %>% grViz()
+plot_model(mobi_mm)
 # plot structural model
-mobi_sm %>% dot_graph() %>% grViz()
+plot_model(mobi_sm)
 
 # Plot PLS model
-mobi_pls %>% dot_graph() %>% grViz()
+plot_model(mobi_pls)
 
 mobi_boot <- bootstrap_model(mobi_pls)
 
 # Plot bootstrapped PLS model
-mobi_boot %>% dot_graph() %>% grViz()
+plot_model(mobi_boot)
 
 # Plot bootstrapped PLS model and show CI
 thm <- seminr_theme_get()
 thm$sm.edge.boot.show_ci <- TRUE
 thm$sm.edge.boot.show_t_value <- TRUE
 seminr_theme_set(thm)
-mobi_boot %>% dot_graph() %>% grViz()
+plot_model(mobi_boot)
 

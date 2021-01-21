@@ -27,9 +27,9 @@ test_that("Saving a plot works", {
                            structural_model = mobi_sm)
 
   # generate the plot
-  p <- plot_model(mobi_pls)
+  p <- plot(mobi_pls)
 
-  extensions <- c("pdf", "png", "ps", "svg") # webp not tested for bioc compat
+  extensions <- c("pdf", "png", "ps", "svg", "webp") # webp does not work on bioc
 
   for (ext in extensions) {
     # save to file

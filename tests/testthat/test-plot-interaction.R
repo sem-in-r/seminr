@@ -20,10 +20,10 @@ test_that("interaction terms work", {
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
 
-  #summary(mobi_pls)
-  #dot_graph(mobi_pls)
 
+  mobi_boot <- bootstrap_model(mobi_pls, nboot = 100, cores = 1)
 
-  #DiagrammeR::grViz(dot_graph(mobi_pls))
   testthat::expect_error(dot_graph(mobi_pls), NA)
+  testthat::expect_error(plot(mobi_pls), NA)
+  testthat::expect_error(plot(mobi_boot), NA)
 })

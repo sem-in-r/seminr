@@ -3,7 +3,7 @@ test_that("Basic themes are created without error", {
 
   expect_error({
     seminr::seminr_theme_default()
-    seminr::seminr_theme_smartpls()
+    seminr::seminr_theme_smart()
   },
                NA)
 
@@ -32,10 +32,27 @@ test_that("Modify theme edge multipliers", {
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
 
+  mobi_boot <- bootstrap_model(mobi_pls, nboot = 100, cores = 1)
+
  thm <- seminr_theme_create()
  thm$sm.edge.width_multiplier <- 1
  thm$mm.edge.width_multiplier <- 1
+ thm$plot.greekletters <- T
+ thm$sm.edge.boot.template <- edge_template_default()
+ #thm$sm.edge.boot.show_ci <- T
+ thm$sm.edge.boot.show_p_stars <- T
 
+ thm$mm.edge.boot.template <- edge_template_minimal()
+ thm$mm.edge.boot.show_p_stars <- T
+ thm$mm.edge.boot.show_p_value <- T
+ thm$mm.edge.boot.show_t_value <- T
+ thm$mm.edge.boot.show_ci <- T
+
+ testthat::expect_error(dot_graph(mobi_pls, theme = thm), NA)
+ testthat::expect_error(plot(mobi_pls, theme = thm), NA)
+
+ testthat::expect_warning(plot(mobi_boot, thm))
+ #testing
  if (FALSE) {
    DiagrammeR::grViz(dot_graph(mobi_pls, theme = thm))
    DiagrammeR::grViz(dot_graph(mobi_pls, theme = thm, measurement_only = T))
@@ -43,6 +60,5 @@ test_that("Modify theme edge multipliers", {
    DiagrammeR::grViz(dot_graph(mobi_mm, theme = thm))
    DiagrammeR::grViz(dot_graph(mobi_sm, theme = thm))
  }
- testthat::expect_error(dot_graph(mobi_pls, theme = thm), NA)
- unlink("Rplots.pdf")
 })
+ unlink("Rplots.pdf")

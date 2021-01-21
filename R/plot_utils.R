@@ -8,7 +8,7 @@ glue_dot <- function(x) {
 #'
 #' @param x a character string
 esc_node <- function(x){
-  paste0("'", x ,"'")
+  paste0("\"", x ,"\"")
 }
 
 
@@ -20,7 +20,7 @@ esc_node <- function(x){
 #' @param digits the amount of digits to report when sig.limit < p < .10
 #' @param html whether to use html coded output
 #'
-#' @return A string formated p-value including equal and less-than sign
+#' @return A string formatted p-value including equal and less-than sign
 # @export
 #'
 # @examples
@@ -45,3 +45,43 @@ pvalr <- function(pvals, sig.limit = .001, digits = 3, html = FALSE) {
       return(roundr(x, digits = digits))
   }, sig.limit = sig.limit)
 }
+
+
+#' Format p values for the output and removes trailing numbers when p > .10
+#' @keywords internal
+#' @param pvals A vector with p-values
+#' @param sig.limit The thresholds for adding an additional asterisk
+#' @param html whether to use html coded output
+#'
+#' @return A string of asterisks
+# @export
+#'
+# @examples
+#' pvalr(c(0.432, 0.05, 0.00001))
+psignr <- function(pvals, sig.limit = c(0.05, 0.01, 0.001), html = FALSE){
+  sapply(pvals, function(x, sig.limit){
+    res <- ""
+    if (is.na(x)) {
+      return("")
+    }
+    if (html) {
+      for (i in 1:length(sig.limit)) {
+        if (x < sig.limit[i]) {
+          res <- paste0(res, "*")
+        }
+      }
+      return(res)
+    } else {
+      for (i in 1:length(sig.limit)) {
+        if (x < sig.limit[i]) {
+          res <- paste0(res, "*")
+        }
+      }
+      return(res)
+    }
+
+  }, sig.limit = sig.limit)
+}
+
+
+

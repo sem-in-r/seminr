@@ -12,6 +12,9 @@ test_that("Graphing confirmatory factory analysis works", {
    mobi_cfa <- seminr::estimate_cfa(mobi, mobi_mm)
 
    testthat::expect_error(dot_graph(mobi_cfa), NA)
+   testthat::expect_error(plot(mobi_cfa), NA)
+
+   #testing
    if (FALSE) {
      # interactive tests
      plot_model(mobi_cfa)

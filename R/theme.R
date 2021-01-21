@@ -7,6 +7,7 @@
 #' @param plot.splines Whether or not to use splines as edges.
 #' @param plot.rounding The amount of decimals to keep for rounding.
 #' @param plot.adj Whether or not to use adjusted r^2 in constructs
+#' @param plot.greekletters Whether or not to use greek UTF-8 symbols in plots
 #' @param mm.node.color Color of the measurement model nodes.
 #' @param mm.node.fill Fill of the measurement model nodes.
 #' @param mm.node.label.fontsize Font size of the measurement model node labels.
@@ -14,16 +15,29 @@
 #' @param mm.edge.label.fontsize Font size of the measurement model edge labels.
 #' @param mm.edge.minlen Minimum length of the measurement model edges.
 #' @param mm.edge.use_outer_weights Whether or not to use outer weights as edge labels in the measurement model.
+#' @param mm.edge.boot.show_t_value Should boot-strapped loadings/weights show a t-value
+#' @param mm.edge.boot.show_p_value Should boot-strapped loadings/weights show a p-value
+#' @param mm.edge.boot.show_p_stars Should boot-strapped loadings/weights show significance stars
+#' @param mm.edge.boot.show_ci Should boot-strapped loadings/weights show a 95 percent confidence interval
+#' @param mm.edge.boot.template A template string for HTML formatting of edges for loadings/weights
 #' @param sm.node.color Color of the structural model nodes.
 #' @param sm.node.fill Fill of the structural model nodes.
 #' @param sm.node.label.fontsize Font size of the structural model node labels.
+#' @param sm.node.template A template string for the construct nodes
 #' @param sm.edge.boot.show_t_value Should boot-strapped path coefficients show a t-value
 #' @param sm.edge.boot.show_p_value Should boot-strapped path coefficients show a p-value
+#' @param sm.edge.boot.show_p_stars Should boot-strapped path coefficients show significance stars
 #' @param sm.edge.boot.show_ci Should boot-strapped path coefficients show a 95 percent confidence interval
 #' @param sm.edge.boot.template A template string for HTML formatting of edges
 #' @param sm.edge.color Color of the structural model edges.
 #' @param sm.edge.label.fontsize Font size of the structural model edge labels.
 #' @param sm.edge.minlen Minimum length of the structural model edges.
+#' @param construct.reflective.shape Dot shape of reflective constructs
+#' @param construct.compositeA.shape Dot shape of composite constructs using correlation weights
+#' @param construct.compositeB.shape Dot shape of composite constructs using regression weights
+#' @param manifest.reflective.shape Dot shape of manifest variables of reflective constructs
+#' @param manifest.compositeA.shape Dot shape of manifest variables of composite constructs using correlation weights
+#' @param manifest.compositeB.shape Dot shape of manifest variables of composite constructs using regression weights
 #'
 #' @return A \code{seminr.theme} object that can be supplied to \code{\link{dot_graph}}
 #' @export
@@ -34,6 +48,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          plot.splines = TRUE,
                          plot.rounding = 3,
                          plot.adj = TRUE,
+                         plot.greekletters = TRUE,
                          mm.node.color = "dimgrey",
                          mm.node.fill = "white",
                          mm.node.label.fontsize = 8,
@@ -41,16 +56,29 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          mm.edge.label.fontsize = 7,
                          mm.edge.minlen = 1,
                          mm.edge.use_outer_weights = TRUE,
+                         mm.edge.boot.show_t_value = FALSE,
+                         mm.edge.boot.show_p_value = FALSE,
+                         mm.edge.boot.show_p_stars = TRUE,
+                         mm.edge.boot.show_ci = FALSE,
+                         mm.edge.boot.template = edge_template_minimal(),
                          sm.node.color = "black",
                          sm.node.fill = "white",
                          sm.node.label.fontsize = 12,
+                         sm.node.template = node_template_default(),
                          sm.edge.boot.show_t_value = FALSE,
                          sm.edge.boot.show_p_value = TRUE,
+                         sm.edge.boot.show_p_stars = TRUE,
                          sm.edge.boot.show_ci = FALSE,
-                         sm.edge.boot.template = default_edge_template(),
+                         sm.edge.boot.template = edge_template_default(),
                          sm.edge.color = "black",
                          sm.edge.label.fontsize = 9,
-                         sm.edge.minlen = NA) {
+                         sm.edge.minlen = NA,
+                         construct.reflective.shape = "ellipse",
+                         construct.compositeA.shape = "ellipse",
+                         construct.compositeB.shape = "ellipse",
+                         manifest.reflective.shape = "box",
+                         manifest.compositeA.shape = "box",
+                         manifest.compositeB.shape = "box") {
 
   # Do some sanity checks
   color_options <- grDevices::colors()
@@ -87,6 +115,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 plot.splines = plot.splines,
                 plot.rounding = plot.rounding,
                 plot.adj = plot.adj,
+                plot.greekletters = plot.greekletters,
                 mm.node.color = mm.node.color,
                 mm.node.fill = mm.node.fill,
                 mm.node.label.fontsize = mm.node.label.fontsize,
@@ -98,45 +127,70 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 mm.edge.width_multiplier = 3,
                 mm.edge.minlen = mm.edge.minlen,
                 mm.edge.use_outer_weights = mm.edge.use_outer_weights,
+                mm.edge.boot.show_t_value = mm.edge.boot.show_t_value,
+                mm.edge.boot.show_p_value = mm.edge.boot.show_p_value,
+                mm.edge.boot.show_p_stars = mm.edge.boot.show_p_stars,
+                mm.edge.boot.show_ci = mm.edge.boot.show_ci,
+                mm.edge.boot.template = sm.edge.boot.template,
                 sm.node.color = sm.node.color,
                 sm.node.fill = sm.node.fill,
                 sm.node.label.fontsize = sm.node.label.fontsize,
                 sm.node.height = 1,
                 sm.node.width = 1,
+                sm.node.template = sm.node.template,
                 sm.edge.color = sm.edge.color,
                 sm.edge.label.fontsize = sm.edge.label.fontsize,
                 sm.edge.label.show = TRUE,
                 sm.edge.boot.show_t_value = sm.edge.boot.show_t_value,
                 sm.edge.boot.show_p_value = sm.edge.boot.show_p_value,
+                sm.edge.boot.show_p_stars = sm.edge.boot.show_p_stars,
                 sm.edge.boot.show_ci = sm.edge.boot.show_ci,
                 sm.edge.boot.template = sm.edge.boot.template,
                 sm.edge.width_multiplier = 5,
-                sm.edge.minlen = sm.edge.minlen)
-  class(theme) <- "seminr.theme"
+                sm.edge.minlen = sm.edge.minlen,
+                construct.reflective.shape = construct.reflective.shape,
+                construct.compositeA.shape = construct.compositeA.shape,
+                construct.compositeB.shape = construct.compositeB.shape,
+                manifest.reflective.shape = manifest.reflective.shape,
+                manifest.compositeA.shape = manifest.compositeA.shape,
+                manifest.compositeB.shape = manifest.compositeB.shape)
+  class(theme) <- "seminr_theme"
   return(theme)
+}
+
+
+#' The default template for labeling construct nodes
+#'
+#' @return The template string
+#' @export
+node_template_default <- function(){
+  paste0("<B>{name}</B>",
+         "<BR /><FONT POINT-SIZE='10'>{rstring}</FONT>")
 }
 
 
 #' The default template for labeling bootstrapped edges
 #'
-#' @return The default string
+#' @return The template string
 #' @export
-default_edge_template <- function(){
-  paste0("<B>{variable} = {value}</B>",
+edge_template_default <- function(){
+  paste0("<B>{variable} = {value}{stars}</B>",
          "<BR /><FONT POINT-SIZE='7'>{tvalue}   {pvalue}",
-         "<BR/>{civalue}</FONT>")
+         " {civalue}</FONT>")
 }
 
+#' A minimal template for labeling bootstrapped edges that only shows the
+#' bootstrapped mean value
+#'
+#' @return The template string
+#' @export
+edge_template_minimal <- function(){
+  paste0("{variable} = {value}{stars}")
+}
 
 
 #' @export
 print.seminr_theme <- function(x, ...) utils::str(x)
-
-#' Reports whether x is a seminr_theme object
-#' @param x An object to test
-#' @export
-#' @keywords internal
-is.seminr_theme <- function(x) inherits(x, "seminr_theme")
 
 
 

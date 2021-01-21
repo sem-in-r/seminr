@@ -38,6 +38,7 @@ test_that("dot_graph does not fail for cbsem models", {
 
   # now supported
   expect_error(dot_graph(model_cb, what = "std"), NA)
+  expect_error(plot(model_cb, what = "std"), NA)
 
 
   # TODO prevent creation of RPLOTS.pdf

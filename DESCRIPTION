@@ -31,6 +31,7 @@ Suggests:
     DiagrammeR (>= 1.0.6),
     DiagrammeRsvg (>= 0.1),
     rsvg (>= 2.1),
+    webp,
     semPlot
 VignetteBuilder: knitr
 Encoding: UTF-8

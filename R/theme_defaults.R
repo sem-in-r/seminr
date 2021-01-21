@@ -34,7 +34,7 @@ seminr_theme_default <- function(plot.title.fontsize = 24,
 #' A SmartPLS-based theme
 #' @rdname seminr_theme_default
 #' @export
-seminr_theme_smartpls <- function(plot.title.fontsize = 24,
+seminr_theme_smart <- function(plot.title.fontsize = 24,
                                   mm.node.label.fontsize = 8,
                                   sm.node.label.fontsize = 12,
                                   mm.edge.label.fontsize = 7,
