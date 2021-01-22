@@ -16,14 +16,14 @@ test_that("interaction terms work", {
     paths(from = c("Image", "Quality", "Expectation", "Quality*Expectation"), to = c("Loyalty"))
   )
 
-  mobi_pls <- estimate_pls(data = mobi,
+  model <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
 
 
-  mobi_boot <- bootstrap_model(mobi_pls, nboot = 100, cores = 1)
+  model_boot <- bootstrap_model(model, nboot = 100, cores = 1)
 
-  testthat::expect_error(dot_graph(mobi_pls), NA)
-  testthat::expect_error(plot(mobi_pls), NA)
-  testthat::expect_error(plot(mobi_boot), NA)
+  testthat::expect_error(dot_graph(model), NA)
+  testthat::expect_error(plot(model), NA)
+  testthat::expect_error(plot(model_boot), NA)
 })

@@ -56,12 +56,12 @@ test_that("dot_graph can handle both composite measurement types", {
     paths(from = "Complaints",   to = "Loyalty")
   )
 
-  mobi_pls <- estimate_pls(data = mobi,
+  model <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
 
-  expect_error(dot_graph(mobi_pls), NA)
-  expect_error(plot(mobi_pls), NA)
+  expect_error(dot_graph(model), NA)
+  expect_error(plot(model), NA)
 })
 
 # Cleanup

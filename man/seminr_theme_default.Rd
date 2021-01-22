@@ -38,5 +38,5 @@ a theme object
 \description{
 The theme function for a basic b/w theme
 
-A SmartPLS-based theme
+A colored theme
 }
