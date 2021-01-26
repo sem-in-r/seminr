@@ -1,5 +1,6 @@
 ---
 output: github_document
+always_allow_html: true
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -234,6 +235,79 @@ boot_estimates <- bootstrap_model(pls_model, nboot = 1000, cores = 2)
 summary(boot_estimates)
 ```
 
+### Plotting the model results
+SEMinR can plot all supported models using the dot language and the graphViz.js widget
+from the `DiagrammeR` package. 
+
+```{r}
+# generate a small model for creating the plot
+mobi_mm <- constructs(
+  composite("Image",        multi_items("IMAG", 1:3)),
+  composite("Value",        multi_items("PERV", 1:2)),
+  higher_composite("Satisfaction", dimensions = c("Image","Value"), method = two_stage),
+  composite("Quality",      multi_items("PERQ", 1:3), weights = mode_B),
+  composite("Complaints",   single_item("CUSCO")),
+  reflective("Loyalty",      multi_items("CUSL", 1:3))
+)
+mobi_sm <- relationships(
+  paths(from = c("Quality"),  to = "Satisfaction"),
+  paths(from = "Satisfaction", to = c("Complaints", "Loyalty"))
+)
+pls_model <- estimate_pls(
+  data = mobi,
+  measurement_model = mobi_mm,
+  structural_model = mobi_sm
+)
+boot_estimates <- bootstrap_model(pls_model, nboot = 100, cores = 1)
+```
+
+When we have a model, we can plot it and save the plot to files.
+
+```r
+plot(boot_estimates, title = "Bootstrapped Model")
+save_plot("myfigure.pdf")
+```
+
+
+```{r include = FALSE}
+pl <- plot(boot_estimates, title = "Bootstrapped Model")
+save_plot("man/figures/model.png", width = 2400, plot = pl)
+```
+
+![](man/figures/model.png)
+
+#### Themes
+
+We can customize the plot using an elaborate theme. Themes can be used for individual plots as a parameter or set as a default. Using the `seminr_theme_create()` function allows to define different themes.
+
+```r
+# Tip: auto complete is your friend in finding all possible themeing options.
+thm <- seminr_theme_create(plot.rounding = 2, plot.adj = F, 
+                           sm.node.fill = "cadetblue1",
+                           mm.node.fill = "lightgray")
+# change new default theme - valid until R is restarted
+seminr_theme_set(thm)
+
+# the new plot
+plot(boot_estimates)
+```
+
+
+```{r include=FALSE}
+# Tip: auto complete is your friend in finding all possible themeing options.
+thm <- seminr_theme_create(plot.rounding = 2, plot.adj = F, 
+                           sm.node.fill = "cadetblue1",
+                           mm.node.fill = "lightgray")
+# change new default theme - valid until R is restarted
+seminr_theme_set(thm)
+
+
+pl <- plot(boot_estimates, title = "Bootstrapped Model")
+save_plot("man/figures/model2.png", width = 2400, plot = pl)
+```
+![](man/figures/model2.png)
+
+
 ### Comparing CBSEM and PLS-PM Example
 
 We can re-estimate a composite PLS-PM model as a common-factor CBSEM. 
@@ -281,6 +355,7 @@ The **vignette** for Seminr can be found on [CRAN](https://cran.r-project.org/pa
 - [seminr-pls-interaction.R](demo/seminr-pls-interaction.R): Define interactions between constructs in SEM models
 - [seminr-plsc-ecsi.R](demo/seminr-plsc-ecsi.R): Run PLSc to emulate common factors using in PLSc
 - [seminr-style-contained.R](demo/seminr-style-contained.R): Create and execute a SEM model in one function call
+- [seminr-dot-graph.R](demo/seminr-pls-dot-graph.R): Create a plot from a SEM model
 
 ## Partner Projects
 
