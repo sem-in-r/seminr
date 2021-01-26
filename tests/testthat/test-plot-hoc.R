@@ -27,7 +27,8 @@ test_that("higher order composits are plotted", {
   testthat::expect_error(dot_graph(model), NA)
   testthat::expect_error(plot(model), NA)
 
-  plot <- plot(model)
+  plot <- plot(model, structure_only = TRUE)
+
   #vdiffr::expect_doppelganger(title = "Plot HOC", fig = plot, writer = write_test)
 
   # Testing
