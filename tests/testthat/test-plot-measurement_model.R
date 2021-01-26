@@ -1,3 +1,4 @@
+context("SEMinR plotting measurement models")
 test_that("Plotting Measurement model", {
   #library(seminr)
 
@@ -18,6 +19,10 @@ test_that("Plotting Measurement model", {
   #dot_graph.measurement_model(measurement_model, title = "Example plot")
   expect_error(dot_graph(measurement_model, title = "Example plot"), NA)
   expect_error(plot(measurement_model, title = "Example plot"), NA)
+
+
+  plot <- plot(measurement_model)
+  #vdiffr::expect_doppelganger(title = "Plot measurement model", fig = plot, writer = write_test)
 
   unlink("Rplots.pdf")
   # Todo: RPlots

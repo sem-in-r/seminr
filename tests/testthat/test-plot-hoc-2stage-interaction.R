@@ -22,15 +22,16 @@ test_that("higher order composits are plotted", {
   )
 
   # Estimate the model with the HOC
-  mobi_pls <- estimate_pls(data = mobi,
+  model <- estimate_pls(data = mobi,
                                measurement_model = mobi_mm,
                                structural_model = mobi_sm)
 
-  testthat::expect_error(dot_graph(mobi_pls), NA)
-  testthat::expect_error(plot(mobi_pls), NA)
+  testthat::expect_error(dot_graph(model), NA)
+  testthat::expect_error(plot(model), NA)
 
 
-
+  plot <- plot(model)
+  #vdiffr::expect_doppelganger(title = "Plot HOC and Interaction", fig = plot, writer = write_test)
 
   # Testing stuff
     if (FALSE) {
@@ -60,7 +61,7 @@ test_that("two higher order composits are plotted", {
     composite("Loyalty",      multi_items("CUSL", 1:3)),
     higher_composite("Reputation", c("Image", "Expectation")),
     higher_composite("Goodness", c("Quality", "Value"), weights = mode_B),
-    interaction_term("Complaints", "Satisfaction")
+    interaction_term("Complaints", "Satisfaction", method = two_stage)
   )
   #seminr syntax for creating structural model
   mobi_sm <- relationships(
@@ -76,6 +77,12 @@ test_that("two higher order composits are plotted", {
 
   testthat::expect_error(dot_graph(mobi_pls), NA)
   testthat::expect_error(plot(mobi_pls), NA)
+
+  mobi_boot <- bootstrap_model(mobi_pls, nboot = 100, cores = 1)
+  plot(mobi_boot)
+
+  plot <- plot(mobi_pls)
+  #vdiffr::expect_doppelganger(title = "Plot 2-levelHOC and Interaction", fig = plot, writer = write_test)
 
   # Testing
     if (FALSE) {

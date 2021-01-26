@@ -25,21 +25,8 @@ test_that("bootstrapped models work", {
   expect_error(dot_graph(mobi_boot), NA)
   expect_error(plot(mobi_boot), NA)
 
-
-
-  # As a backup for testing manually
-  if (FALSE) {
-    seminr::seminr_theme_set(seminr::seminr_theme_create(sm.edge.boot.show_t_value = F,
-                                                         sm.edge.boot.show_ci = F))
-    DiagrammeR::grViz(dot_graph(mobi_boot))
-
-    seminr::seminr_theme_set(seminr::seminr_theme_create(sm.edge.boot.show_t_value = T,
-                                                         sm.edge.boot.show_ci = T,
-                                                         sm.edge.boot.template =
-                                                           "<B>{variable} = {value}</B><BR/><FONT POINT-SIZE='7'><I>{tvalue}, {pvalue}</I><BR/>{civalue}</FONT>"))
-    DiagrammeR::grViz(dot_graph(mobi_boot))
-
-  }
+  plot <- plot(mobi_boot)
+  #vdiffr::expect_doppelganger(title = "Bootstrapped plotting", fig = plot, writer = write_test)
 
 })
 

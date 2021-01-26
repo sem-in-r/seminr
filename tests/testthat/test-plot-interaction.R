@@ -1,3 +1,4 @@
+context("SEMinR plotting interaction terms")
 test_that("interaction terms work", {
   set.seed(123)
   mobi <- mobi
@@ -26,4 +27,8 @@ test_that("interaction terms work", {
   testthat::expect_error(dot_graph(model), NA)
   testthat::expect_error(plot(model), NA)
   testthat::expect_error(plot(model_boot), NA)
+
+
+  plot <- plot(model_boot)
+  #vdiffr::expect_doppelganger(title = "Plot interaction", fig = plot, writer = write_test)
 })

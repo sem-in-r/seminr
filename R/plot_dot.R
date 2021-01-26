@@ -464,36 +464,12 @@ dot_graph.pls_model <- function(model,
 
   global_style <- get_global_style(theme = thm)
 
-  # TODO could be it's own function
-  #rewrite construct size
-  #c_width_offst <- 0.1
-  #if (thm$construct_nodes$shape %in% c("ellipse", "oval")) {
-    c_width_offst <- 0.4
-  #}
-  construct_width <- max(
-    graphics::strwidth(model$constructs,font = thm$sm.node.label.fontsize, units = "in")
-    ) + c_width_offst
-  construct_height <- max(
-    graphics::strheight(model$constructs,font = thm$sm.node.label.fontsize, units = "in")
-    ) + c_width_offst
+  # rewrite size defaults in theme
+  thm$sm.node.width  <- get_construct_element_size(model, thm)[1]
+  thm$sm.node.height <- get_construct_element_size(model, thm)[2] * 2 # two lines, could be optimized
 
-  thm$sm.node.width  <- construct_width
-  thm$sm.node.height <- construct_height * 2 # two lines, could be optimized
-
-  # rewrite item size
-  i_width_offst <- 0.1
-  #if (thm$item_nodes$shape %in% c("ellipse", "oval")) {
-  #  i_width_offst <- 0.4
-  #}
-  item_width <- max(
-    graphics::strwidth(model$mmVariables,font = thm$mm.node.label.fontsize, units = "in")
-    ) + i_width_offst
-  item_height <- max(
-    graphics::strheight(model$mmVariables,font = thm$mm.node.label.fontsize, units = "in")
-    ) + i_width_offst
-
-  thm$mm.node.width <- item_width
-  thm$mm.node.height <- item_height
+  thm$mm.node.width <- get_manifest_element_size(model, thm)[1]
+  thm$mm.node.height <- get_manifest_element_size(model, thm)[2]
 
 
   # generate components ----
@@ -521,7 +497,60 @@ dot_graph.pls_model <- function(model,
 }
 
 
+# TODO: smarter function to determine minimal offset of all possible options
+# in theme (if one is ellipse all must be 0.4, e.g.)
+# TODO find optimal offsets manually
 
+#' Gets the optimal size for construct elements in the plot
+#'
+#' Currently orients on reflective theme settings
+#'
+#' @param model the model to use
+#' @param theme the theme to use
+#'
+#' @return Returns a two-element vector with c(width, height)
+get_construct_element_size <- function(model, theme) {
+  c_width_offst <-
+    switch(theme$construct.reflective.shape,
+    "ellipse" = 0.4,
+    "box" = 0.1,
+    "hexagon" = 0.3
+  )
+  construct_width <- max(
+    graphics::strwidth(model$constructs,font = theme$sm.node.label.fontsize, units = "in")
+  ) + c_width_offst
+  construct_height <- max(
+    graphics::strheight(model$constructs,font = theme$sm.node.label.fontsize, units = "in")
+  ) + c_width_offst
+
+  c(construct_width, construct_height)
+}
+
+#' Gets the optimal size for manifest elements in the plot
+#'
+#' Currently orients on reflective theme settings
+#'
+#' @param model the model to use
+#' @param theme the theme to use
+#'
+#' @return Returns a two-element vector with c(width, height)
+get_manifest_element_size <- function(model, theme) {
+  i_width_offst <-
+    switch(theme$manifest.reflective.shape,
+           "ellipse" = 0.4,
+           "box" = 0.1,
+           "hexagon" = 0.3
+    )
+
+  item_width <- max(
+    graphics::strwidth(model$mmVariables,font = theme$mm.node.label.fontsize, units = "in")
+  ) + i_width_offst
+  item_height <- max(
+    graphics::strheight(model$mmVariables,font = theme$mm.node.label.fontsize, units = "in")
+  ) + i_width_offst
+
+  c(item_width, item_height)
+}
 
 
 # GLOBAL ------------------
@@ -529,13 +558,14 @@ dot_graph.pls_model <- function(model,
 #' Get dot string for global theme options
 #' @keywords internal
 #' @param theme a theme
-get_global_style <- function(theme) {
+#' @param layout The layout engine (default: dot)
+get_global_style <- function(theme, layout = "dot") {
   glue_dot(paste0("// ----------------------\n",
                   "// General graph settings\n",
                   "// ----------------------\n",
                   "graph [\n",
                   "charset = \"UTF-8\",\n",
-                  "layout = dot,\n",
+                  "layout = ", layout, ",\n",
                   "label = \"<<theme$plot.title>>\",\n",
                   "fontsize = <<theme$plot.title.fontsize>>,\n",
                   "fontname = <<theme$plot.fontname>>,\n",
@@ -610,6 +640,16 @@ dot_component_sm <- function(model, theme) {
 extract_sm_nodes <- function(model, theme) {
   sm_nodes <- model$constructs
 
+
+  # Add additional SM nodes for submodel
+  for (construct in model$constructs) {
+    construct_type <- get_construct_type(model, construct)
+    if (startsWith(construct_type, "HOC")) {
+      row_index <- grepl(construct, model$mmMatrix[,1])
+      result <- model$mmMatrix[row_index, 2]
+      sm_nodes <- c(sm_nodes, result)
+    }
+  }
   sm_nodes <- sapply(sm_nodes, format_sm_node, model, theme)
   sm_nodes <- paste0(sm_nodes, collapse = "\n")
   return(sm_nodes)
@@ -715,9 +755,9 @@ format_sm_node <- function(construct, model, theme){
 #'
 #' @return Returns a character string
 get_construct_type <- function(model, construct) {
-  if (!(construct %in% model$constructs)) {
-    stop("Construct does not exist") # scaled interactions ?
-  }
+  #if (!(construct %in% model$constructs)) {
+  #  stop(paste("Construct", construct, "does not exist")) # scaled interactions ?
+  #}
   if (grepl("\\*", construct)) {
     return("interaction")
   }
@@ -912,23 +952,12 @@ get_sm_edge_style <- function(theme){
 extract_mm_coding <- function(model) {
   construct_names <- c()
   construct_types <- c()
-  for (i in seq_along(model$measurement_model)) {
 
-    # get the type of the current construct
-    current_type <- names(model$measurement_model)[i]
-    construct_types <- c(construct_types, current_type)
-
-    # get the name of the current construct
-    # TODO: seems to work with HOC ?
-    # TODO: possible error different indexing??
-    if (current_type %in% c("scaled_interaction", "two_stage_interaction")) {
-      construct_names <- c(construct_names, model$constructs[i]) # can we always use this? NO order is not the same
-      #c(construct_names, model$constructs[i]) -> construct_names
-    } else {
-      # cannot call this as it is a function
-      construct_names <- c(construct_names, model$measurement_model[[i]][[1]])
-    }
+  for (construct in unique(model$mmMatrix[,1 ])) {
+    construct_names <- c(construct_names, construct)
+    construct_types <- c(construct_types, get_construct_type(model, construct))
   }
+
 
   # create output matrix
   mm_coding <- matrix(nrow = length(construct_names),
@@ -945,9 +974,9 @@ dot_component_mm <- function(model, theme) {
                                 "// The measurement model\n",
                                 "// ---------------------\n"))
 
-
-  # TODO: somehow the componoent with HOC is not generated ??
-  for (i in 1:length(model$constructs)) {
+  # use mmMatrix as model$constructs does not contain HOCs
+  mm_count <- length(unique(model$mmMatrix[,1 ]))
+  for (i in 1:mm_count) {
     sub_component <- dot_subcomponent_mm(i, model, theme)
     sub_components_mm <- c(sub_components_mm, sub_component)
   }
@@ -963,11 +992,11 @@ dot_subcomponent_mm <- function(index, model, theme) {
   mm_coding <- extract_mm_coding(model)
 
   # test component type
-  is_reflective <- mm_coding[index, 2] == "reflective"
-  is_interaction <- mm_coding[index, 2] == "scaled_interaction"
-  is_higher_order <- mm_coding[index, 2] == "higher_order_composite"
+  is_reflective <- mm_coding[index, 2] == "C"
+  is_interaction <- mm_coding[index, 2] == "interaction"
+  is_higher_order <- startsWith(mm_coding[index, 2], "HOC")
 
-  #debug: print(mm_coding[index, ])
+  # debug: print(mm_coding[index, ])
   # no measurement for interaction terms or higher order composite scores
   # TODO: two-stage interaction
   if (is_interaction) { # || is_higher_order) {
@@ -1041,14 +1070,10 @@ get_mm_edge_style <- function(theme, forward){
 extract_mm_nodes <- function(index, model) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
-  # I added drop = FALSE to ensure this is always a matrix. should make things easier
-  #
   mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ,drop = FALSE] # Should now always be a matrix
-  #if (!is.vector(mm_matrix_subset)) {
-    nodes <- paste0(mm_matrix_subset[, 2], collapse = "\n")
-  #} else {
-  #  nodes <- paste0(mm_matrix_subset[2], collapse = "\n")
-  #}
+
+   nodes <- paste0(mm_matrix_subset[, 2], collapse = "\n")
+
   return(nodes)
 }
 
@@ -1078,6 +1103,12 @@ extract_mm_edge_value <- function(model, theme, indicator, construct){
 
 
 extract_mm_edges <- function(index, model, theme, weights = 1000) {
+
+  if (TRUE) {
+    # Does this help with determinism in the layout?
+    weights <- weights + stats::runif(1)
+  }
+
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
 
@@ -1101,15 +1132,6 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     # XXX HOC fails here ----
     # TODO add bootstrapped
 
-
-    #if (theme$mm.edge.use_outer_weights) {
-    #  loading <-
-    #    round(model$outer_weights[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
-    #} else {
-    #  loading <-
-    #    round(model$outer_loadings[mm_matrix_subset[i, 2], mm_matrix_subset[i, 1]], theme$plot.rounding)
-    #}
-
     manifest_variable <- mm_matrix_subset[i, 2]
     construct_variable = mm_matrix_subset[i, 1]
 
@@ -1127,7 +1149,6 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
       if (mm_matrix_subset[i, 3] == "C") {
         letter <- lambda
       }
-
 
       # THIS WHOLE CONSTRUCT IS VERY SIMILAR TO WHAT HAPPENS IN SM
 
