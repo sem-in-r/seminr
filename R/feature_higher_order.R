@@ -30,7 +30,7 @@ remove_HOC_in_measurement_model <- function(construct, mm) {
 }
 
 # Function to parse measurement and structural model and create the higher order model with complete information
-prepare_higher_order_model <- function(data, sm , mm, inners, HOCs) {
+prepare_higher_order_model <- function(data, sm , mm, inners, HOCs, maxIt, stopCriterion) {
   #retain the mm and sm
   orig_mm <- mm
   new_mm <- matrix(unlist(mm[!(substr(names(mm), nchar(names(mm))-10, nchar(names(mm))) == "interaction") & !(names(mm) == "higher_order_composite")]), ncol = 3, byrow = TRUE,
@@ -59,7 +59,9 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs) {
   new_model <- estimate_pls(data = data,
                             measurement_model = mm[!(substr(names(mm), nchar(names(mm))-10, nchar(names(mm))) == "interaction") & !(names(mm) == "higher_order_composite")],
                             structural_model = sm,
-                            inner_weights = inners)
+                            inner_weights = inners,
+                            maxIt = maxIt,
+                            stopCriterion = stopCriterion)
 
   # Add the construct scores to data
   data <- cbind(data, new_model$construct_scores[, dimensions])

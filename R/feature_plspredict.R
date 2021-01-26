@@ -254,7 +254,11 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
   utils::capture.output(train_model <- seminr::estimate_pls(data = trainingData,
                                                             measurement_model = model$measurement_model,
                                                             structural_model = model$smMatrix,
-                                                            inner_weights = model$inner_weights))
+                                                            inner_weights = model$inner_weights,
+                                                            missing = model$settings$missing,
+                                                            missing_value = model$settings$missing_value,
+                                                            maxIt = model$settings$maxIt,
+                                                            stopCriterion = model$settings$stopCriterion))
   test_predictions <- stats::predict(object = train_model,
                                      testData = testingData,
                                      technique = technique)

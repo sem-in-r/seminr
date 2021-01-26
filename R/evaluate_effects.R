@@ -60,7 +60,12 @@ fSquared <- function(seminr_model, iv, dv) {
   utils::capture.output(
     without_pls <- estimate_pls(data = seminr_model$rawdata,
                                 measurement_model = seminr_model$measurement_model,
-                                structural_model = without_sm)
+                                structural_model = without_sm,
+                                inner_weights = seminr_model$inner_weights,
+                                missing = seminr_model$settings$missing,
+                                missing_value = seminr_model$settings$missing_value,
+                                maxIt = seminr_model$settings$maxIt,
+                                stopCriterion = seminr_model$settings$stopCriterion)
   )
   with_r2 <- seminr_model$rSquared["Rsq", dv]
   ifelse(any(without_sm[,"target"] == dv),

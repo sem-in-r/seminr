@@ -66,6 +66,10 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       measurement_model <- seminr_model$measurement_model
       structural_model <- seminr_model$smMatrix
       inner_weights <- seminr_model$inner_weights
+      missing_value <- seminr_model$settings$missing_value
+      maxIt <- seminr_model$settings$maxIt
+      stopCriterion <- seminr_model$settings$stopCriterion
+      missing <- seminr_model$settings$missing
 
       if (nboot > 0) {
         # Initialize the cluster
@@ -78,7 +82,18 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         if (is.null(seed)) {seed <- sample.int(100000, size = 1)}
 
         # Export variables and functions to cluster
-        parallel::clusterExport(cl=cl, varlist=c("measurement_model", "structural_model", "inner_weights", "getRandomIndex", "d", "HTMT", "seed","total_effects"), envir=environment())
+        parallel::clusterExport(cl=cl, varlist=c("measurement_model",
+                                                 "structural_model",
+                                                 "inner_weights",
+                                                 "getRandomIndex",
+                                                 "d",
+                                                 "HTMT",
+                                                 "seed",
+                                                 "total_effects",
+                                                 "missing_value",
+                                                 "maxIt",
+                                                 "stopCriterion",
+                                                 "missing"), envir=environment())
 
         # Function to get PLS estimate results
         getEstimateResults <- function(i, d = d) {
@@ -86,7 +101,11 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
           boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
                                measurement_model,
                                structural_model,
-                               inner_weights)
+                               inner_weights,
+                               missing = missing,
+                               missing_value = missing_value,
+                               stopCriterion = stopCriterion,
+                               maxIt = maxIt)
           boot_htmt <- HTMT(boot_model)
           boot_total <- total_effects(boot_model$path_coef)
           return(as.matrix(c(c(boot_model$path_coef),

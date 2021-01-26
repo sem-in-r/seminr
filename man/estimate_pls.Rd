@@ -26,6 +26,12 @@ to replace the missing values. Mean replacement is default.}
 
 \item{missing_value}{A parameter declaring which value to indicate to be used to indicate
 missing values in the data. NA is used by default.}
+
+\item{maxIt}{A parameter that specifies that maximum number of iterations when estimating the
+PLS model. Default value is 300.}
+
+\item{stopCriterion}{A parameter specifying the stop criterion for estimating the PLS model.
+Default value is 7.}
 }
 \description{
 The \code{seminr} package provides a natural syntax for researchers to describe

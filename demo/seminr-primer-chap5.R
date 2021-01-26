@@ -45,7 +45,7 @@ summary_corp_rep_ext$iterations
 
 # Bootstrap the model
 boot_corp_rep_ext <- bootstrap_model(seminr_model = corp_rep_pls_model_ext,
-                                     nboot = 10000)
+                                     nboot = 1000)
 
 # Store the summary of the bootstrapped model
 sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext)
