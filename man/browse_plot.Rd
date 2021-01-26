@@ -2,15 +2,15 @@
 % Please edit documentation in R/plot_utils.R
 \name{browse_plot}
 \alias{browse_plot}
-\title{Open Edotor graphViz Website with the dot_string preloaded in the Browser}
+\title{Open Edotor graphViz Website with the preloaded in the Browser}
 \usage{
 browse_plot(model)
 }
 \arguments{
-\item{dot_string}{A SEMinR Model}
+\item{model}{A SEMinR Model}
 }
 \description{
-Open Edotor graphViz Website with the dot_string preloaded in the Browser
+Open Edotor graphViz Website with the preloaded in the Browser
 }
 \examples{
 \dontrun{
