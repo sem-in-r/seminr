@@ -10,11 +10,14 @@ seminr_theme_create(
   plot.splines = TRUE,
   plot.rounding = 3,
   plot.adj = TRUE,
-  plot.greekletters = TRUE,
+  plot.specialcharacters = TRUE,
   mm.node.color = "dimgrey",
   mm.node.fill = "white",
   mm.node.label.fontsize = 8,
-  mm.edge.color = "dimgrey",
+  mm.edge.positive.color = "dimgrey",
+  mm.edge.negative.color = "dimgrey",
+  mm.edge.positive.style = "solid",
+  mm.edge.negative.style = "dashed",
   mm.edge.label.fontsize = 7,
   mm.edge.minlen = 1,
   mm.edge.use_outer_weights = TRUE,
@@ -26,13 +29,17 @@ seminr_theme_create(
   sm.node.color = "black",
   sm.node.fill = "white",
   sm.node.label.fontsize = 12,
-  sm.node.template = node_template_default(),
+  sm.node.endo.template = node_endo_template_default(),
+  sm.node.exo.template = node_exo_template_default(),
   sm.edge.boot.show_t_value = FALSE,
-  sm.edge.boot.show_p_value = TRUE,
+  sm.edge.boot.show_p_value = FALSE,
   sm.edge.boot.show_p_stars = TRUE,
-  sm.edge.boot.show_ci = FALSE,
+  sm.edge.boot.show_ci = TRUE,
   sm.edge.boot.template = edge_template_default(),
-  sm.edge.color = "black",
+  sm.edge.positive.color = "black",
+  sm.edge.negative.color = "black",
+  sm.edge.positive.style = "solid",
+  sm.edge.negative.style = "dashed",
   sm.edge.label.fontsize = 9,
   sm.edge.minlen = NA,
   construct.reflective.shape = "ellipse",
@@ -54,7 +61,7 @@ seminr_theme_create(
 
 \item{plot.adj}{Whether or not to use adjusted r^2 in constructs}
 
-\item{plot.greekletters}{Whether or not to use greek UTF-8 symbols in plots}
+\item{plot.specialcharacters}{Whether or not to use greek UTF-8 symbols in plots}
 
 \item{mm.node.color}{Color of the measurement model nodes.}
 
@@ -62,7 +69,13 @@ seminr_theme_create(
 
 \item{mm.node.label.fontsize}{Font size of the measurement model node labels.}
 
-\item{mm.edge.color}{Color of the measurement model edges.}
+\item{mm.edge.positive.color}{Color of the measurement model edges, when values are positive.}
+
+\item{mm.edge.negative.color}{Color of the measurement model edges, when values are negative.}
+
+\item{mm.edge.positive.style}{Style of the measurement model edges, when values are positive.}
+
+\item{mm.edge.negative.style}{Style of the measurement model edges, when values are negative.}
 
 \item{mm.edge.label.fontsize}{Font size of the measurement model edge labels.}
 
@@ -86,7 +99,9 @@ seminr_theme_create(
 
 \item{sm.node.label.fontsize}{Font size of the structural model node labels.}
 
-\item{sm.node.template}{A template string for the construct nodes}
+\item{sm.node.endo.template}{A template string for the nodes of endogenous constructs}
+
+\item{sm.node.exo.template}{A template string for the nodes of exogenous constructs}
 
 \item{sm.edge.boot.show_t_value}{Should boot-strapped path coefficients show a t-value}
 
@@ -98,7 +113,13 @@ seminr_theme_create(
 
 \item{sm.edge.boot.template}{A template string for HTML formatting of edges}
 
-\item{sm.edge.color}{Color of the structural model edges.}
+\item{sm.edge.positive.color}{Color of the structural model edges, when values are positive.}
+
+\item{sm.edge.negative.color}{Color of the structural model edges, when values are negative.}
+
+\item{sm.edge.positive.style}{Style of the structural model edges, when values are positive.}
+
+\item{sm.edge.negative.style}{Style of the structural model edges, when values are negative.}
 
 \item{sm.edge.label.fontsize}{Font size of the structural model edge labels.}
 

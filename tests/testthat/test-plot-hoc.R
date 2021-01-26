@@ -20,21 +20,23 @@ test_that("higher order composits are plotted", {
   )
 
   # Estimate the model with the HOC
-  mobi_pls <- estimate_pls(data = mobi,
+  model <- estimate_pls(data = mobi,
                                measurement_model = mobi_mm,
                                structural_model = mobi_sm)
   # FAILS
-  testthat::expect_error(dot_graph(mobi_pls), NA)
-  testthat::expect_error(plot(mobi_pls), NA)
+  testthat::expect_error(dot_graph(model), NA)
+  testthat::expect_error(plot(model), NA)
 
+  plot <- plot(model)
+  #vdiffr::expect_doppelganger(title = "Plot HOC", fig = plot, writer = write_test)
 
   # Testing
   if (FALSE) {
-    summary(mobi_pls)
+    summary(model)
     plot_model(mobi_mm)
     plot_model(mobi_sm)
-    plot_model(mobi_pls)
-    #DiagrammeR::grViz(dot_graph(mobi_pls))
+    plot_model(model)
+    #DiagrammeR::grViz(dot_graph(model))
 
   }
 

@@ -33,8 +33,7 @@ Main features of using SEMinR:
   - *Modular design* of models that promotes reuse of model components
   - Encourages *best practices* by use of smart defaults and warnings
 
-Take a look at the easy syntax and modular
-design:
+Take a look at the easy syntax and modular design:
 
 ``` r
 # Define measurements with famliar terms: reflective, multi-item constructs, etc.
@@ -120,8 +119,7 @@ composites. SEMinR uses the powerful Lavaan package to estimate CBSEM
 models – you can even inspect the more complicated Lavaan syntax that is
 produced.
 
-Describe reflective constructs and
-interactions:
+Describe reflective constructs and interactions:
 
 ``` r
 # Distinguish and mix composite or reflective (common-factor) measurement models
@@ -145,8 +143,7 @@ structure <- relationships(
 )
 ```
 
-Put the above elements together to estimate the model using
-Lavaan:
+Put the above elements together to estimate the model using Lavaan:
 
 ``` r
 # Evaluate only the measurement model using Confirmatory Factor Analysis (CFA)
@@ -242,6 +239,68 @@ boot_estimates <- bootstrap_model(pls_model, nboot = 1000, cores = 2)
 summary(boot_estimates)
 ```
 
+### Plotting the model results
+
+SEMinR can plot all supported models using the dot language and the
+graphViz.js widget from the `DiagrammeR` package.
+
+``` r
+# generate a small model for creating the plot
+mobi_mm <- constructs(
+  composite("Image",        multi_items("IMAG", 1:3)),
+  composite("Value",        multi_items("PERV", 1:2)),
+  higher_composite("Satisfaction", dimensions = c("Image","Value"), method = two_stage),
+  composite("Quality",      multi_items("PERQ", 1:3), weights = mode_B),
+  composite("Complaints",   single_item("CUSCO")),
+  reflective("Loyalty",      multi_items("CUSL", 1:3))
+)
+mobi_sm <- relationships(
+  paths(from = c("Quality"),  to = "Satisfaction"),
+  paths(from = "Satisfaction", to = c("Complaints", "Loyalty"))
+)
+pls_model <- estimate_pls(
+  data = mobi,
+  measurement_model = mobi_mm,
+  structural_model = mobi_sm
+)
+#> Generating the seminr model
+#> Generating the seminr model
+#> All 250 observations are valid.
+#> All 250 observations are valid.
+boot_estimates <- bootstrap_model(pls_model, nboot = 100, cores = 1)
+#> Bootstrapping model using seminr...
+#> SEMinR Model successfully bootstrapped
+```
+
+When we have a model, we can plot it and save the plot to files.
+
+``` r
+plot(boot_estimates, title = "Bootstrapped Model")
+save_plot("myfigure.pdf")
+```
+
+![](man/figures/model.png)
+
+#### Themes
+
+We can customize the plot using an elaborate theme. Themes can be used
+for individual plots as a parameter or set as a default. Using the
+`seminr_theme_create()` function allows to define different themes.
+
+``` r
+# Tip: auto complete is your friend in finding all possible themeing options.
+thm <- seminr_theme_create(plot.rounding = 2, plot.adj = F, 
+                           sm.node.fill = "cadetblue1",
+                           mm.node.fill = "lightgray")
+# change new default theme - valid until R is restarted
+seminr_theme_set(thm)
+
+# the new plot
+plot(boot_estimates)
+```
+
+![](man/figures/model2.png)
+
 ### Comparing CBSEM and PLS-PM Example
 
 We can re-estimate a composite PLS-PM model as a common-factor CBSEM.
@@ -300,6 +359,8 @@ installation.
     common factors using in PLSc
   - [seminr-style-contained.R](demo/seminr-style-contained.R): Create
     and execute a SEM model in one function call
+  - [seminr-dot-graph.R](demo/seminr-pls-dot-graph.R): Create a plot
+    from a SEM model
 
 ## Partner Projects
 

@@ -84,4 +84,24 @@ psignr <- function(pvals, sig.limit = c(0.05, 0.01, 0.001), html = FALSE){
 }
 
 
+#' Open Edotor graphViz Website with the preloaded in the Browser
+#'
+#' @param model A SEMinR Model
+#'
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' browse_plot(model)
+#' }
+browse_plot <- function(model){
+  if (!interactive()) {
+    stop("This only works in interactive environments")
+  }
+
+
+  utils::browseURL(
+    utils::URLencode(paste0("http://edotor.net/#", plot(model)))
+    )
+}
 

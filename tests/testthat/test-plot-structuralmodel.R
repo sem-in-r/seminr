@@ -1,3 +1,4 @@
+context("SEMinR plotting structural models")
 test_that("Plotting Structural model", {
   #library(seminr)
 
@@ -9,6 +10,10 @@ test_that("Plotting Structural model", {
   expect_error(plot(structural_model, title = "Example plot"), NA)
 
  # plot_model(measurement_model)
+
+
+  plot <- plot(structural_model)
+  #vdiffr::expect_doppelganger(title = "Plot structural model", fig = plot, writer = write_test)
 
   unlink("Rplots.pdf")
   # Todo: RPlots

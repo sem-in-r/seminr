@@ -1,7 +1,8 @@
-context("SEMinR dot_graph does not fail for a demo data set\n")
+context("plot-basics\n")
 test_that("dot_graph does not fail for a demo data set", {
+  #require(seminr)
   set.seed(123)
-   mobi <- mobi
+  mobi <- mobi
 
    #seminr syntax for creating measurement model
    mobi_mm <- constructs(
@@ -23,16 +24,21 @@ test_that("dot_graph does not fail for a demo data set", {
      paths(from = "Complaints",   to = "Loyalty")
    )
 
-   mobi_pls <- estimate_pls(data = mobi,
+   model <- estimate_pls(data = mobi,
                             measurement_model = mobi_mm,
                             structural_model = mobi_sm)
    # This creates an unwanted Rplots.pdf file? Why?
-  expect_error(dot_graph(mobi_pls), NA)
-  expect_error(plot(mobi_pls), NA)
+  expect_error(dot_graph(model), NA)
+  expect_error(plot(model), NA)
+
+  plot <- plot(model)
+  #testthat::expect_true(seminr:::check_test_plot(plot, title = "Plot with only reflectives"))
+  #vdiffr::expect_doppelganger(title = "only-reflectives", fig = plot, writer = write_test)
 })
 
 
 test_that("dot_graph can handle both composite measurement types", {
+  require(seminr)
   set.seed(123)
   mobi <- mobi
 
@@ -56,12 +62,16 @@ test_that("dot_graph can handle both composite measurement types", {
     paths(from = "Complaints",   to = "Loyalty")
   )
 
-  mobi_pls <- estimate_pls(data = mobi,
+  model <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
 
-  expect_error(dot_graph(mobi_pls), NA)
-  expect_error(plot(mobi_pls), NA)
+  expect_error(dot_graph(model), NA)
+  expect_error(plot(model), NA)
+
+  plot <- plot(model)
+  #testthat::expect_true(seminr:::check_test_plot(plot, title = "Plot with reflectives and composite"))
+  #vdiffr::expect_doppelganger(title = "reflectives and composite", fig = plot, writer = write_test)
 })
 
 # Cleanup

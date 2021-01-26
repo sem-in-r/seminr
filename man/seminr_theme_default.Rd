@@ -20,6 +20,14 @@ seminr_theme_smart(
   mm.edge.label.fontsize = 7,
   sm.edge.label.fontsize = 9
 )
+
+seminr_theme_default(
+  plot.title.fontsize = 24,
+  mm.node.label.fontsize = 8,
+  sm.node.label.fontsize = 12,
+  mm.edge.label.fontsize = 7,
+  sm.edge.label.fontsize = 9
+)
 }
 \arguments{
 \item{plot.title.fontsize}{Title font size}
@@ -34,9 +42,13 @@ seminr_theme_smart(
 }
 \value{
 a theme object
+
+a theme object
 }
 \description{
 The theme function for a basic b/w theme
 
-A SmartPLS-based theme
+A colored theme
+
+The theme function for a modern approach of visualizing PLS models in b/w
 }
