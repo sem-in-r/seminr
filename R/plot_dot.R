@@ -1075,7 +1075,7 @@ extract_mm_nodes <- function(index, model) {
   mm_matrix <- model$mmMatrix
   mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ,drop = FALSE] # Should now always be a matrix
 
-   nodes <- paste0(mm_matrix_subset[, 2], collapse = "\n")
+  nodes <- paste0(paste0("\"",mm_matrix_subset[, 2],"\""), collapse = "\n")
 
   return(nodes)
 }
