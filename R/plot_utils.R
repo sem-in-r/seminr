@@ -101,7 +101,7 @@ browse_plot <- function(model){
 
 
   utils::browseURL(
-    utils::URLencode(paste0("http://edotor.net/#", plot(model)))
+    utils::URLencode(paste0("http://edotor.net/#", dot_graph(model)))
     )
 }
 
