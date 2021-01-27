@@ -480,7 +480,7 @@ dot_graph.pls_model <- function(model,
   if (measurement_only) {
     sm <- dot_component_sm_parts(model = model, theme = thm)
   } else {
-    sm <- dot_component_sm(model = model, theme = thm)
+    sm <- dot_component_sm(model = model, theme = thm, structure_only = structure_only)
   }
   if (structure_only) {
     mm <- ""
@@ -606,8 +606,8 @@ dot_component_sm_parts <- function(model, theme){
 }
 
 # construct structural model subgraph
-dot_component_sm <- function(model, theme) {
-  sm_nodes <- extract_sm_nodes(model, theme)
+dot_component_sm <- function(model, theme, structure_only = FALSE) {
+  sm_nodes <- extract_sm_nodes(model, theme, structure_only = structure_only)
   sm_node_style <- get_sm_node_style(theme)
   sm_edges <- extract_sm_edges(model, theme)
   sm_edge_style <- get_sm_edge_style(theme)
@@ -635,16 +635,19 @@ dot_component_sm <- function(model, theme) {
 #'
 #' @param model the model to use
 #' @param theme the theme to use
+#' @param structure_only is this called in a structure_only model
 #'
 #' @return Returns a string of the structural model in dot notation.
-extract_sm_nodes <- function(model, theme) {
+extract_sm_nodes <- function(model, theme, structure_only = F) {
   sm_nodes <- model$constructs
 
 
   # Add additional SM nodes for submodel
   for (construct in model$constructs) {
     construct_type <- get_construct_type(model, construct)
-    if (startsWith(construct_type, "HOC")) {
+
+    if (startsWith(construct_type, "HOC") && !structure_only) {
+
       row_index <- grepl(construct, model$mmMatrix[,1])
       result <- model$mmMatrix[row_index, 2]
       sm_nodes <- c(sm_nodes, result)
@@ -1129,7 +1132,6 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
   }
 
   for (i in 1:nrow(mm_matrix_subset)) {
-    # XXX HOC fails here ----
     # TODO add bootstrapped
 
     manifest_variable <- mm_matrix_subset[i, 2]

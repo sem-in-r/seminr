@@ -4,12 +4,14 @@
 \alias{extract_sm_nodes}
 \title{Helper function that applies formatting to each construct}
 \usage{
-extract_sm_nodes(model, theme)
+extract_sm_nodes(model, theme, structure_only = F)
 }
 \arguments{
 \item{model}{the model to use}
 
 \item{theme}{the theme to use}
+
+\item{structure_only}{is this called in a structure_only model}
 }
 \value{
 Returns a string of the structural model in dot notation.
