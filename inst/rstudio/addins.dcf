@@ -1,0 +1,4 @@
+Name: Tweak SEMinR model plot
+Description: Lets you tweak the dot output of a model
+Binding: model_viz
+Interactive: true
