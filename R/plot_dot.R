@@ -572,6 +572,7 @@ get_global_style <- function(theme, layout = "dot") {
                   "rankdir = LR,\n",
                   "labelloc = t,\n",
                   "splines = <<theme$plot.splines>>\n",
+                  "bgcolor = <<theme$plot.bgcolor>>\n",
                   "]\n"))
 }
 
@@ -785,6 +786,7 @@ get_sm_node_style <- function(theme) {
                   "fillcolor = <<theme$sm.node.fill>>,\n",
                   "style = filled,\n",
                   "fontsize = <<theme$sm.node.label.fontsize>>,\n",
+                  "fontcolor = <<theme$sm.node.label.fontcolor>>,\n",
                   "height = <<theme$sm.node.height>>,\n",
                   "width = <<theme$sm.node.width>>,\n",
                   "fontname = <<theme$plot.fontname>>,\n",
@@ -895,7 +897,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
         suffix <- paste0("<BR /><FONT POINT-SIZE='", fsize, "'>", suffix, "</FONT>") # <FONT POINT-SIZE="20"> ?
       }
 
-      edge_width <- paste0(", penwidth = ", abs(bmean * theme$sm.edge.width_multiplier))
+      edge_width <- paste0(", penwidth = ", abs(bmean * theme$sm.edge.width_multiplier) + theme$sm.edge.width_offset)
       edge_style <- get_value_dependent_sm_edge_style(bmean, theme)
       coef <- bmean
     } else # format regular pls model ----
@@ -905,7 +907,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       civalue <- ""
       stars <- ""
       coef <- round(model$path_coef[sm[i, 1], sm[i,2]], theme$plot.rounding)
-      edge_width <- paste0(", penwidth = ", abs(coef * theme$sm.edge.width_multiplier))
+      edge_width <- paste0(", penwidth = ", (abs(coef * theme$sm.edge.width_multiplier) + theme$sm.edge.width_offset))
       edge_style <- get_value_dependent_sm_edge_style(coef, theme)
       suffix <- ""
     }
@@ -937,6 +939,7 @@ get_sm_edge_style <- function(theme){
   }
   glue_dot(paste0("color = <<theme$sm.edge.positive.color>>,\n", # fallback
                   "fontsize = <<theme$sm.edge.label.fontsize>>,\n",
+                  "fontcolor = <<theme$sm.edge.label.fontcolor>>,\n",
                   "fontname = <<theme$plot.fontname>>,\n",
                   "<<minlen_str>>",
                   #"constraint=false,", # TODO: consider optional parameter
@@ -1037,6 +1040,7 @@ get_mm_node_style <- function(theme) {
                   "fillcolor = <<theme$mm.node.fill>>,\n",
                   "style = filled,\n",
                   "fontsize = <<theme$mm.node.label.fontsize>>,\n",
+                  "fontcolor = <<theme$mm.node.label.fontcolor>>,\n",
                   "height = <<theme$mm.node.height>>,\n",
                   "width = <<theme$mm.node.width>>,\n",
                   "fontname = <<theme$plot.fontname>>,\n",
@@ -1060,6 +1064,7 @@ get_mm_edge_style <- function(theme, forward){
 
   glue_dot(paste0(c("color = <<theme$mm.edge.positive.color>>,", #default as fallback
                     "fontsize = <<theme$mm.edge.label.fontsize>>,",
+                    "fontcolor = <<theme$mm.edge.label.fontcolor>>,",
                     "fontname = <<theme$plot.fontname>>,",
                     "<<minlen_str>>",
                     "dir = both",
@@ -1107,10 +1112,7 @@ extract_mm_edge_value <- function(model, theme, indicator, construct){
 
 extract_mm_edges <- function(index, model, theme, weights = 1000) {
 
-  if (TRUE) {
-    # Does this help with determinism in the layout?
-    weights <- weights + stats::runif(1)
-  }
+
 
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
@@ -1119,8 +1121,6 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
   matching_rows <- mm_matrix[, 1] == mm_coding[index, 1]
   mm_matrix_subset <- mm_matrix[matching_rows, ,drop = FALSE]
   edges <- ""
-
-
 
   # determine letter to use (What is with A and B type constructs?)
   # Small mathematical lambda
@@ -1132,6 +1132,12 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
   }
 
   for (i in 1:nrow(mm_matrix_subset)) {
+
+    if (theme$plot.randomizedweights) {
+      # Does this help with determinism in the layout?
+      weights <- weights + stats::runif(1)
+    }
+
     # TODO add bootstrapped
 
     manifest_variable <- mm_matrix_subset[i, 2]
@@ -1213,7 +1219,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
         weights,
         edge_label,
         ", penwidth = ",
-        abs(loading * theme$mm.edge.width_multiplier),
+        abs(loading * theme$mm.edge.width_multiplier) + theme$mm.edge.width_offset,
         edge_style,
         "]\n"
       )

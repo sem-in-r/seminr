@@ -4,19 +4,25 @@
 #'
 #' @param plot.title.fontsize Font size of the title.
 #' @param plot.fontname Font to be used throughout the plot.
-#' @param plot.splines Whether or not to use splines as edges.
-#' @param plot.rounding The amount of decimals to keep for rounding.
-#' @param plot.adj Whether or not to use adjusted r^2 in constructs
-#' @param plot.specialcharacters Whether or not to use greek UTF-8 symbols in plots
+#' @param plot.splines Whether or not to use splines as edges (default = TRUE).
+#' @param plot.rounding The amount of decimals to keep for rounding (default = 3).
+#' @param plot.adj TRUE or FALSE (default). Whether or not to use adjusted r^2 in constructs.
+#' @param plot.specialcharacters Whether or not to use greek UTF-8 symbols in plots.
+#' @param plot.randomizedweights TRUE or FALSE (default), decides whether to add.
+#' minimal random weights to the measurement model. Can help with determinism in plot outcomes.
+#' @param plot.bgcolor The background color of the plot (default = "transparent").
 #' @param mm.node.color Color of the measurement model nodes.
 #' @param mm.node.fill Fill of the measurement model nodes.
 #' @param mm.node.label.fontsize Font size of the measurement model node labels.
+#' @param mm.node.label.fontcolor Color of the measurement model node labels.
 #' @param mm.edge.positive.color Color of the measurement model edges, when values are positive.
 #' @param mm.edge.negative.color Color of the measurement model edges, when values are negative.
 #' @param mm.edge.positive.style Style of the measurement model edges, when values are positive.
 #' @param mm.edge.negative.style Style of the measurement model edges, when values are negative.
 #' @param mm.edge.label.fontsize Font size of the measurement model edge labels.
+#' @param mm.edge.label.fontcolor Font color of the measurement model edge labels.
 #' @param mm.edge.minlen Minimum length of the measurement model edges.
+#' @param mm.edge.width_offset The minimal width of an edge of the measurement model (default = 0.5).
 #' @param mm.edge.use_outer_weights Whether or not to use outer weights as edge labels in the measurement model.
 #' @param mm.edge.boot.show_t_value Should boot-strapped loadings/weights show a t-value
 #' @param mm.edge.boot.show_p_value Should boot-strapped loadings/weights show a p-value
@@ -26,6 +32,7 @@
 #' @param sm.node.color Color of the structural model nodes.
 #' @param sm.node.fill Fill of the structural model nodes.
 #' @param sm.node.label.fontsize Font size of the structural model node labels.
+#' @param sm.node.label.fontcolor Font color of the structural model node labels.
 #' @param sm.node.endo.template A template string for the nodes of endogenous constructs
 #' @param sm.node.exo.template A template string for the nodes of exogenous constructs
 #' @param sm.edge.boot.show_t_value Should boot-strapped path coefficients show a t-value
@@ -38,7 +45,9 @@
 #' @param sm.edge.positive.style Style of the structural model edges, when values are positive.
 #' @param sm.edge.negative.style Style of the structural model edges, when values are negative.
 #' @param sm.edge.label.fontsize Font size of the structural model edge labels.
+#' @param sm.edge.label.fontcolor Font color of the structural model edge labels.
 #' @param sm.edge.minlen Minimum length of the structural model edges.
+#' @param sm.edge.width_offset The minimal width of an edge of the structural model (default = 0.5).
 #' @param construct.reflective.shape Dot shape of reflective constructs
 #' @param construct.compositeA.shape Dot shape of composite constructs using correlation weights
 #' @param construct.compositeB.shape Dot shape of composite constructs using regression weights
@@ -54,17 +63,22 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          plot.fontname = "helvetica",
                          plot.splines = TRUE,
                          plot.rounding = 3,
-                         plot.adj = TRUE,
+                         plot.adj = FALSE,
                          plot.specialcharacters = TRUE,
+                         plot.randomizedweights = FALSE,
+                         plot.bgcolor = "transparent",
                          mm.node.color = "dimgrey",
                          mm.node.fill = "white",
                          mm.node.label.fontsize = 8,
+                         mm.node.label.fontcolor = "black",
                          mm.edge.positive.color = "dimgrey",
                          mm.edge.negative.color = "dimgrey",
                          mm.edge.positive.style = "solid",
                          mm.edge.negative.style = "dashed",
                          mm.edge.label.fontsize = 7,
+                         mm.edge.label.fontcolor = "black",
                          mm.edge.minlen = 1,
+                         mm.edge.width_offset = 0.5,
                          mm.edge.use_outer_weights = TRUE,
                          mm.edge.boot.show_t_value = FALSE,
                          mm.edge.boot.show_p_value = FALSE,
@@ -74,6 +88,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          sm.node.color = "black",
                          sm.node.fill = "white",
                          sm.node.label.fontsize = 12,
+                         sm.node.label.fontcolor = "black",
                          sm.node.endo.template = node_endo_template_default(),
                          sm.node.exo.template = node_exo_template_default(),
                          sm.edge.boot.show_t_value = FALSE,
@@ -86,7 +101,9 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          sm.edge.positive.style = "solid",
                          sm.edge.negative.style = "dashed",
                          sm.edge.label.fontsize = 9,
+                         sm.edge.label.fontcolor = "black",
                          sm.edge.minlen = NA,
+                         sm.edge.width_offset = 0.5,
                          construct.reflective.shape = "ellipse",
                          construct.compositeA.shape = "ellipse",
                          construct.compositeB.shape = "ellipse",
@@ -132,9 +149,12 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 plot.rounding = plot.rounding,
                 plot.adj = plot.adj,
                 plot.specialcharacters = plot.specialcharacters,
+                plot.randomizedweights = plot.randomizedweights,
+                plot.bgcolor = plot.bgcolor,
                 mm.node.color = mm.node.color,
                 mm.node.fill = mm.node.fill,
                 mm.node.label.fontsize = mm.node.label.fontsize,
+                mm.node.label.fontcolor = mm.node.label.fontcolor,
                 mm.node.height = 1,
                 mm.node.width = 1,
                 mm.edge.positive.color = mm.edge.positive.color,
@@ -142,8 +162,10 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 mm.edge.positive.style = mm.edge.positive.style,
                 mm.edge.negative.style = mm.edge.negative.style,
                 mm.edge.label.fontsize = mm.edge.label.fontsize,
+                mm.edge.label.fontcolor = mm.edge.label.fontcolor,
                 mm.edge.label.show = TRUE,
                 mm.edge.width_multiplier = 3,
+                mm.edge.width_offset = mm.edge.width_offset,
                 mm.edge.minlen = mm.edge.minlen,
                 mm.edge.use_outer_weights = mm.edge.use_outer_weights,
                 mm.edge.boot.show_t_value = mm.edge.boot.show_t_value,
@@ -154,6 +176,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 sm.node.color = sm.node.color,
                 sm.node.fill = sm.node.fill,
                 sm.node.label.fontsize = sm.node.label.fontsize,
+                sm.node.label.fontcolor = sm.node.label.fontcolor,
                 sm.node.height = 1,
                 sm.node.width = 1,
                 sm.node.endo.template = sm.node.endo.template,
@@ -163,6 +186,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 sm.edge.positive.style = sm.edge.positive.style,
                 sm.edge.negative.style = sm.edge.negative.style,
                 sm.edge.label.fontsize = sm.edge.label.fontsize,
+                sm.edge.label.fontcolor = sm.edge.label.fontcolor,
                 sm.edge.label.show = TRUE,
                 sm.edge.boot.show_t_value = sm.edge.boot.show_t_value,
                 sm.edge.boot.show_p_value = sm.edge.boot.show_p_value,
@@ -170,6 +194,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 sm.edge.boot.show_ci = sm.edge.boot.show_ci,
                 sm.edge.boot.template = sm.edge.boot.template,
                 sm.edge.width_multiplier = 5,
+                sm.edge.width_offset = 0.5,
                 sm.edge.minlen = sm.edge.minlen,
                 construct.reflective.shape = construct.reflective.shape,
                 construct.compositeA.shape = construct.compositeA.shape,
