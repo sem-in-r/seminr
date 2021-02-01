@@ -22,8 +22,8 @@ test_that("bootstrapped models work", {
 
   mobi_boot <- bootstrap_model(mobi_pls, nboot = 100, cores = 1)
 
-  expect_error(dot_graph(mobi_boot), NA)
-  expect_error(plot(mobi_boot), NA)
+  testthat::expect_error(dot_graph(mobi_boot), NA)
+  testthat::expect_error(plot(mobi_boot), NA)
 
   plot <- plot(mobi_boot)
   #vdiffr::expect_doppelganger(title = "Bootstrapped plotting", fig = plot, writer = write_test)

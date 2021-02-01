@@ -650,7 +650,7 @@ get_construct_type <- function(model, construct) {
 }
 
 #' extract bootstrapped statistics from an edge using a row_index
-extract_bootstrapped_values <- function(table, row_index, theme) {
+extract_bootstrapped_values <- function(ltbl, row_index, theme) {
 
   t_value <- ltbl[rownames(ltbl) == row_index, 4]
 
@@ -898,38 +898,44 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       smry <- summary(model)
       row_index <- paste0(sm[i, 1], "  ->  ", sm[i,2])
       ltbl <- smry$bootstrapped_paths
-      bmean <- round(ltbl[rownames(ltbl) == row_index, 2], theme$plot.rounding)
-      blower <- round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding)
-      bupper <- round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding)
-      bt <- ltbl[rownames(ltbl) == row_index, 4]
 
-      # TODO: Verify method to calculate p values (seems correct, maybe user land?)
-      bp <- stats::pt(abs(bt), nrow(model$data) - 1, lower.tail = FALSE)
+
+      boot_values <- extract_bootstrapped_values(ltbl, row_index, theme)
+
+      # bmean <- round(ltbl[rownames(ltbl) == row_index, 2], theme$plot.rounding)
+      # blower <- round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding)
+      # bupper <- round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding)
+      # bt <- ltbl[rownames(ltbl) == row_index, 4]
+      #
+      # # TODO: Verify method to calculate p values (seems correct, maybe user land?)
+      # bp <- stats::pt(abs(bt), nrow(model$data) - 1, lower.tail = FALSE)
 
       # show element depending on theme
       if (theme$sm.edge.boot.show_t_value) {
-        tvalue <- paste0("t = ", round(bt, theme$plot.rounding))
+        tvalue <- paste0("t = ", round(boot_values[["t"]], theme$plot.rounding))
       } else
         tvalue <- ""
 
       if (theme$sm.edge.boot.show_p_value) {
-        pvalue <- paste0("p ", pvalr(bp, html = TRUE))
+        pvalue <- paste0("p ", pvalr(boot_values[["p"]], html = TRUE))
       } else
         pvalue <- ""
 
       if (theme$sm.edge.boot.show_p_stars) {
-        stars <- psignr(bp, html = TRUE)
+        stars <- psignr(boot_values[["p"]], html = TRUE)
       } else
         stars <- ""
 
       if (theme$sm.edge.boot.show_ci) {
-        civalue <- paste0("95% CI [", blower, ", ", bupper, "]")
+        civalue <- paste0("95% CI [", boot_values[["lower"]], ", ", boot_values[["upper"]], "]")
       } else
         civalue <- ""
 
-      edge_width <- paste0(", penwidth = ", abs(bmean * theme$sm.edge.width_multiplier) + theme$sm.edge.width_offset)
-      edge_style <- get_value_dependent_sm_edge_style(bmean, theme)
-      coef <- bmean
+      edge_width <- paste0(", penwidth = ",
+                           abs(boot_values[["mean"]] * theme$sm.edge.width_multiplier) +
+                             theme$sm.edge.width_offset)
+      edge_style <- get_value_dependent_sm_edge_style(boot_values[["mean"]], theme)
+      coef <- boot_values[["mean"]]
     } else {
       # format regular pls model ---
       tvalue <- ""
