@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_dot.R
 \name{get_value_dependent_sm_edge_style}
 \alias{get_value_dependent_sm_edge_style}
-\title{Formats the style of the measurement model edges}
+\title{Formats the style of the structural model edges}
 \usage{
 get_value_dependent_sm_edge_style(value, theme)
 }
@@ -15,5 +15,5 @@ get_value_dependent_sm_edge_style(value, theme)
 Returns the style for the edge (both style and color)
 }
 \description{
-Formats the style of the measurement model edges
+Formats the style of the structural model edges
 }

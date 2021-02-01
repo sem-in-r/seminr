@@ -39,7 +39,7 @@ test_that("Modify theme edge multipliers", {
  thm$mm.edge.width_multiplier <- 1
  thm$plot.greekletters <- T
  thm$sm.edge.boot.template <- edge_template_default()
- #thm$sm.edge.boot.show_ci <- T
+ thm$sm.edge.boot.show_ci <- T
  thm$sm.edge.boot.show_p_stars <- T
 
  thm$mm.edge.boot.template <- edge_template_minimal()
@@ -50,12 +50,21 @@ test_that("Modify theme edge multipliers", {
 
  thm$sm.edge.positive.color <- "red"
  thm$sm.edge.negative.color <- "blue"
+ thm$sm.node.fill <- "gray"
+ thm$mm.node.fill <- "red"
+
+ thm$sm.node.label.fontcolor <- "red"
+ thm$mm.node.label.fontcolor <- "green"
+ thm$sm.edge.label.fontcolor <- "blue"
+ thm$mm.edge.label.fontcolor <- "gray"
+ thm$plot.bgcolor <- "black"
+ thm$plot.title.fontcolor <- "white"
 
  testthat::expect_error(dot_graph(mobi_pls, theme = thm), NA)
  testthat::expect_error(plot(mobi_boot, theme = thm), NA)
 
 
- plot <- plot(mobi_boot)
+ plot <- plot(mobi_boot, title = "Dark theme", theme = thm)
  #vdiffr::expect_doppelganger(title = "Plot with other theme", fig = plot, writer = write_test)
 
  testthat::expect_warning(plot(mobi_boot, thm))

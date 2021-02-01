@@ -6,20 +6,26 @@
 \usage{
 seminr_theme_create(
   plot.title.fontsize = 24,
+  plot.title.fontcolor = "black",
   plot.fontname = "helvetica",
   plot.splines = TRUE,
   plot.rounding = 3,
-  plot.adj = TRUE,
+  plot.adj = FALSE,
   plot.specialcharacters = TRUE,
+  plot.randomizedweights = FALSE,
+  plot.bgcolor = "transparent",
   mm.node.color = "dimgrey",
   mm.node.fill = "white",
   mm.node.label.fontsize = 8,
+  mm.node.label.fontcolor = "black",
   mm.edge.positive.color = "dimgrey",
   mm.edge.negative.color = "dimgrey",
   mm.edge.positive.style = "solid",
   mm.edge.negative.style = "dashed",
   mm.edge.label.fontsize = 7,
+  mm.edge.label.fontcolor = "black",
   mm.edge.minlen = 1,
+  mm.edge.width_offset = 0.5,
   mm.edge.use_outer_weights = TRUE,
   mm.edge.boot.show_t_value = FALSE,
   mm.edge.boot.show_p_value = FALSE,
@@ -29,6 +35,7 @@ seminr_theme_create(
   sm.node.color = "black",
   sm.node.fill = "white",
   sm.node.label.fontsize = 12,
+  sm.node.label.fontcolor = "black",
   sm.node.endo.template = node_endo_template_default(),
   sm.node.exo.template = node_exo_template_default(),
   sm.edge.boot.show_t_value = FALSE,
@@ -41,7 +48,9 @@ seminr_theme_create(
   sm.edge.positive.style = "solid",
   sm.edge.negative.style = "dashed",
   sm.edge.label.fontsize = 9,
+  sm.edge.label.fontcolor = "black",
   sm.edge.minlen = NA,
+  sm.edge.width_offset = 0.5,
   construct.reflective.shape = "ellipse",
   construct.compositeA.shape = "ellipse",
   construct.compositeB.shape = "ellipse",
@@ -53,21 +62,30 @@ seminr_theme_create(
 \arguments{
 \item{plot.title.fontsize}{Font size of the title.}
 
+\item{plot.title.fontcolor}{Fontcolor of the title of the plot.}
+
 \item{plot.fontname}{Font to be used throughout the plot.}
 
-\item{plot.splines}{Whether or not to use splines as edges.}
+\item{plot.splines}{Whether or not to use splines as edges (default = TRUE).}
 
-\item{plot.rounding}{The amount of decimals to keep for rounding.}
+\item{plot.rounding}{The amount of decimals to keep for rounding (default = 3).}
 
-\item{plot.adj}{Whether or not to use adjusted r^2 in constructs}
+\item{plot.adj}{TRUE or FALSE (default). Whether or not to use adjusted r^2 in constructs.}
 
-\item{plot.specialcharacters}{Whether or not to use greek UTF-8 symbols in plots}
+\item{plot.specialcharacters}{Whether or not to use greek UTF-8 symbols in plots.}
+
+\item{plot.randomizedweights}{TRUE or FALSE (default), decides whether to add.
+minimal random weights to the measurement model. Can help with determinism in plot outcomes.}
+
+\item{plot.bgcolor}{The background color of the plot (default = "transparent").}
 
 \item{mm.node.color}{Color of the measurement model nodes.}
 
 \item{mm.node.fill}{Fill of the measurement model nodes.}
 
 \item{mm.node.label.fontsize}{Font size of the measurement model node labels.}
+
+\item{mm.node.label.fontcolor}{Color of the measurement model node labels.}
 
 \item{mm.edge.positive.color}{Color of the measurement model edges, when values are positive.}
 
@@ -79,7 +97,11 @@ seminr_theme_create(
 
 \item{mm.edge.label.fontsize}{Font size of the measurement model edge labels.}
 
+\item{mm.edge.label.fontcolor}{Font color of the measurement model edge labels.}
+
 \item{mm.edge.minlen}{Minimum length of the measurement model edges.}
+
+\item{mm.edge.width_offset}{The minimal width of an edge of the measurement model (default = 0.5).}
 
 \item{mm.edge.use_outer_weights}{Whether or not to use outer weights as edge labels in the measurement model.}
 
@@ -98,6 +120,8 @@ seminr_theme_create(
 \item{sm.node.fill}{Fill of the structural model nodes.}
 
 \item{sm.node.label.fontsize}{Font size of the structural model node labels.}
+
+\item{sm.node.label.fontcolor}{Font color of the structural model node labels.}
 
 \item{sm.node.endo.template}{A template string for the nodes of endogenous constructs}
 
@@ -123,7 +147,11 @@ seminr_theme_create(
 
 \item{sm.edge.label.fontsize}{Font size of the structural model edge labels.}
 
+\item{sm.edge.label.fontcolor}{Font color of the structural model edge labels.}
+
 \item{sm.edge.minlen}{Minimum length of the structural model edges.}
+
+\item{sm.edge.width_offset}{The minimal width of an edge of the structural model (default = 0.5).}
 
 \item{construct.reflective.shape}{Dot shape of reflective constructs}
 
@@ -141,5 +169,17 @@ seminr_theme_create(
 A \code{seminr.theme} object that can be supplied to \code{\link{dot_graph}}
 }
 \description{
-Create a theme for a seminr graph visualization
+All customizable options are parameters of this function. See the details all the way down for more information.
+}
+\details{
+You can use the auto-complete feature of your editor to help you find the right parameter.
+
+General settings start with plot.*
+
+Measurement model settings start with mm.*
+
+Structural model settings start with sm.*
+
+Setting the shape of manifest or construct variables depending on their estimation type
+can be found under manifest.* and construct.*
 }
