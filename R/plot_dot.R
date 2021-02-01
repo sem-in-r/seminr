@@ -510,12 +510,26 @@ dot_graph.pls_model <- function(model,
 #'
 #' @return Returns a two-element vector with c(width, height)
 get_construct_element_size <- function(model, theme) {
-  c_width_offst <-
+  c_width_offst_r <-
     switch(theme$construct.reflective.shape,
     "ellipse" = 0.4,
     "box" = 0.1,
     "hexagon" = 0.3
   )
+  c_width_offst_a <-
+    switch(theme$construct.compositeA.shape,
+           "ellipse" = 0.4,
+           "box" = 0.1,
+           "hexagon" = 0.3
+    )
+  c_width_offst_b <-
+    switch(theme$construct.compositeB.shape,
+           "ellipse" = 0.4,
+           "box" = 0.1,
+           "hexagon" = 0.3
+    )
+  c_width_offst <- max(c_width_offst_r, c_width_offst_a, c_width_offst_b)
+
   construct_width <- max(
     graphics::strwidth(model$constructs,font = theme$sm.node.label.fontsize, units = "in")
   ) + c_width_offst
