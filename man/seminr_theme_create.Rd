@@ -6,6 +6,7 @@
 \usage{
 seminr_theme_create(
   plot.title.fontsize = 24,
+  plot.title.fontcolor = "black",
   plot.fontname = "helvetica",
   plot.splines = TRUE,
   plot.rounding = 3,
@@ -60,6 +61,8 @@ seminr_theme_create(
 }
 \arguments{
 \item{plot.title.fontsize}{Font size of the title.}
+
+\item{plot.title.fontcolor}{Fontcolor of the title of the plot.}
 
 \item{plot.fontname}{Font to be used throughout the plot.}
 
@@ -166,5 +169,17 @@ minimal random weights to the measurement model. Can help with determinism in pl
 A \code{seminr.theme} object that can be supplied to \code{\link{dot_graph}}
 }
 \description{
-Create a theme for a seminr graph visualization
+All customizable options are parameters of this function. See the details all the way down for more information.
+}
+\details{
+You can use the auto-complete feature of your editor to help you find the right parameter.
+
+General settings start with plot.*
+
+Measurement model settings start with mm.*
+
+Structural model settings start with sm.*
+
+Setting the shape of manifest or construct variables depending on their estimation type
+can be found under manifest.* and construct.*
 }

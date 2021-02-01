@@ -162,6 +162,8 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
 
 }
 
+
+# ___________________  ----
 # DOT GRAPH (main function)----
 
 #' Generate a dot graph from various SEMinR models
@@ -507,34 +509,38 @@ dot_graph.pls_model <- function(model,
                   "\n}\n"))
 }
 
-# Needs tweaking ----
 
-# gets the offsets for predefined shapes
-get_mm_element_offset <- function(element) {
-  offset_table <- data.frame(
-    shape  = c("box", "rectangle", "ellipse", "hexagon"),
-    width  = c(0.0,      0,          0.4,       0.4),
-    height = c(0.05,     0.05,       0.4,       0.3)
-  )
 
-  offset_table[offset_table$shape == element, 2:3]
+
+
+
+
+# ___________________  ----
+# Graph options ------------------
+
+#' Get dot string for global theme options
+#' @keywords internal
+#' @param theme a theme
+#' @param layout The layout engine (default: dot)
+get_global_style <- function(theme, layout = "dot") {
+  glue_dot(paste0("// ----------------------\n",
+                  "// General graph settings\n",
+                  "// ----------------------\n",
+                  "graph [\n",
+                  "charset = \"UTF-8\",\n",
+                  "layout = ", layout, ",\n",
+                  "label = \"<<theme$plot.title>>\",\n",
+                  "fontsize = <<theme$plot.title.fontsize>>,\n",
+                  "fontcolor = <<theme$plot.title.fontcolor>>,\n",
+                  "fontname = <<theme$plot.fontname>>,\n",
+                  "rankdir = LR,\n",
+                  "labelloc = t,\n",
+                  "splines = <<theme$plot.splines>>\n",
+                  "bgcolor = <<theme$plot.bgcolor>>\n",
+                  "]\n"))
 }
 
-# gets the offsets for predefined shapes
-get_sm_element_offset <- function(element) {
-  offset_table <- data.frame(
-    shape  = c("box", "rectangle", "ellipse", "hexagon"),
-    width  = c(0.2,      0.2,          0.4,       0.4),
-    height = c(0.1,      0.1,         0.4,       0.3)
-  )
-
-  offset_table[offset_table$shape == element, 2:3]
-}
-
-
-# TODO: smarter function to determine minimal offset of all possible options
-# in theme (if one is ellipse all must be 0.4, e.g.)
-# TODO find optimal offsets manually
+# 1. Node options ----
 
 #' Gets the optimal size for construct elements in the plot
 #'
@@ -590,32 +596,16 @@ get_manifest_element_size <- function(model, theme) {
 }
 
 
-# Graph options ------------------
 
-#' Get dot string for global theme options
-#' @keywords internal
-#' @param theme a theme
-#' @param layout The layout engine (default: dot)
-get_global_style <- function(theme, layout = "dot") {
-  glue_dot(paste0("// ----------------------\n",
-                  "// General graph settings\n",
-                  "// ----------------------\n",
-                  "graph [\n",
-                  "charset = \"UTF-8\",\n",
-                  "layout = ", layout, ",\n",
-                  "label = \"<<theme$plot.title>>\",\n",
-                  "fontsize = <<theme$plot.title.fontsize>>,\n",
-                  "fontname = <<theme$plot.fontname>>,\n",
-                  "rankdir = LR,\n",
-                  "labelloc = t,\n",
-                  "splines = <<theme$plot.splines>>\n",
-                  "bgcolor = <<theme$plot.bgcolor>>\n",
-                  "]\n"))
-}
+# 2. Edge options ----
 
 # generic formatting function for bootstrapped edges
 format_edge_boot_label <- function(template, variable, value, tvalue, pvalue, stars, civalue) {
-  glue::glue(template)
+  content <- glue::glue(template)
+
+  paste0(", label = < ",
+         content,
+         " >")
 }
 
 # generic formatting function for edges
@@ -650,7 +640,12 @@ get_construct_type <- function(model, construct) {
 }
 
 #' extract bootstrapped statistics from an edge using a row_index
-extract_bootstrapped_values <- function(ltbl, row_index, theme) {
+#'
+#' @param ltbl a table of bootstrapped values (weights, loadings, path coefficients)
+#' @param row_index the index for the specific edge to extract
+#' @param model the model to use
+#' @param theme the theme to use
+extract_bootstrapped_values <- function(ltbl, row_index, model, theme) {
 
   t_value <- ltbl[rownames(ltbl) == row_index, 4]
 
@@ -664,8 +659,34 @@ extract_bootstrapped_values <- function(ltbl, row_index, theme) {
 }
 
 
+# Needs tweaking ----
+
+# gets the offsets for predefined shapes
+get_mm_element_offset <- function(element) {
+  offset_table <- data.frame(
+    shape  = c("box", "rectangle", "ellipse", "hexagon"),
+    width  = c(0.0,      0,          0.4,       0.4),
+    height = c(0.05,     0.05,       0.4,       0.3)
+  )
+
+  offset_table[offset_table$shape == element, 2:3]
+}
+
+# gets the offsets for predefined shapes
+get_sm_element_offset <- function(element) {
+  offset_table <- data.frame(
+    shape  = c("box", "rectangle", "ellipse", "hexagon"),
+    width  = c(0.2,      0.2,          0.4,       0.4),
+    height = c(0.1,      0.1,         0.4,       0.3)
+  )
+
+  offset_table[offset_table$shape == element, 2:3]
+}
 
 
+
+
+# ___________________  ----
 # 1. Structural Model ----------------------
 
 # construct structural model using subgraphs
@@ -900,7 +921,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       ltbl <- smry$bootstrapped_paths
 
 
-      boot_values <- extract_bootstrapped_values(ltbl, row_index, theme)
+      boot_values <- extract_bootstrapped_values(ltbl, row_index, model, theme)
 
       # bmean <- round(ltbl[rownames(ltbl) == row_index, 2], theme$plot.rounding)
       # blower <- round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding)
@@ -949,8 +970,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
 
     # build the label
     if (theme$sm.edge.label.show) {
-      elab <- format_edge_boot_label(theme$sm.edge.boot.template, variable = letter, value = coef, tvalue, pvalue, stars, civalue )
-      edge_label <- paste0(", label = < ", elab, " >")
+      edge_label <- format_edge_boot_label(theme$sm.edge.boot.template, variable = letter, value = coef, tvalue, pvalue, stars, civalue )
     } else {
       edge_label <- ""
     }
@@ -1005,10 +1025,13 @@ get_value_dependent_sm_edge_style <- function(value, theme){
 
 
 
-
+# ___________________  ----
 # 2. Measurement Model ----------------------
 
 #' Generates the dot code for the measurement model
+#'
+#' @param model the model to use
+#' @param theme the theme to use
 dot_component_mm <- function(model, theme) {
   sub_components_mm <- c(paste0("// ---------------------\n",
                                 "// The measurement model\n",
@@ -1026,6 +1049,10 @@ dot_component_mm <- function(model, theme) {
 }
 
 #' generates the dot code for a subgraph (per construct)
+#'
+#' @param index the index of the construct
+#' @param model the model to use
+#' @param theme the theme to use
 dot_subcomponent_mm <- function(index, model, theme) {
 
   mm_coding <- extract_mm_coding(model)
@@ -1070,6 +1097,8 @@ dot_subcomponent_mm <- function(index, model, theme) {
 
 
 #' extracts the constructs and their types from the model
+#'
+#' @param model the model to use
 extract_mm_coding <- function(model) {
   construct_names <- c()
   construct_types <- c()
@@ -1093,6 +1122,8 @@ extract_mm_coding <- function(model) {
 # 2.1 MM-Nodes ----
 
 #' get global measurement model node style
+#'
+#' @param theme the theme to use
 get_mm_node_style <- function(theme) {
   glue_dot(paste0("shape = box,\n",
                   "color = <<theme$mm.node.color>>,\n",
@@ -1109,6 +1140,10 @@ get_mm_node_style <- function(theme) {
 
 
 #' gets the individual nodes and applies formatting
+#'
+#' @param index the index of the construct
+#' @param model the model to use
+#' @param theme the theme to use
 extract_mm_nodes <- function(index, model, theme) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
@@ -1147,11 +1182,14 @@ get_mm_node_shape <- function(model, construct, theme) {
 
 
 
-## REFACTORING HERE WE ARE  -----
+
 
 # 2.2 MM-Edges ----
 
 #' individual styles for measurement model edges
+#'
+#' @param theme the theme to use
+#' @param forward Forward direction?
 get_mm_edge_style <- function(theme, forward){
   if (forward) {
     arrowhead <- "normal"
@@ -1180,11 +1218,12 @@ get_mm_edge_style <- function(theme, forward){
 
 
 
-
-
-
-
-
+#' gets the mm_edge value (loading, weight) for bootstrapped and regular models
+#'
+#' @param model the model to use
+#' @param theme the theme to use
+#' @param indicator the indicator to use
+#' @param construct the construct to use
 extract_mm_edge_value <- function(model, theme, indicator, construct){
   if ("boot_seminr_model" %in% class(model)) {
     boot_construct <- paste0(construct, " Boot Mean")
@@ -1209,6 +1248,12 @@ extract_mm_edge_value <- function(model, theme, indicator, construct){
 }
 
 
+#' extract mm edges from model for a given index of all constructs
+#'
+#' @param index the index of the construct
+#' @param model the model to use
+#' @param theme the theme to use
+#' @param weights a default weight for measurment models (high values suggested)
 extract_mm_edges <- function(index, model, theme, weights = 1000) {
 
   mm_coding <- extract_mm_coding(model)
@@ -1229,7 +1274,6 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
   }
 
   for (i in 1:nrow(mm_matrix_subset)) {
-
     if (theme$plot.randomizedweights) {
       # Does this help with determinism in the layout?
       weights <- weights + stats::runif(1)
@@ -1239,95 +1283,92 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     construct_variable = mm_matrix_subset[i, 1]
 
 
-    loading <- extract_mm_edge_value(model, theme,
-                                     indicator = manifest_variable,
-                                     construct = construct_variable)
-
+    # If interaction variable, we skip
     if (grepl("\\*", manifest_variable)) {
-      # show interaction indicators?
-    } else {
+      next
+    }
 
-      letter <- "w"
-      # if construct is reflective?
-      if (mm_matrix_subset[i, 3] == "C") {
-        letter <- lambda
+    letter <- "w"
+    # if construct is reflective?
+    if (mm_matrix_subset[i, 3] == "C") {
+      letter <- lambda
+    }
+
+    if (inherits(model, "boot_seminr_model")) {
+      # bootstrapped version ---
+      smry <- summary(model)
+      row_index <-
+        paste0(manifest_variable, "  ->  ", construct_variable)
+      ltbl <- smry$bootstrapped_loadings
+      if (theme$mm.edge.use_outer_weights) {
+        ltbl <- smry$bootstrapped_weights
       }
 
-      # THIS WHOLE CONSTRUCT IS VERY SIMILAR TO WHAT HAPPENS IN SM
-
-      tvalue <- ""
-      pvalue <- ""
-      stars <- ""
-      civalue <- ""
-
-      # is this a bootstrapped model?
-      if (inherits(model, "boot_seminr_model")) {
-        smry <- summary(model)
-        row_index <- paste0(manifest_variable, "  ->  ", construct_variable)
-        ltbl <- smry$bootstrapped_loadings
-        if (theme$mm.edge.use_outer_weights) {
-          ltbl <- smry$bootstrapped_weights
-        }
-        bmean <- round(ltbl[rownames(ltbl) == row_index, 2], theme$plot.rounding)
-        blower <- round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding)
-        bupper <- round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding)
-        bt <- ltbl[rownames(ltbl) == row_index, 4]
-        # TODO: Verify method to calculate p values
-        bp <- stats::pt(bt, nrow(model$data) - 1, lower = FALSE)
-
-
-
+      boot_values <-
+        extract_bootstrapped_values(ltbl, row_index, model, theme)
 
 
 
       if (theme$mm.edge.boot.show_t_value) {
-        tvalue <- paste0("t = ", round(bt, theme$plot.rounding))
+        tvalue <-
+          paste0("t = ", round(boot_values[["t"]], theme$plot.rounding))
       }
       if (theme$mm.edge.boot.show_p_value) {
-        pvalue <- paste0("p ", pvalr(bp, html = TRUE))
+        pvalue <- paste0("p ", pvalr(boot_values[["p"]], html = TRUE))
       }
       if (theme$mm.edge.boot.show_p_stars) {
-        stars <- psignr(bp, html = TRUE)
+        stars <- psignr(boot_values[["p"]], html = TRUE)
       }
       if (theme$mm.edge.boot.show_ci) {
-        civalue <- paste0("95% CI [", blower, ", ", bupper, "]")
+        civalue <-
+          paste0("95% CI [", boot_values[["lower"]], ", ", boot_values[["upper"]], "]")
       }
+    } else {
+      # non-bootstrapped version ---
+      tvalue <- ""
+      pvalue <- ""
+      stars <- ""
+      civalue <- ""
     }
 
+    # extract_mm_edge_value gets the correct value for bootstrapped and non bootstrapped models
+    loading <- extract_mm_edge_value(model, theme,
+                                     indicator = manifest_variable,
+                                     construct = construct_variable)
 
+    if (theme$mm.edge.label.show) {
+      edge_label <- format_edge_boot_label(theme$mm.edge.boot.template, letter,
+                                           loading, tvalue, pvalue, stars, civalue)
+    } else {
       edge_label <- ""
-      if (theme$mm.edge.label.show) {
-        #edge_label <- paste0(", label = \"", letter, " = ", loading, "\"")
-
-        edge_label <- paste0(", label = < ",
-          format_edge_boot_label(theme$mm.edge.boot.template, letter, loading, tvalue, pvalue, stars, civalue),
-          ">"
-        )
-      }
-
-      edge_style <- get_value_dependent_mm_edge_style(loading, theme)
-
-      # append edge
-      edges <- paste0(
-        edges,
-        "\"",
-        mm_matrix_subset[i, 2],
-        "\" -> {\"",
-        mm_matrix_subset[i, 1],
-        "\"}",
-        "[weight = ",
-        weights,
-        edge_label,
-        ", penwidth = ",
-        abs(loading * theme$mm.edge.width_multiplier) + theme$mm.edge.width_offset,
-        edge_style,
-        "]\n"
-      )
     }
+
+    edge_style <-
+      get_value_dependent_mm_edge_style(loading, theme)
+
+    # append edge
+    edges <- paste0(
+      edges,
+      "\"",
+      mm_matrix_subset[i, 2],
+      "\" -> {\"",
+      mm_matrix_subset[i, 1],
+      "\"}",
+      "[weight = ",
+      weights,
+      edge_label,
+      ", penwidth = ",
+      abs(loading * theme$mm.edge.width_multiplier) + theme$mm.edge.width_offset,
+      edge_style,
+      "]\n"
+    )
   }
+
 
   return(edges)
 }
+
+
 
 #' Formats the style of the structural model edges
 #'
@@ -1346,16 +1387,8 @@ get_value_dependent_mm_edge_style <- function(value, theme){
 }
 
 
-
-
-
-
-
-
-
-
-
-
+# END ----
+# ___________________  ----
 # EXPERIMENTAL STUFF ----
 
 hyperedge <- function(){
@@ -1365,7 +1398,7 @@ hyperedge <- function(){
   C [label = Moderator]
   empty [label = '', shape = point, width = 0, height = 0]
 
-  A -> empty  [arrowhead = none, weight = 1000]
+  A -> empty  [arrowhead = none, weight = 1000, headlabel = <<BR/>test>]
   empty -> B [weight = 1000]
   C -> empty [constraint = FALSE]
   C -> B

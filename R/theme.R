@@ -2,7 +2,22 @@
 
 #' Create a theme for a seminr graph visualization
 #'
+#' All customizable options are parameters of this function. See the details all the way down for more information.
+#'
+#' You can use the auto-complete feature of your editor to help you find the right parameter.
+#'
+#' General settings start with plot.*
+#'
+#' Measurement model settings start with mm.*
+#'
+#' Structural model settings start with sm.*
+#'
+#' Setting the shape of manifest or construct variables depending on their estimation type
+#' can be found under manifest.* and construct.*
+#'
+#'
 #' @param plot.title.fontsize Font size of the title.
+#' @param plot.title.fontcolor Fontcolor of the title of the plot.
 #' @param plot.fontname Font to be used throughout the plot.
 #' @param plot.splines Whether or not to use splines as edges (default = TRUE).
 #' @param plot.rounding The amount of decimals to keep for rounding (default = 3).
@@ -60,6 +75,7 @@
 #'
 # @examples
 seminr_theme_create <- function(plot.title.fontsize = 24,
+                                plot.title.fontcolor = "black",
                          plot.fontname = "helvetica",
                          plot.splines = TRUE,
                          plot.rounding = 3,
@@ -143,6 +159,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
             is.logical(sm.edge.boot.show_ci))
 
   theme <- list(plot.title = "",
+                plot.title.fontcolor = plot.title.fontcolor,
                 plot.title.fontsize = plot.title.fontsize,
                 plot.fontname = plot.fontname,
                 plot.splines = plot.splines,

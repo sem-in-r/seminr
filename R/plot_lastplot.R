@@ -1,3 +1,5 @@
+# this file contains code to ensure that last_plot works for seminr plots
+
 .plot_store <- function() {
   .last_plot <- NULL
 
