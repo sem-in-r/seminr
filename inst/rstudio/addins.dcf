@@ -1,0 +1,9 @@
+Name: Tweak SEMinR model plot
+Description: Lets you tweak the dot output of a model
+Binding: model_viz
+Interactive: true
+
+Name: Create a custom theme
+Description: Lets you tweak a SEMinR theme
+Binding: custom_theme_addin
+Interactive: true
