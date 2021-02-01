@@ -1,6 +1,17 @@
 # To allow some dot notation here and there
 globalVariables(c("."))
 
+# Naming Conventions ----
+# extract_xxxx extracts information from the model
+# get_xxxx retrieves information from the theme (styles, etc.)
+# format_xxx applies more/less smart formatting to content
+# dot_xxxx generates dot code
+
+
+
+# Main exported methods ----
+
+
 #' Plot various SEMinR models
 #'
 #' With the help of the \code{DiagrammeR} package this dot graph can then be plotted in
@@ -151,7 +162,7 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
 
 }
 
-# DOT GRAPH ----
+# DOT GRAPH (main function)----
 
 #' Generate a dot graph from various SEMinR models
 #'
@@ -472,7 +483,7 @@ dot_graph.pls_model <- function(model,
   thm$mm.node.height <- get_manifest_element_size(model, thm)[2]
 
 
-  # generate components ----
+  # generate components ---
   sm <- ""
   mm <- ""
   # replace needed parts
@@ -496,7 +507,9 @@ dot_graph.pls_model <- function(model,
                   "\n}\n"))
 }
 
+# Needs tweaking ----
 
+# gets the offsets for predefined shapes
 get_mm_element_offset <- function(element) {
   offset_table <- data.frame(
     shape  = c("box", "rectangle", "ellipse", "hexagon"),
@@ -507,6 +520,7 @@ get_mm_element_offset <- function(element) {
   offset_table[offset_table$shape == element, 2:3]
 }
 
+# gets the offsets for predefined shapes
 get_sm_element_offset <- function(element) {
   offset_table <- data.frame(
     shape  = c("box", "rectangle", "ellipse", "hexagon"),
@@ -576,7 +590,7 @@ get_manifest_element_size <- function(model, theme) {
 }
 
 
-# GLOBAL ------------------
+# Graph options ------------------
 
 #' Get dot string for global theme options
 #' @keywords internal
@@ -599,37 +613,62 @@ get_global_style <- function(theme, layout = "dot") {
                   "]\n"))
 }
 
-
+# generic formatting function for bootstrapped edges
 format_edge_boot_label <- function(template, variable, value, tvalue, pvalue, stars, civalue) {
   glue::glue(template)
 }
 
+# generic formatting function for edges
 format_edge_label <- function(template, variable, value) {
   glue::glue(template)
 }
 
-# SM ----------------------
+#' Returns the type of a construct from a model
+#'
+#' @param model the model to get the type from
+#' @param construct the character string name of the construct
+#'
+#' @return Returns a character string
+get_construct_type <- function(model, construct) {
+  #if (!(construct %in% model$constructs)) {
+  #  stop(paste("Construct", construct, "does not exist")) # scaled interactions ?
+  #}
+  if (grepl("\\*", construct)) {
+    return("interaction")
+  }
+  for (i in 1:length(model$measurement_model)) {
+    cst <- model$measurement_model[[i]]
+    # warning interaction are functions do not access their indeces
+    if (!inherits(cst, "function")) {
+      if (cst[[1]] == construct) {
+        construct_type <- cst[[3]]
+      }
+    }
+  }
 
-dot_component_sm_parts <- function(model, theme){
-  #used for plotting measurement models
-  # This is a "hacky" solution. Because we create artificial models
-  # and did not want to create an artificial measurement model
-  # this function is used to plot only the SM part.
-  sm_nodes <- extract_sm_nodes(model, theme)
-  sm_node_style <- get_sm_node_style(theme)
-  glue_dot(paste0("// --------------------\n",
-                  "// The structural model\n",
-                  "// --------------------\n",
-                  "subgraph sm {\n",
-                  "rankdir = LR;\n",
-                  "node [\n",
-                  "<<sm_node_style>>\n",
-                  "]\n",
-                  "<<sm_nodes>>\n",
-                  "}\n"))
+  return(construct_type)
 }
 
-# construct structural model subgraph
+#' extract bootstrapped statistics from an edge using a row_index
+extract_bootstrapped_values <- function(table, row_index, theme) {
+
+  t_value <- ltbl[rownames(ltbl) == row_index, 4]
+
+  list(
+    mean = round(ltbl[rownames(ltbl) == row_index, 2], theme$plot.rounding),
+    lower = round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding),
+    upper = round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding),
+    t = round(t_value, theme$plot.rounding),
+    p = stats::pt(t_value, nrow(model$data) - 1, lower.tail = FALSE)
+  )
+}
+
+
+
+
+# 1. Structural Model ----------------------
+
+# construct structural model using subgraphs
 dot_component_sm <- function(model, theme, structure_only = FALSE) {
   sm_nodes <- extract_sm_nodes(model, theme, structure_only = structure_only)
   sm_node_style <- get_sm_node_style(theme)
@@ -652,8 +691,30 @@ dot_component_sm <- function(model, theme, structure_only = FALSE) {
 }
 
 
+# Special case used when plotting  measurement models (ignores structural model edges!)
+dot_component_sm_parts <- function(model, theme){
+  #used for plotting measurement models
+  # This is a "hacky" solution. Because we create artificial models
+  # and did not want to create an artificial measurement model
+  # this function is used to plot only the SM part.
+  sm_nodes <- extract_sm_nodes(model, theme)
+  sm_node_style <- get_sm_node_style(theme)
+  glue_dot(paste0("// --------------------\n",
+                  "// The structural model\n",
+                  "// --------------------\n",
+                  "subgraph sm {\n",
+                  "rankdir = LR;\n",
+                  "node [\n",
+                  "<<sm_node_style>>\n",
+                  "]\n",
+                  "<<sm_nodes>>\n",
+                  "}\n"))
+}
 
 
+
+
+# 1.1 SM-Nodes ----
 
 #' Helper function that applies formatting to each construct
 #'
@@ -683,49 +744,12 @@ extract_sm_nodes <- function(model, theme, structure_only = F) {
 }
 
 
-#' Helps to render a node label for exogenous variables
-#'
-#' @param theme the theme to use
-#' @param name the content of the name placeholder
-#'
-#' @return Returns the formatted string
-format_exo_node_label <- function(theme, name) {
- glue::glue(theme$sm.node.exo.template)
-}
-
-#' Helps to render a node label for endogenous variables
-#'
-#' @param theme the theme to use
-#' @param name the content of the name placeholder
-#' @param rstring the content of the rstring placeholder
-#'
-#' @return Returns the formatted string
-format_endo_node_label <- function(theme, name, rstring) {
-  glue::glue(theme$sm.node.endo.template)
-}
 
 
 
-#' Get a string to insert into a node specification using the themed shape
-#'
-#' @param model the model to use
-#' @param construct the construct to use
-#' @param theme the theme to use
-#'
-#' @return Returns a string that determines the shape of a node
-get_sm_node_shape <- function(model, construct, theme) {
-  construct_type <- get_construct_type(model, construct)
 
-  result <- switch(construct_type,
-    "interaction" = ", shape = ellipse",
-    "C" = paste0(", shape = ", theme$construct.reflective.shape),
-    "B" = paste0(", shape = ", theme$construct.compositeB.shape),
-    "A" = paste0(", shape = ", theme$construct.compositeA.shape),
-    "HOCA" = paste0(", shape = ", theme$construct.compositeA.shape),
-    "HOCB" = paste0(", shape = ", theme$construct.compositeB.shape)
-  )
-  return(result)
-}
+
+
 
 
 # format structural model node where appropriate
@@ -774,35 +798,7 @@ format_sm_node <- function(construct, model, theme){
 }
 
 
-
-#' Returns the type of a construct from a model
-#'
-#' @param model the model to get the type from
-#' @param construct the character string name of the construct
-#'
-#' @return Returns a character string
-get_construct_type <- function(model, construct) {
-  #if (!(construct %in% model$constructs)) {
-  #  stop(paste("Construct", construct, "does not exist")) # scaled interactions ?
-  #}
-  if (grepl("\\*", construct)) {
-    return("interaction")
-  }
-  for (i in 1:length(model$measurement_model)) {
-    cst <- model$measurement_model[[i]]
-    # warning interaction are functions do not access their indeces
-    if (!inherits(cst, "function")) {
-      if (cst[[1]] == construct) {
-        construct_type <- cst[[3]]
-      }
-    }
-  }
-
-  return(construct_type)
-}
-
-
-
+# returns the style of all SM nodes
 get_sm_node_style <- function(theme) {
   glue_dot(paste0("shape = ellipse,\n",         #fall-back if something breaks
                   "color = <<theme$sm.node.color>>,\n",
@@ -817,49 +813,66 @@ get_sm_node_style <- function(theme) {
 }
 
 
-#' Formats the style of the measurement model edges
+#' Get a string to insert into a node specification using the themed shape
 #'
-#' @param value value to compare for negativity
+#' @param model the model to use
+#' @param construct the construct to use
 #' @param theme the theme to use
 #'
-#' @return Returns the style for the edge (both style and color)
-get_value_dependent_sm_edge_style <- function(value, theme){
-  edge_style <- paste0(", style = ", theme$sm.edge.positive.style,
-                       ", color = ", theme$sm.edge.positive.color)
-  if (value < 0) {
-    edge_style <- paste0(", style = ", theme$sm.edge.negative.style,
-                         ", color = ", theme$sm.edge.negative.color)
-  }
-  edge_style
+#' @return Returns a string that determines the shape of a node
+get_sm_node_shape <- function(model, construct, theme) {
+  construct_type <- get_construct_type(model, construct)
+
+  result <- switch(construct_type,
+                   "interaction" = ", shape = ellipse",
+                   "C" = paste0(", shape = ", theme$construct.reflective.shape),
+                   "B" = paste0(", shape = ", theme$construct.compositeB.shape),
+                   "A" = paste0(", shape = ", theme$construct.compositeA.shape),
+                   "HOCA" = paste0(", shape = ", theme$construct.compositeA.shape),
+                   "HOCB" = paste0(", shape = ", theme$construct.compositeB.shape)
+  )
+  return(result)
 }
 
-#' Formats the style of the structural model edges
+
+#' Helps to render a node label for exogenous variables
 #'
-#' @param value value to compare for negativity
 #' @param theme the theme to use
+#' @param name the content of the name placeholder
 #'
-#' @return Returns the style for the edge (both style and color)
-get_value_dependent_mm_edge_style <- function(value, theme){
-  edge_style <- paste0(", style = ", theme$mm.edge.positive.style,
-                       ", color = ", theme$mm.edge.positive.color)
-  if (value < 0) {
-    edge_style <- paste0(", style = ", theme$mm.edge.negative.style,
-                         ", color = ", theme$mm.edge.negative.color)
-  }
-  edge_style
+#' @return Returns the formatted string
+format_exo_node_label <- function(theme, name) {
+  glue::glue(theme$sm.node.exo.template)
 }
 
-## REFACTORING HERE WE ARE  -----
+#' Helps to render a node label for endogenous variables
+#'
+#' @param theme the theme to use
+#' @param name the content of the name placeholder
+#' @param rstring the content of the rstring placeholder
+#'
+#' @return Returns the formatted string
+format_endo_node_label <- function(theme, name, rstring) {
+  glue::glue(theme$sm.node.endo.template)
+}
+
+
+
+# 1.2 SM-Edges ----
 
 # extract structural model edges from a seminr model
 extract_sm_edges <- function(model, theme, weights = 1) {
 
+  # Get information about model
   nr <- nrow(model$smMatrix)
   nc <- ncol(model$smMatrix)
   sm <- model$smMatrix
+
+  # start with empty set of edges
   sm_edges <- c()
 
   # Unicode for small mathematical symbols
+  # TODO: does not work in <B> sections, yet(?)
   if ( theme$plot.specialcharacters ) {
     beta <- "\U0001D6FD"
     gamma <- "\U0001D6FE" # non-bold
@@ -871,17 +884,16 @@ extract_sm_edges <- function(model, theme, weights = 1) {
 
   # for every path add an edge
   for (i in 1:nrow(sm)) {
-    letter <- beta
+
     if ( !(sm[i,1] %in% colnames(model$rSquared))) {
       letter <- gamma # when it is determined only by exogenous variables use gamma
+    } else {
+      letter <- beta
     }
 
-    # format bootstrapped ----
-    coef <- ""
-    edge_width <- ""
-    edge_style <- ""
-    # get the label
+    # build label components
     if ("boot_seminr_model" %in% class(model)) {
+      # format bootstrapped ---
       # create a summary for summary stats
       smry <- summary(model)
       row_index <- paste0(sm[i, 1], "  ->  ", sm[i,2])
@@ -890,41 +902,36 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       blower <- round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding)
       bupper <- round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding)
       bt <- ltbl[rownames(ltbl) == row_index, 4]
-      # TODO: Verify method to calculate p values
-      bp <- stats::pt(bt, nrow(model$data) - 1, lower = FALSE)
 
+      # TODO: Verify method to calculate p values (seems correct, maybe user land?)
+      bp <- stats::pt(abs(bt), nrow(model$data) - 1, lower.tail = FALSE)
 
-      tvalue <- ""
-      pvalue <- ""
-      civalue <- ""
-      stars <- ""
-
+      # show element depending on theme
       if (theme$sm.edge.boot.show_t_value) {
         tvalue <- paste0("t = ", round(bt, theme$plot.rounding))
-      }
+      } else
+        tvalue <- ""
+
       if (theme$sm.edge.boot.show_p_value) {
         pvalue <- paste0("p ", pvalr(bp, html = TRUE))
-      }
+      } else
+        pvalue <- ""
+
       if (theme$sm.edge.boot.show_p_stars) {
         stars <- psignr(bp, html = TRUE)
-      }
+      } else
+        stars <- ""
+
       if (theme$sm.edge.boot.show_ci) {
         civalue <- paste0("95% CI [", blower, ", ", bupper, "]")
-      }
-
-
-      # Is this code dead?
-      suffix <- paste0(c(tvalue, pvalue, civalue), collapse = "<BR />")
-      if (nchar(suffix) > 0) {
-        fsize <- theme$sm.edge.label.fontsize - 2
-        suffix <- paste0("<BR /><FONT POINT-SIZE='", fsize, "'>", suffix, "</FONT>") # <FONT POINT-SIZE="20"> ?
-      }
+      } else
+        civalue <- ""
 
       edge_width <- paste0(", penwidth = ", abs(bmean * theme$sm.edge.width_multiplier) + theme$sm.edge.width_offset)
       edge_style <- get_value_dependent_sm_edge_style(bmean, theme)
       coef <- bmean
-    } else # format regular pls model ----
-      {
+    } else {
+      # format regular pls model ---
       tvalue <- ""
       pvalue <- ""
       civalue <- ""
@@ -932,20 +939,20 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       coef <- round(model$path_coef[sm[i, 1], sm[i,2]], theme$plot.rounding)
       edge_width <- paste0(", penwidth = ", (abs(coef * theme$sm.edge.width_multiplier) + theme$sm.edge.width_offset))
       edge_style <- get_value_dependent_sm_edge_style(coef, theme)
-      suffix <- ""
     }
-
 
     # build the label
-    edge_label <- ""
     if (theme$sm.edge.label.show) {
-      #edge_label <- paste0(", label = < <B>", letter, " = ", coef, "</B>" , suffix, " >")
-      #cat(edge_label)
       elab <- format_edge_boot_label(theme$sm.edge.boot.template, variable = letter, value = coef, tvalue, pvalue, stars, civalue )
       edge_label <- paste0(", label = < ", elab, " >")
-      #cat(elab)
+    } else {
+      edge_label <- ""
     }
 
+    if (theme$plot.randomizedweights) {
+      # Does this help with determinism in the layout?
+      weights <- weights + stats::runif(1)
+    }
     # add the weight
     edge_weight <- paste0("weight = ", weights)
     sm_edges <- c(sm_edges,
@@ -955,6 +962,8 @@ extract_sm_edges <- function(model, theme, weights = 1) {
   return(sm_edges)
 }
 
+
+# style for all SM edges
 get_sm_edge_style <- function(theme){
   minlen_str <- ""
   if (!is.na(theme$sm.edge.minlen)) {
@@ -972,38 +981,34 @@ get_sm_edge_style <- function(theme){
 
 }
 
-
-# MM ----------------------
-
-
-# TODO: document purpose of this function
-#
-extract_mm_coding <- function(model) {
-  construct_names <- c()
-  construct_types <- c()
-
-  for (construct in unique(model$mmMatrix[,1 ])) {
-    construct_names <- c(construct_names, construct)
-    construct_types <- c(construct_types, get_construct_type(model, construct))
+#' Formats the style of the structural model edges
+#'
+#' @param value value to compare for negativity
+#' @param theme the theme to use
+#'
+#' @return Returns the style for the edge (both style and color)
+get_value_dependent_sm_edge_style <- function(value, theme){
+  edge_style <- paste0(", style = ", theme$sm.edge.positive.style,
+                       ", color = ", theme$sm.edge.positive.color)
+  if (value < 0) {
+    edge_style <- paste0(", style = ", theme$sm.edge.negative.style,
+                         ", color = ", theme$sm.edge.negative.color)
   }
-
-
-  # create output matrix
-  mm_coding <- matrix(nrow = length(construct_names),
-                      ncol = 2,
-                      data = c(construct_names, construct_types))
-  colnames(mm_coding) <- c("name", "type")
-  return(mm_coding)
+  edge_style
 }
 
 
 
+
+# 2. Measurement Model ----------------------
+
+#' Generates the dot code for the measurement model
 dot_component_mm <- function(model, theme) {
   sub_components_mm <- c(paste0("// ---------------------\n",
                                 "// The measurement model\n",
                                 "// ---------------------\n"))
 
-  # use mmMatrix as model$constructs does not contain HOCs
+  # we use mmMatrix because model$constructs does not contain HOCs
   mm_count <- length(unique(model$mmMatrix[,1 ]))
   for (i in 1:mm_count) {
     sub_component <- dot_subcomponent_mm(i, model, theme)
@@ -1014,21 +1019,22 @@ dot_component_mm <- function(model, theme) {
 
 }
 
+#' generates the dot code for a subgraph (per construct)
 dot_subcomponent_mm <- function(index, model, theme) {
-
-  node_style <- get_mm_node_style(theme)
 
   mm_coding <- extract_mm_coding(model)
 
-  # test component type
+  node_style <- get_mm_node_style(theme)
+
+  # test-flags for component types
   is_reflective <- mm_coding[index, 2] == "C"
   is_interaction <- mm_coding[index, 2] == "interaction"
-  is_higher_order <- startsWith(mm_coding[index, 2], "HOC")
+  # is_higher_order <- startsWith(mm_coding[index, 2], "HOC") # maybe we need this later?
 
   # debug: print(mm_coding[index, ])
-  # no measurement for interaction terms or higher order composite scores
+  # no measurement for interaction terms
   # TODO: two-stage interaction
-  if (is_interaction) { # || is_higher_order) {
+  if (is_interaction) {
     return("")
   }
 
@@ -1057,6 +1063,30 @@ dot_subcomponent_mm <- function(index, model, theme) {
 }
 
 
+#' extracts the constructs and their types from the model
+extract_mm_coding <- function(model) {
+  construct_names <- c()
+  construct_types <- c()
+
+  # iterate over all constructs in the mmMatrix
+  for (construct in unique(model$mmMatrix[,1 ])) {
+    construct_names <- c(construct_names, construct)
+    construct_types <- c(construct_types, get_construct_type(model, construct))
+  }
+
+  # create output matrix
+  mm_coding <- matrix(nrow = length(construct_names),
+                      ncol = 2,
+                      data = c(construct_names, construct_types))
+  colnames(mm_coding) <- c("name", "type")
+  return(mm_coding)
+}
+
+
+
+# 2.1 MM-Nodes ----
+
+#' get global measurement model node style
 get_mm_node_style <- function(theme) {
   glue_dot(paste0("shape = box,\n",
                   "color = <<theme$mm.node.color>>,\n",
@@ -1070,6 +1100,52 @@ get_mm_node_style <- function(theme) {
                   "fixedsize = true\n"))
 }
 
+
+
+#' gets the individual nodes and applies formatting
+extract_mm_nodes <- function(index, model, theme) {
+  mm_coding <- extract_mm_coding(model)
+  mm_matrix <- model$mmMatrix
+  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ,drop = FALSE] # Should now always be a matrix
+
+  shape <- get_mm_node_shape(model, mm_matrix_subset[1,1], theme)
+  nodes <- paste0(
+      paste0("\"",mm_matrix_subset[, 2],"\" [label = \"", mm_matrix_subset[, 2], "\"", shape, "]"),
+    collapse = "\n")
+
+  return(nodes)
+}
+
+
+
+#' Get a string to insert into a node specification using the themed shape
+#'
+#' @param model the model to use
+#' @param construct the construct to use
+#' @param theme the theme to use
+#'
+#' @return Returns a string that determines the shape of a node
+get_mm_node_shape <- function(model, construct, theme) {
+  construct_type <- get_construct_type(model, construct)
+
+  result <- switch(construct_type,
+                   "interaction" = ", shape = ellipse",
+                   "C" = paste0(", shape = ", theme$manifest.reflective.shape),
+                   "B" = paste0(", shape = ", theme$manifest.compositeB.shape),
+                   "A" = paste0(", shape = ", theme$manifest.compositeA.shape),
+                   "HOCA" = paste0(", shape = ", theme$manifest.compositeA.shape),
+                   "HOCB" = paste0(", shape = ", theme$manifest.compositeB.shape)
+  )
+  return(result)
+}
+
+
+
+## REFACTORING HERE WE ARE  -----
+
+# 2.2 MM-Edges ----
+
+#' individual styles for measurement model edges
 get_mm_edge_style <- function(theme, forward){
   if (forward) {
     arrowhead <- "normal"
@@ -1098,41 +1174,9 @@ get_mm_edge_style <- function(theme, forward){
 
 
 
-#' Get a string to insert into a node specification using the themed shape
-#'
-#' @param model the model to use
-#' @param construct the construct to use
-#' @param theme the theme to use
-#'
-#' @return Returns a string that determines the shape of a node
-get_mm_node_shape <- function(model, construct, theme) {
-  construct_type <- get_construct_type(model, construct)
-
-  result <- switch(construct_type,
-                   "interaction" = ", shape = ellipse",
-                   "C" = paste0(", shape = ", theme$manifest.reflective.shape),
-                   "B" = paste0(", shape = ", theme$manifest.compositeB.shape),
-                   "A" = paste0(", shape = ", theme$manifest.compositeA.shape),
-                   "HOCA" = paste0(", shape = ", theme$manifest.compositeA.shape),
-                   "HOCB" = paste0(", shape = ", theme$manifest.compositeB.shape)
-  )
-  return(result)
-}
 
 
 
-extract_mm_nodes <- function(index, model, theme) {
-  mm_coding <- extract_mm_coding(model)
-  mm_matrix <- model$mmMatrix
-  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ,drop = FALSE] # Should now always be a matrix
-
-  shape <- get_mm_node_shape(model, mm_matrix_subset[1,1], theme)
-  nodes <- paste0(
-      paste0("\"",mm_matrix_subset[, 2],"\" [label = \"", mm_matrix_subset[, 2], "\"", shape, "]"),
-    collapse = "\n")
-
-  return(nodes)
-}
 
 
 extract_mm_edge_value <- function(model, theme, indicator, construct){
@@ -1185,8 +1229,6 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
       weights <- weights + stats::runif(1)
     }
 
-    # TODO add bootstrapped
-
     manifest_variable <- mm_matrix_subset[i, 2]
     construct_variable = mm_matrix_subset[i, 1]
 
@@ -1226,6 +1268,11 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
         bt <- ltbl[rownames(ltbl) == row_index, 4]
         # TODO: Verify method to calculate p values
         bp <- stats::pt(bt, nrow(model$data) - 1, lower = FALSE)
+
+
+
+
+
 
       if (theme$mm.edge.boot.show_t_value) {
         tvalue <- paste0("t = ", round(bt, theme$plot.rounding))
@@ -1275,6 +1322,31 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
 
   return(edges)
 }
+
+#' Formats the style of the structural model edges
+#'
+#' @param value value to compare for negativity
+#' @param theme the theme to use
+#'
+#' @return Returns the style for the edge (both style and color)
+get_value_dependent_mm_edge_style <- function(value, theme){
+  edge_style <- paste0(", style = ", theme$mm.edge.positive.style,
+                       ", color = ", theme$mm.edge.positive.color)
+  if (value < 0) {
+    edge_style <- paste0(", style = ", theme$mm.edge.negative.style,
+                         ", color = ", theme$mm.edge.negative.color)
+  }
+  edge_style
+}
+
+
+
+
+
+
+
+
+
 
 
 
