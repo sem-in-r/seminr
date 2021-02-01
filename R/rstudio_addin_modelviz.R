@@ -54,7 +54,7 @@ model_viz <- function() {
       observeEvent(input$model, {
         shinyAce::updateAceEditor(session, "dot_code_ace",
                                   value = {
-          model <- dd[[input$model]]
+          model <- all_models()[[input$model]]
           dot_graph(model)
         })
       })
