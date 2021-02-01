@@ -66,7 +66,7 @@ model_viz <- function() {
         if (is.null(all_models())) {
           return(p("No Model found in Environment"))
         }
-        if (length(all_models() == 0)) {
+        if (length(all_models()) == 0) {
           return(p("No Model found in Environment"))
         }
         selectInput("model", 'Choose a model to tweak',
