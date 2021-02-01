@@ -158,8 +158,8 @@ item_metrics <- function(pls_prediction_kfold) {
     apply(pls_prediction_kfold$lm_out_of_sample_residuals, 2, prediction_metrics))
 
   # Assign rownames to matrices
-  rownames(PLS_item_prediction_metrics_IS) <- rownames(PLS_item_prediction_metrics_OOS) <- rownames(LM_item_prediction_metrics_OOS) <- c("RMSE","MAD")
-  rownames(LM_item_prediction_metrics_OOS) <- rownames(LM_item_prediction_metrics_IS) <- c("RMSE","MAD")
+  rownames(PLS_item_prediction_metrics_IS) <- rownames(PLS_item_prediction_metrics_OOS) <- rownames(LM_item_prediction_metrics_OOS) <- c("RMSE","MAE")
+  rownames(LM_item_prediction_metrics_OOS) <- rownames(LM_item_prediction_metrics_IS) <- c("RMSE","MAE")
 
   return(list(PLS_item_prediction_metrics_IS = PLS_item_prediction_metrics_IS,
               PLS_item_prediction_metrics_OOS = PLS_item_prediction_metrics_OOS,
