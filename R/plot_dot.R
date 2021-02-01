@@ -497,6 +497,27 @@ dot_graph.pls_model <- function(model,
 }
 
 
+get_mm_element_offset <- function(element) {
+  offset_table <- data.frame(
+    shape  = c("box", "rectangle", "ellipse", "hexagon"),
+    width  = c(0.0,      0,          0.4,       0.4),
+    height = c(0.05,     0.05,       0.4,       0.3)
+  )
+
+  offset_table[offset_table$shape == element, 2:3]
+}
+
+get_sm_element_offset <- function(element) {
+  offset_table <- data.frame(
+    shape  = c("box", "rectangle", "ellipse", "hexagon"),
+    width  = c(0.2,      0.2,          0.4,       0.4),
+    height = c(0.1,      0.1,         0.4,       0.3)
+  )
+
+  offset_table[offset_table$shape == element, 2:3]
+}
+
+
 # TODO: smarter function to determine minimal offset of all possible options
 # in theme (if one is ellipse all must be 0.4, e.g.)
 # TODO find optimal offsets manually
@@ -510,32 +531,20 @@ dot_graph.pls_model <- function(model,
 #'
 #' @return Returns a two-element vector with c(width, height)
 get_construct_element_size <- function(model, theme) {
-  c_width_offst_r <-
-    switch(theme$construct.reflective.shape,
-    "ellipse" = 0.4,
-    "box" = 0.1,
-    "hexagon" = 0.3
-  )
-  c_width_offst_a <-
-    switch(theme$construct.compositeA.shape,
-           "ellipse" = 0.4,
-           "box" = 0.1,
-           "hexagon" = 0.3
-    )
-  c_width_offst_b <-
-    switch(theme$construct.compositeB.shape,
-           "ellipse" = 0.4,
-           "box" = 0.1,
-           "hexagon" = 0.3
-    )
-  c_width_offst <- max(c_width_offst_r, c_width_offst_a, c_width_offst_b)
+
+  r_offset <- get_sm_element_offset(theme$construct.reflective.shape)
+  a_offset <- get_sm_element_offset(theme$construct.compositeA.shape)
+  b_offset <- get_sm_element_offset(theme$construct.compositeB.shape)
+
+  c_width_offset   <- max(r_offset$width, a_offset$width, b_offset$width)
+  c_height_offset <- max(r_offset$height, a_offset$height, b_offset$height)
 
   construct_width <- max(
     graphics::strwidth(model$constructs,font = theme$sm.node.label.fontsize, units = "in")
-  ) + c_width_offst
+  ) + c_width_offset
   construct_height <- max(
     graphics::strheight(model$constructs,font = theme$sm.node.label.fontsize, units = "in")
-  ) + c_width_offst
+  ) + c_height_offset
 
   c(construct_width, construct_height)
 }
@@ -549,19 +558,19 @@ get_construct_element_size <- function(model, theme) {
 #'
 #' @return Returns a two-element vector with c(width, height)
 get_manifest_element_size <- function(model, theme) {
-  i_width_offst <-
-    switch(theme$manifest.reflective.shape,
-           "ellipse" = 0.4,
-           "box" = 0.1,
-           "hexagon" = 0.3
-    )
+  r_offset <- get_mm_element_offset(theme$manifest.reflective.shape)
+  a_offset <- get_mm_element_offset(theme$manifest.compositeA.shape)
+  b_offset <- get_mm_element_offset(theme$manifest.compositeB.shape)
+
+  i_width_offset   <- max(r_offset$width, a_offset$width, b_offset$width)
+  i_height_offset <- max(r_offset$height, a_offset$height, b_offset$height)
 
   item_width <- max(
     graphics::strwidth(model$mmVariables,font = theme$mm.node.label.fontsize, units = "in")
-  ) + i_width_offst
+  ) + i_width_offset
   item_height <- max(
     graphics::strheight(model$mmVariables,font = theme$mm.node.label.fontsize, units = "in")
-  ) + i_width_offst
+  ) + i_height_offset
 
   c(item_width, item_height)
 }
@@ -1029,7 +1038,7 @@ dot_subcomponent_mm <- function(index, model, theme) {
     edge_style <- get_mm_edge_style(theme, forward = TRUE)
   }
 
-  nodes <- extract_mm_nodes(index, model)
+  nodes <- extract_mm_nodes(index, model, theme)
   edges <- extract_mm_edges(index, model, theme)
 
   sub_component <- glue_dot(paste0(c("subgraph construct_<<index>> {",
@@ -1089,12 +1098,38 @@ get_mm_edge_style <- function(theme, forward){
 
 
 
-extract_mm_nodes <- function(index, model) {
+#' Get a string to insert into a node specification using the themed shape
+#'
+#' @param model the model to use
+#' @param construct the construct to use
+#' @param theme the theme to use
+#'
+#' @return Returns a string that determines the shape of a node
+get_mm_node_shape <- function(model, construct, theme) {
+  construct_type <- get_construct_type(model, construct)
+
+  result <- switch(construct_type,
+                   "interaction" = ", shape = ellipse",
+                   "C" = paste0(", shape = ", theme$manifest.reflective.shape),
+                   "B" = paste0(", shape = ", theme$manifest.compositeB.shape),
+                   "A" = paste0(", shape = ", theme$manifest.compositeA.shape),
+                   "HOCA" = paste0(", shape = ", theme$manifest.compositeA.shape),
+                   "HOCB" = paste0(", shape = ", theme$manifest.compositeB.shape)
+  )
+  return(result)
+}
+
+
+
+extract_mm_nodes <- function(index, model, theme) {
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix
   mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ,drop = FALSE] # Should now always be a matrix
 
-  nodes <- paste0(paste0("\"",mm_matrix_subset[, 2],"\""), collapse = "\n")
+  shape <- get_mm_node_shape(model, mm_matrix_subset[1,1], theme)
+  nodes <- paste0(
+      paste0("\"",mm_matrix_subset[, 2],"\" [label = \"", mm_matrix_subset[, 2], "\"", shape, "]"),
+    collapse = "\n")
 
   return(nodes)
 }
@@ -1125,8 +1160,6 @@ extract_mm_edge_value <- function(model, theme, indicator, construct){
 
 
 extract_mm_edges <- function(index, model, theme, weights = 1000) {
-
-
 
   mm_coding <- extract_mm_coding(model)
   mm_matrix <- model$mmMatrix

@@ -212,7 +212,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
 #' @return The template string
 #' @export
 node_endo_template_default <- function(){
-  paste0("<B>{name}</B>",
+  paste0("<B>{name} </B>",
          "<BR /><FONT POINT-SIZE='10'>{rstring}</FONT>")
 }
 
@@ -222,7 +222,7 @@ node_endo_template_default <- function(){
 #' @return The template string
 #' @export
 node_exo_template_default <- function(){
-  paste0("<B>{name}</B>")
+  paste0("<B>{name} </B>")
 }
 
 

@@ -4,10 +4,12 @@
 \alias{browse_plot}
 \title{Open Edotor graphViz Website with the preloaded in the Browser}
 \usage{
-browse_plot(model)
+browse_plot(model, theme = seminr_theme_get())
 }
 \arguments{
 \item{model}{A SEMinR Model}
+
+\item{theme}{An optional SEMinR theme}
 }
 \description{
 Open Edotor graphViz Website with the preloaded in the Browser
