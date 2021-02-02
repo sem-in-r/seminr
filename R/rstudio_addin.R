@@ -171,7 +171,7 @@ custom_theme_addin <- function() {
     })
 
 
-    all_colors <- reactive({
+    all_colors <- shiny::reactive({
       grDevices::colors()
     })
 
@@ -235,7 +235,7 @@ custom_theme_addin <- function() {
             }
 
         # tooltips ----
-          res <- tags$div(title = get_doc_string(elem_name), ui_elem)
+          res <- shiny::tags$div(title = get_doc_string(elem_name), ui_elem)
           tt <- shinyBS::bsTooltip(ui_name, get_doc_string(elem_name), placement = "top", trigger = "hover",
                   options = NULL)
         #tt <- htmltools::p(get_doc_string(elem_name))

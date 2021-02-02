@@ -22,7 +22,6 @@ Imports:
     glue,
     miniUI,
     shiny,
-    shinyAce,
     clipr,
     colourpicker,
     purrr,
