@@ -19,7 +19,13 @@ Imports:
     parallel,
     lavaan,
     MASS,
-    glue
+    glue,
+    miniUI,
+    shiny,
+    clipr,
+    colourpicker,
+    purrr,
+    shinyBS
 License: GPL-3
 Depends: R (>= 3.5.0)
 LazyData: TRUE
@@ -33,6 +39,7 @@ Suggests:
     rsvg (>= 2.1),
     webp,
     semPlot,
-    vdiffr
+    vdiffr,
+    rstudioapi (>= 0.5)
 VignetteBuilder: knitr
 Encoding: UTF-8

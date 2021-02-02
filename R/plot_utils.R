@@ -87,21 +87,20 @@ psignr <- function(pvals, sig.limit = c(0.05, 0.01, 0.001), html = FALSE){
 #' Open Edotor graphViz Website with the preloaded in the Browser
 #'
 #' @param model A SEMinR Model
-#'
+#' @param theme An optional SEMinR theme
 #' @export
 #'
 #' @examples
 #' \dontrun{
 #' browse_plot(model)
 #' }
-browse_plot <- function(model){
+browse_plot <- function(model, theme = seminr_theme_get()){
   if (!interactive()) {
     stop("This only works in interactive environments")
   }
 
-
   utils::browseURL(
-    utils::URLencode(paste0("http://edotor.net/#", dot_graph(model)))
+    utils::URLencode(paste0("http://edotor.net/#", dot_graph(model, theme = theme)))
     )
 }
 
