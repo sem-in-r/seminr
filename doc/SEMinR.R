@@ -241,17 +241,17 @@ boot_seminr_model <- bootstrap_model(seminr_model = mobi_pls,
                                     nboot = 50, cores = 2, seed = NULL)
 
 # Calculate the 5% confidence interval for mediated path Image -> Expectation -> Satisfaction
-confidence_interval(boot_seminr_model = boot_seminr_model,
-                   from = "Image",
-                   through = c("Expectation", "Satisfaction"),
-                   to = "Complaints",
-                   alpha = 0.05)
+specific_effect_significance(boot_seminr_model = boot_seminr_model,
+                             from = "Image",
+                             through = c("Expectation", "Satisfaction"),
+                             to = "Complaints",
+                             alpha = 0.05)
 
 # Calculate the 10% confidence interval for direct path Image -> Satisfaction
-confidence_interval(boot_seminr_model = boot_seminr_model,
-                   from = "Image",
-                   to = "Satisfaction",
-                   alpha = 0.10)
+specific_effect_significance(boot_seminr_model = boot_seminr_model,
+                             from = "Image",
+                             to = "Satisfaction",
+                             alpha = 0.10)
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  model_summary <- summary(mobi_pls)

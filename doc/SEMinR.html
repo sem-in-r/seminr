@@ -834,13 +834,13 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 #&gt; Image*Value              0.023
 #&gt; 
 #&gt; Reliability:
-#&gt;                     alpha    rhoC     AVE    rhoA
-#&gt; Image             &quot;0.723&quot; &quot;0.818&quot; &quot;0.478&quot; &quot;0.745&quot;
-#&gt; Expectation       &quot;0.452&quot; &quot;0.733&quot; &quot;0.481&quot; &quot;0.462&quot;
-#&gt; Value             &quot;0.824&quot; &quot;0.918&quot; &quot;0.848&quot; &quot;0.858&quot;
-#&gt; Image*Expectation &quot;0.802&quot; &quot;0.833&quot; &quot;0.291&quot; &quot;1.000&quot;
-#&gt; Image*Value       &quot;0.810&quot; &quot;0.918&quot; &quot;0.574&quot; &quot;1.000&quot;
-#&gt; Satisfaction      &quot;0.779&quot; &quot;0.871&quot; &quot;0.693&quot; &quot;0.784&quot;
+#&gt;                   alpha  rhoC   AVE  rhoA
+#&gt; Image             0.723 0.818 0.478 0.745
+#&gt; Expectation       0.452 0.733 0.481 0.462
+#&gt; Value             0.824 0.918 0.848 0.858
+#&gt; Image*Expectation 0.802 0.833 0.291 1.000
+#&gt; Image*Value       0.810 0.918 0.574 1.000
+#&gt; Satisfaction      0.779 0.871 0.693 0.784
 #&gt; 
 #&gt; Alpha, rhoC, and rhoA should exceed 0.7 while AVE should exceed 0.5</code></pre>
 <ol start="2" style="list-style-type: decimal">
@@ -891,7 +891,7 @@ boot_mobi_pls &lt;- bootstrap_model(seminr_model = mobi_pls,
 </div>
 <div id="reporting-confidence-intervals-for-direct-and-mediated-bootstrapped-structural-paths" class="section level2">
 <h2>Reporting confidence intervals for direct and mediated bootstrapped structural paths</h2>
-<p>The <code>summary(boot_seminr_model)</code> function will return t_values and confidence intervals for direct structural paths in PLS models. However, the <code>confidence_interval()</code> function can be used to evaluate the confidence intervals for specific paths - direct and mediated (Zhao et al., 2010) - in a <code>boot_seminr_model</code> object returned by the <code>bootstrap_model()</code> function.</p>
+<p>The <code>summary(boot_seminr_model)</code> function will return the mean estimate, standard deviation, t_value and confidence intervals for direct structural paths in PLS models. However, the <code>specific_effect_significance()</code> function can be used to evaluate the mean estimate, standard deviation, t_value and confidence intervals for specific paths - direct and mediated (Zhao et al., 2010) - in a <code>boot_seminr_model</code> object returned by the <code>bootstrap_model()</code> function.</p>
 <p>This function takes the following parameters:</p>
 <ul>
 <li><code>boot_seminr_model</code>: a bootstrapped SEMinR model returned by <code>bootstrap_model()</code></li>
@@ -932,21 +932,25 @@ boot_seminr_model &lt;- bootstrap_model(seminr_model = mobi_pls,
 #&gt; SEMinR Model successfully bootstrapped
 
 # Calculate the 5% confidence interval for mediated path Image -&gt; Expectation -&gt; Satisfaction
-confidence_interval(boot_seminr_model = boot_seminr_model,
-                   from = &quot;Image&quot;,
-                   through = c(&quot;Expectation&quot;, &quot;Satisfaction&quot;),
-                   to = &quot;Complaints&quot;,
-                   alpha = 0.05)
-#&gt;        2.5%       97.5% 
-#&gt; -0.01168610  0.03706572
+specific_effect_significance(boot_seminr_model = boot_seminr_model,
+                             from = &quot;Image&quot;,
+                             through = c(&quot;Expectation&quot;, &quot;Satisfaction&quot;),
+                             to = &quot;Complaints&quot;,
+                             alpha = 0.05)
+#&gt;  Original Est. Bootstrap Mean   Bootstrap SD        T Stat.       0.05% CI 
+#&gt;     0.01667035     0.01546305     0.01540184     1.08236113    -0.01555677 
+#&gt;      99.95% CI 
+#&gt;     0.04277464
 
 # Calculate the 10% confidence interval for direct path Image -&gt; Satisfaction
-confidence_interval(boot_seminr_model = boot_seminr_model,
-                   from = &quot;Image&quot;,
-                   to = &quot;Satisfaction&quot;,
-                   alpha = 0.10)
-#&gt;        5%       95% 
-#&gt; 0.1087125 0.2747098</code></pre>
+specific_effect_significance(boot_seminr_model = boot_seminr_model,
+                             from = &quot;Image&quot;,
+                             to = &quot;Satisfaction&quot;,
+                             alpha = 0.10)
+#&gt;  Original Est. Bootstrap Mean   Bootstrap SD        T Stat.        0.1% CI 
+#&gt;     0.17873950     0.18747224     0.05468436     3.26856701     0.09996720 
+#&gt;       99.9% CI 
+#&gt;     0.27928629</code></pre>
 </div>
 <div id="reporting-data-descriptive-statistics-and-construct-descriptive-statistics" class="section level2">
 <h2>Reporting data descriptive statistics and construct descriptive statistics</h2>

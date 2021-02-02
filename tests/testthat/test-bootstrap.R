@@ -240,17 +240,17 @@ conf_ints_control <- as.matrix(read.csv(paste(test_folder,"conf_ints.csv", sep =
 
 # Testing
 test_that("Seminr calculates the confidence intervals correctly", {
-  expect_equal(confidence_interval(bootmodel, from = "Image", through = "Expectation", to = "Satisfaction")[[1]],
+  expect_equal(specific_effect_significance(bootmodel, from = "Image", through = "Expectation", to = "Satisfaction")[[5]],
                conf_ints_control[1,1], tolerance = 0.00001)
-  expect_equal(confidence_interval(bootmodel, from = "Image", through = "Expectation", to = "Satisfaction")[[2]],
+  expect_equal(specific_effect_significance(bootmodel, from = "Image", through = "Expectation", to = "Satisfaction")[[6]],
                conf_ints_control[2,1], tolerance = 0.00001)
-  expect_equal(confidence_interval(bootmodel, from = "Image", through = "Expectation", to = "Satisfaction", alpha = 0.1)[[1]],
+  expect_equal(specific_effect_significance(bootmodel, from = "Image", through = "Expectation", to = "Satisfaction", alpha = 0.1)[[5]],
                conf_ints_control[3,1], tolerance = 0.00001)
-  expect_equal(confidence_interval(bootmodel, from = "Image", through = "Expectation", to = "Satisfaction", alpha = 0.1)[[2]],
+  expect_equal(specific_effect_significance(bootmodel, from = "Image", through = "Expectation", to = "Satisfaction", alpha = 0.1)[[6]],
                conf_ints_control[4,1], tolerance = 0.00001)
-  expect_equal(confidence_interval(bootmodel, from = "Image", to = "Satisfaction")[[1]],
+  expect_equal(specific_effect_significance(bootmodel, from = "Image", to = "Satisfaction")[[5]],
                conf_ints_control[5,1], tolerance = 0.00001)
-  expect_equal(confidence_interval(bootmodel, from = "Image", to = "Satisfaction")[[2]],
+  expect_equal(specific_effect_significance(bootmodel, from = "Image", to = "Satisfaction")[[6]],
                conf_ints_control[6,1], tolerance = 0.00001)
 })
 
