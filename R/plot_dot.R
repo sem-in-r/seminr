@@ -473,7 +473,7 @@ dot_graph.pls_model <- function(model,
     thm <- theme
   }
 
-  if (thm$plot.title == ""){
+  if (thm$plot.title == "") {
     thm$plot.title <- title
   }
 
@@ -562,10 +562,10 @@ get_construct_element_size <- function(model, theme) {
   c_height_offset <- max(r_offset$height, a_offset$height, b_offset$height)
 
   construct_width <- max(
-    graphics::strwidth(model$constructs,font = theme$sm.node.label.fontsize, units = "in")
+    graphics::strwidth(model$constructs, font = theme$sm.node.label.fontsize, units = "in")
   ) + c_width_offset
   construct_height <- max(
-    graphics::strheight(model$constructs,font = theme$sm.node.label.fontsize, units = "in")
+    graphics::strheight(model$constructs, font = theme$sm.node.label.fontsize, units = "in")
   ) + c_height_offset
 
   c(construct_width, construct_height)
