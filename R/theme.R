@@ -34,9 +34,11 @@
 #' @param mm.edge.negative.color Color of the measurement model edges, when values are negative.
 #' @param mm.edge.positive.style Style of the measurement model edges, when values are positive.
 #' @param mm.edge.negative.style Style of the measurement model edges, when values are negative.
+#' @param mm.edge.label.show Whether or not to show measurement model edge labels.
 #' @param mm.edge.label.fontsize Font size of the measurement model edge labels.
 #' @param mm.edge.label.fontcolor Font color of the measurement model edge labels.
 #' @param mm.edge.minlen Minimum length of the measurement model edges.
+#' @param mm.edge.width_multiplier The multiplier for measurement model edge penwidth (default = 3).
 #' @param mm.edge.width_offset The minimal width of an edge of the measurement model (default = 0.5).
 #' @param mm.edge.use_outer_weights Whether or not to use outer weights as edge labels in the measurement model.
 #' @param mm.edge.boot.show_t_value Should boot-strapped loadings/weights show a t-value
@@ -61,15 +63,17 @@
 #' @param sm.edge.negative.style Style of the structural model edges, when values are negative.
 #' @param sm.edge.label.fontsize Font size of the structural model edge labels.
 #' @param sm.edge.label.fontcolor Font color of the structural model edge labels.
+#' @param sm.edge.label.show Whether or not to show edge labels on structural model edges.
 #' @param sm.edge.minlen Minimum length of the structural model edges.
 #' @param sm.edge.width_offset The minimal width of an edge of the structural model (default = 0.5).
+#' @param sm.edge.width_multiplier The multiplier for structural model edges (default = 5).
 #' @param construct.reflective.shape Dot shape of reflective constructs
 #' @param construct.compositeA.shape Dot shape of composite constructs using correlation weights
 #' @param construct.compositeB.shape Dot shape of composite constructs using regression weights
 #' @param manifest.reflective.shape Dot shape of manifest variables of reflective constructs
 #' @param manifest.compositeA.shape Dot shape of manifest variables of composite constructs using correlation weights
 #' @param manifest.compositeB.shape Dot shape of manifest variables of composite constructs using regression weights
-#'
+#' @param ... additional parameters (unused)
 #' @return A \code{seminr.theme} object that can be supplied to \code{\link{dot_graph}}
 #' @export
 #'
@@ -93,7 +97,9 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          mm.edge.negative.style = "dashed",
                          mm.edge.label.fontsize = 7,
                          mm.edge.label.fontcolor = "black",
+                         mm.edge.label.show = TRUE,
                          mm.edge.minlen = 1,
+                         mm.edge.width_multiplier = 3,
                          mm.edge.width_offset = 0.5,
                          mm.edge.use_outer_weights = TRUE,
                          mm.edge.boot.show_t_value = FALSE,
@@ -118,14 +124,16 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          sm.edge.negative.style = "dashed",
                          sm.edge.label.fontsize = 9,
                          sm.edge.label.fontcolor = "black",
+                         sm.edge.label.show = TRUE,
                          sm.edge.minlen = NA_integer_,
                          sm.edge.width_offset = 0.5,
+                         sm.edge.width_multiplier = 5,
                          construct.reflective.shape = "ellipse",
                          construct.compositeA.shape = "ellipse",
                          construct.compositeB.shape = "ellipse",
                          manifest.reflective.shape = "box",
                          manifest.compositeA.shape = "box",
-                         manifest.compositeB.shape = "box") {
+                         manifest.compositeB.shape = "box", ...) {
 
   # Do some sanity checks
   color_options <- grDevices::colors()
@@ -158,6 +166,12 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
             is.logical(sm.edge.boot.show_p_value),
             is.logical(sm.edge.boot.show_ci))
 
+  unusedParams <- list(...)
+  if (length(unusedParams))
+    warning('The following parameters are unused or ignored: \n',
+            paste(paste("   -",names(unusedParams), "=", unusedParams), collapse = '\n'),
+            ".\n Either check for typos or remove them to suppress this warning.")
+
   theme <- list(plot.title = "",
                 plot.title.fontcolor = plot.title.fontcolor,
                 plot.title.fontsize = plot.title.fontsize,
@@ -180,8 +194,8 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 mm.edge.negative.style = mm.edge.negative.style,
                 mm.edge.label.fontsize = mm.edge.label.fontsize,
                 mm.edge.label.fontcolor = mm.edge.label.fontcolor,
-                mm.edge.label.show = TRUE,
-                mm.edge.width_multiplier = 3,
+                mm.edge.label.show = mm.edge.label.show,
+                mm.edge.width_multiplier = mm.edge.width_multiplier,
                 mm.edge.width_offset = mm.edge.width_offset,
                 mm.edge.minlen = mm.edge.minlen,
                 mm.edge.use_outer_weights = mm.edge.use_outer_weights,
@@ -204,13 +218,13 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 sm.edge.negative.style = sm.edge.negative.style,
                 sm.edge.label.fontsize = sm.edge.label.fontsize,
                 sm.edge.label.fontcolor = sm.edge.label.fontcolor,
-                sm.edge.label.show = TRUE,
+                sm.edge.label.show = sm.edge.label.show,
                 sm.edge.boot.show_t_value = sm.edge.boot.show_t_value,
                 sm.edge.boot.show_p_value = sm.edge.boot.show_p_value,
                 sm.edge.boot.show_p_stars = sm.edge.boot.show_p_stars,
                 sm.edge.boot.show_ci = sm.edge.boot.show_ci,
                 sm.edge.boot.template = sm.edge.boot.template,
-                sm.edge.width_multiplier = 5,
+                sm.edge.width_multiplier = sm.edge.width_multiplier,
                 sm.edge.width_offset = 0.5,
                 sm.edge.minlen = sm.edge.minlen,
                 construct.reflective.shape = construct.reflective.shape,

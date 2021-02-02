@@ -473,7 +473,9 @@ dot_graph.pls_model <- function(model,
     thm <- theme
   }
 
-  thm$plot.title <- title
+  if (thm$plot.title == ""){
+    thm$plot.title <- title
+  }
 
   global_style <- get_global_style(theme = thm)
 
