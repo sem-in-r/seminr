@@ -7,8 +7,8 @@
 #' @export
 #'
 model_viz <- function() {
-  library(shiny)
-  library(miniUI)
+  #library(shiny)
+  #library(miniUI)
 
   # Our ui will be a simple gadget page, which
   # simply displays the time in a 'UI' output.

@@ -24,7 +24,9 @@ seminr_theme_create(
   mm.edge.negative.style = "dashed",
   mm.edge.label.fontsize = 7,
   mm.edge.label.fontcolor = "black",
+  mm.edge.label.show = TRUE,
   mm.edge.minlen = 1,
+  mm.edge.width_multiplier = 3,
   mm.edge.width_offset = 0.5,
   mm.edge.use_outer_weights = TRUE,
   mm.edge.boot.show_t_value = FALSE,
@@ -49,14 +51,17 @@ seminr_theme_create(
   sm.edge.negative.style = "dashed",
   sm.edge.label.fontsize = 9,
   sm.edge.label.fontcolor = "black",
-  sm.edge.minlen = NA,
+  sm.edge.label.show = TRUE,
+  sm.edge.minlen = NA_integer_,
   sm.edge.width_offset = 0.5,
+  sm.edge.width_multiplier = 5,
   construct.reflective.shape = "ellipse",
   construct.compositeA.shape = "ellipse",
   construct.compositeB.shape = "ellipse",
   manifest.reflective.shape = "box",
   manifest.compositeA.shape = "box",
-  manifest.compositeB.shape = "box"
+  manifest.compositeB.shape = "box",
+  ...
 )
 }
 \arguments{
@@ -99,7 +104,11 @@ minimal random weights to the measurement model. Can help with determinism in pl
 
 \item{mm.edge.label.fontcolor}{Font color of the measurement model edge labels.}
 
+\item{mm.edge.label.show}{Whether or not to show measurement model edge labels.}
+
 \item{mm.edge.minlen}{Minimum length of the measurement model edges.}
+
+\item{mm.edge.width_multiplier}{The multiplier for measurement model edge penwidth (default = 3).}
 
 \item{mm.edge.width_offset}{The minimal width of an edge of the measurement model (default = 0.5).}
 
@@ -149,9 +158,13 @@ minimal random weights to the measurement model. Can help with determinism in pl
 
 \item{sm.edge.label.fontcolor}{Font color of the structural model edge labels.}
 
+\item{sm.edge.label.show}{Whether or not to show edge labels on structural model edges.}
+
 \item{sm.edge.minlen}{Minimum length of the structural model edges.}
 
 \item{sm.edge.width_offset}{The minimal width of an edge of the structural model (default = 0.5).}
+
+\item{sm.edge.width_multiplier}{The multiplier for structural model edges (default = 5).}
 
 \item{construct.reflective.shape}{Dot shape of reflective constructs}
 
@@ -164,6 +177,8 @@ minimal random weights to the measurement model. Can help with determinism in pl
 \item{manifest.compositeA.shape}{Dot shape of manifest variables of composite constructs using correlation weights}
 
 \item{manifest.compositeB.shape}{Dot shape of manifest variables of composite constructs using regression weights}
+
+\item{...}{additional parameters (unused)}
 }
 \value{
 A \code{seminr.theme} object that can be supplied to \code{\link{dot_graph}}

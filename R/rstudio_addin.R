@@ -1,9 +1,9 @@
 colhex2col <- function(colhex) {
   # Convert hex to RGB
-  mycol   <- col2rgb(colhex)
+  mycol   <- grDevices::col2rgb(colhex)
   # Convert all x11 colors to RGB, adn transform
-  all_colors <- data.frame(col2rgb(grDevices::colors()))
-  all_colors <- setNames(all_colors, grDevices::colors())
+  all_colors <- data.frame(grDevices::col2rgb(grDevices::colors()))
+  all_colors <- stats::setNames(all_colors, grDevices::colors())
 
   by_rgb <- data.frame(t(all_colors))
   by_rgb <- sort(apply(by_rgb,1, function(x) sum(abs(x - mycol)) ))
@@ -11,54 +11,88 @@ colhex2col <- function(colhex) {
   names(by_rgb[1])
 }
 
+#
+# TODO: Addin.css ?
+# Manual Tool tips
+#
+#
+
+
 
 #' Starts the model viewer in RStudio
 #'
 #' @return the updated dot code
-#' @import shiny
-#' @import shinyAce
-#' @import miniUI
 #' @export
 #'
 custom_theme_addin <- function() {
-  library(shiny)
-  library(miniUI)
 
+  #shiny::addResourcePath("sbs", system.file("www", package = "shinyBS"))
+  # starting theme
   initial_theme <- seminr_theme_create()
+  # these options can not be set in themes
+  ignored_theme_options <-
+    c("plot.title",
+      "mm.node.height",
+      "mm.node.width",
+      "sm.node.height",
+      "sm.node.width")
+
+  all_shapes <- c("box", "circle", "ellipse", "hexagon", "pentagon", "octogon", "triangle")
+
+  theme_doc <- rbind(get_theme_doc(),
+                     param = c("plot.title", "The plot title. Not saved in theme!"))
 
   # Our ui will be a simple gadget page, which
   # simply displays the time in a 'UI' output.
-  ui <- miniPage(
-    gadgetTitleBar("SEMinR Model Builder"),
-    miniTabstripPanel(
-      miniTabPanel("Plot Parameters", icon = icon("sliders"),
-                   miniContentPanel(scrollable = TRUE,
-                                      fillRow(flex = c(1,2),
-                                            uiOutput("theme_editor_ui_plot"),
+  ui <- miniUI::miniPage(
+    #includeCSS("addin.css"),
+    miniUI::gadgetTitleBar("SEMinR Theme Builder",
+                     right = miniUI::miniTitleBarButton("done", "Copy to Clipboard", primary = TRUE)),
+    miniUI::miniTabstripPanel(
+      miniUI::miniTabPanel("General Settings", icon = shiny::icon("sliders"),
+                           miniUI::miniContentPanel(scrollable = TRUE,
+                                      shiny::fillRow(flex = c(1,2),
+                                            shiny::uiOutput("theme_editor_ui_plot"),
                                             DiagrammeR::grVizOutput("dot_plot", width = "100%", height = "100%")
                                             )
                                     )
                    ),
-      miniTabPanel("Structural Model Parameters", icon = icon("sliders"),
-                 miniContentPanel(scrollable = TRUE,
-                                  fillRow(flex = c(1,2),
-                                          uiOutput("theme_editor_ui_sm"),
-                                          DiagrammeR::grVizOutput("dot_sm", width = "100%", height = "100%")
+      miniUI::miniTabPanel("Construct Settings", icon = shiny::icon("box"),
+                           miniUI::miniContentPanel(scrollable = TRUE,
+                                  shiny::fillRow(flex = c(1,2),
+                                          shiny::uiOutput("theme_editor_ui_sm_node"),
+                                          DiagrammeR::grVizOutput("dot_sm_node", width = "100%", height = "100%")
                                   )
                  )
       ),
-     miniTabPanel("Measurement Model Parameters", icon = icon("sliders"),
-                  miniContentPanel(scrollable = TRUE,
-                                   fillRow(flex = c(1,2),
-                                           uiOutput("theme_editor_ui_mm"),
-                                           DiagrammeR::grVizOutput("dot_mm", width = "100%", height = "100%")
+      miniUI::miniTabPanel("Path Settings", icon = shiny::icon("project-diagram"),
+                           miniUI::miniContentPanel(scrollable = TRUE,
+                                    shiny::fillRow(flex = c(1,2),
+                                            shiny::uiOutput("theme_editor_ui_sm_edge"),
+                                            DiagrammeR::grVizOutput("dot_sm_edge", width = "100%", height = "100%")
+                                    )
+                   )
+      ),
+      miniUI::miniTabPanel("Manifest Variable Settings", icon = shiny::icon("ruler"),
+                           miniUI::miniContentPanel(scrollable = TRUE,
+                                   shiny::fillRow(flex = c(1,2),
+                                           shiny::uiOutput("theme_editor_ui_mm_node"),
+                                           DiagrammeR::grVizOutput("dot_mm_node", width = "100%", height = "100%")
                                    )
                   )
       ),
-     miniTabPanel("Copy Theme Code", icon = icon("clipboard"),
-                  miniContentPanel(scrollable = TRUE,
-                                   fillRow(flex = c(1,2),
-                                           verbatimTextOutput("theme_code"),
+      miniUI::miniTabPanel("Loadings Settings", icon = shiny::icon("weight-hanging"),
+                           miniUI::miniContentPanel(scrollable = TRUE,
+                                    shiny::fillRow(flex = c(1,2),
+                                            shiny::uiOutput("theme_editor_ui_mm_edge"),
+                                            DiagrammeR::grVizOutput("dot_mm_edge", width = "100%", height = "100%")
+                                    )
+                   )
+      ),
+      miniUI::miniTabPanel("Inspect Theme Code", icon = shiny::icon("clipboard"),
+                           miniUI::miniContentPanel(scrollable = TRUE,
+                                   shiny::fillRow(flex = c(1,1),
+                                           shiny::verbatimTextOutput("theme_code"),
                                            DiagrammeR::grVizOutput("dot_code", width = "100%", height = "100%")
                                    )
                   )
@@ -73,10 +107,10 @@ custom_theme_addin <- function() {
   server <- function(input, output, session) {
 
 
-    rv <- reactiveValues()
+    rv <- shiny::reactiveValues()
     rv$sem <- 0
 
-    my_model <- reactive({
+    my_model <- shiny::reactive({
       set.seed(123)
       mobi <- mobi
 
@@ -102,15 +136,15 @@ custom_theme_addin <- function() {
     })
 
 
-    theme_elements <- reactive({
+    theme_elements <- shiny::reactive({
       elem_names <- names(initial_theme)
       elem_names
     })
 
 
     # adjust the theme ----
-    my_theme <- reactive({
-      allinputs <- reactiveValuesToList(input)
+    my_theme <- shiny::reactive({
+      allinputs <- shiny::reactiveValuesToList(input)
       elem_names <- names(allinputs)
 
       params <- c()
@@ -120,7 +154,8 @@ custom_theme_addin <- function() {
           idx <- as.numeric(substr(elem_names[i], 9, 12))
           var_label <- theme_elements()[idx]
           input_content <- allinputs[i]
-          print(paste(var_label, ":", input_content))
+
+          #print(paste(var_label, ":", input_content))
 
           params <- c(params, input_content)
           param_names <- c(param_names, var_label)
@@ -130,7 +165,7 @@ custom_theme_addin <- function() {
       params <- structure(as.list(params), names = param_names)
 
 
-      initial_theme <<- modifyList(initial_theme, params)
+      initial_theme <<- utils::modifyList(initial_theme, params)
 
       initial_theme
     })
@@ -145,11 +180,11 @@ custom_theme_addin <- function() {
       colourpicker::colourInput(ui_name, label, value = value,
                                 palette = "limited", returnName = TRUE,
                                 allowedCols = grDevices::colours(distinct = T))
-      #shinyWidgets::colorSelectorDrop(ui_name, label, choices = all_colors(),
-      #                                 selected = value, display_label = T,
-      #                                circle = FALSE, ncol = 20)
-
       )
+    }
+
+    shape_picker <- function(ui_name, label, value) {
+      shiny::selectInput(ui_name, label, choices = all_shapes, selected = value)
     }
 
 
@@ -168,14 +203,22 @@ custom_theme_addin <- function() {
 
 
         ui_elem <- NULL
-        if (startsWith(elem_name, prefix)) {
+
+        # allow for vector of prefixes (complicated?)
+        pref_contained <- 0
+        for (pref in prefix) {
+          if (startsWith(elem_name, pref)) pref_contained <- pref_contained + 1
+        }
+        if (pref_contained > 0) {
 
         if (elem_type == "logical") {
-          ui_elem <- checkboxInput(ui_name, label = elem_name, value = thm[[elem]])
+          ui_elem <- shiny::checkboxInput(ui_name, label = elem_name, value = thm[[elem]])
         } else
           if (elem_type == "character") {
             if (thm[[elem]] %in% c(all_colors(), "transparent")) {
               ui_elem <- color_picker(ui_name, label = elem_name, value = thm[[elem]])
+            } else if (endsWith(elem_name, "shape")) {
+              ui_elem <- shape_picker(ui_name, label = elem_name, value = thm[[elem]])
             } else {
               ui_elem <- shiny::textInput(ui_name, label = elem_name, value = thm[[elem]])
             }
@@ -190,19 +233,40 @@ custom_theme_addin <- function() {
 
               print(paste(elem_type, "no idea?"))
             }
-        }
 
-        output_elements <- list(output_elements, ui_elem)
+        # tooltips ----
+          res <- tags$div(title = get_doc_string(elem_name), ui_elem)
+          tt <- shinyBS::bsTooltip(ui_name, get_doc_string(elem_name), placement = "top", trigger = "hover",
+                  options = NULL)
+        #tt <- htmltools::p(get_doc_string(elem_name))
+        output_elements <- list(output_elements, res) #ui_elem, tt)
+        }
       }
 
       list(output_elements)
     }
 
+    get_doc_string <- function(x) {
+      theme_doc[theme_doc$param == x,]$description
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     # outputs----
 
-    output$theme_editor_ui_plot <- renderUI({
+    output$theme_editor_ui_plot <- shiny::renderUI({
       generate_ui()
     })
 
@@ -210,25 +274,75 @@ custom_theme_addin <- function() {
       plot(my_model(), theme = my_theme())
     })
 
-    output$theme_editor_ui_sm <- renderUI({
-      generate_ui("sm")
+    output$theme_editor_ui_sm_node <- shiny::renderUI({
+      generate_ui(c("sm.node", "construct."))
     })
 
-    output$dot_sm <- DiagrammeR::renderGrViz({
+    output$dot_sm_node <- DiagrammeR::renderGrViz({
       plot(my_model(), theme = my_theme())
     })
 
-    output$theme_editor_ui_mm <- renderUI({
-      generate_ui("mm")
+    output$theme_editor_ui_sm_edge <- shiny::renderUI({
+      generate_ui("sm.edge")
     })
 
-    output$dot_mm <- DiagrammeR::renderGrViz({
+    output$dot_sm_edge <- DiagrammeR::renderGrViz({
+      plot(my_model(), theme = my_theme())
+    })
+
+    output$theme_editor_ui_mm_node <- shiny::renderUI({
+      generate_ui(c("mm.node", "manifest."))
+    })
+
+    output$dot_mm_node <- DiagrammeR::renderGrViz({
+      plot(my_model(), theme = my_theme())
+    })
+
+    output$theme_editor_ui_mm_edge <- shiny::renderUI({
+      generate_ui("mm.edge")
+    })
+
+    output$dot_mm_edge <- DiagrammeR::renderGrViz({
       plot(my_model(), theme = my_theme())
     })
 
 
-    output$theme_code <- renderPrint({
-      print(my_theme())
+    # generate output code ----
+    gen_code <- function(){
+      thm <- my_theme()
+
+      param_string <- ""
+
+      for (i in 1:length(thm)) {
+        params <- thm[[i]]
+        param_names <- names(thm)[[i]]
+        if (param_names %in% ignored_theme_options) {
+          next
+        }
+        if (typeof(params) == "character") {
+          param_string <- paste0(param_string,
+                                 param_names, " = ",
+                                 "\"", params, "\",\n\t")
+
+        } else {
+          param_string <- paste0(param_string,
+                                 param_names, " = ",
+                                 params, ",\n\t")
+        }
+      }
+      # remove additional comma
+      param_string <- substr(param_string, 1, nchar(param_string) - 3)
+
+      res <- paste0(
+        "seminr_theme_create(\n\t",
+        param_string,
+        "\n\t)"
+      )
+      res
+    }
+
+    output$theme_code <- shiny::renderPrint({
+      cat(gen_code())
     })
 
     output$dot_code <- DiagrammeR::renderGrViz({
@@ -237,14 +351,15 @@ custom_theme_addin <- function() {
 
 
 
-    observeEvent(input$done, {
+    shiny::observeEvent(input$done, {
 
       # Here is where your Shiny application might now go an affect the
       # contents of a document open in RStudio, using the `rstudioapi` package.
       #
       # At the end, your application should call 'stopApp()' here, to ensure that
       # the gadget is closed after 'done' is clicked.
-      stopApp()
+      clipr::write_clip(gen_code())
+      shiny::stopApp()
     })
 
   }
@@ -255,7 +370,7 @@ custom_theme_addin <- function() {
 
 }
 
-if (TRUE) {
+if (FALSE) {
   custom_theme_addin()
 }
 
