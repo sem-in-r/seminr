@@ -1,4 +1,3 @@
-
 # lav_syntax <- '
 #   # Structural model
 #   EXPE ~ IMAG
@@ -18,22 +17,22 @@
 #   LOY  =~ loy1  + loy2  + loy3  + loy4
 # '
 
-lavaan2seminr <- function(lav_syntax) {
+lavaan2seminr <- csem2seminr <- function(lav_syntax) {
   lav_model <- lavaan::lavaanify(model = lav_syntax)
 
-  lav_relationships <- subset(csem_model, op == "~")
-  lav_composites    <- subset(csem_model, op == "<~")
-  lav_reflectives   <- subset(csem_model, op == "=~")
+  lav_relationships <- subset(lav_model, op == "~")
+  lav_composites    <- subset(lav_model, op == "<~")
+  lav_reflectives   <- subset(lav_model, op == "=~")
 
   composites  <- lav_constructs(lav_composites, csem_composite)
   reflectives <- lav_constructs(lav_reflectives, reflective)
   structural  <- lav_paths(lav_relationships)
 
   seminr_constructs <- do.call(constructs, c(composites, reflectives))
-  seminr_paths <- do.call(relationships, structural)
+  seminr_relationships <- do.call(relationships, structural)
 
-  list(measurement_model = seminr_constructs,
-       structural_model  = seminr_paths)
+  specify_model(measurement_model = seminr_constructs,
+                structural_model  = seminr_relationships)
 }
 
 lav_constructs <- function(lav_constructs, construct_func) {
@@ -53,7 +52,7 @@ csem_composite <- function(construct_name, item_names) {
 }
 
 lav_items <- function(constr, lav_constructs) {
-  lav_composites[lav_composites$lhs == constr,]$rhs
+  lav_constructs[lav_constructs$lhs == constr,]$rhs
 }
 
 lav_composite <- function(lav_constructs, constr) {
