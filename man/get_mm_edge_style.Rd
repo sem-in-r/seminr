@@ -4,12 +4,12 @@
 \alias{get_mm_edge_style}
 \title{individual styles for measurement model edges}
 \usage{
-get_mm_edge_style(theme, forward)
+get_mm_edge_style(theme, construct_type)
 }
 \arguments{
 \item{theme}{the theme to use}
 
-\item{forward}{Forward direction?}
+\item{construct_type}{Forward direction?}
 }
 \description{
 individual styles for measurement model edges

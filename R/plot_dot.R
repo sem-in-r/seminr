@@ -324,6 +324,12 @@ dot_graph.measurement_model <-
                                                        unique(mmodel$construct) ),
                                        nrow = length(unique(mmodel$measurement) )
                                        ),
+                outer_loadings = matrix(c(1), # add only 1s
+                                       ncol = length(unique(mmodel$construct) ),
+                                       dimnames = list(unique(mmodel$measurement),
+                                                       unique(mmodel$construct) ),
+                                       nrow = length(unique(mmodel$measurement) )
+                ),
                 constructs = unique(mmodel$construct),
                 mmVariables = unique(mmodel$measurement)
   )
@@ -630,7 +636,7 @@ get_construct_type <- function(model, construct) {
   }
   for (i in 1:length(model$measurement_model)) {
     cst <- model$measurement_model[[i]]
-    # warning interaction are functions do not access their indeces
+    # warning interaction are functions do not access their indexes
     if (!inherits(cst, "function")) {
       if (cst[[1]] == construct) {
         construct_type <- cst[[3]]
@@ -1066,18 +1072,22 @@ dot_subcomponent_mm <- function(index, model, theme) {
   is_interaction <- mm_coding[index, 2] == "interaction"
   # is_higher_order <- startsWith(mm_coding[index, 2], "HOC") # maybe we need this later?
 
-  # debug: print(mm_coding[index, ])
+  # debug:
+  # print(mm_coding[index, ])
   # no measurement for interaction terms
   # TODO: two-stage interaction
   if (is_interaction) {
     return("")
   }
 
-  if (is_reflective) {
-    edge_style <- get_mm_edge_style(theme, forward = FALSE)
-  } else {
-    edge_style <- get_mm_edge_style(theme, forward = TRUE)
-  }
+  #if (is_reflective) {
+  #  edge_style <- get_mm_edge_style(theme, forward = FALSE)
+  #} else {
+  #  edge_style <- get_mm_edge_style(theme, forward = TRUE)
+  #}
+
+  construct_type <- get_construct_type(model, mm_coding[index, 1])
+  edge_style <- get_mm_edge_style(theme, construct_type)
 
   nodes <- extract_mm_nodes(index, model, theme)
   edges <- extract_mm_edges(index, model, theme)
@@ -1191,14 +1201,32 @@ get_mm_node_shape <- function(model, construct, theme) {
 #' individual styles for measurement model edges
 #'
 #' @param theme the theme to use
-#' @param forward Forward direction?
-get_mm_edge_style <- function(theme, forward){
-  if (forward) {
+#' @param construct_type Forward direction?
+get_mm_edge_style <- function(theme, construct_type){
+
+  # read direction for matching construct type from theme
+  if (construct_type == "C") {
+    direction <- theme$construct.reflective.arrow
+  }
+  if (construct_type == "A" || construct_type == "HOCA") {
+    direction <- theme$construct.compositeA.arrow
+  }
+  if (construct_type == "B" || construct_type == "HOCB") {
+    direction <- theme$construct.compositeB.arrow
+  }
+
+  # generate arrows from direction
+  if (direction == "forward") {
     arrowhead <- "normal"
     arrowtail <- "none"
-  } else {
+  }
+  if (direction == "backward") {
     arrowhead <- "none"
     arrowtail <- "normal"
+  }
+  if (direction == "none") {
+    arrowhead <- "none"
+    arrowtail <- "none"
   }
 
   if (!is.na(theme$mm.edge.minlen)) {
@@ -1227,9 +1255,13 @@ get_mm_edge_style <- function(theme, forward){
 #' @param indicator the indicator to use
 #' @param construct the construct to use
 extract_mm_edge_value <- function(model, theme, indicator, construct){
+
+  use_weights <- use_construct_weights(theme,
+                                       get_construct_type(model, construct))
+
   if ("boot_seminr_model" %in% class(model)) {
     boot_construct <- paste0(construct, " Boot Mean")
-    if (theme$mm.edge.use_outer_weights) {
+    if (use_weights) {
       loading <-
         round(model$weights_descriptives[indicator, boot_construct], theme$plot.rounding)
     } else {
@@ -1238,7 +1270,7 @@ extract_mm_edge_value <- function(model, theme, indicator, construct){
     }
   }
   if ("pls_model" %in% class(model)) {
-    if (theme$mm.edge.use_outer_weights) {
+    if (use_weights) {
       loading <-
         round(model$outer_weights[indicator, construct], theme$plot.rounding)
     } else {
@@ -1247,6 +1279,31 @@ extract_mm_edge_value <- function(model, theme, indicator, construct){
     }
   }
   return(loading)
+}
+
+
+
+
+#' Should a construct type use weights or loadings
+#'
+#' @param theme The theme to use
+#' @param construct_type the construct type to test
+#'
+#' @return TRUE if weights should be used, FALSE if loadings
+#' @keywords internal
+#'
+use_construct_weights <- function(theme, construct_type) {
+  if (construct_type == "C") {
+    return(theme$construct.reflective.use_weights)
+  }
+  if (construct_type == "A" || construct_type == "HOCA") {
+    return(theme$construct.compositeA.use_weights)
+  }
+  if (construct_type == "B" || construct_type == "HOCB") {
+    return(theme$construct.compositeB.use_weights)
+  }
+
+
 }
 
 
@@ -1264,6 +1321,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
   # get row_index of all matching mm_matrix rows
   matching_rows <- mm_matrix[, 1] == mm_coding[index, 1]
   mm_matrix_subset <- mm_matrix[matching_rows, ,drop = FALSE]
+
   edges <- ""
 
   # determine letter to use (What is with A and B type constructs?)
@@ -1284,16 +1342,20 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     manifest_variable <- mm_matrix_subset[i, 2]
     construct_variable = mm_matrix_subset[i, 1]
 
+    use_weights <- use_construct_weights(theme,
+                                         get_construct_type(model, construct_variable))
+
 
     # If interaction variable, we skip
     if (grepl("\\*", manifest_variable)) {
       next
     }
 
-    letter <- "w"
-    # if construct is reflective?
-    if (mm_matrix_subset[i, 3] == "C") {
-      letter <- lambda
+
+    letter <- lambda
+    # Should I use weights?
+    if (use_weights) {
+      letter <- "w"
     }
 
     if (inherits(model, "boot_seminr_model")) {
@@ -1302,7 +1364,10 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
       row_index <-
         paste0(manifest_variable, "  ->  ", construct_variable)
       ltbl <- smry$bootstrapped_loadings
-      if (theme$mm.edge.use_outer_weights) {
+
+      use_weights <- use_construct_weights(theme,
+                                           get_construct_type(model, construct_variable))
+      if (use_weights) {
         ltbl <- smry$bootstrapped_weights
       }
 
