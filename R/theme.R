@@ -68,8 +68,14 @@
 #' @param sm.edge.width_offset The minimal width of an edge of the structural model (default = 0.5).
 #' @param sm.edge.width_multiplier The multiplier for structural model edges (default = 5).
 #' @param construct.reflective.shape Dot shape of reflective constructs
+#' @param construct.reflective.arrow Direction of the arrow for reflective constructs. Can be forward, backward (default), or none.
+#' @param construct.reflective.use_weights Should measurements from reflective constructs show weights (TRUE) or loadings (FALSE: default).
 #' @param construct.compositeA.shape Dot shape of composite constructs using correlation weights
+#' @param construct.compositeA.arrow Direction of the arrow for constructs using correlation weight (default: forward)
+#' @param construct.compositeA.use_weights Should measurements from constructs using correlation weights show weights (TRUE: default) or loadings (FALSE).
 #' @param construct.compositeB.shape Dot shape of composite constructs using regression weights
+#' @param construct.compositeB.arrow Direction of the arrow for constructs using regression weights (default: forward)
+#' @param construct.compositeB.use_weights Should measurements from constructs using regression weights show weights (TRUE: default) or loadings (FALSE).
 #' @param manifest.reflective.shape Dot shape of manifest variables of reflective constructs
 #' @param manifest.compositeA.shape Dot shape of manifest variables of composite constructs using correlation weights
 #' @param manifest.compositeB.shape Dot shape of manifest variables of composite constructs using regression weights
@@ -129,8 +135,14 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          sm.edge.width_offset = 0.5,
                          sm.edge.width_multiplier = 5,
                          construct.reflective.shape = "ellipse",
+                         construct.reflective.arrow = "backward",
+                         construct.reflective.use_weights = FALSE,
                          construct.compositeA.shape = "ellipse",
+                         construct.compositeA.arrow = "forward",
+                         construct.compositeA.use_weights = TRUE,
                          construct.compositeB.shape = "ellipse",
+                         construct.compositeB.arrow = "forward",
+                         construct.compositeB.use_weights = TRUE,
                          manifest.reflective.shape = "box",
                          manifest.compositeA.shape = "box",
                          manifest.compositeB.shape = "box", ...) {
@@ -141,6 +153,12 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
   if (grepl(" ", plot.fontname)) {
     plot.fontname <- paste0("'", plot.fontname, "'")
   }
+
+  stopifnot("Arrows can be one of: forward, backward, none." = {
+    construct.reflective.arrow %in% c("forward", "backward", "none") &&
+    construct.compositeA.arrow %in% c("forward", "backward", "none") &&
+      construct.compositeB.arrow %in% c("forward", "backward", "none")
+  })
 
   stopifnot("Illegal color-value. Use grDevices::colors() to find legal colors." = {
     mm.node.color %in% color_options &&
@@ -228,8 +246,14 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 sm.edge.width_offset = 0.5,
                 sm.edge.minlen = sm.edge.minlen,
                 construct.reflective.shape = construct.reflective.shape,
+                construct.reflective.arrow = construct.reflective.arrow,
+                construct.reflective.use_weights = construct.reflective.use_weights,
                 construct.compositeA.shape = construct.compositeA.shape,
+                construct.compositeA.arrow = construct.compositeA.arrow,
+                construct.compositeA.use_weights = construct.compositeA.use_weights,
                 construct.compositeB.shape = construct.compositeB.shape,
+                construct.compositeB.arrow = construct.compositeB.arrow,
+                construct.compositeB.use_weights = construct.compositeB.use_weights,
                 manifest.reflective.shape = manifest.reflective.shape,
                 manifest.compositeA.shape = manifest.compositeA.shape,
                 manifest.compositeB.shape = manifest.compositeB.shape)

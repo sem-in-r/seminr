@@ -47,7 +47,11 @@ seminr_theme_smart <- function(plot.title.fontsize = 24,
                mm.edge.label.fontsize = mm.edge.label.fontsize,
                sm.edge.label.fontsize = sm.edge.label.fontsize,
                sm.node.fill = "lightcyan",
-               mm.node.fill = "lightgoldenrodyellow"
+               mm.node.fill = "lightgoldenrodyellow",
+               construct.compositeA.arrow = "backward",
+               construct.compositeB.arrow = "forward",
+               construct.compositeA.use_weights = FALSE,
+               construct.compositeB.use_weights = TRUE
   )
 }
 
@@ -80,7 +84,10 @@ seminr_theme_modern <- function(plot.title.fontsize = 24,
                       sm.edge.label.fontsize = sm.edge.label.fontsize,
                       construct.reflective.shape = "ellipse",
                       construct.compositeA.shape = "hexagon",
-                      construct.compositeB.shape = "ellipse"
+                      construct.compositeB.shape = "ellipse",
+                      construct.reflective.arrow = "backward",
+                      construct.compositeA.arrow = "none",
+                      construct.compositeB.arrow = "forward"
   )
 }
 

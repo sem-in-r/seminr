@@ -56,8 +56,14 @@ seminr_theme_create(
   sm.edge.width_offset = 0.5,
   sm.edge.width_multiplier = 5,
   construct.reflective.shape = "ellipse",
+  construct.reflective.arrow = "backward",
+  construct.reflective.use_weights = FALSE,
   construct.compositeA.shape = "ellipse",
+  construct.compositeA.arrow = "forward",
+  construct.compositeA.use_weights = TRUE,
   construct.compositeB.shape = "ellipse",
+  construct.compositeB.arrow = "forward",
+  construct.compositeB.use_weights = TRUE,
   manifest.reflective.shape = "box",
   manifest.compositeA.shape = "box",
   manifest.compositeB.shape = "box",
@@ -168,9 +174,21 @@ minimal random weights to the measurement model. Can help with determinism in pl
 
 \item{construct.reflective.shape}{Dot shape of reflective constructs}
 
+\item{construct.reflective.arrow}{Direction of the arrow for reflective constructs. Can be forward, backward (default), or none.}
+
+\item{construct.reflective.use_weights}{Should measurements from reflective constructs show weights (TRUE) or loadings (FALSE: default).}
+
 \item{construct.compositeA.shape}{Dot shape of composite constructs using correlation weights}
 
+\item{construct.compositeA.arrow}{Direction of the arrow for constructs using correlation weight (default: forward)}
+
+\item{construct.compositeA.use_weights}{Should measurements from constructs using correlation weights show weights (TRUE: default) or loadings (FALSE).}
+
 \item{construct.compositeB.shape}{Dot shape of composite constructs using regression weights}
+
+\item{construct.compositeB.arrow}{Direction of the arrow for constructs using regression weights (default: forward)}
+
+\item{construct.compositeB.use_weights}{Should measurements from constructs using regression weights show weights (TRUE: default) or loadings (FALSE).}
 
 \item{manifest.reflective.shape}{Dot shape of manifest variables of reflective constructs}
 
