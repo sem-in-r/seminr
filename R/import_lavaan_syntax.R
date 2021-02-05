@@ -17,7 +17,11 @@
 #   LOY  =~ loy1  + loy2  + loy3  + loy4
 # '
 
-lavaan2seminr <- csem2seminr <- function(lav_syntax) {
+#' @export
+csem2seminr <- function(lav_syntax) {
+  cat("NOTE: Importing lavaan syntax is currently experimental -- not all features are supported\n")
+  cat("      Please verify imported model features carefully\n")
+
   lav_model <- lavaan::lavaanify(model = lav_syntax)
 
   lav_relationships <- subset(lav_model, op == "~")
@@ -34,6 +38,12 @@ lavaan2seminr <- csem2seminr <- function(lav_syntax) {
   specify_model(measurement_model = seminr_constructs,
                 structural_model  = seminr_relationships)
 }
+
+# Temporary alias to implement lavaan2seminr
+# WARNING: does not parse all lavaan syntax correctly
+# Works: structural model works reasonably
+# Does not work: parameter constraints; item associations
+lavaan2seminr <- csem2seminr
 
 lav_constructs <- function(lav_constructs, construct_func) {
   all_constructs <- unique(lav_constructs$lhs)

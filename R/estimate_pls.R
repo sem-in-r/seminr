@@ -61,8 +61,7 @@
 #' summary(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
-# estimate_pls <- function(data, measurement_model, structural_model, inner_weights = path_weighting, missing = mean_replacement, missing_value = NA) {
-estimate_pls <- function(data, ..., inner_weights = path_weighting, missing = mean_replacement, missing_value = NA) {
+estimate_pls <- function(data, measurement_model=NULL, structural_model=NULL, model=NULL, inner_weights = path_weighting, missing = mean_replacement, missing_value = NA) {
   cat("Generating the seminr model\n")
   data[data == missing_value] <- NA
   data <- missing(data)
@@ -70,9 +69,9 @@ estimate_pls <- function(data, ..., inner_weights = path_weighting, missing = me
   rawdata <- data
 
   # Extract model specifications
-  specified_model <- extract_models(...)
-  measurement_model <- specified_model$mm
-  structural_model <- specified_model$sm
+  specified_model <- extract_models(model, measurement_model, structural_model)
+  measurement_model <- specified_model$measurement_model
+  structural_model <- specified_model$structural_model
 
   # Generate first order model if necessary
   HOCs <- HOCs_in_sm(measurement_model, structural_model)

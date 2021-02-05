@@ -1,3 +1,4 @@
+#' @export
 specify_model <- function(measurement_model, structural_model=NULL, item_associations=NULL) {
   specified_model <- list(
     measurement_model = measurement_model,
@@ -9,12 +10,14 @@ specify_model <- function(measurement_model, structural_model=NULL, item_associa
   specified_model
 }
 
-extract_models <- function(model, structural_model = NULL, item_associations = NULL) {
+extract_models <- function(model = NULL, measurement_model = NULL, structural_model = NULL, item_associations = NULL) {
   if (is(model, "specified_model")) {
-    measurement_model <- model$measurement_model
+    if (is.null(measurement_model)) { measurement_model <- model$measurement_model }
     if (is.null(structural_model)) { structural_model <- model$structural_model }
-  } else {
-    measurement_model <- model
+    if (is.null(item_associations)) { item_associations <- model$item_associations }
   }
-  list(mm=measurement_model, sm=structural_model)
+
+  list(measurement_model = measurement_model,
+       structural_model = structural_model,
+       item_associations = item_associations)
 }

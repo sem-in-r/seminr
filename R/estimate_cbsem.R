@@ -72,57 +72,66 @@
 #' cbsem_summary$descriptives$correlations$constructs
 #'
 #' @export
-estimate_cbsem <- function(data, measurement_model, structural_model, item_associations=NULL, estimator="MLR", ...) {
+estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, item_associations=NULL, lavaan_model=NULL, estimator="MLR", ...) {
   cat("Generating the seminr model for CBSEM\n")
 
   # TODO: consider higher order models (see estimate_pls() function for template)
 
-  post_interaction_object <- process_cbsem_interactions(measurement_model, data, structural_model, item_associations, estimator, ...)
-  names(post_interaction_object$data) <- sapply(names(post_interaction_object$data), FUN=lavaanify_name, USE.NAMES = FALSE)
-  mmMatrix <- post_interaction_object$mmMatrix
-  data <- post_interaction_object$data
+  if (is.null(lavaan_model)) {
+    post_interaction_object <- process_cbsem_interactions(measurement_model, data, structural_model, item_associations, estimator, ...)
+    names(post_interaction_object$data) <- sapply(names(post_interaction_object$data), FUN=lavaanify_name, USE.NAMES = FALSE)
+    mmMatrix <- post_interaction_object$mmMatrix
+    data <- post_interaction_object$data
 
-  # Rename interaction terms
-  structural_model[, "source"] <- sapply(structural_model[, "source"], FUN=lavaanify_name)
-  smMatrix <- structural_model
+    # Rename interaction terms
+    structural_model[, "source"] <- sapply(structural_model[, "source"], FUN=lavaanify_name)
+    smMatrix <- structural_model
 
-  # TODO: warning if the model is incorrectly specified
-  # warnings(measurement_model, data, structural_model)
+    # TODO: warning if the model is incorrectly specified
+    # warnings(measurement_model, data, structural_model)
 
-  # Create LAVAAN syntax
-  measurement_syntax <- lavaan_mm_syntax(mmMatrix)
-  structural_syntax <- lavaan_sm_syntax(smMatrix)
-  association_syntax <- lavaan_item_associations(item_associations)
+    # Create LAVAAN syntax
+    measurement_syntax <- lavaan_mm_syntax(mmMatrix)
+    structural_syntax <- lavaan_sm_syntax(smMatrix)
+    association_syntax <- lavaan_item_associations(item_associations)
 
-  # Put all the parts together
-  full_syntax <- paste(measurement_syntax, structural_syntax, association_syntax, sep="\n\n")
+    # Put all the parts together
+    lavaan_model <- paste(measurement_syntax, structural_syntax, association_syntax, sep="\n\n")
+  } else {
+    structural_model <- smMatrix <- lavaan2seminr(lavaan_model)$structural_model
+    measurement_model <- lavaan2seminr(lavaan_model)$measurement_model
 
-  lavaan_model <- try_or_stop(
+    # using process_cbsem_interactions() to produce mmMatrix
+    post_interaction_object <- process_cbsem_interactions(measurement_model, data, structural_model, item_associations, estimator, ...)
+    mmMatrix <- post_interaction_object$mmMatrix
+  }
+
+  lavaan_output <- try_or_stop(
     lavaan::sem(
-      model=full_syntax, data=data, std.lv = TRUE, estimator=estimator, ...),
-    "run CBSEM in Lavaan"
+      model=lavaan_model, data=data, std.lv = TRUE, estimator=estimator, ...),
+    "estimating CBSEM using Lavaan"
   )
 
   # Inspect results
   constructs <- all_construct_names(measurement_model)
-  lavaan_std <- lavaan::lavInspect(lavaan_model, what="std")
+  lavaan_std <- lavaan::lavInspect(lavaan_output, what="std")
   loadings <- lavaan_std$lambda
   class(loadings) <- "matrix"
-  tenB <- estimate_lavaan_ten_berge(lavaan_model)
+  tenB <- estimate_lavaan_ten_berge(lavaan_output)
 
   # Gather model information
   seminr_model <- list(
     data = data,
     measurement_model = measurement_model,
-    mmMatrix = mmMatrix,
-    smMatrix = smMatrix,
     factor_loadings = loadings,
     associations = item_associations,
+    mmMatrix = mmMatrix,
+    smMatrix = smMatrix,
     constructs = constructs,
     construct_scores = tenB$scores,
     item_weights = tenB$weights,
-    lavaan_syntax = full_syntax,
-    lavaan_model = lavaan_model
+    lavaan_model = lavaan_model,
+    lavaan_output = lavaan_output
   )
 
   class(seminr_model) <- c("cbsem_model", "seminr_model")
@@ -163,42 +172,45 @@ estimate_cbsem <- function(data, measurement_model, structural_model, item_assoc
 #' mobi_cfa <- estimate_cfa(mobi, mobi_mm, mobi_am)
 #'
 #' @export
-estimate_cfa <- function(data, measurement_model, item_associations=NULL,
-                         estimator="MLR", ...) {
+estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
+                         lavaan_model=NULL, estimator="MLR", ...) {
   cat("Generating the seminr model for CFA\n")
 
   # TODO: consider higher order models (see estimate_pls() function for template)
-
   # TODO: warning if the model is incorrectly specified
   # warnings(measurement_model, data, structural_model)
 
-  # Create LAVAAN syntax
-  mmMatrix <- mm2matrix(measurement_model)
+  mmMatrix <- NULL
 
-  measurement_syntax <- lavaan_mm_syntax(mmMatrix)
-  association_syntax <- lavaan_item_associations(item_associations)
+  if (is.null(lavaan_model)) {
+    # Create LAVAAN syntax
+    mmMatrix <- mm2matrix(measurement_model)
 
-  full_syntax <- paste(measurement_syntax,
-                       association_syntax,
-                       sep="\n\n")
+    measurement_syntax <- lavaan_mm_syntax(mmMatrix)
+    association_syntax <- lavaan_item_associations(item_associations)
+
+    lavaan_model <- paste(measurement_syntax,
+                          association_syntax,
+                          sep="\n\n")
+  }
 
   # Run the model in LAVAAN
-  lavaan_model <- try_or_stop(
-    lavaan::cfa(model=full_syntax, data=data, std.lv = TRUE,
+  lavaan_output <- try_or_stop(
+    lavaan::cfa(model=lavaan_model, data=data, std.lv = TRUE,
                 estimator=estimator, ...),
     "run CFA in Lavaan"
   )
 
-  tenB <- estimate_lavaan_ten_berge(lavaan_model)
+  tenB <- estimate_lavaan_ten_berge(lavaan_output)
 
   # Gather model information
   seminr_model <- list(
     data = data,
     measurement_model = measurement_model,
-    lavaan_syntax = full_syntax,
     construct_scores = tenB$scores,
     item_weights = tenB$weights,
-    lavaan_model = lavaan_model
+    lavaan_model = lavaan_model,
+    lavaan_output = lavaan_output
   )
 
   class(seminr_model) <- c("cfa_model", "seminr_model")
