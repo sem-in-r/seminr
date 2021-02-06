@@ -72,12 +72,19 @@
 #' cbsem_summary$descriptives$correlations$constructs
 #'
 #' @export
-estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, item_associations=NULL, lavaan_model=NULL, estimator="MLR", ...) {
+estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, item_associations=NULL, model=NULL, lavaan_model=NULL, estimator="MLR", ...) {
   cat("Generating the seminr model for CBSEM\n")
 
   # TODO: consider higher order models (see estimate_pls() function for template)
 
   if (is.null(lavaan_model)) {
+    # Extract model specifications
+    specified_model <- extract_models(model, measurement_model, structural_model, item_associations)
+    measurement_model <- specified_model$measurement_model
+    structural_model  <- specified_model$structural_model
+    item_associations <- specified_model$item_associations
+
+    # Process measurement model interactions to produce simplified mmMatrix
     post_interaction_object <- process_cbsem_interactions(measurement_model, data, structural_model, item_associations, estimator, ...)
     names(post_interaction_object$data) <- sapply(names(post_interaction_object$data), FUN=lavaanify_name, USE.NAMES = FALSE)
     mmMatrix <- post_interaction_object$mmMatrix
@@ -173,7 +180,7 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
 #'
 #' @export
 estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
-                         lavaan_model=NULL, estimator="MLR", ...) {
+                         model=NULL, lavaan_model=NULL, estimator="MLR", ...) {
   cat("Generating the seminr model for CFA\n")
 
   # TODO: consider higher order models (see estimate_pls() function for template)
@@ -183,6 +190,13 @@ estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
   mmMatrix <- NULL
 
   if (is.null(lavaan_model)) {
+    # Extract specified models
+    specified_model <- extract_models(
+      model = model, measurement_model = measurement_model, item_associations = item_associations
+    )
+    measurement_model <- specified_model$measurement_model
+    item_associations <- specified_model$item_associations
+
     # Create LAVAAN syntax
     mmMatrix <- mm2matrix(measurement_model)
 

@@ -1,7 +1,7 @@
 context("CBSEM Specification and estimation\n")
 library(seminr)
 
-# Test lavaan_model for cbsem by roundtripping model between seminr <-> lavaan
+# Check that regular specification and specified models yield similar structures in CBSEM
 mm_r <- constructs(
   reflective("Image",       multi_items("IMAG", 1:5)),
   reflective("Expectation",  multi_items("CUEX", 1:3)),
@@ -20,25 +20,23 @@ sm <- relationships(
   paths(from = c("Value", "Satisfaction"),         to = "Complaints")
 )
 
-seminr_cbsem <- estimate_cbsem(mobi, mm_r, sm)
-lav_cbsem <- estimate_cbsem(mobi, lavaan_model = seminr_cbsem$lavaan_model)
-seminr_cbsem_report <- summary(seminr_cbsem)
-lav_cbsem_report <- summary(lav_cbsem)
-
-test_that("Same lavaan syntax is produced", {
-  expect_equal(seminr_cbsem$lavaan_model, lav_cbsem$lavaan_model)
-})
+cbsem <- estimate_cbsem(mobi, mm_r, sm, am)
+model = specify_model(measurement_model=mm_r, structural_model=sm, item_associations = am)
+sp_cbsem <- estimate_cbsem(mobi, model=model)
 
 test_that("Same seminr structural model and results are produced", {
-  expect_true(all(lav_cbsem$smMatrix == seminr_cbsem$smMatrix))
-  expect_true(identical(seminr_cbsem_report$paths, lav_cbsem_report$paths))
+  expect_true(all(cbsem$smMatrix == sp_cbsem$smMatrix))
+  expect_true(all(cbsem$mmMatrix == sp_cbsem$mmMatrix))
+  expect_true(all(cbsem$assocations == sp_cbsem$assocations))
+  expect_true(all(cbsem$lavaan_model == sp_cbsem$lavaan_model))
 })
 
-# Test lavaan_model for cfa by roundtripping model between seminr <-> lavaan
 
-seminr_cfa <- estimate_cfa(mobi, mm_r)
-lav_cfa <- estimate_cfa(mobi, lavaan_model = seminr_cfa$lavaan_model)
+# Check that regular specification and specified models yield similar structures in CFA
+cfa <- estimate_cfa(mobi, mm_r, am)
+model = specify_model(measurement_model=mm_r, structural_model=sm, item_associations = am)
+sp_cfa <- estimate_cfa(mobi, model=model)
 
-test_that("CBSEM with measurement structure is estimated", {
-  expect_equal(seminr_cfa$lavaan_model, lav_cfa$lavaan_model)
+test_that("Same seminr structural model and results are produced", {
+  expect_true(all(cfa$lavaan_model == sp_cfa$lavaan_model))
 })
