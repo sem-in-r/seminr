@@ -65,6 +65,7 @@ lav_items <- function(constr, lav_constructs) {
   lav_constructs[lav_constructs$lhs == constr,]$rhs
 }
 
+# convert lavaan construct row
 lav_composite <- function(lav_constructs, constr) {
   composite(
     construct_name = constr,
@@ -72,11 +73,13 @@ lav_composite <- function(lav_constructs, constr) {
   )
 }
 
+# converts rows of lavaan relationships into seminr paths
 lav_paths <- function(lav_relationships) {
-  lapply(as.data.frame(t(lav_relationships)), lav_path)
+  lapply(as.data.frame(t(lav_relationships[c("rhs", "lhs")])), lav_path)
 }
 
+# converts vector of two elements into a path
 lav_path <- function(lav_relationship) {
-  paths(from = lav_relationship["rhs"],
-        to   = lav_relationship["lhs"])
+  paths(from = lav_relationship[1],
+        to   = lav_relationship[2])
 }
