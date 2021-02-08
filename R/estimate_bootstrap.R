@@ -86,7 +86,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
           boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
                                measurement_model,
                                structural_model,
-                               inner_weights)
+                               inner_weights = inner_weights)
           boot_htmt <- HTMT(boot_model)
           boot_total <- total_effects(boot_model$path_coef)
           return(as.matrix(c(c(boot_model$path_coef),
