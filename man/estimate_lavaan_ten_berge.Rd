@@ -40,7 +40,7 @@ mobi_sm <- relationships(
 
 # Estimate model and get results
 cbsem <- estimate_cbsem(mobi, mobi_mm, mobi_sm, mobi_am)
-tb <- estimate_lavaan_ten_berge(cbsem$lavaan_model)
+tb <- estimate_lavaan_ten_berge(cbsem$lavaan_output)
 tb$scores
 tb$weights
 
