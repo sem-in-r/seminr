@@ -271,7 +271,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       seminr_model$total_paths_descriptives <- total_paths_descriptives
       seminr_model$boots <- nboot
       seminr_model$seed <- seed
-      class(seminr_model) <- "boot_seminr_model"
+      class(seminr_model) <- c("boot_seminr_model", "seminr_model")
       cat("SEMinR Model successfully bootstrapped")
       return(seminr_model)
     },
