@@ -1,32 +1,38 @@
-# lav_syntax <- '
-#   # Structural model
-#   EXPE ~ IMAG
-#   QUAL ~ EXPE
-#   VAL  ~ EXPE + QUAL
-#   SAT  ~ IMAG + EXPE + QUAL + VAL
-#   LOY  ~ IMAG + SAT
-#
-#   # Composite model
-#   IMAG <~ imag1 + imag2 + imag3
-#   EXPE <~ expe1 + expe2 + expe3
-#   QUAL <~ qual1 + qual2 + qual3 + qual4 + qual5
-#   VAL  <~ val1  + val2  + val3
-#
-#   # Reflective measurement model
-#   SAT  =~ sat1  + sat2  + sat3  + sat4
-#   LOY  =~ loy1  + loy2  + loy3  + loy4
-# '
-
+#' seminr csem2seminr() function
+#'
+#' Converts lavaan syntax for composite models used by \code{cSEM} package to \code{SEMinR} model specifications
+#'
+#' @usage
+#' csem2seminr(lav_syntax)
+#'
+#' @seealso \code{\link{estimate_pls}}
+#'
+#' @param lav_syntax A \code{string} specifying the composite model measurement and structure using lavaan syntax
+#'
+#' @examples
+#' lav_syntax <- '
+#'   Composite model
+#'   Image <~ IMAG1 + IMAG2 + IMAG3 + IMAG4 + IMAG5
+#'   Expectation <~ CUEX1 + CUEX2 + CUEX3
+#'   Value  <~ PERV1  + PERV2
+#'   Satisfaction <~ CUSA1 + CUSA2 + CUSA3
+#'
+#'   # Structural model
+#'   Satisfaction ~ Image + Expectation + Value
+#' '
+#'
+#' csem_model <- estimate_pls(mobi, model = csem2seminr(lav_syntax))
+#'
 #' @export
 csem2seminr <- function(lav_syntax) {
-  cat("NOTE: Importing lavaan syntax is currently experimental -- not all features are supported\n")
+  cat("NOTE: Importing lavaan syntax is currently experimental -- some features might not be supported\n")
   cat("      Please verify imported model features carefully\n")
 
   lav_model <- lavaan::lavaanify(model = lav_syntax)
 
-  lav_relationships <- subset(lav_model, op == "~")
-  lav_composites    <- subset(lav_model, op == "<~")
-  lav_reflectives   <- subset(lav_model, op == "=~")
+  lav_relationships <- subset(lav_model, lav_model$op == "~")
+  lav_composites    <- subset(lav_model, lav_model$op == "<~")
+  lav_reflectives   <- subset(lav_model, lav_model$op == "=~")
 
   composites  <- lav_constructs(lav_composites, csem_composite)
   reflectives <- lav_constructs(lav_reflectives, reflective)
@@ -69,7 +75,7 @@ lav_items <- function(constr, lav_constructs) {
 lav_composite <- function(lav_constructs, constr) {
   composite(
     construct_name = constr,
-    item_names     = subset(lav_constructs, lhs==constr)
+    item_names     = subset(lav_constructs, lav_constructs$lhs==constr)
   )
 }
 
