@@ -3,6 +3,7 @@
 \name{dot_graph}
 \alias{dot_graph}
 \alias{dot_graph.measurement_model}
+\alias{dot_graph.specified_model}
 \alias{dot_graph.boot_seminr_model}
 \alias{dot_graph.pls_model}
 \title{Generate a dot graph from various SEMinR models}
@@ -10,6 +11,15 @@
 dot_graph(model, title = "", theme = NULL, ...)
 
 \method{dot_graph}{measurement_model}(model, title = "", theme = NULL, ...)
+
+\method{dot_graph}{specified_model}(
+  model,
+  title = "",
+  theme = NULL,
+  measurement_only = FALSE,
+  structure_only = FALSE,
+  ...
+)
 
 \method{dot_graph}{boot_seminr_model}(
   model,
