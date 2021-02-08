@@ -123,7 +123,7 @@ test_that("Seminr estimates PLSc path coefficients correctly\n", {
 })
 
 test_that("Seminr estimates PLSc loadings correctly\n", {
-  expect_equal(loadings, loadings_control, tolerance = 0.00001)
+  expect_equal(loadings[,1:4], loadings_control, tolerance = 0.00001)
 })
 
 test_that("Seminr estimates rsquared  correctly\n", {

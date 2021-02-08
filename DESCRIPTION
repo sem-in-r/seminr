@@ -1,8 +1,8 @@
 Package: seminr
 Type: Package
 Title: Domain-Specific Language for Building and Estimating Structural Equation Models
-Version: 1.1.0
-Date: 2020-07-23
+Version: 1.2.0
+Date: 2020-12-31
 Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("aut", "ths")),
              person("Nicholas Patrick", "Danks", email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
              person("Juan Manuel Velasquez", "Estrada", role = "aut"),
@@ -15,9 +15,9 @@ Description: A powerful, easy to syntax for specifying and estimating complex
 Imports:
     parallel, lavaan, MASS
 License: GPL-3
-Depends: R (>= 3.1.0)
+Depends: R (>= 3.5.0)
 LazyData: TRUE
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Suggests: knitr, testthat, rmarkdown
 VignetteBuilder: knitr
 Encoding: UTF-8

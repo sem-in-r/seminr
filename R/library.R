@@ -212,6 +212,11 @@ total_effects <- function(path_coef) {
   return(output)
 }
 
+# Function to return the total indirect effects of a model
+total_indirect_effects <- function(path_coef) {
+  total_effects(path_coef) - path_coef
+}
+
 # Function to calculate the error covariance matrix of a PLS model
 error_cov_matrix <- function(seminr_model) {
   # 1 calculate ESTIMATED item scores
@@ -307,4 +312,9 @@ mult <- function(col, iv2_data) {
 
 name_items <- function(item_name, iv2_items) {
   sapply(iv2_items, function(item2, item1 = item_name) paste(item1, item2, sep = "*"))
+}
+
+convert_to_table_output <- function(matrix) {
+  class(matrix) <- append(class(matrix), "table_output")
+  return(matrix)
 }
