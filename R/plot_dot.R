@@ -245,7 +245,7 @@ dot_graph <- function(model,
 #' @export
 dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
   query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
-  semPlot::semPaths(model$lavaan_model, what = what, whatLabels = whatLabels,...)
+  semPlot::semPaths(model$lavaan_output, what = what, whatLabels = whatLabels,...)
 }
 
 #' Plotting of covariance based SEMs models using semPLOT
@@ -261,7 +261,7 @@ dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", w
 #' @export
 dot_graph.cbsem_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
   query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
-  semPlot::semPaths(model$lavaan_model, what = what, whatLabels = whatLabels,...)
+  semPlot::semPaths(model$lavaan_output, what = what, whatLabels = whatLabels,...)
 }
 
 #' @export
@@ -427,6 +427,94 @@ dot_graph.structural_model <-
 
     dot_graph(a_model, title = title, theme = thm, structure_only = TRUE)
 }
+
+
+#' Convert a seminr model to Graphviz representation
+#'
+#' @rdname dot_graph
+#' @param model Model created with \code{seminr}.
+#' @param title An optional title for the plot
+#' @param theme Theme created with \code{\link{seminr_theme_create}}.
+#' @param measurement_only Plot only measurement part
+#' @param structure_only Plot only structure part
+#'
+# @return The path model as a formatted string in dot language.
+#' @export
+#'
+# @examples
+dot_graph.specified_model <-  function(model,
+                                        title = "",
+                                        theme = NULL,
+                                        measurement_only = FALSE,
+                                        structure_only = FALSE, ...
+) {
+  unusedParams <- list(...)
+  if (length(unusedParams))
+    stop('Unused parameters: ', paste(unusedParams, collapse = ', '))
+
+
+  if (is.null(theme)) {
+    thm <- seminr_theme_get()
+  } else {
+    thm <- theme
+  }
+
+  # THIS IS AN ARTIFICAL MODEL THAT LETS ME REUSE THE OLD PLOTTING FUNCTION,
+  # THIS is unnecessary complex(?).
+
+
+
+   #<- unique(model$structural_model[,1])
+  #mm_list <- list()
+  #for (i in sm_constructs) {
+  #  mm_list[[i]] <- reflective(i, paste0(i,"_dummy"))
+  #}
+  #measurement_model <- do.call(constructs, mm_list)
+  #mm <- mm2matrix( measurement_model )
+  #as.data.frame(mm) -> mmodel
+
+  measurement_model <- model$measurement_model
+  mm <- mm2matrix( measurement_model )
+  as.data.frame(mm) -> mmodel
+  sm_constructs <- unique(mmodel$construct)
+
+
+  weight_matrix <- matrix(c(1), # add only 1s
+         ncol = length(unique(mmodel$construct)),
+         dimnames = list(unique(mmodel$measurement),
+                         unique(mmodel$construct)),
+         nrow = length(unique(mmodel$measurement))
+  )
+
+  path_matrix <- matrix(c(1),
+                        ncol = length(sm_constructs),
+                        nrow = length(sm_constructs),
+                        dimnames = list(sm_constructs, sm_constructs))
+
+
+
+  # specify artificial model
+  a_model <- list(measurement_model = measurement_model,
+                  mmMatrix = mm,
+                  smMatrix = model$structural_model,
+                  outer_weights = weight_matrix,
+                  outer_loadings = weight_matrix,
+                  path_coef = path_matrix,
+                  constructs = unique(mmodel$construct),
+                  mmVariables = unique(mmodel$measurement)
+  )
+
+  class(a_model) <- "pls_model"
+
+
+  thm$sm.edge.width_multiplier <- 1
+  thm$sm.edge.label.show <- FALSE
+  thm$mm.edge.width_multiplier <- 1
+  thm$mm.edge.label.show <- FALSE
+
+  dot_graph(a_model, title = title, theme = thm, measurement_only = measurement_only, structure_only, structure_only)
+}
+
 
 
 
