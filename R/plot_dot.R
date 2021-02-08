@@ -429,6 +429,7 @@ dot_graph.structural_model <-
 }
 
 
+
 #' Convert a seminr model to Graphviz representation
 #'
 #' @rdname dot_graph
@@ -514,8 +515,6 @@ dot_graph.specified_model <-  function(model,
 
   dot_graph(a_model, title = title, theme = thm, measurement_only = measurement_only, structure_only, structure_only)
 }
-
-
 
 
 #' Convert a seminr model to Graphviz representation
