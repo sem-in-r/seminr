@@ -2,7 +2,10 @@
 % Please edit documentation in R/plot_dot.R
 \name{dot_graph}
 \alias{dot_graph}
+\alias{dot_graph.cfa_model}
+\alias{dot_graph.cbsem_model}
 \alias{dot_graph.measurement_model}
+\alias{dot_graph.structural_model}
 \alias{dot_graph.specified_model}
 \alias{dot_graph.boot_seminr_model}
 \alias{dot_graph.pls_model}
@@ -10,7 +13,27 @@
 \usage{
 dot_graph(model, title = "", theme = NULL, ...)
 
+\method{dot_graph}{cfa_model}(
+  model,
+  title = "",
+  theme = NULL,
+  what = "std",
+  whatLabels = "std",
+  ...
+)
+
+\method{dot_graph}{cbsem_model}(
+  model,
+  title = "",
+  theme = NULL,
+  what = "std",
+  whatLabels = "std",
+  ...
+)
+
 \method{dot_graph}{measurement_model}(model, title = "", theme = NULL, ...)
+
+\method{dot_graph}{structural_model}(model, title = "", theme = NULL, ...)
 
 \method{dot_graph}{specified_model}(
   model,
@@ -48,6 +71,10 @@ dot_graph(model, title = "", theme = NULL, ...)
 
 \item{...}{Unused}
 
+\item{what}{The metric to use for edges ("path", "est", "std", "eq", "col")}
+
+\item{whatLabels}{The metric to use for edge labels}
+
 \item{measurement_only}{Plot only measurement part}
 
 \item{structure_only}{Plot only structure part}
@@ -59,6 +86,8 @@ The path model as a formatted string in dot language.
 With the help of the \code{DiagrammeR} package this dot graph can then be plotted in
 various in RMarkdown, shiny, and other contexts.
 Depending on the type of model, different parameters can be used.
+
+For a full description of parameters for lavaan models see \link[semPlot]{semPaths}
 }
 \details{
 Current limitations:
@@ -118,4 +147,19 @@ mobi_mm <- constructs(
              reflective("Loyalty",      multi_items("CUSL", 1:3))
            )
 dot_graph(mobi_mm, title = "Preview measurement model")
+# - - - - - - - - - - - - - - - -
+# Example for plotting a structural model
+mobi_sm <- relationships(
+  paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+  paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
+  paths(from = "Quality",      to = c("Value", "Satisfaction")),
+  paths(from = "Value",        to = c("Satisfaction")),
+  paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
+  paths(from = "Complaints",   to = "Loyalty")
+)
+res <- dot_graph(mobi_sm, title = "Preview structural model")
+
+\dontrun{
+DiagrammeR::grViz(res)
+}
 }
