@@ -51,10 +51,23 @@ structure <- relationships(
 
 # Put together reusable parts of your model to estimate CBSEM results
 cbsem_model <- estimate_cbsem(data = mobi, measurements, structure)
+#> Generating the seminr model for CBSEM
 
 # Re-estimate the model using another estimation technique (Consistent PLS)
 pls_model <- estimate_pls(data = mobi, measurements, structure)
+#> Generating the seminr model
+#> All 250 observations are valid.
 ```
+
+SEMinR can plot models using the DiagrammeR packages with a simple
+`plot` method.
+
+``` r
+plot(pls_model, title = "PLS Model")
+save_plot("myfigure.pdf")
+```
+
+![](man/figures/model_pls.png)
 
 SEMinR allows various estimation methods for constructs and SEMs:
 
