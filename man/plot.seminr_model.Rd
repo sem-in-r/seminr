@@ -13,7 +13,7 @@
 
 \item{theme}{Theme created with \code{\link{seminr_theme_create}}.}
 
-\item{...}{Additional parameters}
+\item{...}{Please check the \code{\link{dot_graph}} for the additional parameters}
 }
 \value{
 Returns the plot.

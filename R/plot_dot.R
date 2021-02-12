@@ -22,7 +22,7 @@ globalVariables(c("."))
 #' @param x The model description
 #' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
-#' @param ... Additional parameters
+#' @param ... Please check the \code{\link{dot_graph}} for the additional parameters
 #'
 #' @return Returns the plot.
 #' @export
@@ -234,8 +234,9 @@ dot_graph <- function(model,
 
 #' Plotting of confirmatory factor analysis models using semPLOT
 #'
-#' For a full description of parameters see \link[semPlot]{semPaths}
+#' For a full description of parameters for lavaan models see \link[semPlot]{semPaths}
 #'
+#' @rdname dot_graph
 #' @param model the CFA model
 #' @param title Unused
 #' @param theme Unused
@@ -250,8 +251,7 @@ dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", w
 
 #' Plotting of covariance based SEMs models using semPLOT
 #'
-#' For a full description of parameters see \link[semPlot]{semPaths}
-#'
+#' @rdname dot_graph
 #' @param model the CBSEM model
 #' @param title Unused
 #' @param theme Unused
@@ -347,9 +347,9 @@ dot_graph.measurement_model <-
 
 
 
-#' Convert a seminr measurement model to a Graphviz representation
+#' Convert a seminr structural model to a Graphviz representation
 #'
-# @rdname dot_graph
+#' @rdname dot_graph
 #' @param model Model created with \code{seminr}.
 #' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
@@ -744,12 +744,14 @@ extract_bootstrapped_values <- function(ltbl, row_index, model, theme) {
 
   t_value <- ltbl[rownames(ltbl) == row_index, 4]
 
+  pvalue <- stats::pt(abs(t_value), nrow(model$data) - 1, lower.tail = FALSE)
+
   list(
     mean = round(ltbl[rownames(ltbl) == row_index, 2], theme$plot.rounding),
     lower = round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding),
     upper = round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding),
     t = round(t_value, theme$plot.rounding),
-    p = stats::pt(t_value, nrow(model$data) - 1, lower.tail = FALSE)
+    p = pvalue
   )
 }
 

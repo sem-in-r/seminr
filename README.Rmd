@@ -46,7 +46,7 @@ Main features of using SEMinR:
 
 Take a look at the easy syntax and modular design:
 
-```{r, eval = FALSE}
+```{r echo=TRUE}
 # Define measurements with famliar terms: reflective, multi-item constructs, etc.
 measurements <- constructs(
   reflective("Image",       multi_items("IMAG", 1:5)),
@@ -66,6 +66,21 @@ cbsem_model <- estimate_cbsem(data = mobi, measurements, structure)
 # Re-estimate the model using another estimation technique (Consistent PLS)
 pls_model <- estimate_pls(data = mobi, measurements, structure)
 ```
+
+SEMinR can plot models using the DiagrammeR packages with a simple `plot` method.
+
+```r
+plot(pls_model, title = "PLS Model")
+save_plot("myfigure.pdf")
+```
+
+
+```{r include = FALSE}
+pl <- plot(pls_model, title = "PLS Model")
+save_plot("man/figures/model_pls.png", width = 2400, plot = pl)
+```
+![](man/figures/model_pls.png)
+
 
 SEMinR allows various estimation methods for constructs and SEMs:
 
