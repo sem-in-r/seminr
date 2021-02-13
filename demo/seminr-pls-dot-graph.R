@@ -1,0 +1,42 @@
+library(seminr)
+library(DiagrammeR)
+
+mobi <- mobi
+
+#seminr syntax for creating measurement model
+mobi_mm <- constructs(
+  reflective("Image",        multi_items("IMAG", 1:5)),
+  reflective("Expectation",  multi_items("CUEX", 1:3)),
+  reflective("Value",        multi_items("PERV", 1:2))
+)
+#seminr syntax for creating structural model
+mobi_sm <- relationships(
+  paths(from = "Image",        to = c("Expectation")),
+  paths(from = "Expectation",  to = c("Value"))
+)
+
+mobi_pls <- estimate_pls(data = mobi,
+                         measurement_model = mobi_mm,
+                         structural_model = mobi_sm)
+seminr_theme_set(seminr_theme_smartpls())
+
+# Plot Measurement model
+plot_model(mobi_mm)
+# plot structural model
+plot_model(mobi_sm)
+
+# Plot PLS model
+plot_model(mobi_pls)
+
+mobi_boot <- bootstrap_model(mobi_pls)
+
+# Plot bootstrapped PLS model
+plot_model(mobi_boot)
+
+# Plot bootstrapped PLS model and show CI
+thm <- seminr_theme_get()
+thm$sm.edge.boot.show_ci <- TRUE
+thm$sm.edge.boot.show_t_value <- TRUE
+seminr_theme_set(thm)
+plot_model(mobi_boot)
+

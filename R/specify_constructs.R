@@ -29,7 +29,7 @@
 constructs <- function(...) {
   return_list <- list(...)
   names(return_list) <- lapply(return_list, function(x) class(x)[[3]])
-  class(return_list) <- c(class(return_list), "measurement_model")
+  class(return_list) <- c(class(return_list), "measurement_model", "seminr_model")
   return(return_list)
 }
 
