@@ -59,8 +59,8 @@ seminr_theme_create(
   construct.reflective.arrow = "backward",
   construct.reflective.use_weights = FALSE,
   construct.compositeA.shape = "ellipse",
-  construct.compositeA.arrow = "forward",
-  construct.compositeA.use_weights = TRUE,
+  construct.compositeA.arrow = "backward",
+  construct.compositeA.use_weights = FALSE,
   construct.compositeB.shape = "ellipse",
   construct.compositeB.arrow = "forward",
   construct.compositeB.use_weights = TRUE,
@@ -180,9 +180,9 @@ minimal random weights to the measurement model. Can help with determinism in pl
 
 \item{construct.compositeA.shape}{Dot shape of composite constructs using correlation weights}
 
-\item{construct.compositeA.arrow}{Direction of the arrow for constructs using correlation weight (default: forward)}
+\item{construct.compositeA.arrow}{Direction of the arrow for constructs using correlation weight (default: backward)}
 
-\item{construct.compositeA.use_weights}{Should measurements from constructs using correlation weights show weights (TRUE: default) or loadings (FALSE).}
+\item{construct.compositeA.use_weights}{Should measurements from constructs using correlation weights show weights (TRUE) or loadings (FALSE: default).}
 
 \item{construct.compositeB.shape}{Dot shape of composite constructs using regression weights}
 

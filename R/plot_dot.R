@@ -747,7 +747,7 @@ extract_bootstrapped_values <- function(ltbl, row_index, model, theme) {
   pvalue <- stats::pt(abs(t_value), nrow(model$data) - 1, lower.tail = FALSE)
 
   list(
-    mean = round(ltbl[rownames(ltbl) == row_index, 2], theme$plot.rounding),
+    mean = round(ltbl[rownames(ltbl) == row_index, 1], theme$plot.rounding),
     lower = round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding),
     upper = round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding),
     t = round(t_value, theme$plot.rounding),
@@ -1347,18 +1347,18 @@ extract_mm_edge_value <- function(model, theme, indicator, construct){
 
   use_weights <- use_construct_weights(theme,
                                        get_construct_type(model, construct))
-
-  if ("boot_seminr_model" %in% class(model)) {
-    boot_construct <- paste0(construct, " Boot Mean")
-    if (use_weights) {
-      loading <-
-        round(model$weights_descriptives[indicator, boot_construct], theme$plot.rounding)
-    } else {
-      loading <-
-        round(model$loadings_descriptives[indicator, boot_construct], theme$plot.rounding)
-    }
-  }
-  if ("pls_model" %in% class(model)) {
+# TODO: Redundancy in the next few lines can it be permanently deleted?
+  # if ("boot_seminr_model" %in% class(model)) {
+  #   boot_construct <- paste0(construct, " Boot Mean")
+  #   if (use_weights) {
+  #     loading <-
+  #       round(model$outer_weights[indicator, boot_construct], theme$plot.rounding)
+  #   } else {
+  #     loading <-
+  #       round(model$outer_loadings[indicator, boot_construct], theme$plot.rounding)
+  #   }
+  # }
+  # if ("pls_model" %in% class(model)) {
     if (use_weights) {
       loading <-
         round(model$outer_weights[indicator, construct], theme$plot.rounding)
@@ -1366,7 +1366,7 @@ extract_mm_edge_value <- function(model, theme, indicator, construct){
       loading <-
         round(model$outer_loadings[indicator, construct], theme$plot.rounding)
     }
-  }
+  # }
   return(loading)
 }
 
