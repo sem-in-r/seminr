@@ -18,25 +18,25 @@ mobi_sm <- relationships(
 mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
                          structural_model = mobi_sm)
-seminr_theme_set(seminr_theme_smartpls())
+# seminr_theme_set(seminr_theme_smartpls())
 
 # Plot Measurement model
-plot_model(mobi_mm)
+plot(mobi_mm)
 # plot structural model
-plot_model(mobi_sm)
+plot(mobi_sm)
 
 # Plot PLS model
-plot_model(mobi_pls)
+plot(mobi_pls)
 
 mobi_boot <- bootstrap_model(mobi_pls)
 
 # Plot bootstrapped PLS model
-plot_model(mobi_boot)
+plot(mobi_boot)
 
 # Plot bootstrapped PLS model and show CI
 thm <- seminr_theme_get()
 thm$sm.edge.boot.show_ci <- TRUE
 thm$sm.edge.boot.show_t_value <- TRUE
 seminr_theme_set(thm)
-plot_model(mobi_boot)
+plot(mobi_boot)
 
