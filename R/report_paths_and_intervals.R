@@ -185,7 +185,7 @@ specific_effect_significance <- function(boot_seminr_model, from, to, through = 
   mean_estimate <- mean(coefficient)
   quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
   return_vec <- c(orig_coefficient, mean_estimate, sd_estimate, orig_coefficient/sd_estimate,quantiles )
-  names(return_vec) <- c( "Original Est.", "Bootstrap Mean", "Bootstrap SD", "T Stat.",paste(alpha, "% CI", sep = ""),paste((1-alpha), "% CI", sep = ""))
+  names(return_vec) <- c( "Original Est.", "Bootstrap Mean", "Bootstrap SD", "T Stat.",paste(alpha/2*100, "% CI", sep = ""),paste((1-(alpha/2))*100, "% CI", sep = ""))
   return(return_vec)
 }
 
