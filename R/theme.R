@@ -71,8 +71,8 @@
 #' @param construct.reflective.arrow Direction of the arrow for reflective constructs. Can be forward, backward (default), or none.
 #' @param construct.reflective.use_weights Should measurements from reflective constructs show weights (TRUE) or loadings (FALSE: default).
 #' @param construct.compositeA.shape Dot shape of composite constructs using correlation weights
-#' @param construct.compositeA.arrow Direction of the arrow for constructs using correlation weight (default: forward)
-#' @param construct.compositeA.use_weights Should measurements from constructs using correlation weights show weights (TRUE: default) or loadings (FALSE).
+#' @param construct.compositeA.arrow Direction of the arrow for constructs using correlation weight (default: backward)
+#' @param construct.compositeA.use_weights Should measurements from constructs using correlation weights show weights (TRUE) or loadings (FALSE: default).
 #' @param construct.compositeB.shape Dot shape of composite constructs using regression weights
 #' @param construct.compositeB.arrow Direction of the arrow for constructs using regression weights (default: forward)
 #' @param construct.compositeB.use_weights Should measurements from constructs using regression weights show weights (TRUE: default) or loadings (FALSE).
@@ -138,8 +138,8 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          construct.reflective.arrow = "backward",
                          construct.reflective.use_weights = FALSE,
                          construct.compositeA.shape = "ellipse",
-                         construct.compositeA.arrow = "forward",
-                         construct.compositeA.use_weights = TRUE,
+                         construct.compositeA.arrow = "backward",
+                         construct.compositeA.use_weights = FALSE,
                          construct.compositeB.shape = "ellipse",
                          construct.compositeB.arrow = "forward",
                          construct.compositeB.use_weights = TRUE,
