@@ -67,7 +67,7 @@ query_install <- function(pkg_name = "DiagrammeR", failure_msg=""){
         "----------------------------------------------------------------------\n",
         "This function requires the ", pkg_name, " package.\n",
         "You can install it by calling: install.packages(\"", pkg_name, "\")\n",
-        "Do you want to install ", pkg_name, " right now (Y/n)?"
+        "Do you want to install ", pkg_name, " right now (Y/n)? "
       ))
       if (x == "Y") {
         utils::install.packages(pkg_name)
@@ -563,7 +563,11 @@ dot_graph.pls_model <- function(model,
   if (is.null(theme)) {
     thm <- seminr_theme_get()
   } else {
-    thm <- theme
+    if (inherits(theme, "function")) {
+      thm <- theme()
+    } else {
+      thm <- theme
+    }
   }
 
   if (thm$plot.title == "") {
@@ -1003,10 +1007,15 @@ extract_sm_edges <- function(model, theme, weights = 1) {
   # for every path add an edge
   for (i in 1:nrow(sm)) {
 
-    if ( !(sm[i,1] %in% colnames(model$rSquared))) {
-      letter <- gamma # when it is determined only by exogenous variables use gamma
+    # since one estimation technique is used the default is to used betas
+    if (theme$sm.edge.label.all_betas) {
+        letter <- beta
     } else {
-      letter <- beta
+      if ( !(sm[i,1] %in% colnames(model$rSquared))) {
+        letter <- gamma # when it is determined only by exogenous variables use gamma
+      } else {
+        letter <- beta
+      }
     }
 
     # build label components
