@@ -373,6 +373,11 @@ The **vignette** for Seminr can be found on [CRAN](https://cran.r-project.org/pa
 - [seminr-style-contained.R](demo/seminr-style-contained.R): Create and execute a SEM model in one function call
 - [seminr-dot-graph.R](demo/seminr-pls-dot-graph.R): Create a plot from a SEM model
 
+## Sister Projects
+
+- [seminrstudio](https://github.com/sem-in-r/seminrstudio): A set of addins for RStudio to simplify using SEMinR.
+
+
 ## Partner Projects
 
 We communicate and collaborate with several other open-source projects on SEM related issues.
