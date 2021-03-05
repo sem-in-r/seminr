@@ -47,7 +47,7 @@ Main features of using SEMinR:
 Take a look at the easy syntax and modular design:
 
 ```{r echo=TRUE}
-# Define measurements with famliar terms: reflective, multi-item constructs, etc.
+# Define measurements with famliar terms: reflective, composite, multi-item constructs, etc.
 measurements <- constructs(
   reflective("Image",       multi_items("IMAG", 1:5)),
   composite("Expectation", multi_items("CUEX", 1:3)),
@@ -60,11 +60,11 @@ structure <- relationships(
   paths(from = c("Image", "Expectation"), to = c("Complaints", "Loyalty"))
 )
 
-# Put together reusable parts of your model to estimate CBSEM results
-cbsem_model <- estimate_cbsem(data = mobi, measurements, structure)
-
-# Re-estimate the model using another estimation technique (Consistent PLS)
+# Estimate the model using PLS estimation scheme (Consistent PLS for reflectives)
 pls_model <- estimate_pls(data = mobi, measurements, structure)
+
+# Re-estimate the model as a purely reflective model using CBSEM
+cbsem_model <- estimate_cbsem(data = mobi, as.reflective(measurements), structure)
 ```
 
 SEMinR can plot models using the semplot (for CBSEM models) or DiagrammeR (for PLS models) packages with a simple `plot` method.
@@ -380,8 +380,7 @@ We communicate and collaborate with several other open-source projects on SEM re
 - [plspm package for R](https://github.com/gastonstat/plspm): an early and limited PLS path 
 modeling package for R that inspired the development of SEMinR, among others; it is no longer maintained.
 - [plspm package for Python](https://github.com/GoogleCloudPlatform/plspm-python): a well-maintained PLS modeling pakage for Python; it is tested against SEMinR and borrows some syntactic ideas from SEMinR.
-- [cSEM](https://github.com/M-E-Rademaker/cSEM): an well-maintained and comprehensive 
-composite analysis project implementing PLS and GSCA for R, using Lavaan style syntax
+- [cSEM](https://github.com/M-E-Rademaker/cSEM): a well-maintained and comprehensive composite analysis project implementing PLS and GSCA for R, using Lavaan style syntax
 
 ## Contact Us
 
