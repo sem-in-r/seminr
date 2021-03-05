@@ -8,7 +8,7 @@ Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("a
              person("André", "Calero Valdez", role = "aut", email = "andrecalerovaldez@gmail.com"),
              person("Juan Manuel Velasquez", "Estrada", role = "ctb"),
              person("James", "Uanhoro", role = "ctb", email = "James.uanhoro@gmail.com"),
-             person("Johannes", "Nakayama", role = "ctb", email = "johannes.nakayama@rwth-aachen.de")
+             person("Johannes", "Nakayama", role = "ctb", email = "johannes.nakayama@rwth-aachen.de"),
              person("Lilian", "Koyan", role = "ctb", email = "lilian.kojan@rwth-aachen.de"),
              person("Laura", "Burbach", role = "ctb", email = "laura.burbach@rwth-aachen.de"),
              person("Arturo Heynar", "Cano Bejar", role = "ctb", email = "arturocano997@gmail.com")
