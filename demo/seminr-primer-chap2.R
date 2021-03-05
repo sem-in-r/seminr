@@ -28,5 +28,5 @@ vignette("SEMinR")
 # Check all demos available in R
 demo()
 
-# Load the SEMinR ECSI demo
-demo("seminr-pls-ecsi")
+# Load the SEMinR Influencer Model demo
+demo("seminr-pls-influencer")
