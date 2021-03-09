@@ -10,12 +10,12 @@ test_that("esc_node works", {
 
 
 test_that("pvalr works", {
-  testthat::expect_equal(seminr:::pvalr(0.325), "= 0.33")
+  testthat::expect_equal(seminr:::pvalr(0.326, digits = 2), "= 0.33")
   testthat::expect_equal(seminr:::pvalr(0.1), "= 0.100")
   testthat::expect_equal(seminr:::pvalr(0.01), "= 0.010")
   testthat::expect_equal(seminr:::pvalr(0.0001), "< 0.001")
 
-  testthat::expect_equal(seminr:::pvalr(0.325, digits = 4), "= 0.33")
+  testthat::expect_equal(seminr:::pvalr(0.326, digits = 2), "= 0.33")
   testthat::expect_equal(seminr:::pvalr(0.1, html = T), "= 0.100")
   testthat::expect_equal(seminr:::pvalr(0.01, digits = 5), "= 0.01000")
   testthat::expect_equal(seminr:::pvalr(0.0001, html = T), "&lt; 0.001")
