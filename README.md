@@ -418,7 +418,7 @@ Primary Authors:
 
 Key Contributors:
 
-  - [James Uanhoro](http://jamesuanhoro.com/) (ten Berge factor
+  - [James Uanhoro](https://www.jamesuanhoro.com/) (ten Berge factor
     extraction, advice on covariance-based methods)
   - [Arturo Heynar Cano
     Bejar](https://www.iss.nthu.edu.tw/PhD/PhD-Students/arturo-h-cano-bejar)
