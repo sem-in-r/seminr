@@ -50,7 +50,7 @@ boot_corp_rep_ext <- bootstrap_model(seminr_model = corp_rep_pls_model_ext,
 # Store the summary of the bootstrapped model
 sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext, alpha = 0.10)
 
-# Inspect the outer loadings
+# Inspect the indicator loadings
 summary_corp_rep_ext$loadings
 
 # Inspect the indicator reliability
