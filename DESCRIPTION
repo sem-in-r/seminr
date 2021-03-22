@@ -21,7 +21,6 @@ Description: A powerful, easy to syntax for specifying and estimating complex
 Imports:
     parallel,
     lavaan,
-    MASS,
     glue
 License: GPL-3
 Depends: R (>= 3.5.0)

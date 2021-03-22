@@ -1,17 +1,20 @@
 context("SEMinR correctly evaluates fSquared for PLSc estimation\n")
 
-data_cov <- utils::read.csv(file = paste(test_folder, "fsq_data_cov.csv", sep=""))
-data_means <- as.vector(t(utils::read.csv(file = paste(test_folder, "fsq_data_means.csv", sep=""))))
+# data_cov <- utils::read.csv(file = paste(test_folder, "fsq_data_cov.csv", sep=""))
+# data_means <- as.vector(t(utils::read.csv(file = paste(test_folder, "fsq_data_means.csv", sep=""))))
+#
+# data_sim <- as.data.frame(MASS::mvrnorm(250, mu = data_means, Sigma = data_cov))
+#
+# create_item_names <- function(names) {
+#   as.vector(sapply(names, multi_items, item_numbers=1:3))
+# }
+#
+# construct_names <- c("GG", "FF", "EE", "DD", "CC", "BB", "AA")
+# item_names <- create_item_names(construct_names)
+# names(data_sim) <- item_names
+# write.csv(data_sim, file = "test-plsc-fsquared-data.csv")
 
-data_sim <- as.data.frame(MASS::mvrnorm(250, mu = data_means, Sigma = data_cov))
-
-create_item_names <- function(names) {
-  as.vector(sapply(names, multi_items, item_numbers=1:3))
-}
-
-construct_names <- c("GG", "FF", "EE", "DD", "CC", "BB", "AA")
-item_names <- create_item_names(construct_names)
-names(data_sim) <- item_names
+data_sim <- utils::read.csv(file = paste(test_folder, "test-plsc-fsquared-data.csv", sep=""))
 
 measurements <- constructs(
   reflective("AA", multi_items("AA", 1:3)),
