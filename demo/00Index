@@ -5,3 +5,11 @@ seminr-pls-interaction   A demonstration of modeling an interaction using SEMinR
 seminr-alternative-models   A demonstration of alternate model specification, quick and easy
 seminr-pls-higher_order   A demonstration of modeling a higher order construct in SEMinR syntax
 seminr-cbsem-cfa-ecsi   A demonstration of the CBSEM estimation of the ECSI model using SEMinR syntax
+seminr-pls-dot-graph  A demonstration of the graph plotting capability of SEMinR (requires the DiagrammeR package)
+seminr-primer-chap2   A demonstration of the code used in Chapter 2 of the PLS Primer for R Workbook
+seminr-primer-chap3   A demonstration of the code used in Chapter 3 of the PLS Primer for R Workbook
+seminr-primer-chap4   A demonstration of the code used in Chapter 4 of the PLS Primer for R Workbook
+seminr-primer-chap5   A demonstration of the code used in Chapter 5 of the PLS Primer for R Workbook
+seminr-primer-chap6   A demonstration of the code used in Chapter 6 of the PLS Primer for R Workbook
+seminr-primer-chap7   A demonstration of the code used in Chapter 7 of the PLS Primer for R Workbook
+seminr-primer-chap8   A demonstration of the code used in Chapter 8 of the PLS Primer for R Workbook

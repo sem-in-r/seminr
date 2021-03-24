@@ -16,3 +16,4 @@
 ^references.csv
 ^references.yml
 ^R/library-references\.R$
+^\.github$

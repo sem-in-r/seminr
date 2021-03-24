@@ -1,7 +1,7 @@
 ---
 title: "SEMinR"
 author: "Soumya Ray & Nicholas Danks"
-date: "July 07, 2020"
+date: "Dec 31, 2020"
 output:
   html_document:
     toc: true
@@ -432,15 +432,17 @@ boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
                                  cores = 2)
 ```
 
-1. `bootstrap_model()` returns an object of class `boot_seminr_model` which contains the following accessible objects:
+1. `bootstrap_model()` returns an object of class `boot_seminr_model` which contains the original model estimation elements as well as the following accessible bootstrap elements:
     + `boot_seminr_model$boot_paths` an array of the `nboot` estimated bootstrap sample path coefficient matrices
     + `boot_seminr_model$boot_loadings` an array of the `nboot` estimated bootstrap sample item loadings matrices    
     + `boot_seminr_model$boot_weights` an array of the `nboot` estimated bootstrap sample item weights matrices    
     + `boot_seminr_model$boot_HTMT` an array of the `nboot` estimated bootstrap sample model HTMT matrices
+    + `boot_seminr_model$boot_total_paths` an array of the `nboot` estimated bootstrap sample model total paths matrices
     + `boot_seminr_model$paths_descriptives` a matrix of the bootstrap path coefficients and standard deviations
     + `boot_seminr_model$loadings_descriptives` a matrix of the bootstrap item loadings and standard deviations
     + `boot_seminr_model$weights_descriptives` a matrix of the bootstrap item weights and standard deviations
     + `boot_seminr_model$HTMT_descriptives` a matrix of the bootstrap model HTMT and standard deviations
+    + `boot_seminr_model$total_paths_descriptives` a matrix of the bootstrap model total paths and standard deviations
 
 Notably, bootstrapping can also be meaningfully applied to models containing interaction terms and readjusts the interaction term (Henseler and Chin 2010) for every sub-sample. This leads to slightly increased processing times, but provides accurate estimations.
 
@@ -457,18 +459,24 @@ summary(mobi_pls)
 ```
 
 2. `model_summary <- summary(seminr_model)` returns an object of class `summary.seminr_model` which contains the following accessible objects (might vary depending on CBSEM or PLS model):
-    + `model_summary$descriptives` reports the descriptive statistics and correlations for both items and constructs
+    + `meta` reports the metadata about the estimation technique and version
+    + `model_summary$iterations` (PLS only) reports the number of iterations to converge on a stable model
     + `model_summary$paths` reports the matrix of path coefficients, $R^{2}$, and adjusted $R^{2}$
-    + `model_summary$reliability` reports composite reliability ($rho_{C}$), average variance extracted (AVE), and $rho_{A}$
+    + `total_effects` reports the total effects of the structural model
+    + `total_indirect_effects` reports the total indirect effects of the structural model
     + `model_summary$loadings` reports the estimated loadings of the measurement model
     + `model_summary$weights` reports the estimated weights of the measurement model
-    + `model_summary$construct_scores` reports the construct scores of composites
-    + `model_summary$vif_items` reports the Variance Inflation Factor (VIF) for the measurement model
+    + `model_summary$validity$vif_items` reports the Variance Inflation Factor (VIF) for the measurement model
+    + `model_summary$validity$htmt` reports the HTMT for the constructs
+    + `model_summary$validity$fl_criteria` reports the fornell larcker criteria for the constructs
+    + `model_summary$validity$cross_loadings` (PLS only) reports all possible loadings between contructs and items
+    + `model_summary$reliability` reports composite reliability ($rho_{C}$), cronbachs alpha, average variance extracted (AVE), and $rho_{A}$
+    + `model_summary$composite_scores` reports the construct scores of composites
     + `model_summary$vif_antecedents` report the Variance Inflation Factor (VIF) for the structural model
+    + `model_summary$fSquare` reports the effect sizes ($f^{2}$) for the structural model    
+    + `model_summary$descriptives` reports the descriptive statistics and correlations for both items and constructs
     + `model_summary$fSquare` reports the effect sizes ($f^{2}$) for the structural model
-    + `model_summary$htmt` reports the HTMT for the structural model
-    + `model_summary$iterations` (PLS only) reports the number of iterations to converge on a stable model
-    + `model_summary$cross_loadings` (PLS only) reports all possible loadings between contructs and items
+    + `it_criteria` reports the AIC and BIC for the outcome constructs
 
 Please note that common-factor scores are indeterminable and therefore construct scores for reflecive common factors are extracted using a ten Berge procedure.
 
@@ -490,18 +498,18 @@ summary(boot_mobi_pls)
     + `model_summary$bootstrapped_weights` reports a matrix of measurement model weights and their standard deviation, t_values, and confidence intervals.
     + `model_summary$bootstrapped_loadings` reports a matrix of measurement model loadings and their standard deviation, t_values, and confidence intervals.
     + `model_summary$bootstrapped_HTMT` reports a matrix of HTMT values and their standard deviation, t_values, and confidence intervals.
+    + `model_summary$bootstrapped_total_paths` reports a matrix of total paths and their standard deviation, t_values, and confidence intervals.
 
 ## Reporting confidence intervals for direct and mediated bootstrapped structural paths
 
-The `summary(boot_seminr_model)` function will return t_values and confidence intervals for direct structural paths in PLS models. However,
-the `confidence_interval()` function can be used to evaluate the confidence intervals for specific paths - direct and mediated (Zhao et al., 2010) - in a `boot_seminr_model` object returned by the `bootstrap_model()` function.
+The `summary(boot_seminr_model)` function will return t_values and confidence intervals for direct structural paths in PLS models. However, the `confidence_interval()` function can be used to evaluate the confidence intervals for specific paths - direct and mediated (Zhao et al., 2010) - in a `boot_seminr_model` object returned by the `bootstrap_model()` function.
 
 This function takes the following parameters:
 
 * `boot_seminr_model`: a bootstrapped SEMinR model returned by `bootstrap_model()`
 * `from`: the antecedent construct for the structural path
 * `to`: the outcome construct for the structural path
-* `through`: the mediator construct, if the path is mediated (default is NULL)
+* `through`: the mediator construct, if the path is mediated (default is NULL). This parameter can also take a vector for muliple mediation. 
 * `alpha` the required level of alpha (default is 0.05)
 
 and returns a specific confidence interval using the percentile method as per Henseler et al. (2014).
@@ -536,8 +544,8 @@ boot_seminr_model <- bootstrap_model(seminr_model = mobi_pls,
 # Calculate the 5% confidence interval for mediated path Image -> Expectation -> Satisfaction
 confidence_interval(boot_seminr_model = boot_seminr_model,
                    from = "Image",
-                   through = "Expectation",
-                   to = "Satisfaction",
+                   through = c("Expectation", "Satisfaction"),
+                   to = "Complaints",
                    alpha = 0.05)
 
 # Calculate the 10% confidence interval for direct path Image -> Satisfaction
@@ -565,6 +573,53 @@ model_summary$descriptives$statistics$constructs
 model_summary$descriptives$correlations$constructs
 ```
 
+
+# Plotting models
+SEMinR can plot all supported models using the dot language and the graphViz.js widget
+from the `DiagrammeR` package. 
+
+```{r}
+# generate a small model for creating the plot
+mobi_mm <- constructs(
+  composite("Image",        multi_items("IMAG", 1:3)),
+  composite("Value",        multi_items("PERV", 1:2)),
+  higher_composite("Satisfaction", dimensions = c("Image","Value"), method = two_stage),
+  composite("Quality",      multi_items("PERQ", 1:3), weights = mode_B),
+  composite("Complaints",   single_item("CUSCO")),
+  reflective("Loyalty",      multi_items("CUSL", 1:3))
+)
+mobi_sm <- relationships(
+  paths(from = c("Quality"),  to = "Satisfaction"),
+  paths(from = "Satisfaction", to = c("Complaints", "Loyalty"))
+)
+pls_model <- estimate_pls(
+  data = mobi,
+  measurement_model = mobi_mm,
+  structural_model = mobi_sm
+)
+boot_estimates <- bootstrap_model(pls_model, nboot = 100, cores = 1)
+```
+
+When we have a model, we can plot it and save the plot to a file.
+
+```r
+plot(boot_estimates, title = "Bootstrapped Model")
+save_plot("myfigure.png")
+```
+
+
+```{r include = FALSE, eval = FALSE}
+pl <- plot(boot_estimates, title = "Bootstrapped Model")
+save_plot("myfigure.png", width = 2400, plot = pl)
+```
+
+```{r echo=FALSE, out.width='75%'}
+knitr::include_graphics('myfigure.png')
+```
+
+
+
+
 # References
 
 * Becker et al. (2018). Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment
@@ -585,7 +640,7 @@ using partial least squares path modeling. Structural Equation Modeling, 17(1), 
 * Lohmöller, J.-B. (1989). Latent variables path modeling with partial least squares. Heidelberg, Germany: Physica- Verlag.
 Marsh,
 * Monecke, A., & Leisch, F. (2012). semPLS: structural equation modeling using partial least squares. Journal of Statistical Software, 48(3), 1–32.
-* Ringle, C. M., Wende, S., & Becker, J-M. (2015). SmartPLS 3. Bönningstedt: SmartPLS. Retrieved from http://www.smartpls.com
+* Ringle, C. M., Wende, S., & Becker, J-M. (2015). SmartPLS 3. Bönningstedt: SmartPLS. Retrieved from https://www.smartpls.com/
 * Rönkkö, M. (2016). R package matrixpls: Matrix-based partial least squares estimation (version 0.7.0). https://CRAN.R-project.org/package=matrixpls
 * Sarstedt, M., Hair, J. F., Ringle, C. M., Thiele, K. O., & Gudergan, S. P. (2016). Estimation issues with PLS and CBSEM: Where the bias lies! Journal of Business Research, 69(10), 3998–4010. https://doi.org/10.1016/j.jbusres.2016.06.007
 * Ten Berge, J. M., Krijnen, W. P., Wansbeek, T., & Shapiro, A. (1999). Some new results on correlation-preserving factor scores prediction methods. Linear Algebra and its Applications, 289(1-3), 311-318.

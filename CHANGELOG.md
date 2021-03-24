@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project largely adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2021-03-21
+
+### [2.0.1] Changed
+
+- Updated the namespace to exclude MASS
+- Removed the simulation of a fixture in the test-plsc-fsquared file
+
+## [2.0.0] - 2021-02-21
+
+### [2.0.0] Added
+
+- S3 plot() method for visualizing all SEMinR models - CFA, CBSEM, PLS, PLSc
+
+
+## [1.2.0] - 2020-12-31
+
+### [1.2.0] Added
+
+- A new feature to plot interaction plots
+- Demo files for PLS Primer in R Workbook
+- PLSpredict feature
+- total paths and indirect effects
+- New visualization for reliability
+- Cronbachs alpha to reliability
+- new datasets = corp_rep_data2 and corp_rep_data
+- new method for calculating AIC and BIC
+- new demonstration files for an accompanying textbook
+
+### [1.2.0] Changed
+
+- Changed output of summary() to generate standardized matrices and lists with an S3 print method
+- Changed HOC to combine first and second stage results for outer loadings and outer weights
+- Changed estimate_bootstrap() to process bootstrap matrix in a way that is naive to differences in matrix layouts
+
+###[1.2.0] Removed
+- old test fixtures for V 3.5.X (deprecated by R)
+
 ## [1.1.0] - 2020-07-01
 
 ### [1.1.0] Added

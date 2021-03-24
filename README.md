@@ -18,6 +18,7 @@ models (SEM). It allows estimation using either covariance-based SEM
   - [Installation](#installation)
   - [Usage and Examples](#usage-and-examples)
   - [Documentation](#documentation)
+  - [Partner Projects](#partner-projects)
   - [Contact Us](#contact-us)
   - [About Us](#about-us)
 
@@ -32,29 +33,41 @@ Main features of using SEMinR:
   - *Modular design* of models that promotes reuse of model components
   - Encourages *best practices* by use of smart defaults and warnings
 
-Take a look at the easy syntax and modular
-design:
+Take a look at the easy syntax and modular design:
 
 ``` r
-# Define measurements with famliar terms: reflective, multi-item constructs, etc.
+# Define measurements with famliar terms: reflective, composite, multi-item constructs, etc.
 measurements <- constructs(
   reflective("Image",       multi_items("IMAG", 1:5)),
-  reflective("Expectation", multi_items("CUEX", 1:3)),
-  reflective("Loyalty",     multi_items("CUSL", 1:3)),
-  reflective("Complaints",  single_item("CUSCO"))
+  composite("Expectation", multi_items("CUEX", 1:3)),
+  composite("Loyalty",     multi_items("CUSL", 1:3), weights = mode_B),
+  composite("Complaints",  single_item("CUSCO"))
 )
 
 # Create four relationships (two regressions) in one line!
 structure <- relationships(
-  paths(from = c("Image", "Expectation"), to = c("Complaints", "Loyalty")
+  paths(from = c("Image", "Expectation"), to = c("Complaints", "Loyalty"))
 )
 
-# Put together reusable parts of your model to estimate CBSEM results
-cbsem_model <- estimate_cbsem(data = mobi, measurements, structure)
-
-# Re-estimate the model using another estimation technique (Consistent PLS)
+# Estimate the model using PLS estimation scheme (Consistent PLS for reflectives)
 pls_model <- estimate_pls(data = mobi, measurements, structure)
+#> Generating the seminr model
+#> All 250 observations are valid.
+
+# Re-estimate the model as a purely reflective model using CBSEM
+cbsem_model <- estimate_cbsem(data = mobi, as.reflective(measurements), structure)
+#> Generating the seminr model for CBSEM
 ```
+
+SEMinR can plot models using the semplot (for CBSEM models) or
+DiagrammeR (for PLS models) packages with a simple `plot` method.
+
+``` r
+plot(pls_model, title = "PLS Model")
+save_plot("myfigure.pdf")
+```
+
+![](man/figures/model_pls.png)
 
 SEMinR allows various estimation methods for constructs and SEMs:
 
@@ -83,7 +96,7 @@ SEMinR allows various estimation methods for constructs and SEMs:
       - *High performance, multi-core* bootstrapping function
 
 Researchers can now create a SEM and estimate it using different
-techniques (PLS-PM, CBSEM).
+techniques (CBSEM, PLS-PM).
 
 ## Installation
 
@@ -112,7 +125,6 @@ the various examples below for different use cases:
 4.  [Comparing CBSEM and PLS-PM
     Example](#comparing-cbsem-and-pls-pm-example)
 
-
 ### CFA + CBSEM Example with Common Factors
 
 Note that CBSEM models reflective common-factor constructs, not
@@ -120,8 +132,7 @@ composites. SEMinR uses the powerful Lavaan package to estimate CBSEM
 models – you can even inspect the more complicated Lavaan syntax that is
 produced.
 
-Describe reflective constructs and
-interactions:
+Describe reflective constructs and interactions:
 
 ``` r
 # Distinguish and mix composite or reflective (common-factor) measurement models
@@ -129,9 +140,9 @@ interactions:
 measurements <- constructs(
   reflective("Image",       multi_items("IMAG", 1:5)),
   reflective("Expectation", multi_items("CUEX", 1:3)),
-  interaction_term(iv = "Image", moderator = "Expectation", method = two_stage)
+  interaction_term(iv = "Image", moderator = "Expectation", method = two_stage),
   reflective("Loyalty",     multi_items("CUSL", 1:3)),
-  reflective("Complaints",  single_item("CUSCO")),
+  reflective("Complaints",  single_item("CUSCO"))
 )
 ```
 
@@ -141,24 +152,23 @@ Describe the causal relationships between constructs and interactions:
 # Quickly create multiple paths "from" and "to" sets of constructs
 structure <- relationships(
   paths(from = c("Image", "Expectation", "Image*Expectation"), to = "Loyalty"),
-  paths(from = "Image", to = c("Complaints", "Loyalty"))
+  paths(from = "Image", to = c("Complaints"))
 )
 ```
 
-Put the above elements together to estimate the model using
-Lavaan:
+Put the above elements together to estimate the model using Lavaan:
 
 ``` r
 # Evaluate only the measurement model using Confirmatory Factor Analysis (CFA)
 cfa_model <- estimate_cfa(data = mobi, measurements)
-summary(cbsem_model)
+summary(cfa_model)
 
 # Dynamically compose full SEM models from individual parts
 # - if measurement model includes composites, convert all constructs to reflective using:
 #     as.reflective(measurements)
 cbsem_model <- estimate_cbsem(data = mobi, measurements, structure)
-summary(cbsem_model)
-cbsem_model$meta$syntax # See the Lavaan syntax if you wish
+sum_cbsem_model <- summary(cbsem_model)
+sum_cbsem_model$meta$syntax # See the Lavaan syntax if you wish
 ```
 
 ### Consistent-PLS (PLSc) Example with Common Factors
@@ -196,8 +206,9 @@ PLS-PM typically models composites (constructs that are weighted average
 of items) rather than common factors. Popular software like SmartPLS
 models composites either as Mode A (correlation weights) or Mode B
 (regression weights). We also support both modes as well as second-order
-composites.
-
+composites. rather than common factors. Popular software like SmartPLS
+models composites by default, either as Mode A (correlation weights) or
+Mode B (regression weights). We also support second-order composites.
 
 Describe measurement model for each composite, interaction, or higher
 order composite:
@@ -234,12 +245,74 @@ pls_model <- estimate_pls(
   structural_model = mobi_sm
 )
 
-summary(mobi_pls)
+summary(pls_model)
 
 # Use multi-core parallel processing to speed up bootstraps
 boot_estimates <- bootstrap_model(pls_model, nboot = 1000, cores = 2)
 summary(boot_estimates)
 ```
+
+### Plotting the model results
+
+SEMinR can plot all supported models using the dot language and the
+graphViz.js widget from the `DiagrammeR` package.
+
+``` r
+# generate a small model for creating the plot
+mobi_mm <- constructs(
+  composite("Image",        multi_items("IMAG", 1:3)),
+  composite("Value",        multi_items("PERV", 1:2)),
+  higher_composite("Satisfaction", dimensions = c("Image","Value"), method = two_stage),
+  composite("Quality",      multi_items("PERQ", 1:3), weights = mode_B),
+  composite("Complaints",   single_item("CUSCO")),
+  reflective("Loyalty",      multi_items("CUSL", 1:3))
+)
+mobi_sm <- relationships(
+  paths(from = c("Quality"),  to = "Satisfaction"),
+  paths(from = "Satisfaction", to = c("Complaints", "Loyalty"))
+)
+pls_model <- estimate_pls(
+  data = mobi,
+  measurement_model = mobi_mm,
+  structural_model = mobi_sm
+)
+#> Generating the seminr model
+#> Generating the seminr model
+#> All 250 observations are valid.
+#> All 250 observations are valid.
+boot_estimates <- bootstrap_model(pls_model, nboot = 100, cores = 1)
+#> Bootstrapping model using seminr...
+#> SEMinR Model successfully bootstrapped
+```
+
+When we have a model, we can plot it and save the plot to files.
+
+``` r
+plot(boot_estimates, title = "Bootstrapped Model")
+save_plot("myfigure.pdf")
+```
+
+![](man/figures/model.png)
+
+#### Themes
+
+We can customize the plot using an elaborate theme. Themes can be used
+for individual plots as a parameter or set as a default. Using the
+`seminr_theme_create()` function allows to define different themes.
+
+``` r
+# Tip: auto complete is your friend in finding all possible themeing options.
+thm <- seminr_theme_create(plot.rounding = 2, plot.adj = F, 
+                           sm.node.fill = "cadetblue1",
+                           mm.node.fill = "lightgray")
+# change new default theme - valid until R is restarted
+seminr_theme_set(thm)
+
+# the new plot
+plot(boot_estimates)
+```
+
+![](man/figures/model2.png)
 
 ### Comparing CBSEM and PLS-PM Example
 
@@ -259,7 +332,7 @@ measurements <- constructs(
 
 # Create four relationships (two regressions) in one line!
 structure <- relationships(
-  paths(from = c("Image", "Expectation"), to = c("Complaints", "Loyalty")
+  paths(from = c("Image", "Expectation"), to = c("Complaints", "Loyalty"))
 )
 
 # First, estimate the model using PLS
@@ -299,6 +372,29 @@ installation.
     common factors using in PLSc
   - [seminr-style-contained.R](demo/seminr-style-contained.R): Create
     and execute a SEM model in one function call
+  - [seminr-dot-graph.R](demo/seminr-pls-dot-graph.R): Create a plot
+    from a SEM model
+
+## Sister Projects
+
+  - [seminrstudio](https://github.com/sem-in-r/seminrstudio): A set of
+    addins for RStudio to simplify using SEMinR.
+
+## Partner Projects
+
+We communicate and collaborate with several other open-source projects
+on SEM related issues.
+
+  - [plspm package for R](https://github.com/gastonstat/plspm): an early
+    and limited PLS path modeling package for R that inspired the
+    development of SEMinR, among others; it is no longer maintained.
+  - [plspm package for
+    Python](https://github.com/GoogleCloudPlatform/plspm-python): a
+    well-maintained PLS modeling pakage for Python; it is tested against
+    SEMinR and borrows some syntactic ideas from SEMinR.
+  - [cSEM](https://github.com/M-E-Rademaker/cSEM): a well-maintained and
+    comprehensive composite analysis project implementing PLS and GSCA
+    for R, using Lavaan style syntax
 
 ## Contact Us
 
@@ -318,14 +414,17 @@ Primary Authors:
 
   - [Soumya Ray](https://soumyaray.com)
   - [Nicholas Danks](https://nicholasdanks.com)
+  - [André Calero Valdez](https://calerovaldez.com/)
 
 Key Contributors:
 
-  - [James Uanhoro](http://jamesuanhoro.com/) (ten Berge factor
+  - [James Uanhoro](https://www.jamesuanhoro.com/) (ten Berge factor
     extraction, advice on covariance-based methods)
   - [Arturo Heynar Cano
     Bejar](https://www.iss.nthu.edu.tw/PhD/PhD-Students/arturo-h-cano-bejar)
     (evaluation and testing of PLS and CBSEM models)
+  - [Johannes Nakayama](https://github.com/JohannesNakayama)
+    (contributions to the model visualization functionality)
 
 And many thanks to the growing number of folks who have reached out with
 feature requests, bug reports, and encouragement. You keep us going\!
