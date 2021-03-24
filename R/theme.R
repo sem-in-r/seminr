@@ -64,6 +64,7 @@
 #' @param sm.edge.label.fontsize Font size of the structural model edge labels.
 #' @param sm.edge.label.fontcolor Font color of the structural model edge labels.
 #' @param sm.edge.label.show Whether or not to show edge labels on structural model edges.
+#' @param sm.edge.label.all_betas Whether to label both endogenous and exogenous paths with a beta (default = TRUE).
 #' @param sm.edge.minlen Minimum length of the structural model edges.
 #' @param sm.edge.width_offset The minimal width of an edge of the structural model (default = 0.5).
 #' @param sm.edge.width_multiplier The multiplier for structural model edges (default = 5).
@@ -131,16 +132,17 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                          sm.edge.label.fontsize = 9,
                          sm.edge.label.fontcolor = "black",
                          sm.edge.label.show = TRUE,
+                         sm.edge.label.all_betas = TRUE,
                          sm.edge.minlen = NA_integer_,
                          sm.edge.width_offset = 0.5,
                          sm.edge.width_multiplier = 5,
                          construct.reflective.shape = "ellipse",
                          construct.reflective.arrow = "backward",
                          construct.reflective.use_weights = FALSE,
-                         construct.compositeA.shape = "ellipse",
+                         construct.compositeA.shape = "hexagon",
                          construct.compositeA.arrow = "backward",
                          construct.compositeA.use_weights = FALSE,
-                         construct.compositeB.shape = "ellipse",
+                         construct.compositeB.shape = "hexagon",
                          construct.compositeB.arrow = "forward",
                          construct.compositeB.use_weights = TRUE,
                          manifest.reflective.shape = "box",
@@ -237,6 +239,7 @@ seminr_theme_create <- function(plot.title.fontsize = 24,
                 sm.edge.label.fontsize = sm.edge.label.fontsize,
                 sm.edge.label.fontcolor = sm.edge.label.fontcolor,
                 sm.edge.label.show = sm.edge.label.show,
+                sm.edge.label.all_betas = sm.edge.label.all_betas,
                 sm.edge.boot.show_t_value = sm.edge.boot.show_t_value,
                 sm.edge.boot.show_p_value = sm.edge.boot.show_p_value,
                 sm.edge.boot.show_p_stars = sm.edge.boot.show_p_stars,

@@ -36,12 +36,12 @@ Main features of using SEMinR:
 Take a look at the easy syntax and modular design:
 
 ``` r
-# Define measurements with famliar terms: reflective, multi-item constructs, etc.
+# Define measurements with famliar terms: reflective, composite, multi-item constructs, etc.
 measurements <- constructs(
   reflective("Image",       multi_items("IMAG", 1:5)),
-  reflective("Expectation", multi_items("CUEX", 1:3)),
-  reflective("Loyalty",     multi_items("CUSL", 1:3)),
-  reflective("Complaints",  single_item("CUSCO"))
+  composite("Expectation", multi_items("CUEX", 1:3)),
+  composite("Loyalty",     multi_items("CUSL", 1:3), weights = mode_B),
+  composite("Complaints",  single_item("CUSCO"))
 )
 
 # Create four relationships (two regressions) in one line!
@@ -49,18 +49,18 @@ structure <- relationships(
   paths(from = c("Image", "Expectation"), to = c("Complaints", "Loyalty"))
 )
 
-# Put together reusable parts of your model to estimate CBSEM results
-cbsem_model <- estimate_cbsem(data = mobi, measurements, structure)
-#> Generating the seminr model for CBSEM
-
-# Re-estimate the model using another estimation technique (Consistent PLS)
+# Estimate the model using PLS estimation scheme (Consistent PLS for reflectives)
 pls_model <- estimate_pls(data = mobi, measurements, structure)
 #> Generating the seminr model
 #> All 250 observations are valid.
+
+# Re-estimate the model as a purely reflective model using CBSEM
+cbsem_model <- estimate_cbsem(data = mobi, as.reflective(measurements), structure)
+#> Generating the seminr model for CBSEM
 ```
 
-SEMinR can plot models using the DiagrammeR packages with a simple
-`plot` method.
+SEMinR can plot models using the semplot (for CBSEM models) or
+DiagrammeR (for PLS models) packages with a simple `plot` method.
 
 ``` r
 plot(pls_model, title = "PLS Model")
@@ -96,7 +96,7 @@ SEMinR allows various estimation methods for constructs and SEMs:
       - *High performance, multi-core* bootstrapping function
 
 Researchers can now create a SEM and estimate it using different
-techniques (PLS-PM, CBSEM).
+techniques (CBSEM, PLS-PM).
 
 ## Installation
 
@@ -375,6 +375,11 @@ installation.
   - [seminr-dot-graph.R](demo/seminr-pls-dot-graph.R): Create a plot
     from a SEM model
 
+## Sister Projects
+
+  - [seminrstudio](https://github.com/sem-in-r/seminrstudio): A set of
+    addins for RStudio to simplify using SEMinR.
+
 ## Partner Projects
 
 We communicate and collaborate with several other open-source projects
@@ -387,9 +392,9 @@ on SEM related issues.
     Python](https://github.com/GoogleCloudPlatform/plspm-python): a
     well-maintained PLS modeling pakage for Python; it is tested against
     SEMinR and borrows some syntactic ideas from SEMinR.
-  - [cSEM](https://github.com/M-E-Rademaker/cSEM): an well-maintained
-    and comprehensive composite analysis project implementing PLS and
-    GSCA for R, using Lavaan style syntax
+  - [cSEM](https://github.com/M-E-Rademaker/cSEM): a well-maintained and
+    comprehensive composite analysis project implementing PLS and GSCA
+    for R, using Lavaan style syntax
 
 ## Contact Us
 
@@ -409,14 +414,17 @@ Primary Authors:
 
   - [Soumya Ray](https://soumyaray.com)
   - [Nicholas Danks](https://nicholasdanks.com)
+  - [André Calero Valdez](https://calerovaldez.com/)
 
 Key Contributors:
 
-  - [James Uanhoro](http://jamesuanhoro.com/) (ten Berge factor
+  - [James Uanhoro](https://www.jamesuanhoro.com/) (ten Berge factor
     extraction, advice on covariance-based methods)
   - [Arturo Heynar Cano
     Bejar](https://www.iss.nthu.edu.tw/PhD/PhD-Students/arturo-h-cano-bejar)
     (evaluation and testing of PLS and CBSEM models)
+  - [Johannes Nakayama](https://github.com/JohannesNakayama)
+    (contributions to the model visualization functionality)
 
 And many thanks to the growing number of folks who have reached out with
 feature requests, bug reports, and encouragement. You keep us going\!

@@ -1,16 +1,19 @@
 Package: seminr
 Type: Package
 Title: Domain-Specific Language for Building and Estimating Structural Equation Models
-Version: 1.9.0
-Date: 2020-12-31
+Version: 2.0.1
+Date: 2021-03-21
 Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("aut", "ths")),
              person("Nicholas Patrick", "Danks", email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
-             person("Juan Manuel Velasquez", "Estrada", role = "aut"),
-             person("James", "Uanhoro", role = "ctr", email = "James.uanhoro@gmail.com"),
-             person("Arturo Heynar Cano", "Bejar", role = "ctr", email = "arturocano997@gmail.com"),
-             person("André", "Calero Valdez", role = "ctr", email = "andrecalerovaldez@gmail.com"),
-             person("Johannes", "Nakayama", role = "ctr", email = "johannes.nakayama@rwth-aachen.de")
-             )
+             person("André", "Calero Valdez", role = "aut", email = "andrecalerovaldez@gmail.com"),
+             person("Juan Manuel Velasquez", "Estrada", role = "ctb"),
+             person("James", "Uanhoro", role = "ctb", email = "James.uanhoro@gmail.com"),
+             person("Johannes", "Nakayama", role = "ctb", email = "johannes.nakayama@rwth-aachen.de"),
+             person("Lilian", "Koyan", role = "ctb", email = "lilian.kojan@rwth-aachen.de"),
+             person("Laura", "Burbach", role = "ctb", email = "laura.burbach@rwth-aachen.de"),
+             person("Arturo Heynar", "Cano Bejar", role = "ctb", email = "arturocano997@gmail.com"),
+             person("Susanne", "Adler", role = "ctb", email = "susanne.adler@ovgu.de")
+            )
 Description: A powerful, easy to syntax for specifying and estimating complex 
     Structural Equation Models. Models can be estimated using Partial 
     Least Squares Path Modeling or Covariance-Based Structural Equation 
@@ -18,7 +21,6 @@ Description: A powerful, easy to syntax for specifying and estimating complex
 Imports:
     parallel,
     lavaan,
-    MASS,
     glue
 License: GPL-3
 Depends: R (>= 3.5.0)
