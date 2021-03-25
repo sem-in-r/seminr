@@ -751,7 +751,7 @@ extract_bootstrapped_values <- function(ltbl, row_index, model, theme) {
   pvalue <- stats::pt(abs(t_value), nrow(model$data) - 1, lower.tail = FALSE)
 
   list(
-    mean = round(ltbl[rownames(ltbl) == row_index, 1], theme$plot.rounding),
+    mean = round(ltbl[rownames(ltbl) == row_index, 2], theme$plot.rounding),
     lower = round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding),
     upper = round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding),
     t = round(t_value, theme$plot.rounding),
