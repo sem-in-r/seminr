@@ -87,7 +87,7 @@ With the help of the \code{DiagrammeR} package this dot graph can then be plotte
 various in RMarkdown, shiny, and other contexts.
 Depending on the type of model, different parameters can be used.
 
-For a full description of parameters for lavaan models see \link[semPlot]{semPaths}
+For a full description of parameters for lavaan models see semPaths method in the semPlot package.
 }
 \details{
 Current limitations:

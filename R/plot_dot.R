@@ -249,7 +249,7 @@ dot_graph <- function(model,
 
 #' Plotting of confirmatory factor analysis models using semPLOT
 #'
-#' For a full description of parameters for lavaan models see \link[semPlot]{semPaths}
+#' For a full description of parameters for lavaan models see semPaths method in the semPlot package.
 #'
 #' @rdname dot_graph
 #' @param model the CFA model
