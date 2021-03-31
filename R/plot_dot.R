@@ -54,9 +54,14 @@ plot.seminr_model <- function(x,
     }
 
     # actual plotting
-    res <- DiagrammeR::grViz(dot_graph(model, title, theme, ...))
-    set_last_seminr_plot(res)
-    return(res)
+    if(requireNamespace("DiagrammeR", quietly = TRUE)){
+      res <- DiagrammeR::grViz(dot_graph(model, title, theme, ...))
+      set_last_seminr_plot(res)
+      return(res)
+    } else {
+      return(NULL)
+    }
+
 }
 
 
@@ -135,11 +140,21 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
   query_install("DiagrammeRsvg")
   query_install("rsvg")
 
+  # prevent failure quietly
+  if(!requireNamespace("DiagrammeRsvg", quietly = TRUE)){
+    return(NULL)
+  }
+  if(!requireNamespace("rsvg", quietly = TRUE)){
+    return(NULL)
+  }
+
+
   if (is.null(plot)) {
     stop("No compatible plot was created.")
   }
 
   # generate svg string
+
   svg <- charToRaw( DiagrammeRsvg::export_svg(plot) )
 
   file_extension <- tolower(tools::file_ext(filename))
@@ -246,7 +261,11 @@ dot_graph <- function(model,
 #' @export
 dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
   query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
-  semPlot::semPaths(model$lavaan_output, what = what, whatLabels = whatLabels,...)
+  if(requireNamespace("semPlot", quietly = TRUE)){
+    return(semPlot::semPaths(model$lavaan_output, what = what, whatLabels = whatLabels,...))
+  } else {
+    return("")
+  }
 }
 
 #' Plotting of covariance based SEMs models using semPLOT
@@ -261,7 +280,13 @@ dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", w
 #' @export
 dot_graph.cbsem_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
   query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
-  semPlot::semPaths(model$lavaan_output, what = what, whatLabels = whatLabels,...)
+  if(requireNamespace("semPlot", quietly = TRUE)){
+    return(
+      semPlot::semPaths(model$lavaan_output, what = what, whatLabels = whatLabels,...)
+    )
+  } else {
+    return("")
+  }
 }
 
 #' @export
