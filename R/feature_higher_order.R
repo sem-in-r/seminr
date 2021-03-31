@@ -43,7 +43,7 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs) {
   dimensions <- c()
   for (construct in HOCs) {
     if (construct[[1]] %in% unique(as.vector(orig_sm))) {
-      obj <- substitute_dimensions_for_HOC(construct, sm, new_mm)
+      obj <- seminr:::substitute_dimensions_for_HOC(construct, sm, new_mm)
       sm <- obj$sm
       dimensions <- c(dimensions, obj$dimensions)
     }

@@ -83,22 +83,58 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         # Function to get PLS estimate results
         getEstimateResults <- function(i, d = d) {
           set.seed(seed + i)
-          boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
-                               measurement_model,
-                               structural_model,
-                               inner_weights = inner_weights)
-          boot_htmt <- HTMT(boot_model)
-          boot_total <- total_effects(boot_model$path_coef)
-          return(as.matrix(c(c(boot_model$path_coef),
-                             c(boot_model$outer_loadings),
-                             c(boot_model$outer_weights),
-                             c(boot_htmt),
-                             c(boot_total))))
+          tryCatch({
+            boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
+                                               measurement_model,
+                                               structural_model,
+                                               inner_weights = inner_weights)
+            boot_htmt <- HTMT(boot_model)
+            boot_total <- total_effects(boot_model$path_coef)
+            return(as.matrix(c(c(boot_model$path_coef),
+                               c(boot_model$outer_loadings),
+                               c(boot_model$outer_weights),
+                               c(boot_htmt),
+                               c(boot_total))))
+            },
+            error = function(cond) {
+              message("Bootstrapping encountered an ERROR: ")
+              message(cond)
+              # parallel::stopCluster(cl)
+
+              return(c(rep(0, 289),
+                       rep(0, 3634),
+                       ))
+            },
+            warning = function(cond) {
+              message("Bootstrapping encountered an ERROR: ")
+              message(cond)
+              # parallel::stopCluster(cl)
+
+              stop()
+            }
+          )
         }
 
         # Bootstrap the estimates
         utils::capture.output(bootmatrix <- parallel::parSapply(cl, 1:nboot, getEstimateResults, d))
 
+        ####
+
+        # for (i in 1:1000) {
+        #   set.seed(seed + i)
+        #   boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
+        #                                      measurement_model,
+        #                                      structural_model,
+        #                                      inner_weights = inner_weights)
+        #   boot_htmt <- HTMT(boot_model)
+        #   boot_total <- total_effects(boot_model$path_coef)
+          # return(as.matrix(c(c(boot_model$path_coef),
+          #                    c(boot_model$outer_loadings),
+          #                    c(boot_model$outer_weights),
+          #                    c(boot_htmt),
+          #                    c(boot_total))))
+        # }
+        ####
         # Collect means and sds for all estimates from bootmatrix
         means <- apply(bootmatrix,1,mean)
         sds <- apply(bootmatrix,1,stats::sd)
