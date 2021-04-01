@@ -7,10 +7,6 @@ if (version$major <= 3 & version$minor <6.0) {
 
 # Recognise if semPlot and rsvg available
 # Check if semPlot present
-if(!requireNamespace("semPlot", quietly = TRUE)){
-  semPlot_present <- FALSE
-}
+semPlot_present <- requireNamespace("semPlot", quietly = TRUE)
 # Check rsvg present
-if(!requireNamespace("rsvg", quietly = TRUE)){
-  rsvg_present <- FALSE
-}
+rsvg_present <- requireNamespace("rsvg", quietly = TRUE)
