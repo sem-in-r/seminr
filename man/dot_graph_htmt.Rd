@@ -9,7 +9,7 @@ dot_graph_htmt(
   title = "HTMT Plot",
   theme = seminr::seminr_theme_get(),
   htmt_threshold = 1,
-  omit_threshold_edges = T,
+  omit_threshold_edges = TRUE,
   use_ci = FALSE
 )
 }

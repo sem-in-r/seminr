@@ -779,7 +779,7 @@ extract_bootstrapped_values <- function(ltbl, row_index, model, theme) {
     mean = round(ltbl[rownames(ltbl) == row_index, 1], theme$plot.rounding),
     lower = round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding),
     upper = round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding),
-    t = round(t_value, theme$plot.rounding),
+    tvalue = round(t_value, theme$plot.rounding),
     p = pvalue
   )
 }
@@ -870,7 +870,7 @@ dot_component_sm_parts <- function(model, theme){
 #' @param structure_only is this called in a structure_only model
 #'
 #' @return Returns a string of the structural model in dot notation.
-extract_sm_nodes <- function(model, theme, structure_only = F) {
+extract_sm_nodes <- function(model, theme, structure_only = FALSE) {
   sm_nodes <- model$constructs
 
 
@@ -1064,7 +1064,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
 
       # show element depending on theme
       if (theme$sm.edge.boot.show_t_value) {
-        tvalue <- paste0("t = ", round(boot_values[["t"]], theme$plot.rounding))
+        tvalue <- paste0("t = ", round(boot_values[["tvalue"]], theme$plot.rounding))
       } else
         tvalue <- ""
 
@@ -1501,7 +1501,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
 
       if (theme$mm.edge.boot.show_t_value) {
         tvalue <-
-          paste0("t = ", round(boot_values[["t"]], theme$plot.rounding))
+          paste0("t = ", round(boot_values[["tvalue"]], theme$plot.rounding))
       }
       if (theme$mm.edge.boot.show_p_value) {
         pvalue <- paste0("p ", pvalr(boot_values[["p"]], html = TRUE))

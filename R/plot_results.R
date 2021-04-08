@@ -61,7 +61,7 @@ plot.reliability_table <- function(x, ...) {
          pt.cex = 1,
          cex = 1,
          text.col = "black",
-         horiz = T ,
+         horiz = TRUE,
          inset = c(0.1, 0.1))
 
   # rhoA line and shape

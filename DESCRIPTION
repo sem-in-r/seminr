@@ -1,6 +1,6 @@
 Package: seminr
 Type: Package
-Title: Domain-Specific Language for Building and Estimating Structural Equation Models
+Title: Building and Estimating Structural Equation Models
 Version: 2.0.2
 Date: 2021-04-01
 Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("aut", "ths")),

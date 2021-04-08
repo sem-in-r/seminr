@@ -2,7 +2,7 @@
 % Please edit documentation in R/clean_data.R
 \name{mean_replacement}
 \alias{mean_replacement}
-\title{Function to clean data of ommitted values by mean replacement}
+\title{Function to clean data of omitted values by mean replacement}
 \usage{
 mean_replacement(data)
 }
@@ -14,7 +14,7 @@ The \code{seminr} package provides a natural syntax for researchers to describe 
 structural equation models.
 }
 \details{
-\code{mean_replacement} provides the verb for replacing all ommitted values (NA only) in the dataset with
+\code{mean_replacement} provides the verb for replacing all omitted values (NA only) in the dataset with
 the mean of the variable.
 }
 \references{
