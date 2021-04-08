@@ -88,7 +88,7 @@
 #' plot_scores(mobi_pls)
 #' @export
 estimate_pls <- function(data, measurement_model=NULL, structural_model=NULL, model=NULL, inner_weights = path_weighting, missing = mean_replacement, missing_value = NA) {
-  cat("Generating the seminr model\n")
+  message("Generating the seminr model")
   data[data == missing_value] <- NA
   data <- missing(data)
   data <- stats::na.omit(data)
