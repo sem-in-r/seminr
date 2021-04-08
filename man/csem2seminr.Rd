@@ -9,6 +9,9 @@ csem2seminr(lav_syntax)
 \arguments{
 \item{lav_syntax}{A \code{string} specifying the composite model measurement and structure using lavaan syntax}
 }
+\value{
+A SEMinR model.
+}
 \description{
 Converts lavaan syntax for composite models used by \code{cSEM} package to \code{SEMinR} model specifications
 }

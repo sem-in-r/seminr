@@ -9,6 +9,9 @@ rho_A(seminr_model)
 \arguments{
 \item{seminr_model}{A \code{seminr_model} containing the estimated seminr model.}
 }
+\value{
+A matrix containing the rhoA metric for each construct.
+}
 \description{
 The \code{rho_A} function calculates the rho_A reliability indices for each construct. For
 formative constructs, the index is set to 1.

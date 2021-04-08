@@ -9,6 +9,9 @@ mean_replacement(data)
 \arguments{
 \item{data}{A dataset to be used for estimating a SEMinR model}
 }
+\value{
+A dataset with all missing values replaced with column means
+}
 \description{
 The \code{seminr} package provides a natural syntax for researchers to describe PLS
 structural equation models.

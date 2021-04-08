@@ -47,6 +47,18 @@
 #' @param ... Any other parameters to pass to \code{lavaan::sem} during
 #'   estimation.
 #'
+#' @return A list of the estimated parameters for the CB-SEM model including:
+#'  \item{data}{A matrix of the data upon which the model was estimated.}
+#'  \item{measurement_model}{The SEMinR measurement model specification.}
+#'  \item{factor_loadings}{The matrix of estimated factor loadings.}
+#'  \item{associations}{A matrix of model variable associations.}
+#'  \item{mmMatrix}{A Matrix of the measurement model relations.}
+#'  \item{smMatrix}{A Matrix of the structural model relations.}
+#'  \item{constructs}{A vector of the construct names.}
+#'  \item{construct scores}{A matrix of the estimated construct scores for the CB-SEM model.}
+#'  \item{item_weights}{A matrix of the estimated CFA item weights.}
+#'  \item{lavaan_model}{The lavaan model syntax equivalent of the SEMinR model.}
+#'  \item{lavaan_output}{The raw lavaan output generated after model estimation.}
 #'
 #' @references Joreskog, K. G. (1973). A general method for estimating a linear structural equation system In: Goldberger AS, Duncan OD, editors. Structural Equation Models in the Social Sciences. New York: Seminar Press.
 #'
@@ -168,6 +180,14 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
 #' Estimates a Confirmatory Factor Analysis (CFA) model
 #'
 #' @inheritParams estimate_cbsem
+#'
+#' @return A list of the estimated parameters for the CFA model including:
+#'  \item{data}{A matrix of the data upon which the model was estimated.}
+#'  \item{measurement_model}{The SEMinR measurement model specification.}
+#'  \item{construct scores}{A matrix of the estimated construct scores for the CB-SEM model.}
+#'  \item{item_weights}{A matrix of the estimated CFA item weights.}
+#'  \item{lavaan_model}{The lavaan model syntax equivalent of the SEMinR model.}
+#'  \item{lavaan_output}{The raw lavaan output generated after model estimation.}
 #'
 #' @usage
 #' estimate_cfa(data, measurement_model = NULL, item_associations=NULL,

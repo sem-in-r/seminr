@@ -6,6 +6,8 @@
 #'
 #' @param seminr_model A \code{seminr_model} containing the estimated seminr model.
 #'
+#' @return A SEMinR model object which has been adjusted according to PLSc.
+#'
 #' @usage
 #' PLSc(seminr_model)
 #'

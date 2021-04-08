@@ -9,6 +9,9 @@ PLSc(seminr_model)
 \arguments{
 \item{seminr_model}{A \code{seminr_model} containing the estimated seminr model.}
 }
+\value{
+A SEMinR model object which has been adjusted according to PLSc.
+}
 \description{
 The \code{PLSc} function calculates the consistent PLS path coefficients and loadings for
 a common-factor model. It returns a \code{seminr_model} containing the adjusted and consistent

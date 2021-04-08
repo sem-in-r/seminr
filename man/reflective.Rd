@@ -11,6 +11,9 @@ reflective(construct_name, item_names)
 
 \item{item_names}{returned by the \code{multi_items} or \code{single_item} functions}
 }
+\value{
+A vector of the indicators for a reflective construct.
+}
 \description{
 \code{reflective} creates the reflective measurement model matrix for a specific common-factor,
 specifying the relevant items of the construct and assigning the relationship of reflective.

@@ -9,6 +9,8 @@
 #'
 #' @param lav_syntax A \code{string} specifying the composite model measurement and structure using lavaan syntax
 #'
+#' @return A SEMinR model.
+#'
 #' @examples
 #' lav_syntax <- '
 #'   Composite model

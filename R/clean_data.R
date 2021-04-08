@@ -8,7 +8,8 @@
 #'
 #' @param data A dataset to be used for estimating a SEMinR model
 #'
-#' @value A dataset with all missing values replaced with column means
+#' @return A dataset with all missing values replaced with column means
+#'
 #' @usage
 #' mean_replacement(data)
 #'
