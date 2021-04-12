@@ -49,9 +49,11 @@ output_paths_control <- as.matrix(read.csv(file = paste(test_folder,"hoc_test_ou
 
 # Testing
 
-test_that("Seminr estimates the model once", {
-  expect_equal(output, as.vector(output_control), tolerance = 0.00001)
-})
+## This test invalidated by switching cat() to message() in estimate_pls()
+## messages (stderr) not captured in output
+# test_that("Seminr estimates the model once", {
+#   expect_equal(output, as.vector(output_control), tolerance = 0.00001)
+# })
 
 test_that("Seminr retains the full measurement model", {
   expect_equal(output_mm[1,], output_mm_control[1,], tolerance = 0.00001)
