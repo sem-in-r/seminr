@@ -12,12 +12,12 @@ warning_missing_data <- function(data, mmMatrix) {
   N <- nrow(data)
   missing_values <- which(stats::complete.cases(data)==FALSE)
   if(length(missing_values)==0){
-    cat("All", N ,"observations are valid.\n")
+    message("All ", N ," observations are valid.")
   }
   else {
-    cat("Data rows", paste(missing_values, collapse=", "),
-        " contain missing values and will be omitted.\n",
-        "Total number of complete cases:", N-length(missing_values), "\n")
+    message("Data rows ", paste(missing_values, collapse=", "),
+            " contain missing values and will be omitted.\n",
+            "Total number of complete cases: ", N-length(missing_values))
   }
 }
 

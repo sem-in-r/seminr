@@ -27,8 +27,8 @@
 #'
 #' @export
 csem2seminr <- function(lav_syntax) {
-  cat("NOTE: Importing lavaan syntax is currently experimental -- some features might not be supported\n")
-  cat("      Please verify imported model features carefully\n")
+  message("NOTE: Importing lavaan syntax is currently experimental -- some features might not be supported\n",
+          "      Please verify imported model features carefully\n")
 
   lav_model <- lavaan::lavaanify(model = lav_syntax)
 

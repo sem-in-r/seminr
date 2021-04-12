@@ -244,7 +244,7 @@ get_factors <- function(seminr_model) {
 }
 
 get_composites <- function(seminr_model) {
-  setdiff(seminr_model$constructs,get_factors(seminr_model))
+  setdiff(seminr_model$constructs, get_factors(seminr_model))
 }
 
 # PURPOSE: functions to extract elements of estimated seminr models (seminr_model)

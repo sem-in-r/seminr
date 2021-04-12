@@ -103,7 +103,7 @@
 #'
 #' @export
 estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, item_associations=NULL, model=NULL, lavaan_model=NULL, estimator="MLR", ...) {
-  cat("Generating the seminr model for CBSEM\n")
+  message("Generating the seminr model for CBSEM")
 
   # TODO: consider higher order models (see estimate_pls() function for template)
 
@@ -220,7 +220,7 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
 #' @export
 estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
                          model=NULL, lavaan_model=NULL, estimator="MLR", ...) {
-  cat("Generating the seminr model for CFA\n")
+  message("Generating the seminr model for CFA")
 
   # TODO: consider higher order models (see estimate_pls() function for template)
   # TODO: warning if the model is incorrectly specified
