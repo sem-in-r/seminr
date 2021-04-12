@@ -30,7 +30,7 @@ test_that("Saving a plot works", {
     # generate the plot
     p <- plot(mobi_pls)
 
-    extensions <- c("pdf", "png", "ps", "svg", "webp") # webp does not work on bioc
+    extensions <- c("pdf", "png", "ps", "svg") #, "webp") # webp does not work on bioc
 
     for (ext in extensions) {
       # save to file
