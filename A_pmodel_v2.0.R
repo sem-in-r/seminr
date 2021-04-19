@@ -107,3 +107,5 @@ pls_model$path_coef
 
 boot_pls <- bootstrap_model(seminr_model = pls_model,
                             nboot = 500)
+nick <- summary(boot_pls)
+nick$bootstrapped_paths
