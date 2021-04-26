@@ -13,6 +13,9 @@ multi_items(item_name, item_numbers, ...)
 
 \item{...}{Additional Item names and nubers}
 }
+\value{
+A vector of numbered indicators.
+}
 \description{
 \code{multi_items} creates a vector of measurment names given the item prefix and number range.
 }

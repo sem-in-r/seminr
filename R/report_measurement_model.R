@@ -5,13 +5,6 @@
 # print measurement model evaluation function for seminr
 #' @export
 print.measurement_model_evaluation.seminr_model <- function(x, na.print=".", digits=3, ...) {
-
-  # Structural Model
-  #cat("\nStructural Model Evaluation:\n")
-  #cat("\nPath Coefficients:\n")
-  #print(x$paths, na.print = na.print, digits=digits)
-
-  # Measurement model
   cat("\nMeasurement Model Evaluation:\n")
 
   # First report Factor metrics:

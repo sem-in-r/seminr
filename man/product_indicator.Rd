@@ -16,6 +16,9 @@
 specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
 \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.}
 }
+\value{
+An un-evaluated function (promise) for estimating a product-indicator interaction effect.
+}
 \description{
 This function automatically generates interaction measurement items for a PLS SEM using scaled product indicator approach.
 }

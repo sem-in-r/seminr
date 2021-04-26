@@ -9,6 +9,8 @@
 #'
 #' @param lav_syntax A \code{string} specifying the composite model measurement and structure using lavaan syntax
 #'
+#' @return A SEMinR model.
+#'
 #' @examples
 #' lav_syntax <- '
 #'   Composite model
@@ -25,8 +27,8 @@
 #'
 #' @export
 csem2seminr <- function(lav_syntax) {
-  cat("NOTE: Importing lavaan syntax is currently experimental -- some features might not be supported\n")
-  cat("      Please verify imported model features carefully\n")
+  message("NOTE: Importing lavaan syntax is currently experimental -- some features might not be supported\n",
+          "      Please verify imported model features carefully\n")
 
   lav_model <- lavaan::lavaanify(model = lav_syntax)
 

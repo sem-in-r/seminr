@@ -17,6 +17,9 @@ confidence_interval(boot_seminr_model, from, to, through, alpha)
 
 \item{alpha}{A parameter for specifying the alpha for the confidence interval. Default is 0.05.}
 }
+\value{
+A vector of lower and upper confidence intervals for a path.
+}
 \description{
 The \code{seminr} package provides a natural syntax for researchers to describe PLS
 structural equation models.

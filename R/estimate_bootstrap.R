@@ -16,6 +16,18 @@
 #'
 #' @param ... A list of parameters passed on to the estimation method.
 #'
+#' @return A list of the estimated parameters for the bootstrapped model including:
+#'  \item{boot_paths}{An array of the `nboot` estimated bootstrap sample path coefficient matrices.}
+#'  \item{boot_loadings}{An array of the `nboot` estimated bootstrap sample item loadings matrices.}
+#'  \item{boot_weights}{An array of the `nboot` estimated bootstrap sample item weights matrices.}
+#'  \item{boot_HTMT}{An array of the `nboot` estimated bootstrap sample model HTMT matrices.}
+#'  \item{boot_total_paths}{An array of the `nboot` estimated bootstrap sample model total paths matrices.}
+#'  \item{paths_descriptives}{A matrix of the bootstrap path coefficients and standard deviations.}
+#'  \item{loadings_descriptives}{A matrix of the bootstrap item loadings and standard deviations.}
+#'  \item{weights_descriptives}{A matrix of the bootstrap item weights and standard deviations.}
+#'  \item{HTMT_descriptives}{A matrix of the bootstrap model HTMT and standard deviations.}
+#'  \item{total_paths_descriptives}{A matrix of the bootstrap model total paths and standard deviations.}
+#'
 #' @usage
 #' bootstrap_model(seminr_model, nboot = 500, cores = NULL, seed = NULL, ...)
 #'
@@ -59,7 +71,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
     {
       # Bootstrapping for significance as per Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on
       # Partial Least Squares Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.
-      cat("Bootstrapping model using seminr...\n")
+      message("Bootstrapping model using seminr...")
 
       # prepare parameters for cluster export (model parameters)
       d <- seminr_model$rawdata
@@ -272,7 +284,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       seminr_model$boots <- nboot
       seminr_model$seed <- seed
       class(seminr_model) <- c("boot_seminr_model", "seminr_model")
-      cat("SEMinR Model successfully bootstrapped")
+      message("SEMinR Model successfully bootstrapped")
       return(seminr_model)
     },
     error = function(cond) {

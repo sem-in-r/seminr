@@ -20,6 +20,9 @@ paths take the form (from = c(construct_name), to = c(construct_name)).}
 \item{paths}{The function \code{paths} that specifies the source and destination constructs
 for each of the model's structural paths.}
 }
+\value{
+A vector of construct names and structural relationships.
+}
 \description{
 \code{paths} creates the structural paths of a PLS SEM model and \code{relationships} generates
 the matrix of paths.

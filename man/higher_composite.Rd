@@ -17,6 +17,9 @@ higher_composite(construct_name, dimensions, method, weights)
 specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
 \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.}
 }
+\value{
+A vector of the indicators for a higher-order-composite.
+}
 \description{
 \code{higher_composite} creates a higher order construct from first order constructs using the two-stage method (Becker et al., 2012).
 }

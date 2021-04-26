@@ -12,6 +12,9 @@ item_errors(items_a, items_b)
 
 \item{items_b}{One or more items that should covary}
 }
+\value{
+A vector of items that covary.
+}
 \description{
 Specifies pair of items, or sets of items, that should covary. Used to
 specify error covariances for \code{\link{associations}}.

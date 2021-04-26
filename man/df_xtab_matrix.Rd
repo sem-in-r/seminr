@@ -15,6 +15,9 @@ df_xtab_matrix(model, df, rows, columns)
 
 \item{columns}{A \code{vector} of column names for the matrix to sort by}
 }
+\value{
+A cross-tabulated matrix matrix with NAs for unspecified pairs.
+}
 \description{
 Cross-tabulates columns of a dataframe into a matrix with NAs for unspecified pairs
 }

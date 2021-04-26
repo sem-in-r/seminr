@@ -5,6 +5,8 @@
 #'
 #' @param seminr_model A \code{seminr_model} containing the estimated seminr model.
 #'
+#' @return A matrix containing the rhoA metric for each construct.
+#'
 #' @usage
 #' rho_A(seminr_model)
 #'
