@@ -87,10 +87,7 @@ export(set_last_seminr_plot)
 export(simplePLS)
 export(single_item)
 export(slope_analysis)
-<<<<<<< HEAD
 export(specific_effect_significance)
-=======
 export(specify_model)
->>>>>>> develop
 export(total_indirect_ci)
 export(two_stage)
