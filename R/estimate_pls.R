@@ -31,6 +31,7 @@
 #'
 #' @param stopCriterion A parameter specifying the stop criterion for estimating the PLS model.
 #'   Default value is 7.
+#'
 #' @return A list of the estimated parameters for the SEMinR model including:
 #'  \item{meanData}{A vector of the indicator means.}
 #'  \item{sdData}{A vector of the indicator standard deviations}
@@ -55,7 +56,9 @@
 #'              measurement_model = NULL, structural_model = NULL, model = NULL,
 #'              inner_weights = path_weighting,
 #'              missing = mean_replacement,
-#'              missing_value = NA)
+#'              missing_value = NA,
+#'              maxIt = 300,
+#'              stopCriterion = 7)
 #'
 #' @seealso \code{\link{specify_model}} \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
 #'          \code{\link{bootstrap_model}}
@@ -93,8 +96,9 @@
 #' plot_scores(mobi_pls)
 #' @export
 estimate_pls <- function(data,
-                         measurement_model,
-                         structural_model,
+                         measurement_model = NULL,
+                         structural_model = NULL,
+                         model = NULL,
                          inner_weights = path_weighting,
                          missing = mean_replacement,
                          missing_value = NA,

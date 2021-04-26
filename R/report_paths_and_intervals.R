@@ -185,7 +185,7 @@ specific_effect_significance <- function(boot_seminr_model, from, to, through = 
                                  orig_matrix[from, through[1]] * orig_matrix[through[1], through[2]] * orig_matrix[through[2], through[3]] * orig_matrix[through[3], through[4]] * orig_matrix[through[4], to ])
     }
   }
-  sd_estimate <- sd(coefficient)
+  sd_estimate <- stats::sd(coefficient)
   mean_estimate <- mean(coefficient)
   quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
   return_vec <- c(orig_coefficient, mean_estimate, sd_estimate, orig_coefficient/sd_estimate,quantiles )

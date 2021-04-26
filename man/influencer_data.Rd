@@ -30,7 +30,7 @@ A data frame with 250 rows and 24 variables:
   \item{pi_4}{I would recommend this product to my friends.}
   \item{pi_5}{I am willing to purchase this product.}
   \item{pic_1}{The influencer is qualified.}
-  \item{pic_}{The influencer is competent.}
+  \item{pic_2}{The influencer is competent.}
   \item{pic_3}{The influencer is an expert.}
   \item{pic_4}{The influencer is experienced.}
   \item{pic_5}{The influencer is knowledgeable.}
