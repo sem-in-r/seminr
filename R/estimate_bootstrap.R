@@ -99,9 +99,9 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         getEstimateResults <- function(i, d = d) {
           set.seed(seed + i)
           boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
-                               measurement_model,
-                               structural_model,
-                               inner_weights,
+                               measurement_model = measurement_model,
+                               structural_model = structural_model,
+                               inner_weights = inner_weights,
                                missing = missing,
                                missing_value = missing_value,
                                stopCriterion = stopCriterion,
@@ -290,7 +290,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       seminr_model$total_paths_descriptives <- total_paths_descriptives
       seminr_model$boots <- nboot
       seminr_model$seed <- seed
-      class(seminr_model) <- "boot_seminr_model"
+      class(seminr_model) <- c("boot_seminr_model", "seminr_model")
       cat("SEMinR Model successfully bootstrapped")
       return(seminr_model)
     },

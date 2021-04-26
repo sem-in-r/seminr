@@ -30,11 +30,15 @@ mobi_pls <- estimate_pls(data = mobi,
                          structural_model = mobi_sm)
 
 summary(mobi_pls)
-plot_scores(mobi_pls)
+
+# Plot the model
+plot(mobi_pls)
 
 # Bootstrap the model
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
-                                 nboot = 2000)
+                                 nboot = 1000)
 
 summary(boot_mobi_pls)
-plot_scores(boot_mobi_pls)
+
+# Plot the bootstrapped model
+plot(boot_mobi_pls)

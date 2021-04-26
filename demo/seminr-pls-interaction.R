@@ -1,8 +1,8 @@
-# Simple Style: Seperate declaration of measurement,interactions and structural model.
+# Simple Style: Separate declaration of measurement,interactions and structural model.
 
 library(seminr)
 
-# First, using the orthogonal method as per Henseler & Chin (2010).
+# First, using the orthogonal method as per Henseler & Chin (2010). ----
 # Creating our measurement model
 mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5)),
@@ -28,13 +28,20 @@ mobi_pls <- estimate_pls(data = mobi,
 
 summary(mobi_pls)
 
+# Plot the model
+plot(mobi_pls)
+
 # Bootstrap the model
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
                                  nboot = 500)
 
 summary(boot_mobi_pls)
 
-# Second, using the standardized product indicator method as per Henseler & Chin (2010).
+# Plot the bootstrapped model
+plot(boot_mobi_pls)
+
+
+# Second, using the standardized product indicator method as per Henseler & Chin (2010). ----
 # seminr syntax for creating measurement model
 mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5)),
@@ -60,15 +67,19 @@ mobi_pls <- estimate_pls(data = mobi,
 
 summary(mobi_pls)
 
+# Plot the model
+plot(mobi_pls)
+
 # Bootstrap the model
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
                                  nboot = 500)
 
 summary(boot_mobi_pls)
 
-library(seminr)
+# Plot the bootstrapped model
+plot(boot_mobi_pls)
 
-# Third, using the two_stage method as per Henseler & Chin (2010).
+# Third, using the two_stage method as per Henseler & Chin (2010). ----
 # Creating our measurement model
 mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5)),
@@ -94,8 +105,14 @@ mobi_pls <- estimate_pls(data = mobi,
 
 summary(mobi_pls)
 
+# Plot the model
+plot(mobi_pls)
+
 # Bootstrap the model
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
                                  nboot = 500)
 
 summary(boot_mobi_pls)
+
+# Plot the bootstrapped model
+plot(boot_mobi_pls)

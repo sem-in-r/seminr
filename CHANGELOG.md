@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project largely adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2021-03-21
+
+### [2.0.1] Changed
+
+- Updated the namespace to exclude MASS
+- Removed the simulation of a fixture in the test-plsc-fsquared file
+
+## [2.0.0] - 2021-02-21
+
+### [2.0.0] Added
+
+- S3 plot() method for visualizing all SEMinR models - CFA, CBSEM, PLS, PLSc
+
+
 ## [1.2.0] - 2020-12-31
 
 ### [1.2.0] Added

@@ -32,6 +32,9 @@ mobi_pls <- estimate_pls(data = mobi,
                          measurement_model = mobi_mm,
                          structural_model = mobi_sm)
 
+# Plot the model
+plot(mobi_pls)
+
 # Reporting the results
 summary(mobi_pls)
 plot_scores(mobi_pls)
@@ -41,5 +44,7 @@ loadings <- mobi_pls$outer_loadings
 
 # Bootstrap the model
 boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls, nboot = 1000)
-
 summary(boot_mobi_pls)
+
+# Plot the bootstrapped model
+plot(boot_mobi_pls)

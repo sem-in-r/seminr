@@ -260,3 +260,31 @@ specific_effect_significance(boot_seminr_model = boot_seminr_model,
 #  model_summary$descriptives$statistics$constructs
 #  model_summary$descriptives$correlations$constructs
 
+## -----------------------------------------------------------------------------
+# generate a small model for creating the plot
+mobi_mm <- constructs(
+  composite("Image",        multi_items("IMAG", 1:3)),
+  composite("Value",        multi_items("PERV", 1:2)),
+  higher_composite("Satisfaction", dimensions = c("Image","Value"), method = two_stage),
+  composite("Quality",      multi_items("PERQ", 1:3), weights = mode_B),
+  composite("Complaints",   single_item("CUSCO")),
+  reflective("Loyalty",      multi_items("CUSL", 1:3))
+)
+mobi_sm <- relationships(
+  paths(from = c("Quality"),  to = "Satisfaction"),
+  paths(from = "Satisfaction", to = c("Complaints", "Loyalty"))
+)
+pls_model <- estimate_pls(
+  data = mobi,
+  measurement_model = mobi_mm,
+  structural_model = mobi_sm
+)
+boot_estimates <- bootstrap_model(pls_model, nboot = 100, cores = 1)
+
+## ----include = FALSE----------------------------------------------------------
+pl <- plot(boot_estimates, title = "Bootstrapped Model")
+save_plot("myfigure.png", width = 2400, plot = pl)
+
+## ----echo=FALSE, out.width='75%'----------------------------------------------
+knitr::include_graphics('myfigure.png')
+

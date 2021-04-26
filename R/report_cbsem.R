@@ -10,7 +10,7 @@ summary.cbsem_model <- function(object, na.print=".", digits=3, ...) {
     model_summary$descriptives$correlations$constructs)
 
   model_summary$quality <- list(
-    fit = summarize_fit(object$lavaan_model),
+    fit = summarize_fit(object$lavaan_output),
     reliability = rhoC_AVE(object),
     antecedent_vifs = regr_vifs
   )
