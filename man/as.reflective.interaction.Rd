@@ -13,6 +13,9 @@ or a single composite construct defined by \code{\link{composite}}}
 
 \item{...}{Any further parameters for the specific construct.}
 }
+\value{
+A list of reflective constructs.
+}
 \description{
 Converts interaction of a measurement model
  into a reflective factors.

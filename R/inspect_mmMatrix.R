@@ -49,6 +49,7 @@ all_items <- function(measurement_model) {
 #'
 #' @param ... Any further parameters for the specific construct.
 #'
+#' @return A list of reflective constructs.
 #' @examples
 #'
 #' mobi_mm <- constructs(
@@ -75,6 +76,8 @@ as.reflective <- function (x, ...) {
 #'
 #' @param ... Any further parameters for the specific construct.
 #'
+#' @return A list of reflective constructs.
+#'
 #' @examples
 #'
 #' mobi_mm <- constructs(
@@ -100,6 +103,7 @@ as.reflective.measurement_model <- function(x, ...) {
 #'
 #' @param ... Any further parameters for the specific construct.
 #'
+#' @return A list of reflective constructs.
 #' @examples
 #'
 #' mobi_mm <- constructs(
@@ -125,6 +129,7 @@ as.reflective.construct <- function(x, ...) {
 #'
 #' @param ... Any further parameters for the specific construct.
 #'
+#' @return A list of reflective constructs.
 #' @examples
 #'
 #' mobi_mm <- constructs(

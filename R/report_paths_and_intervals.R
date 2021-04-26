@@ -18,6 +18,8 @@
 #' @param constructs a \code{list} indicating which constructs to report. If not
 #'   specified, all constructs are graphed and returned.
 #'
+#' @return A matrix of structural paths.
+#'
 #' @usage
 #' report_paths(seminr_model, digits=3)
 #'
@@ -114,6 +116,8 @@ report_paths <- function(seminr_model, digits=3) {
 #'
 #' @param alpha A parameter for specifying the alpha for the confidence interval. Default is 0.05.
 #'
+#' @return A vector of lower and upper confidence intervals for a path.
+#'
 #' @usage
 #' specific_effect_significance(boot_seminr_model, from, to, through, alpha)
 #'
@@ -201,6 +205,8 @@ specific_effect_significance <- function(boot_seminr_model, from, to, through = 
 #' @param to A parameter specifying the outcome composite for the path.
 #'
 #' @param alpha A parameter for specifying the alpha for the confidence interval. Default is 0.05.
+#'
+#' @return A vector of lower and upper confidence intervals for a path.
 #'
 #' @usage
 #' total_indirect_ci(boot_seminr_model, from, to, alpha)

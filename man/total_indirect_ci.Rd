@@ -15,6 +15,9 @@ total_indirect_ci(boot_seminr_model, from, to, alpha)
 
 \item{alpha}{A parameter for specifying the alpha for the confidence interval. Default is 0.05.}
 }
+\value{
+A vector of lower and upper confidence intervals for a path.
+}
 \description{
 \code{total_indirect_ci} provides the verb for calculating the total indirect confidence intervals of a
 direct or mediated path in a bootstrapped SEMinR model.

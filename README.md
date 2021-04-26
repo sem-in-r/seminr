@@ -302,7 +302,7 @@ for individual plots as a parameter or set as a default. Using the
 
 ``` r
 # Tip: auto complete is your friend in finding all possible themeing options.
-thm <- seminr_theme_create(plot.rounding = 2, plot.adj = F, 
+thm <- seminr_theme_create(plot.rounding = 2, plot.adj = FALSE, 
                            sm.node.fill = "cadetblue1",
                            mm.node.fill = "lightgray")
 # change new default theme - valid until R is restarted

@@ -11,6 +11,9 @@ associations(...)
 \arguments{
 \item{...}{One or more associations defined by \code{\link{item_errors}}}
 }
+\value{
+A matrix of items that covary.
+}
 \description{
 Specifies inter-item covariances that should be supplied to
 CBSEM estimation (\code{\link{estimate_cbsem}}) or

@@ -31,6 +31,24 @@
 #'
 #' @param stopCriterion A parameter specifying the stop criterion for estimating the PLS model.
 #'   Default value is 7.
+#' @return A list of the estimated parameters for the SEMinR model including:
+#'  \item{meanData}{A vector of the indicator means.}
+#'  \item{sdData}{A vector of the indicator standard deviations}
+#'  \item{mmMatrix}{A Matrix of the measurement model relations.}
+#'  \item{smMatrix}{A Matrix of the structural model relations.}
+#'  \item{constructs}{A vector of the construct names.}
+#'  \item{mmVariables}{A vector of the indicator names.}
+#'  \item{outer_loadings}{The matrix of estimated indicator loadings.}
+#'  \item{outer_weights}{The matrix of estimated indicator weights.}
+#'  \item{path_coef}{The matrix of estimated structural model relationships.}
+#'  \item{iterations}{A numeric indicating the number of iterations required before the algorithm converged.}
+#'  \item{weightDiff}{A numeric indicating the minimum weight difference between iterations of the algorithm.}
+#'  \item{construct_scores}{A matrix of the estimated construct scores for the PLS model.}
+#'  \item{rSquared}{A matrix of the estimated R Squared for each construct.}
+#'  \item{inner_weights}{The inner weight estimation function.}
+#'  \item{data}{A matrix of the data upon which the model was estimated (INcluding interactions.}
+#'  \item{rawdata}{A matrix of the data upon which the model was estimated (EXcluding interactions.}
+#'  \item{measurement_model}{The SEMinR measurement model specification.}
 #'
 #' @usage
 #' estimate_pls(data,
@@ -82,7 +100,7 @@ estimate_pls <- function(data,
                          missing_value = NA,
                          maxIt=300,
                          stopCriterion=7) {
-  cat("Generating the seminr model\n")
+  message("Generating the seminr model")
   data[data == missing_value] <- NA
   rawdata <- data
   data <- missing(data)

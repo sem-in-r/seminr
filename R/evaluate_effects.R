@@ -6,6 +6,8 @@
 #' @param iv An independent variable in the model.
 #' @param dv A dependent variable in the model.
 #'
+#' @return A matrix of the estimated F Square metric for each construct.
+#'
 #' @usage
 #' fSquared(seminr_model, iv, dv)
 #'
