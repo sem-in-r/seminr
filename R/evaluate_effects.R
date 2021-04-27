@@ -59,7 +59,7 @@ fSquared <- function(seminr_model, iv, dv) {
   #   lm <- stats::lm(formula = frmla, data = data)
   #   summary(lm)
   #   }
-  utils::capture.output(
+  suppressMessages(
     without_pls <- estimate_pls(data = seminr_model$rawdata,
                                 measurement_model = seminr_model$measurement_model,
                                 structural_model = without_sm,

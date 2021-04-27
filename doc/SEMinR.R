@@ -31,21 +31,21 @@ library(seminr)
 #                            measurement_model = measurements,
 #                            structural_model = structure)
 #  summary(pls_model)
-#
+#  
 #  # note: PLS requires seperate bootstrapping for PLS path estimates
 #  # SEMinR uses multi-core parallel processing to speed up bootstrapping
 #  boot_estimates <- bootstrap_model(pls_model, nboot = 1000, cores = 2)
 #  summary(boot_estimates)
-#
+#  
 #  # Alternatively, we could estimate our model using CBSEM, which uses the Lavaan package
 #  # We often wish to conduct a CFA of our measurement model prior to CBSEM
 #  # note: we must convert composites in our measurement model into reflective constructs for CFA/CBSEM
 #  cfa_model <- estimate_cfa(data = mobi, as.reflective(measurements))
 #  summary(cfa_model)
-#
+#  
 #  cbsem_model <- estimate_cbsem(data = mobi, as.reflective(measurements), structure)
 #  summary(cbsem_model)
-#
+#  
 #  # note: the Lavaan syntax and Lavaan fitted model can be extracted for your own specific needs
 #  cbsem_model$lavaan_syntax
 #  cbsem_model$lavaan_model
@@ -93,7 +93,7 @@ head(mobi)
 #  # Coerce a composite into reflective form
 #  img_composite <- composite("Image", multi_items("IMAG", 1:5))
 #  img_reflective <- as.reflective(img_composite)
-#
+#  
 #  # Coerce all constructs of a measurement model into composite form
 #  mobi_composites <- constructs(
 #    composite("Image",         multi_items("IMAG", 1:5)),
@@ -127,7 +127,7 @@ head(mobi)
 ## ---- eval = FALSE------------------------------------------------------------
 #  # By default, interaction terms are computed using two stage procedures
 #  interaction_term(iv = "Image", moderator = "Expectation")
-#
+#  
 #  # You can also explicitly specify how to create the interaction term
 #  interaction_term(iv = "Image", moderator = "Expectation", method =  two_stage)
 #  interaction_term(iv = "Image", moderator = "Expectation", method =  product_indicator)
@@ -281,9 +281,9 @@ pls_model <- estimate_pls(
 )
 boot_estimates <- bootstrap_model(pls_model, nboot = 100, cores = 1)
 
-## ----include = FALSE----------------------------------------------------------
-pl <- plot(boot_estimates, title = "Bootstrapped Model")
-save_plot("myfigure.png", width = 2400, plot = pl)
+## ----include = FALSE, eval = FALSE--------------------------------------------
+#  pl <- plot(boot_estimates, title = "Bootstrapped Model")
+#  save_plot("myfigure.png", width = 2400, plot = pl)
 
 ## ----echo=FALSE, out.width='75%'----------------------------------------------
 knitr::include_graphics('myfigure.png')

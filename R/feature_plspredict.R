@@ -277,14 +277,14 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
   PLS_predicted_insample_item <- matrix(0,nrow = nrow(ordered_data),ncol = length(model$mmVariables),dimnames = list(rownames(ordered_data),model$mmVariables))
   PLS_predicted_insample_item_residuals <- matrix(0,nrow = nrow(ordered_data),ncol = length(model$mmVariables),dimnames = list(rownames(ordered_data),model$mmVariables))
   #PLS prediction on testset model
-  utils::capture.output(train_model <- seminr::estimate_pls(data = trainingData,
-                                                            measurement_model = model$measurement_model,
-                                                            structural_model = model$smMatrix,
-                                                            inner_weights = model$inner_weights,
-                                                            missing = model$settings$missing,
-                                                            missing_value = model$settings$missing_value,
-                                                            maxIt = model$settings$maxIt,
-                                                            stopCriterion = model$settings$stopCriterion))
+  suppressMessages(train_model <- seminr::estimate_pls(data = trainingData,
+                                                       measurement_model = model$measurement_model,
+                                                       structural_model = model$smMatrix,
+                                                       inner_weights = model$inner_weights,
+                                                       missing = model$settings$missing,
+                                                       missing_value = model$settings$missing_value,
+                                                       maxIt = model$settings$maxIt,
+                                                       stopCriterion = model$settings$stopCriterion))
   test_predictions <- stats::predict(object = train_model,
                                      testData = testingData,
                                      technique = technique)
