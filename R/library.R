@@ -296,14 +296,16 @@ skew <- function(x, na.rm = FALSE) {
 }
 
 desc <- function(data, na.rm = na.rm) {
-  Mean <- apply(data, 2, mean)
-  Std.Dev. <- apply(data, 2, stats::sd)
+  Mean <- apply(data, 2, mean, na.rm = na.rm)
+  Std.Dev. <- apply(data, 2, stats::sd, na.rm = na.rm)
   Kurtosis <- kurt(data, na.rm = na.rm)
-  Min <- apply(data, 2, min)
-  Max <- apply(data, 2, max)
-  Median <- apply(data, 2, stats::median)
+  Min <- apply(data, 2, min, na.rm = na.rm)
+  Max <- apply(data, 2, max, na.rm = na.rm)
+  Median <- apply(data, 2, stats::median, na.rm = na.rm)
   Skewness <- skew(data, na.rm = na.rm)
   Missing <- apply(data, 2, function(x) sum(stats::complete.cases(x)==FALSE))
+  # Missing <- attributes(data)$Missing
+  # Missing <- apply(data, 2, function(x) sum(stats::complete.cases(x)==FALSE))
   No. <- 1:ncol(data)
   cbind(No., Missing, Mean, Median, Min, Max, Std.Dev., Kurtosis, Skewness)
 }

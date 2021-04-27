@@ -45,12 +45,12 @@ summary_corp_rep_ext$iterations
 
 # Bootstrap the model
 boot_corp_rep_ext <- bootstrap_model(seminr_model = corp_rep_pls_model_ext,
-                                     nboot = 10000)
+                                     nboot = 1000)
 
 # Store the summary of the bootstrapped model
-sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext)
+sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext, alpha = 0.10)
 
-# Inspect the outer loadings
+# Inspect the indicator loadings
 summary_corp_rep_ext$loadings
 
 # Inspect the indicator reliability
@@ -174,7 +174,7 @@ summary_corp_rep_ext$validity$vif_items
 # seed is the seed to be used for making bootstrap replicable
 boot_corp_rep_ext <- bootstrap_model(
   seminr_model = corp_rep_pls_model_ext,
-  nboot = 10000,
+  nboot = 1000,
   cores = parallel::detectCores(),
   seed = 123)
 
@@ -184,3 +184,6 @@ sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext, alpha = 0.05)
 
 # Inspect the bootstrapping results for outer weights
 sum_boot_corp_rep_ext$bootstrapped_weights
+
+# Inspect the bootstrapping results for the outer loadings
+sum_boot_corp_rep_ext$bootstrapped_loadings

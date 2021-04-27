@@ -1,7 +1,7 @@
 # A function to take a seminr model and return item and construct descriptives
 descriptives <- function(seminr_model, na.rm = TRUE) {
   #items
-  item_descriptives <- desc(seminr_model$data, na.rm = na.rm)
+  item_descriptives <- desc(seminr_model$rawdata, na.rm = na.rm)
   item_correlations <- stats::cor(seminr_model$data)
   #constructs
   construct_descriptives <- desc(seminr_model$construct_scores, na.rm = na.rm)

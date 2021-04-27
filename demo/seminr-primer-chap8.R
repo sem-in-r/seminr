@@ -43,7 +43,7 @@ sum_corp_rep_mod <- summary(corp_rep_pls_model_mod)
 
 # Bootstrap the model ----
 boot_corp_rep_mod <- bootstrap_model(seminr_model = corp_rep_pls_model_mod,
-                                     nboot = 10000)
+                                     nboot = 1000)
 
 # Summarize the results of the bootstrap
 sum_boot_corp_rep_mod <- summary(boot_corp_rep_mod, alpha = 0.05)

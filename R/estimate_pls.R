@@ -26,6 +26,12 @@
 #' @param missing_value Value in dataset that indicates missing values.
 #'   NA is used by default.
 #'
+#' @param maxIt A parameter that specifies that maximum number of iterations when estimating the
+#'   PLS model. Default value is 300.
+#'
+#' @param stopCriterion A parameter specifying the stop criterion for estimating the PLS model.
+#'   Default value is 7.
+#'
 #' @return A list of the estimated parameters for the SEMinR model including:
 #'  \item{meanData}{A vector of the indicator means.}
 #'  \item{sdData}{A vector of the indicator standard deviations}
@@ -50,7 +56,9 @@
 #'              measurement_model = NULL, structural_model = NULL, model = NULL,
 #'              inner_weights = path_weighting,
 #'              missing = mean_replacement,
-#'              missing_value = NA)
+#'              missing_value = NA,
+#'              maxIt = 300,
+#'              stopCriterion = 7)
 #'
 #' @seealso \code{\link{specify_model}} \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
 #'          \code{\link{bootstrap_model}}
@@ -87,12 +95,20 @@
 #' summary(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
-estimate_pls <- function(data, measurement_model=NULL, structural_model=NULL, model=NULL, inner_weights = path_weighting, missing = mean_replacement, missing_value = NA) {
+estimate_pls <- function(data,
+                         measurement_model = NULL,
+                         structural_model = NULL,
+                         model = NULL,
+                         inner_weights = path_weighting,
+                         missing = mean_replacement,
+                         missing_value = NA,
+                         maxIt=300,
+                         stopCriterion=7) {
   message("Generating the seminr model")
   data[data == missing_value] <- NA
+  rawdata <- data
   data <- missing(data)
   data <- stats::na.omit(data)
-  rawdata <- data
 
   # Extract model specifications
   specified_model <- extract_models(model, measurement_model, structural_model)
@@ -107,7 +123,9 @@ estimate_pls <- function(data, measurement_model=NULL, structural_model=NULL, mo
                                       sm = structural_model,
                                       mm = measurement_model,
                                       inners = inner_weights,
-                                      HOCs = HOCs)
+                                      HOCs = HOCs,
+                                      maxIt=maxIt,
+                                      stopCriterion=stopCriterion)
     measurement_model <- HOM$mm
     structural_model <- HOM$sm
     data <- HOM$data
@@ -125,10 +143,20 @@ estimate_pls <- function(data, measurement_model=NULL, structural_model=NULL, mo
   measurement_mode_scheme <- sapply(unique(c(structural_model[,1], structural_model[,2])), get_measure_mode, mmMatrix, USE.NAMES = TRUE)
 
   # Run the model in simplePLS
-  seminr_model = seminr::simplePLS(obsData = data, smMatrix = structural_model, mmMatrix = mmMatrix, inner_weights = inner_weights, measurement_mode_scheme = measurement_mode_scheme)
+  seminr_model = seminr::simplePLS(obsData = data,
+                                   smMatrix = structural_model,
+                                   mmMatrix = mmMatrix,
+                                   inner_weights = inner_weights,
+                                   maxIt=maxIt,
+                                   stopCriterion=stopCriterion,
+                                   measurement_mode_scheme = measurement_mode_scheme)
   seminr_model$data <- data
   seminr_model$rawdata <- rawdata
   seminr_model$measurement_model <- measurement_model
+  seminr_model$settings$missing_value <- missing_value
+  seminr_model$settings$maxIt <- maxIt
+  seminr_model$settings$stopCriterion <- stopCriterion
+  seminr_model$settings$missing <- missing
 
   # Correct for Bias in Reflective models using PLS Consistent
   seminr_model <- model_consistent(seminr_model)
