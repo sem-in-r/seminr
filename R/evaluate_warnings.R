@@ -8,7 +8,8 @@ warning_single_item_formative <- function(mmMatrix) {
 }
 
 warning_missing_data <- function(data, mmMatrix) {
-  data <- data[, mmMatrix[which(!grepl("\\*", mmMatrix[,2]) & !(mmMatrix[,"type"] == "HOCA" | mmMatrix[, "type"] == "HOCB")),2]]
+  mm_items <- mmMatrix[which(!grepl("\\*", mmMatrix[,2]) & !(mmMatrix[,"type"] == "HOCA" | mmMatrix[, "type"] == "HOCB")),2]
+  data <- data[, mm_items]
   N <- nrow(data)
   missing_values <- which(stats::complete.cases(data)==FALSE)
   if(length(missing_values)==0){
@@ -21,21 +22,21 @@ warning_missing_data <- function(data, mmMatrix) {
   }
 }
 
-warning_struc_meas_model_complete <- function(smMatrix, mmMatrix, data) {
-  construct <- unique(as.vector(smMatrix))
-  constructmm <- unique(as.vector(mmMatrix[, 1]))
-  if(any(construct %in% colnames(data))) {
-    stop("The construct variables cannot share names with the manifest variables.")
-  }
-  manifest <- sort(setdiff(as.vector(mmMatrix[, 1:2]), constructmm))
-
-  if(!all(manifest %in% colnames(data))) {
-    stop("The manifest variables must occur as columns in the data.")
-  }
-  if(!all(construct %in% constructmm)) {
-    stop("The construct variables described in the structural model must occur in the measurement model.")
-  }
-}
+# warning_struc_meas_model_complete <- function(smMatrix, mmMatrix, data) {
+#   construct <- unique(as.vector(smMatrix))
+#   constructmm <- unique(as.vector(mmMatrix[, 1]))
+#   if(any(construct %in% colnames(data))) {
+#     stop("The construct variables cannot share names with the manifest variables.")
+#   }
+#   manifest <- sort(setdiff(as.vector(mmMatrix[, 1:2]), constructmm))
+#
+#   if(!all(manifest %in% colnames(data))) {
+#     stop("The manifest variables must occur as columns in the data.")
+#   }
+#   if(!all(construct %in% constructmm)) {
+#     stop("The construct variables described in the structural model must occur in the measurement model.")
+#   }
+# }
 
 # Warning for a dot used in columns of data prior to generating interactions
 warning_periods_in_col_names <- function(data) {
