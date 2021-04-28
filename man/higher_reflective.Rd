@@ -11,6 +11,9 @@ higher_reflective(construct_name, dimensions)
 
 \item{dimensions}{the first-order constructs}
 }
+\value{
+A vector of the indicators for a higher-order-factor.
+}
 \description{
 \code{higher_reflective} creates a higher-order reflective construct
 }

@@ -192,6 +192,8 @@ single_item <- function(item) {
 #' @usage
 #'  higher_reflective(construct_name, dimensions)
 #'
+#' @return A vector of the indicators for a higher-order-factor.
+#'
 #' @seealso See \code{\link{constructs}}, \code{\link{reflective}}
 #'
 #' @examples
