@@ -7,13 +7,13 @@
 higher_composite(construct_name, dimensions, method, weights)
 }
 \arguments{
-\item{construct_name}{of second order construct}
+\item{construct_name}{of second-order construct}
 
-\item{dimensions}{the first order constructs}
+\item{dimensions}{the first-order constructs}
 
 \item{method}{is the estimation method, default is two_stage}
 
-\item{weights}{is the relationship between the second order construct and first order constructs. This can be
+\item{weights}{is the relationship between the second-order construct and first-order constructs. This can be
 specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
 \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.}
 }
@@ -21,10 +21,10 @@ specified as \code{correlation_weights} or \code{mode_A} for correlation weights
 A vector of the indicators for a higher-order-composite.
 }
 \description{
-\code{higher_composite} creates a higher order construct from first order constructs using the two-stage method (Becker et al., 2012).
+\code{higher_composite} creates a higher order construct from first-order constructs using the two-stage method (Becker et al., 2012).
 }
 \details{
-This function conveniently maps first order constructs onto second order constructs using
+This function conveniently maps first-order constructs onto second-order constructs using
 construct names.
 }
 \examples{

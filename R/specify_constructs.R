@@ -179,17 +179,43 @@ single_item <- function(item) {
   return(item)
 }
 
+#' higher_reflective
+#'
+#' \code{higher_reflective} creates a higher-order reflective construct
+#'
+#' This function maps first-order constructs onto second-order reflective constructs using
+#' construct names. It is currently only suitable for CB-SEM and not PLS
+#'
+#' @param construct_name of second-order construct
+#' @param dimensions the first-order constructs
+#'
+#' @usage
+#'  higher_reflective(construct_name, dimensions)
+#'
+#' @seealso See \code{\link{constructs}}, \code{\link{reflective}}
+#'
+#' @examples
+#'   mobi_mm <- constructs(
+#'     reflective("Image",           multi_items("IMAG", 1:5)),
+#'     reflective("Expectation",     multi_items("CUEX", 1:3)),
+#'     higher_reflective("Quality",  c("Image", "Expectation"))
+#'   )
+#' @export
+higher_reflective <- function(construct_name, dimensions) {
+  reflective(construct_name = construct_name, item_names = dimensions)
+}
+
 #' higher_composite
 #'
-#' \code{higher_composite} creates a higher order construct from first order constructs using the two-stage method (Becker et al., 2012).
+#' \code{higher_composite} creates a higher order construct from first-order constructs using the two-stage method (Becker et al., 2012).
 #'
-#' This function conveniently maps first order constructs onto second order constructs using
+#' This function conveniently maps first-order constructs onto second-order constructs using
 #' construct names.
 #'
-#' @param construct_name of second order construct
-#' @param dimensions the first order constructs
+#' @param construct_name of second-order construct
+#' @param dimensions the first-order constructs
 #' @param method is the estimation method, default is two_stage
-#' @param weights is the relationship between the second order construct and first order constructs. This can be
+#' @param weights is the relationship between the second-order construct and first-order constructs. This can be
 #' specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
 #' \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.
 #'
