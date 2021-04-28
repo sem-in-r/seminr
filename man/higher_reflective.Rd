@@ -7,16 +7,16 @@
 higher_reflective(construct_name, dimensions)
 }
 \arguments{
-\item{construct_name}{of second order construct}
+\item{construct_name}{of second-order construct}
 
-\item{dimensions}{the first order constructs}
+\item{dimensions}{the first-order constructs}
 }
 \description{
-\code{higher_reflective} creates a higher order reflective construct
+\code{higher_reflective} creates a higher-order reflective construct
 }
 \details{
-This function maps first order constructs onto second order constructs using
-construct names. It is currently only suitable for CB-SEM
+This function maps first-order constructs onto second-order reflective constructs using
+construct names. It is currently only suitable for CB-SEM and not PLS
 }
 \examples{
   mobi_mm <- constructs(
