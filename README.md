@@ -14,24 +14,24 @@ models (SEM). It allows estimation using either covariance-based SEM
 (CBSEM, such as LISREL/Lavaan), or Partial Least Squares Path Modeling
 (PLS-PM, such as SmartPLS/semPLS).
 
-  - [First Look](#first-look)
-  - [Installation](#installation)
-  - [Usage and Examples](#usage-and-examples)
-  - [Documentation](#documentation)
-  - [Partner Projects](#partner-projects)
-  - [Contact Us](#contact-us)
-  - [About Us](#about-us)
+-   [First Look](#first-look)
+-   [Installation](#installation)
+-   [Usage and Examples](#usage-and-examples)
+-   [Documentation](#documentation)
+-   [Partner Projects](#partner-projects)
+-   [Contact Us](#contact-us)
+-   [About Us](#about-us)
 
 ## First Look
 
 Main features of using SEMinR:
 
-  - A *natural* feeling, *domain-specific* language to build and
+-   A *natural* feeling, *domain-specific* language to build and
     estimate SEMs in R
-  - *High-level functions* to quickly specify interactions and
+-   *High-level functions* to quickly specify interactions and
     complicated structural models
-  - *Modular design* of models that promotes reuse of model components
-  - Encourages *best practices* by use of smart defaults and warnings
+-   *Modular design* of models that promotes reuse of model components
+-   Encourages *best practices* by use of smart defaults and warnings
 
 Take a look at the easy syntax and modular design:
 
@@ -71,29 +71,29 @@ save_plot("myfigure.pdf")
 
 SEMinR allows various estimation methods for constructs and SEMs:
 
-  - Covariance-based Structural Equation Modeling (CBSEM)
-      - *Covariance-based estimation* of SEM using the popular
+-   Covariance-based Structural Equation Modeling (CBSEM)
+    -   *Covariance-based estimation* of SEM using the popular
         [Lavaan](https://github.com/yrosseel/lavaan) package
-      - Currently supports mediation and moderation models with
+    -   Currently supports mediation and moderation models with
         constructs
-      - Easily *specify interactions* between constructs
-      - Adds ten Berge *factor score extraction* to get same correlation
+    -   Easily *specify interactions* between constructs
+    -   Adds ten Berge *factor score extraction* to get same correlation
         patterns as latent factors
-      - Adds *VIF* and other validity assessments
-  - Confirmatory Factor Analysis (CFA) using Lavaan
-      - Uses [Lavaan](https://github.com/yrosseel/lavaan) package and
+    -   Adds *VIF* and other validity assessments
+-   Confirmatory Factor Analysis (CFA) using Lavaan
+    -   Uses [Lavaan](https://github.com/yrosseel/lavaan) package and
         returns results and syntax
-      - Adds ten Berge *factor score extraction* to get same correlation
+    -   Adds ten Berge *factor score extraction* to get same correlation
         patterns as latent factors
-  - Partial Least Squares Path Modeling (PLS-PM)
-      - Uses non-parametric *variance-based estimation* to construct
+-   Partial Least Squares Path Modeling (PLS-PM)
+    -   Uses non-parametric *variance-based estimation* to construct
         *composites* and *common-factors*
-      - Automatically *estimates using Consistent PLS (PLSc)* when
+    -   Automatically *estimates using Consistent PLS (PLSc)* when
         emulating reflective common factors
-      - Adjusts for known biases in interaction terms in PLS models
-      - Continuously tested against leading PLS-PM software to ensure
+    -   Adjusts for known biases in interaction terms in PLS models
+    -   Continuously tested against leading PLS-PM software to ensure
         parity of outcomes: SmartPLS, ADANCO, semPLS, and matrixpls
-      - *High performance, multi-core* bootstrapping function
+    -   *High performance, multi-core* bootstrapping function
 
 Researchers can now create a SEM and estimate it using different
 techniques (CBSEM, PLS-PM).
@@ -357,27 +357,27 @@ or by running the `vignette("SEMinR")` command after installation.
 folder or by running commands such as `demo("seminr-contained")` after
 installation.
 
-  - [seminr-alternative-models.R](demo/seminr-alternative-models.R):
+-   [seminr-alternative-models.R](demo/seminr-alternative-models.R):
     Reuse measurement and structural components to easily create
     competing models
-  - [seminr-cbsem-cfa-ecsi.R](demo/seminr-cbsem-cfa-ecsi.R): Conduct
+-   [seminr-cbsem-cfa-ecsi.R](demo/seminr-cbsem-cfa-ecsi.R): Conduct
     confirmatory model building using CFA and CBSEM
-  - [seminr-pls-ecsi.R](demo/seminr-pls-ecsi.R): Conduct PLS path
+-   [seminr-pls-ecsi.R](demo/seminr-pls-ecsi.R): Conduct PLS path
     modeling
-  - [seminr-pls-higher\_order.R](demo/seminr-pls-higher_order.R): Define
+-   [seminr-pls-higher\_order.R](demo/seminr-pls-higher_order.R): Define
     higher-order composites for PLS models
-  - [seminr-pls-interaction.R](demo/seminr-pls-interaction.R): Define
+-   [seminr-pls-interaction.R](demo/seminr-pls-interaction.R): Define
     interactions between constructs in SEM models
-  - [seminr-plsc-ecsi.R](demo/seminr-plsc-ecsi.R): Run PLSc to emulate
+-   [seminr-plsc-ecsi.R](demo/seminr-plsc-ecsi.R): Run PLSc to emulate
     common factors using in PLSc
-  - [seminr-style-contained.R](demo/seminr-style-contained.R): Create
+-   [seminr-style-contained.R](demo/seminr-style-contained.R): Create
     and execute a SEM model in one function call
-  - [seminr-dot-graph.R](demo/seminr-pls-dot-graph.R): Create a plot
+-   [seminr-dot-graph.R](demo/seminr-pls-dot-graph.R): Create a plot
     from a SEM model
 
 ## Sister Projects
 
-  - [seminrstudio](https://github.com/sem-in-r/seminrstudio): A set of
+-   [seminrstudio](https://github.com/sem-in-r/seminrstudio): A set of
     addins for RStudio to simplify using SEMinR.
 
 ## Partner Projects
@@ -385,14 +385,14 @@ installation.
 We communicate and collaborate with several other open-source projects
 on SEM related issues.
 
-  - [plspm package for R](https://github.com/gastonstat/plspm): an early
+-   [plspm package for R](https://github.com/gastonstat/plspm): an early
     and limited PLS path modeling package for R that inspired the
     development of SEMinR, among others; it is no longer maintained.
-  - [plspm package for
+-   [plspm package for
     Python](https://github.com/GoogleCloudPlatform/plspm-python): a
     well-maintained PLS modeling pakage for Python; it is tested against
     SEMinR and borrows some syntactic ideas from SEMinR.
-  - [cSEM](https://github.com/M-E-Rademaker/cSEM): a well-maintained and
+-   [cSEM](https://github.com/M-E-Rademaker/cSEM): a well-maintained and
     comprehensive composite analysis project implementing PLS and GSCA
     for R, using Lavaan style syntax
 
@@ -412,19 +412,19 @@ features for consideration.
 
 Primary Authors:
 
-  - [Soumya Ray](https://soumyaray.com)
-  - [Nicholas Danks](https://nicholasdanks.com)
-  - [André Calero Valdez](https://calerovaldez.com/)
+-   [Soumya Ray](https://soumyaray.com)
+-   [Nicholas Danks](https://nicholasdanks.com)
+-   [André Calero Valdez](https://calerovaldez.com/)
 
 Key Contributors:
 
-  - [James Uanhoro](https://www.jamesuanhoro.com/) (ten Berge factor
+-   [James Uanhoro](https://www.jamesuanhoro.com/) (ten Berge factor
     extraction, advice on covariance-based methods)
-  - [Arturo Heynar Cano
+-   [Arturo Heynar Cano
     Bejar](https://www.iss.nthu.edu.tw/PhD/PhD-Students/arturo-h-cano-bejar)
     (evaluation and testing of PLS and CBSEM models)
-  - [Johannes Nakayama](https://github.com/JohannesNakayama)
+-   [Johannes Nakayama](https://github.com/JohannesNakayama)
     (contributions to the model visualization functionality)
 
 And many thanks to the growing number of folks who have reached out with
-feature requests, bug reports, and encouragement. You keep us going\!
+feature requests, bug reports, and encouragement. You keep us going!
