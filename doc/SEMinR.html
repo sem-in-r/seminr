@@ -482,20 +482,20 @@ cbsem_model$lavaan_model</code></pre>
 <pre class="r"><code>dim(mobi)
 #&gt; [1] 250  24
 head(mobi)
-#&gt;   CUEX1 CUEX2 CUEX3 CUSA1 CUSA2 CUSA3 CUSCO CUSL1 CUSL2 CUSL3 IMAG1 IMAG2 IMAG3 IMAG4 IMAG5 PERQ1 PERQ2 PERQ3 PERQ4 PERQ5 PERQ6 PERQ7
-#&gt; 1     7     7     6     6     4     7     7     6     5     6     7     5     5     5     4     7     6     4     7     6     5     5
-#&gt; 2    10    10     9    10    10     8    10    10     2    10    10     9    10    10     9    10     9    10    10     9    10    10
-#&gt; 3     7     7     7     8     7     7     6     6     2     7     8     7     6     4     7     7     8     5     7     8     7     7
-#&gt; 4     7    10     5    10    10    10     5    10     4    10    10    10     5     5    10     8    10    10     8     4     5     8
-#&gt; 5     8     7    10    10     8     8     5    10     3     8    10    10     5     8     9    10     9     8    10     9     9     8
-#&gt; 6    10     9     7     8     7     7     8    10     3    10     8     9    10     8     9     9    10     9    10     8     9     9
-#&gt;   PERV1 PERV2
-#&gt; 1     2     3
-#&gt; 2    10    10
-#&gt; 3     7     7
-#&gt; 4     5     5
-#&gt; 5     6     6
-#&gt; 6    10    10</code></pre>
+#&gt;   CUEX1 CUEX2 CUEX3 CUSA1 CUSA2 CUSA3 CUSCO CUSL1 CUSL2 CUSL3 IMAG1 IMAG2 IMAG3
+#&gt; 1     7     7     6     6     4     7     7     6     5     6     7     5     5
+#&gt; 2    10    10     9    10    10     8    10    10     2    10    10     9    10
+#&gt; 3     7     7     7     8     7     7     6     6     2     7     8     7     6
+#&gt; 4     7    10     5    10    10    10     5    10     4    10    10    10     5
+#&gt; 5     8     7    10    10     8     8     5    10     3     8    10    10     5
+#&gt; 6    10     9     7     8     7     7     8    10     3    10     8     9    10
+#&gt;   IMAG4 IMAG5 PERQ1 PERQ2 PERQ3 PERQ4 PERQ5 PERQ6 PERQ7 PERV1 PERV2
+#&gt; 1     5     4     7     6     4     7     6     5     5     2     3
+#&gt; 2    10     9    10     9    10    10     9    10    10    10    10
+#&gt; 3     4     7     7     8     5     7     8     7     7     7     7
+#&gt; 4     5    10     8    10    10     8     4     5     8     5     5
+#&gt; 5     8     9    10     9     8    10     9     9     8     6     6
+#&gt; 6     8     9     9    10     9    10     8     9     9    10    10</code></pre>
 </div>
 <div id="measurement-model-description" class="section level1">
 <h1>Measurement model description</h1>
@@ -876,16 +876,20 @@ specific_effect_significance(boot_seminr_model = boot_seminr_model,
                              through = c(&quot;Expectation&quot;, &quot;Satisfaction&quot;),
                              to = &quot;Complaints&quot;,
                              alpha = 0.05)
-#&gt;  Original Est. Bootstrap Mean   Bootstrap SD        T Stat.        2.5% CI       97.5% CI 
-#&gt;     0.01667035     0.01778311     0.01560951     1.06796089    -0.01421659     0.04160491
+#&gt;  Original Est. Bootstrap Mean   Bootstrap SD        T Stat.        2.5% CI 
+#&gt;    0.016670348    0.014989957    0.011488309    1.451070642   -0.004017263 
+#&gt;       97.5% CI 
+#&gt;    0.035759836
 
 # Calculate the 10% confidence interval for direct path Image -&gt; Satisfaction
 specific_effect_significance(boot_seminr_model = boot_seminr_model,
                              from = &quot;Image&quot;,
                              to = &quot;Satisfaction&quot;,
                              alpha = 0.10)
-#&gt;  Original Est. Bootstrap Mean   Bootstrap SD        T Stat.          5% CI         95% CI 
-#&gt;     0.17873950     0.19157663     0.05615777     3.18280982     0.11675041     0.30231829</code></pre>
+#&gt;  Original Est. Bootstrap Mean   Bootstrap SD        T Stat.          5% CI 
+#&gt;     0.17873950     0.19584713     0.05052435     3.53769000     0.12626825 
+#&gt;         95% CI 
+#&gt;     0.27664394</code></pre>
 </div>
 <div id="reporting-data-descriptive-statistics-and-construct-descriptive-statistics" class="section level2">
 <h2>Reporting data descriptive statistics and construct descriptive statistics</h2>
