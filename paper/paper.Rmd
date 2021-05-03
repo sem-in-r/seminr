@@ -1,6 +1,9 @@
 ---
 title: "SEMinR: domain-specific language for building, estimating, and visualizing structural equation models in R"
-author: "Soumya Ray"
+author:
+  - Soumya Ray, National Tsing Hua University
+  - Nicholas Danks, Trinity College-Dublin
+  - André Calero Valdez, RWTH Aachen University
 date: "4/28/2021"
 output: pdf_document
 ---
