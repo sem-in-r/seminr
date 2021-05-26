@@ -1,8 +1,8 @@
 Package: seminr
 Type: Package
 Title: Building and Estimating Structural Equation Models
-Version: 2.0.3
-Date: 2021-04-27
+Version: 2.1.0
+Date: 2021-04-29
 Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("aut", "ths")),
              person("Nicholas Patrick", "Danks", email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
              person("André", "Calero Valdez", role = "aut", email = "andrecalerovaldez@gmail.com"),
@@ -32,9 +32,9 @@ Suggests:
     rmarkdown,
     DiagrammeR (>= 1.0.6),
     DiagrammeRsvg (>= 0.1),
-    webp,
-    vdiffr
+    webp
 Enhances: rsvg (>= 2.1),
-          semPlot
+          semPlot,
+          vdiffr
 VignetteBuilder: knitr
 Encoding: UTF-8
