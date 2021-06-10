@@ -27,6 +27,11 @@ test_that("Saving a plot works", {
                              measurement_model = mobi_mm,
                              structural_model = mobi_sm)
 
+    # estimate the model as cbsm
+    mobi_cbsem <- estimate_cbsem(data = mobi,
+                             measurement_model = mobi_mm,
+                             structural_model = mobi_sm)
+
     # generate the plot
     p <- plot(mobi_pls)
 
@@ -40,5 +45,24 @@ test_that("Saving a plot works", {
       testthat::expect_gt(file.info(fname)$size, expected = 0)
       unlink(fname)
     }
+
+
+
+
+    # generate the plot
+    p <- plot(mobi_cbsem)
+
+    extensions <- c("pdf", "png", "ps", "svg") #, "webp") # webp does not work on bioc
+
+    for (ext in extensions) {
+      # save to file
+      fname <- paste0("testplot.", ext)
+      save_plot(fname, p)
+      testthat::expect_equal(file.exists(fname), TRUE)
+      testthat::expect_gt(file.info(fname)$size, expected = 0)
+      unlink(fname)
+    }
+
+
   }
 })
