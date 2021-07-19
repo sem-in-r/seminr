@@ -750,6 +750,7 @@ get_construct_type <- function(model, construct) {
   if (grepl("\\*", construct)) {
     return("interaction")
   }
+  construct_type <- NULL
   for (i in 1:length(model$measurement_model)) {
     cst <- model$measurement_model[[i]]
     # warning interaction are functions do not access their indexes
@@ -759,7 +760,7 @@ get_construct_type <- function(model, construct) {
       }
     }
   }
-
+  cat(paste(construct_type, ":", construct, "\n"))
   return(construct_type)
 }
 
@@ -877,12 +878,18 @@ extract_sm_nodes <- function(model, theme, structure_only = FALSE) {
   # Add additional SM nodes for submodel
   for (construct in model$constructs) {
     construct_type <- get_construct_type(model, construct)
+    # debug
+    #cat(paste(construct, "is", construct_type, "\n"))
 
     if (startsWith(construct_type, "HOC") && !structure_only) {
 
+      cat(paste("Adding the following", "\n"))
       row_index <- grepl(construct, model$mmMatrix[,1])
       result <- model$mmMatrix[row_index, 2]
+      cat(result)
       sm_nodes <- c(sm_nodes, result)
+    } else {
+      cat("not a HOC")
     }
   }
   sm_nodes <- sapply(sm_nodes, format_sm_node, model, theme)
@@ -1381,7 +1388,7 @@ get_mm_edge_style <- function(theme, construct_type, flip = FALSE){
   if(flip){
     if(direction == "forward") {
       direction <- "backward"
-    }
+    } else
     if(direction == "backward") {
       direction <- "forward"
     }
