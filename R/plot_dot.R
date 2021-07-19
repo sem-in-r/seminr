@@ -760,7 +760,7 @@ get_construct_type <- function(model, construct) {
       }
     }
   }
-  cat(paste(construct_type, ":", construct, "\n"))
+  #cat(paste(construct_type, ":", construct, "\n"))
   return(construct_type)
 }
 
@@ -883,13 +883,13 @@ extract_sm_nodes <- function(model, theme, structure_only = FALSE) {
 
     if (startsWith(construct_type, "HOC") && !structure_only) {
 
-      cat(paste("Adding the following", "\n"))
+      #cat(paste("Adding the following", "\n"))
       row_index <- grepl(construct, model$mmMatrix[,1])
       result <- model$mmMatrix[row_index, 2]
-      cat(result)
+      #cat(result)
       sm_nodes <- c(sm_nodes, result)
     } else {
-      cat("not a HOC")
+      #cat("not a HOC")
     }
   }
   sm_nodes <- sapply(sm_nodes, format_sm_node, model, theme)
