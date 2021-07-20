@@ -1381,7 +1381,7 @@ get_mm_edge_style <- function(theme, construct_type, flip = FALSE){
   if(flip){
     if(direction == "forward") {
       direction <- "backward"
-    }
+    } else
     if(direction == "backward") {
       direction <- "forward"
     }
