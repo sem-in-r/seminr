@@ -37,7 +37,7 @@ test_that("Modify theme edge multipliers", {
  thm <- seminr_theme_create()
  thm$sm.edge.width_multiplier <- 1
  thm$mm.edge.width_multiplier <- 1
- thm$plot.greekletters <- T
+ thm$plot.specialcharacters <- T
  thm$sm.edge.boot.template <- edge_template_default()
  thm$sm.edge.boot.show_ci <- T
  thm$sm.edge.boot.show_p_stars <- T
