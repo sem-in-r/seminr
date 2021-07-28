@@ -86,7 +86,7 @@ summarize_cb_structure <- function(object, alpha=0.05) {
   rownames(significance) <- with(path_df, paste(lhs, "->", rhs))
   colnames(significance) <- c( "Std Estimate", "SE", "t-Value", paste(alpha_text, "% CI", sep = ""), paste((100-alpha_text), "% CI", sep = ""))
 
-  # TODO v3: Remove pvalues from cbsem summary in lieu of significance table only
+  # TODO v3: Remove pvalues from cbsem summary and add to significance table
   list(
     coefficients = path_matrix,
     pvalues = pvalue_matrix,
