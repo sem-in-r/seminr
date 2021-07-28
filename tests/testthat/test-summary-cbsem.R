@@ -40,8 +40,8 @@ cbsem_summary_tree <- list(
   descriptives = list(
     correlations = list(items = NULL, constructs = NULL)
   ),
-  loadings = NULL,
-  paths = list(coefficients = NULL, pvalues = NULL),
+  loadings = list(coefficients = NULL, significance = NULL),
+  paths = list(coefficients = NULL, pvalues = NULL, significance = NULL),
   quality = list(
     fit = list(
       all = NULL,
@@ -58,8 +58,8 @@ cbsem_summary_tree <- list(
 )
 
 test_that("Summary of CBSEM has proper structure", {
-  expect_equal(traverse_names(cbsem_summary),
-               traverse_names(cbsem_summary_tree))
+  expect_equal(seminr:::traverse_names(cbsem_summary),
+               seminr:::traverse_names(cbsem_summary_tree))
 })
 
 
@@ -91,7 +91,7 @@ cfa_summary_tree <- list(
   descriptives = list(
     correlations = list(items = NULL, constructs = NULL)
   ),
-  loadings = NULL,
+  loadings = list(coefficients = NULL, significance = NULL),
   quality = list(
     fit = list(
       all = NULL,
@@ -102,6 +102,6 @@ cfa_summary_tree <- list(
 )
 
 test_that("Summary of CFA has proper structure", {
-  expect_equal(traverse_names(cfa_summary),
-               traverse_names(cfa_summary_tree))
+  expect_equal(seminr:::traverse_names(cfa_summary),
+               seminr:::traverse_names(cfa_summary_tree))
 })

@@ -1,5 +1,5 @@
 # Creates summary statistics for a cbsem object for summary and print functions
-summarize_cb_measurement <- function(object) {
+summarize_cb_measurement <- function(object, alpha=0.05) {
   lavaan_output <- object$lavaan_output
   estimates <- lavaan::standardizedSolution(lavaan_output)
 
@@ -13,6 +13,11 @@ summarize_cb_measurement <- function(object) {
   loadings_df <- estimates[estimates$op == "=~",]
   loadings_matrix <- df_xtab_matrix(est.std ~ rhs + lhs, loadings_df,
                                     model$item_names, model$construct_names)
+  alpha_text <- alpha/2*100
+  significance <- with(loadings_df,
+                       data.frame(est.std, se, pvalue, ci.lower, ci.upper))
+  rownames(significance) <- with(loadings_df, paste(lhs, "->", rhs))
+  colnames(significance) <- c( "Std Estimate", "SE", "t-Value", paste(alpha_text, "% CI", sep = ""), paste((100-alpha_text), "% CI", sep = ""))
 
   # Get descriptives and correlations
   # item_descriptives <- desc(object$data)
@@ -41,12 +46,15 @@ summarize_cb_measurement <- function(object) {
         constructs = construct_correlations
       )
     ),
-    loadings = loadings_matrix
+    loadings = list(
+      coefficients = loadings_matrix,
+      significance = significance
+    )
   )
 }
 
-summarize_cb_structure <- function(object) {
-  estimates <- lavaan::standardizedSolution(object$lavaan_output)
+summarize_cb_structure <- function(object, alpha=0.05) {
+  estimates <- lavaan::standardizedSolution(object$lavaan_output, level=1-alpha)
 
   # Capture structural relationship information
   all_antecedents <- all_exogenous(object$smMatrix)
@@ -71,9 +79,18 @@ summarize_cb_structure <- function(object) {
     .
   }
 
+  alpha_text <- alpha/2*100
+  significance <- with(path_df,
+    data.frame(est.std, se, pvalue, ci.lower, ci.upper))
+
+  rownames(significance) <- with(path_df, paste(lhs, "->", rhs))
+  colnames(significance) <- c( "Std Estimate", "SE", "t-Value", paste(alpha_text, "% CI", sep = ""), paste((100-alpha_text), "% CI", sep = ""))
+
+  # TODO v3: Remove pvalues from cbsem summary in lieu of significance table only
   list(
     coefficients = path_matrix,
-    pvalues = pvalue_matrix
+    pvalues = pvalue_matrix,
+    significance = significance
   )
 }
 
