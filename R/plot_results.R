@@ -87,21 +87,20 @@ plot.reliability_table <- function(x, ...) {
   invisible(x)
 }
 
-#' Function for plotting interactoin plot for moderated PLS or CBSEM model
+#' Function for plotting interaction plot for moderated PLS or CBSEM model
 #'
 #' \code{plot_interaction} generates an interaction plot for the effect of an antecedent
 #'   on an outcome given a mediator variable.
 #'
-#' @param moderated_model A SEMinR model that contains an interaction.
+#' @param moderated_model SEMinR model that contains an interaction.
 #'
-#' @param intxn String (character) name of the interaction term in the structural model. Must look like a product of independent variabel and moderator (e.g., "ABC*XYZ")
+#' @param intxn Name (character) of the interaction term in the structural model. Must look like a product of independent variabel and moderator (e.g., "ABC*XYZ")
 #'
-#' @param dv String (character) name of the dependant consutruct affected by the moderator.
+#' @param dv Name (character) of the dependant consutruct affected by the moderator.
 #'
-#' @param legend The location of the legend on the plot; must be a combination of bottom|top and left|right (e.g., "bottomright").
+#' @param legend Location (character) of the legend on the plot; must be a combination of bottom|top and left|right (e.g., "bottomright").
 #'
 #' @usage
-#' plot_interaction(moderated_model, intxn, dv)
 #' plot_interaction(moderated_model, intxn, dv, legend)
 #'
 #' @examples

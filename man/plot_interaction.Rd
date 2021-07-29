@@ -2,19 +2,18 @@
 % Please edit documentation in R/plot_results.R
 \name{plot_interaction}
 \alias{plot_interaction}
-\title{Function for plotting interactoin plot for moderated PLS or CBSEM model}
+\title{Function for plotting interaction plot for moderated PLS or CBSEM model}
 \usage{
-plot_interaction(moderated_model, intxn, dv)
 plot_interaction(moderated_model, intxn, dv, legend)
 }
 \arguments{
-\item{moderated_model}{A SEMinR model that contains an interaction.}
+\item{moderated_model}{SEMinR model that contains an interaction.}
 
-\item{intxn}{String (character) name of the interaction term in the structural model. Must look like a product of independent variabel and moderator (e.g., "ABC*XYZ")}
+\item{intxn}{Name (character) of the interaction term in the structural model. Must look like a product of independent variabel and moderator (e.g., "ABC*XYZ")}
 
-\item{dv}{String (character) name of the dependant consutruct affected by the moderator.}
+\item{dv}{Name (character) of the dependant consutruct affected by the moderator.}
 
-\item{legend}{The location of the legend on the plot; must be a combination of bottom|top and left|right (e.g., "bottomright").}
+\item{legend}{Location (character) of the legend on the plot; must be a combination of bottom|top and left|right (e.g., "bottomright").}
 }
 \description{
 \code{plot_interaction} generates an interaction plot for the effect of an antecedent
