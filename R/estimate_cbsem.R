@@ -156,14 +156,14 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
   class(loadings) <- "matrix"
   tenB <- estimate_lavaan_ten_berge(lavaan_output)
 
-  # Path Coefficients
+  # Path Coefficients Table
   estimates <- lavaan::standardizedSolution(lavaan_output)
   path_df <- estimates[estimates$op == "~",]
   all_antecedents <- all_exogenous(smMatrix)
   all_outcomes <- all_endogenous(smMatrix)
   path_matrix <- df_xtab_matrix(est.std ~ rhs + lhs, path_df,
                                 all_antecedents, all_outcomes)
-  rownames(path_matrix) <- all_antecedents
+  rownames(path_matrix) <- gsub("_x_", "*", all_antecedents)
 
   # Gather model information
   seminr_model <- list(

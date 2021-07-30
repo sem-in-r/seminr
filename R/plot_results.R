@@ -193,11 +193,7 @@ slope_analysis <- function(moderated_model, dv, moderator, iv, leg_place = "bott
                   1, 0,  0,
                   1, 1,  1), nrow = 9, ncol = 3, byrow = TRUE)
 
-  # Rename interactions of cbsem models
-  path_coef <- moderated_model$path_coef
-  rownames(path_coef) <- gsub("_x_", "*", rownames(path_coef))
-
-  res <- mat %*% path_coef[c(iv,paste(iv,"*",moderator, sep = ""),moderator),dv]
+  res <- mat %*% moderated_model$path_coef[c(iv,paste(iv,"*",moderator, sep = ""),moderator),dv]
 
   graphics::plot(c(-1,0,1), res[c(1,4,7)], type="n", xlab = iv, ylab = dv,
        xlim = c(-1,1), ylim = c(min(res),max(res)))
