@@ -37,16 +37,16 @@ test_that("Modify theme edge multipliers", {
  thm <- seminr_theme_create()
  thm$sm.edge.width_multiplier <- 1
  thm$mm.edge.width_multiplier <- 1
- thm$plot.greekletters <- T
+ thm$plot.specialcharacters <- TRUE
  thm$sm.edge.boot.template <- edge_template_default()
- thm$sm.edge.boot.show_ci <- T
- thm$sm.edge.boot.show_p_stars <- T
+ thm$sm.edge.boot.show_ci <- TRUE
+ thm$sm.edge.boot.show_p_stars <- TRUE
 
  thm$mm.edge.boot.template <- edge_template_minimal()
- thm$mm.edge.boot.show_p_stars <- T
- thm$mm.edge.boot.show_p_value <- T
- thm$mm.edge.boot.show_t_value <- T
- thm$mm.edge.boot.show_ci <- T
+ thm$mm.edge.boot.show_p_stars <- TRUE
+ thm$mm.edge.boot.show_p_value <- TRUE
+ thm$mm.edge.boot.show_t_value <- TRUE
+ thm$mm.edge.boot.show_ci <- TRUE
 
  thm$sm.edge.positive.color <- "red"
  thm$sm.edge.negative.color <- "blue"
