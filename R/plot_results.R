@@ -201,7 +201,9 @@ slope_analysis <- function(moderated_model, dv, moderator, iv, leg_place = "bott
   graphics::lines(c(-1,0,1), res[c(2,5,8)], lty = 1)
   graphics::lines(c(-1,0,1), res[c(3,6,9)], lty = 3)
   graphics::grid()
-  graphics::legend(leg_place, c("Mod at -1SD", "Mod at Mean", "Mod at +1SD"), lty=c(2,1,3),
-         horiz=FALSE, bty="n", cex = 0.8
+  graphics::legend(
+    leg_place,
+    paste(moderator, c("at -1SD", "at Mean", "at +1SD")),
+    lty=c(2,1,3), horiz=FALSE, bty="n", cex = 0.8
   )
 }
