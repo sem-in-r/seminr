@@ -87,10 +87,60 @@ plot.reliability_table <- function(x, ...) {
   invisible(x)
 }
 
+#' Function for plotting interaction plot for moderated PLS or CBSEM model
+#'
+#' \code{plot_interaction} generates an interaction plot for the effect of an antecedent
+#'   on an outcome given a mediator variable.
+#'
+#' @param moderated_model SEMinR model that contains an interaction.
+#'
+#' @param intxn Name (character) of the interaction term in the structural model. Must look like a product of independent variabel and moderator (e.g., "ABC*XYZ")
+#'
+#' @param dv Name (character) of the dependant consutruct affected by the moderator.
+#'
+#' @param legend Location (character) of the legend on the plot; must be a combination of bottom|top and left|right (e.g., "bottomright").
+#'
+#' @usage
+#' plot_interaction(moderated_model, intxn, dv, legend)
+#'
+#' @examples
+#' data(mobi)
+#'
+#' # seminr syntax for creating measurement model
+#' mobi_mm <- constructs(
+#' composite("Image",        multi_items("IMAG", 1:5)),
+#' composite("Expectation",  multi_items("CUEX", 1:3)),
+#' composite("Value",        multi_items("PERV", 1:2)),
+#' composite("Satisfaction", multi_items("CUSA", 1:3)),
+#' interaction_term(iv = "Image", moderator = c("Expectation"), method = orthogonal))
+#'
+#' # Structural model
+#' #  note: interactions should be the names of its main constructs joined by a '*' in between.
+#' mobi_sm <- relationships(
+#'   paths(to = "Satisfaction",
+#'         from = c("Image", "Expectation", "Value",
+#'                  "Image*Expectation")))
+#'
+#' # Load data, assemble model, and estimate
+#' mobi_pls <- estimate_pls(data = mobi,
+#'                          measurement_model = mobi_mm,
+#'                          structural_model = mobi_sm)
+#'
+#' plot_interaction(mobi_pls, "Image*Expectation", "Satisfaction", "bottomright")
+#'
+#' @export
+plot_interaction <- function(moderated_model, intxn, dv, legend = "bottomright") {
+  intxn_terms <- strsplit(intxn, "*", fixed=TRUE)[[1]]
+  iv = intxn_terms[1]
+  mod = intxn_terms[2]
+
+  slope_analysis(moderated_model, dv=dv, iv=iv, moderator=mod, leg_place=legend)
+}
+
 #' Function for plotting a slope analysis for an interaction in a PLS model
 #'
 #' \code{slope_analysis} generates an interaction plot for the effect of an antecedent
-#'   on an outcome given a mediator variale.
+#'   on an outcome given a mediator variable.
 #'
 #' @param moderated_model A SEMinR model that contains an interaction.
 #'
@@ -142,6 +192,7 @@ slope_analysis <- function(moderated_model, dv, moderator, iv, leg_place = "bott
                   1,-1, -1,
                   1, 0,  0,
                   1, 1,  1), nrow = 9, ncol = 3, byrow = TRUE)
+
   res <- mat %*% moderated_model$path_coef[c(iv,paste(iv,"*",moderator, sep = ""),moderator),dv]
 
   graphics::plot(c(-1,0,1), res[c(1,4,7)], type="n", xlab = iv, ylab = dv,
@@ -150,11 +201,9 @@ slope_analysis <- function(moderated_model, dv, moderator, iv, leg_place = "bott
   graphics::lines(c(-1,0,1), res[c(2,5,8)], lty = 1)
   graphics::lines(c(-1,0,1), res[c(3,6,9)], lty = 3)
   graphics::grid()
-  graphics::legend(leg_place, c("Mod at -1SD", "Mod at Mean", "Mod at +1SD"), lty=c(2,1,3),
-         horiz=FALSE, bty="n", cex = 0.8
+  graphics::legend(
+    leg_place,
+    paste(moderator, c("at -1SD", "at Mean", "at +1SD")),
+    lty=c(2,1,3), horiz=FALSE, bty="n", cex = 0.8
   )
 }
-
-
-
-
