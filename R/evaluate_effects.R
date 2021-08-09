@@ -97,4 +97,5 @@ model_fsquares <- function(seminr_model) {
     comment(fsquared_matrix) <- "The fSquare for certain relationships cannot be calculated as the model contains an interaction term and omitting either the antecedent or moderator in the interaction term will cause model estimation to fail"
   }
   convert_to_table_output(fsquared_matrix)
+
 }
