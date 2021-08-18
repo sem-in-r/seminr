@@ -1,12 +1,14 @@
-#' Function to clean data of ommitted values by mean replacement
+#' Function to clean data of omitted values by mean replacement
 #'
 #' The \code{seminr} package provides a natural syntax for researchers to describe PLS
 #' structural equation models.
 #'
-#' \code{mean_replacement} provides the verb for replacing all ommitted values (NA only) in the dataset with
+#' \code{mean_replacement} provides the verb for replacing all omitted values (NA only) in the dataset with
 #' the mean of the variable.
 #'
 #' @param data A dataset to be used for estimating a SEMinR model
+#'
+#' @return A dataset with all missing values replaced with column means
 #'
 #' @usage
 #' mean_replacement(data)

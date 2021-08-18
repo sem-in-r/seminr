@@ -18,6 +18,8 @@
 #' @param constructs a \code{list} indicating which constructs to report. If not
 #'   specified, all constructs are graphed and returned.
 #'
+#' @return A matrix of structural paths.
+#'
 #' @usage
 #' report_paths(seminr_model, digits=3)
 #'
@@ -97,12 +99,12 @@ report_paths <- function(seminr_model, digits=3) {
 #   bootstraplist
 # }
 
-#' seminr confidence intervals function
+#' seminr specific effect significance function
 #'
 #' The \code{seminr} package provides a natural syntax for researchers to describe PLS
 #' structural equation models.
-#' \code{confidence_interval} provides the verb for calculating the confidence intervals of a
-#' direct or mediated path in a bootstrapped SEMinR model.
+#' \code{specific_effect_significance} provides the verb for calculating the bootstrap mean, standard deviation, T value,
+#'  and confidence intervals for direct or mediated path in a bootstrapped SEMinR model.
 #'
 #' @param boot_seminr_model A bootstrapped model returned by the \code{bootstrap_model} function.
 #'
@@ -114,8 +116,10 @@ report_paths <- function(seminr_model, digits=3) {
 #'
 #' @param alpha A parameter for specifying the alpha for the confidence interval. Default is 0.05.
 #'
+#' @return A vector of lower and upper confidence intervals for a path.
+#'
 #' @usage
-#' confidence_interval(boot_seminr_model, from, to, through, alpha)
+#' specific_effect_significance(boot_seminr_model, from, to, through, alpha)
 #'
 #' @seealso \code{\link{bootstrap_model}}
 #'
@@ -152,19 +156,21 @@ report_paths <- function(seminr_model, digits=3) {
 #' boot_seminr_model <- bootstrap_model(seminr_model = mobi_pls,
 #'                                      nboot = 50, cores = 2, seed = NULL)
 #'
-#' confidence_interval(boot_seminr_model = boot_seminr_model,
-#'                     from = "Image",
-#'                     through = c("Expectation", "Satisfaction","Complaints"),
-#'                     to = "Loyalty",
-#'                     alpha = 0.05)
+#' specific_effect_significance(boot_seminr_model = boot_seminr_model,
+#'                              from = "Image",
+#'                              through = c("Expectation", "Satisfaction","Complaints"),
+#'                              to = "Loyalty",
+#'                              alpha = 0.05)
 #' @export
-confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alpha = 0.05) {
+specific_effect_significance <- function(boot_seminr_model, from, to, through = NULL, alpha = 0.05) {
   path_array <- boot_seminr_model$boot_paths
+  orig_matrix <- boot_seminr_model$path_coef
   if (is.null(through)) {
     coefficient <- path_array[from, to,]
+    orig_coefficient <- orig_matrix[from,to]
   } else {
     if (length(through) > 4) {
-      message("Bootstrapping encountered this ERROR: ")
+      message("Currently only serial mediation with 4 mediating variables is allowed ")
       return(NULL)
     } else {
       coefficient <- switch(length(through),
@@ -172,23 +178,20 @@ confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alp
                             path_array[from, through[1],] * path_array[through[1], through[2],] * path_array[through[2], to,],
                             path_array[from, through[1],] * path_array[through[1], through[2],] * path_array[through[2], through[3],] * path_array[through[3], to,],
                             path_array[from, through[1],] * path_array[through[1], through[2],] * path_array[through[2], through[3],] * path_array[through[3], through[4],] * path_array[through[4], to, ])
+      orig_coefficient <- switch(length(through),
+                                 orig_matrix[from, through[1]] * orig_matrix[through[1], to],
+                                 orig_matrix[from, through[1]] * orig_matrix[through[1], through[2]] * orig_matrix[through[2], to],
+                                 orig_matrix[from, through[1]] * orig_matrix[through[1], through[2]] * orig_matrix[through[2], through[3]] * orig_matrix[through[3], to],
+                                 orig_matrix[from, through[1]] * orig_matrix[through[1], through[2]] * orig_matrix[through[2], through[3]] * orig_matrix[through[3], through[4]] * orig_matrix[through[4], to ])
     }
   }
+  sd_estimate <- stats::sd(coefficient)
+  mean_estimate <- mean(coefficient)
   quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
-  return(quantiles)
+  return_vec <- c(orig_coefficient, mean_estimate, sd_estimate, orig_coefficient/sd_estimate,quantiles )
+  names(return_vec) <- c( "Original Est.", "Bootstrap Mean", "Bootstrap SD", "T Stat.",paste(alpha/2*100, "% CI", sep = ""),paste((1-(alpha/2))*100, "% CI", sep = ""))
+  return(return_vec)
 }
-
-# confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alpha = 0.05) {
-#   path_array <- boot_seminr_model$boot_paths
-#   if (is.null(through)) {
-#     coefficient <- path_array[from, to,]
-#   } else {
-#     coefficient <- path_array[from, through,] * path_array[through, to,]
-#   }
-#   quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
-#   return(quantiles)
-# }
-
 
 #' seminr total indirect confidence intervals function
 #'
@@ -202,6 +205,8 @@ confidence_interval <- function(boot_seminr_model, from, to, through = NULL, alp
 #' @param to A parameter specifying the outcome composite for the path.
 #'
 #' @param alpha A parameter for specifying the alpha for the confidence interval. Default is 0.05.
+#'
+#' @return A vector of lower and upper confidence intervals for a path.
 #'
 #' @usage
 #' total_indirect_ci(boot_seminr_model, from, to, alpha)

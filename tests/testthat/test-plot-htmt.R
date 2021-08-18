@@ -30,8 +30,8 @@ test_that("Basic HTMT Plots work", {
   boot_model <- bootstrap_model(model, nboot = 100, cores = 1, seed = 123)
 
 
-  expect_error(plot_htmt(boot_model, htmt_threshold = 1, use_ci = T, omit_threshold_edges = T), NA)
-  pl <- plot_htmt(boot_model, htmt_threshold = 1, use_ci = T, omit_threshold_edges = T)
+  expect_error(plot_htmt(boot_model, htmt_threshold = 1, use_ci = TRUE, omit_threshold_edges = TRUE), NA)
+  pl <- plot_htmt(boot_model, htmt_threshold = 1, use_ci = TRUE, omit_threshold_edges = TRUE)
   #vdiffr::expect_doppelganger("Basic HTMT Plot", pl, writer = write_test)
 
   unlink("Rplots.pdf")

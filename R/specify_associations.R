@@ -4,6 +4,8 @@
 #'
 #' @param ... One or more associations defined by \code{\link{item_errors}}
 #'
+#' @return A matrix of items that covary.
+#'
 #' @examples
 #' covaries <- associations(
 #'   item_errors(c("a1", "a2"), c("b1", "b2")),
@@ -21,6 +23,8 @@ associations <- function(...) {
 #' @param items_a One or more items that should covary
 #'
 #' @param items_b One or more items that should covary
+#'
+#' @return A vector of items that covary.
 #'
 #' @examples
 #' item_errors(c("a1", "a2"), c("b1", "b2"))

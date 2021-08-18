@@ -20,7 +20,7 @@
 #'
 # @examples
 dot_graph_htmt <- function(model, title = "HTMT Plot", theme = seminr::seminr_theme_get(), htmt_threshold = 1,
-                           omit_threshold_edges = T, use_ci = FALSE) {
+                           omit_threshold_edges = TRUE, use_ci = FALSE) {
   if (!("boot_seminr_model" %in% class(model))) {
     stop("Plotting HTMT models only works with bootstrapped models")
   }

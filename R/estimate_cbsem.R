@@ -47,6 +47,18 @@
 #' @param ... Any other parameters to pass to \code{lavaan::sem} during
 #'   estimation.
 #'
+#' @return A list of the estimated parameters for the CB-SEM model including:
+#'  \item{data}{A matrix of the data upon which the model was estimated.}
+#'  \item{measurement_model}{The SEMinR measurement model specification.}
+#'  \item{factor_loadings}{The matrix of estimated factor loadings.}
+#'  \item{associations}{A matrix of model variable associations.}
+#'  \item{mmMatrix}{A Matrix of the measurement model relations.}
+#'  \item{smMatrix}{A Matrix of the structural model relations.}
+#'  \item{constructs}{A vector of the construct names.}
+#'  \item{construct scores}{A matrix of the estimated construct scores for the CB-SEM model.}
+#'  \item{item_weights}{A matrix of the estimated CFA item weights.}
+#'  \item{lavaan_model}{The lavaan model syntax equivalent of the SEMinR model.}
+#'  \item{lavaan_output}{The raw lavaan output generated after model estimation.}
 #'
 #' @references Joreskog, K. G. (1973). A general method for estimating a linear structural equation system In: Goldberger AS, Duncan OD, editors. Structural Equation Models in the Social Sciences. New York: Seminar Press.
 #'
@@ -91,7 +103,7 @@
 #'
 #' @export
 estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, item_associations=NULL, model=NULL, lavaan_model=NULL, estimator="MLR", ...) {
-  cat("Generating the seminr model for CBSEM\n")
+  message("Generating the seminr model for CBSEM")
 
   # TODO: consider higher order models (see estimate_pls() function for template)
 
@@ -144,6 +156,15 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
   class(loadings) <- "matrix"
   tenB <- estimate_lavaan_ten_berge(lavaan_output)
 
+  # Path Coefficients Table
+  estimates <- lavaan::standardizedSolution(lavaan_output)
+  path_df <- estimates[estimates$op == "~",]
+  all_antecedents <- all_exogenous(smMatrix)
+  all_outcomes <- all_endogenous(smMatrix)
+  path_matrix <- df_xtab_matrix(est.std ~ rhs + lhs, path_df,
+                                all_antecedents, all_outcomes)
+  rownames(path_matrix) <- gsub("_x_", "*", all_antecedents)
+
   # Gather model information
   seminr_model <- list(
     data = data,
@@ -155,6 +176,7 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
     constructs = constructs,
     construct_scores = tenB$scores,
     item_weights = tenB$weights,
+    path_coef = path_matrix,
     lavaan_model = lavaan_model,
     lavaan_output = lavaan_output
   )
@@ -168,6 +190,14 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
 #' Estimates a Confirmatory Factor Analysis (CFA) model
 #'
 #' @inheritParams estimate_cbsem
+#'
+#' @return A list of the estimated parameters for the CFA model including:
+#'  \item{data}{A matrix of the data upon which the model was estimated.}
+#'  \item{measurement_model}{The SEMinR measurement model specification.}
+#'  \item{construct scores}{A matrix of the estimated construct scores for the CB-SEM model.}
+#'  \item{item_weights}{A matrix of the estimated CFA item weights.}
+#'  \item{lavaan_model}{The lavaan model syntax equivalent of the SEMinR model.}
+#'  \item{lavaan_output}{The raw lavaan output generated after model estimation.}
 #'
 #' @usage
 #' estimate_cfa(data, measurement_model = NULL, item_associations=NULL,
@@ -200,7 +230,7 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
 #' @export
 estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
                          model=NULL, lavaan_model=NULL, estimator="MLR", ...) {
-  cat("Generating the seminr model for CFA\n")
+  message("Generating the seminr model for CFA")
 
   # TODO: consider higher order models (see estimate_pls() function for template)
   # TODO: warning if the model is incorrectly specified

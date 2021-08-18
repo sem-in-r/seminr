@@ -13,6 +13,9 @@ fSquared(seminr_model, iv, dv)
 
 \item{dv}{A dependent variable in the model.}
 }
+\value{
+A matrix of the estimated F Square metric for each construct.
+}
 \description{
 The \code{fSquared} function calculates f^2 effect size for a given IV and DV
 }

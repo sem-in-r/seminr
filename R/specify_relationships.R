@@ -13,6 +13,8 @@
 #' @param paths The function \code{paths} that specifies the source and destination constructs
 #'   for each of the model's structural paths.
 #'
+#' @return A vector of construct names and structural relationships.
+#'
 #' @usage
 #' relationships(...)
 #'

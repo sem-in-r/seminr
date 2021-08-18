@@ -5,6 +5,8 @@
 #'
 #' @param seminr_model A \code{seminr_model} containing the estimated seminr model.
 #'
+#' @return A matrix containing the rhoA metric for each construct.
+#'
 #' @usage
 #' rho_A(seminr_model)
 #'
@@ -145,5 +147,5 @@ cronbachs_alpha <- function(seminr_model) {
       alpha_vec[[i]] <- 1
     }
   }
-  return(alpha_vec)
+  return(unlist(alpha_vec))
 }

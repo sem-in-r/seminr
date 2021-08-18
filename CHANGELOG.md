@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project largely adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2021-03-21
+
+### [2.2.0] Changed
+
+- Updated the summary() function to apply fSquares() to interaction models
+- Updated fSquares() function to not calculate fSquare for antecedents involved in interactions
+- Fixed a bug in the plotting of formative constructs in PLS
+
+### [2.0.0] Added
+
+- Citation to SSRN paper
+
 ## [2.0.1] - 2021-03-21
 
 ### [2.0.1] Changed
@@ -17,7 +29,6 @@ and this project largely adheres to [Semantic Versioning](https://semver.org/spe
 ### [2.0.0] Added
 
 - S3 plot() method for visualizing all SEMinR models - CFA, CBSEM, PLS, PLSc
-
 
 ## [1.2.0] - 2020-12-31
 

@@ -10,10 +10,10 @@
 ^USAGE\.md$
 ^\.travis\.yml$
 ^cran-comments\.md$
-^doc$
 ^Meta$
 ^CHANGELOG.md
 ^references.csv
 ^references.yml
 ^R/library-references\.R$
 ^\.github$
+^doc$

@@ -2,7 +2,7 @@
 knitr::include_graphics('SEMinR_logo.jpg')
 
 ## ---- echo = FALSE, message = FALSE-------------------------------------------
-knitr::opts_chunk$set(collapse = T, comment = "#>")
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(seminr)
 
 ## ---- eval=FALSE--------------------------------------------------------------
@@ -241,17 +241,17 @@ boot_seminr_model <- bootstrap_model(seminr_model = mobi_pls,
                                     nboot = 50, cores = 2, seed = NULL)
 
 # Calculate the 5% confidence interval for mediated path Image -> Expectation -> Satisfaction
-confidence_interval(boot_seminr_model = boot_seminr_model,
-                   from = "Image",
-                   through = c("Expectation", "Satisfaction"),
-                   to = "Complaints",
-                   alpha = 0.05)
+specific_effect_significance(boot_seminr_model = boot_seminr_model,
+                             from = "Image",
+                             through = c("Expectation", "Satisfaction"),
+                             to = "Complaints",
+                             alpha = 0.05)
 
 # Calculate the 10% confidence interval for direct path Image -> Satisfaction
-confidence_interval(boot_seminr_model = boot_seminr_model,
-                   from = "Image",
-                   to = "Satisfaction",
-                   alpha = 0.10)
+specific_effect_significance(boot_seminr_model = boot_seminr_model,
+                             from = "Image",
+                             to = "Satisfaction",
+                             alpha = 0.10)
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  model_summary <- summary(mobi_pls)
@@ -281,9 +281,9 @@ pls_model <- estimate_pls(
 )
 boot_estimates <- bootstrap_model(pls_model, nboot = 100, cores = 1)
 
-## ----include = FALSE----------------------------------------------------------
-pl <- plot(boot_estimates, title = "Bootstrapped Model")
-save_plot("myfigure.png", width = 2400, plot = pl)
+## ----include = FALSE, eval = FALSE--------------------------------------------
+#  pl <- plot(boot_estimates, title = "Bootstrapped Model")
+#  save_plot("myfigure.png", width = 2400, plot = pl)
 
 ## ----echo=FALSE, out.width='75%'----------------------------------------------
 knitr::include_graphics('myfigure.png')

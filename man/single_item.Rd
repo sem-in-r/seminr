@@ -9,6 +9,9 @@ single_item(item)
 \arguments{
 \item{item}{Name of item}
 }
+\value{
+A vector of a single indicator for a composite.
+}
 \description{
 \code{single_item} specifies a single item name to be assigned to a construct.
 }

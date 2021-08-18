@@ -4,7 +4,7 @@
 \alias{extract_sm_nodes}
 \title{Helper function that applies formatting to each construct}
 \usage{
-extract_sm_nodes(model, theme, structure_only = F)
+extract_sm_nodes(model, theme, structure_only = FALSE)
 }
 \arguments{
 \item{model}{the model to use}
