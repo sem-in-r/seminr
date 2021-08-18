@@ -19,3 +19,13 @@ all_exogenous <- function(smMatrix) {
 antecedents_of <- function(outcome, smMatrix) {
   smMatrix[smMatrix[,2] == outcome, "source"]
 }
+
+# Identify theantedents of a dv that are interactions
+interactions_of <- function(outcome, smMatrix) {
+  antecedents_of(outcome, smMatrix)[grep("\\*",antecedents_of(outcome, smMatrix))]
+}
+
+# Identify if interactions occur in the sm model
+all_interactions <- function(smMatrix) {
+  construct_names(smMatrix)[grep("\\*",construct_names(smMatrix))]
+}
