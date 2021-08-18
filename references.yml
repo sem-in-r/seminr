@@ -89,4 +89,6 @@
 - code: fornelllarcker1981
   ref: "Fornell, C., & Larcker, D. F. (1981). Evaluating structural equation models with unobservable variables and measurement error. Journal of marketing research, 18(1), 39-50."
   cite: Fornell & Larcker (1981)
-
+- code: raydanksvaldez2021
+  ref: "Ray, S., Danks, N.P., & Valdez A.C. (2021). Ray, Soumya and Danks, Nicholas and Calero Valdez, André, SEMinR: domain-specific language for building, estimating, and visualizing structural equation models in R (v2.1.0). SSRN"
+  cite: Ray, Danks, & Valdezr (2021)
