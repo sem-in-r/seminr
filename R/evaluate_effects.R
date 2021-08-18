@@ -81,8 +81,8 @@ model_fsquares <- function(seminr_model) {
   path_matrix <- seminr_model$path_coef
   fsquared_matrix <- path_matrix
   for (dv in all_endogenous(seminr_model$smMatrix)) {
-    ifelse(length(grep("\\*",seminr_model$smMatrix[seminr_model$smMatrix[,2] == dv,1]) ) > 0,
-      int_components <- unique(unlist(strsplit(seminr_model$smMatrix[seminr_model$smMatrix[,2] == dv,1][grep("\\*",seminr_model$smMatrix[seminr_model$smMatrix[,2] == dv,1])], "\\*"))),
+    ifelse(length(interactions_of(dv, seminr_model$smMatrix) ) > 0,
+      int_components <- unique(unlist(strsplit(interactions_of(dv, seminr_model$smMatrix), "\\*"))),
       int_components <- NA)
     for (iv in setdiff(all_exogenous(seminr_model$smMatrix), int_components)) {
       fsquared_matrix[iv, dv] <- fSquared(seminr_model = seminr_model,
@@ -91,9 +91,7 @@ model_fsquares <- function(seminr_model) {
       fsquared_matrix[int_components,dv] <- NA
     }
   }
-  if (any(names(seminr_model$measurement_model) == "orthogonal_interaction")
-      | any(names(seminr_model$measurement_model) == "two_stage_interaction")
-      | any(names(seminr_model$measurement_model) == "scaled_interaction" )) {
+  if (length(all_interactions(seminr_model$smMatrix) > 0)) {
     comment(fsquared_matrix) <- "The fSquare for certain relationships cannot be calculated as the model contains an interaction term and omitting either the antecedent or moderator in the interaction term will cause model estimation to fail"
   }
   convert_to_table_output(fsquared_matrix)
