@@ -107,28 +107,50 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
                                                  "stopCriterion",
                                                  "missing"), envir=environment())
 
+        # Calculate the expected nrow of the bootmatrix
+        length <- 3*nrow(seminr_model$path_coef)^2 + 2*nrow(seminr_model$outer_loadings)*ncol(seminr_model$outer_loadings)
+
         # Function to get PLS estimate results
-        getEstimateResults <- function(i, d = d) {
+        getEstimateResults <- function(i, d = d, length) {
           set.seed(seed + i)
-          boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
-                               measurement_model = measurement_model,
-                               structural_model = structural_model,
-                               inner_weights = inner_weights,
-                               missing = missing,
-                               missing_value = missing_value,
-                               stopCriterion = stopCriterion,
-                               maxIt = maxIt)
-          boot_htmt <- HTMT(boot_model)
-          boot_total <- total_effects(boot_model$path_coef)
-          return(as.matrix(c(c(boot_model$path_coef),
-                             c(boot_model$outer_loadings),
-                             c(boot_model$outer_weights),
-                             c(boot_htmt),
-                             c(boot_total))))
+          plsc-bootstrap
+          tryCatch({
+            boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
+                                               measurement_model,
+                                               structural_model,
+                                               inner_weights = inner_weights)
+            boot_htmt <- HTMT(boot_model)
+            boot_total <- total_effects(boot_model$path_coef)
+            return(as.matrix(c(c(boot_model$path_coef),
+                               c(boot_model$outer_loadings),
+                               c(boot_model$outer_weights),
+                               c(boot_htmt),
+                               c(boot_total))))
+            },
+            error = function(cond) {
+              message("Bootstrapping encountered an ERROR: ")
+              message(cond)
+              return(rep(NA, length))
+            },
+            warning = function(cond) {
+              message("Bootstrapping encountered an ERROR: ")
+              message(cond)
+              return(rep(NA, length))
+            }
+          )
         }
 
         # Bootstrap the estimates
-        utils::capture.output(bootmatrix <- parallel::parSapply(cl, 1:nboot, getEstimateResults, d))
+        utils::capture.output(bootmatrix <- parallel::parSapply(cl, 1:nboot, getEstimateResults, d, length))
+
+        # Clean the NAs and report the NAs
+        bootmatrix <- bootmatrix[,!is.na(bootmatrix[1,])]
+        fails <- nboot - ncol(bootmatrix)
+        nboot <- nboot - fails
+        if (fails > 0) {
+          message(paste("Bootstrapping encountered a WARNING: ", fails, "models failed to converge in PLSc. \nThese models are excluded from the reported bootstrap statistics."))
+        }
+
 
         # Collect means and sds for all estimates from bootmatrix
         means <- apply(bootmatrix,1,mean)
