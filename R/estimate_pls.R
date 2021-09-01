@@ -111,15 +111,15 @@ estimate_pls <- function(data,
   data <- stats::na.omit(data)
 
   # Extract model specifications
-  specified_model <- seminr:::extract_models(model, measurement_model, structural_model)
+  specified_model <- extract_models(model, measurement_model, structural_model)
   measurement_model <- specified_model$measurement_model
   structural_model <- specified_model$structural_model
 
   # Generate first order model if necessary
-  HOCs <- seminr:::HOCs_in_sm(measurement_model, structural_model)
+  HOCs <- HOCs_in_sm(measurement_model, structural_model)
 
   if ( length(HOCs)>0 ) {
-    HOM <- seminr:::prepare_higher_order_model(data = data,
+    HOM <- prepare_higher_order_model(data = data,
                                       sm = structural_model,
                                       mm = measurement_model,
                                       inners = inner_weights,
@@ -132,7 +132,7 @@ estimate_pls <- function(data,
     first_stage_model <- HOM$first_stage_model
   }
 
-  processed_measurements <- seminr:::process_interactions(measurement_model, data, structural_model, inner_weights)
+  processed_measurements <- process_interactions(measurement_model, data, structural_model, inner_weights)
   mmMatrix <- processed_measurements$mmMatrix
   data <- processed_measurements$data
 
@@ -140,7 +140,7 @@ estimate_pls <- function(data,
   warnings(mmMatrix, data, structural_model)
 
   # Make a named list of construct measurement_mode functions
-  measurement_mode_scheme <- sapply(unique(c(structural_model[,1], structural_model[,2])), seminr:::get_measure_mode, mmMatrix, USE.NAMES = TRUE)
+  measurement_mode_scheme <- sapply(unique(c(structural_model[,1], structural_model[,2])), get_measure_mode, mmMatrix, USE.NAMES = TRUE)
 
   # Run the model in simplePLS
   seminr_model = seminr::simplePLS(obsData = data,
@@ -159,7 +159,7 @@ estimate_pls <- function(data,
   seminr_model$settings$missing <- missing
 
   # Correct for Bias in Reflective models using PLS Consistent
-  seminr_model <- seminr:::model_consistent(seminr_model)
+  seminr_model <- model_consistent(seminr_model)
 
   if ( length(HOCs)>0 ) {
     # Append return list with first stage model and
