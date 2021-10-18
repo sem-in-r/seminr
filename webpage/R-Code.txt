@@ -1,0 +1,671 @@
+#################
+### Chapter 2 ###
+#################
+
+# Create a vector of integers
+vector <- c(1, 2, 3, 4, 5)
+
+# Install the Swirl package
+install.packages(pkgs = "swirl")
+
+# Load the Swirl package into the environment
+library(swirl)
+
+# Begin learning with Swirl
+swirl()
+
+# Check all demos available in R
+demo()
+
+# Load the SEMinR ECSI demo
+demo("seminr-pls-ecsi")
+
+
+#################
+### Chapter 3 ###
+#################
+
+# Download and install the SEMinR package
+# You only need to do this once to equip Rstudio on your computer with SEMinR
+install.packages("seminr")
+
+# Make the SEMinR library ready to use
+# You must do this every time you restart Rstudio and wish to
+use SEMinR
+library(seminr)
+
+# Select folder that includes the coporate reputation data
+# In the R software, click on "File" --> "Change dir..."
+
+
+# Load the corporate reputation data
+corp_rep_data <- read.csv(file = "Corporate Reputation Data.
+csv", header = TRUE, sep = ";")
+
+# Show the first several rows of the corporate reputation data
+head(corp_rep_data)
+
+# Create measurement model ----
+simple_mm <- constructs(
+composite("COMP", multi_items("comp_", 1:3)),
+composite("LIKE", multi_items("like_", 1:3)),
+composite("CUSA", single_item("cusa")),
+composite("CUSL", multi_items("cusl_", 1:3)))
+
+# Create structural model ----
+simple_sm <- relationships(
+paths(from = c("COMP", "LIKE"), to = c("CUSA", "CUSL")),
+paths(from = c("CUSA"), to = c("CUSL")))
+
+# Estimate the model
+corp_rep_simple_model <- estimate_pls(data = corp_rep_data,
+measurement_model = simple_mm,
+structural_model = simple_sm,
+inner_weights = path_weighting,
+missing = mean_replacement,
+missing_value = "-99")
+
+# Estimate the model with default settings
+corp_rep_simple_model <- estimate_pls(data = corp_rep_data,
+measurement_model = simple_mm,
+structural_model = simple_sm,
+missing_value = "-99")
+
+# Summarize the model results
+summary_simple_corp_rep <- summary(corp_rep_simple_model)
+
+# Inspect the model’s path coefficients and the (adjusted) R^2 values
+summary_simple_corp_rep$paths
+
+# Inspect the construct reliability metrics
+summary_simple_corp_rep$reliability
+
+# Bootstrap the model
+boot_simple_corp_rep <- bootstrap_model(seminr_model = corp_
+rep_simple_model,
+nboot = 1000,
+cores = NULL,
+seed = 123)
+
+# Store the summary of the bootstrapped model
+sum_boot_simple_corp_rep <- summary(boot_simple_corp_rep)
+
+# Inspect the bootstrapped structural paths
+sum_boot_simple_corp_rep$bootstrapped_paths
+
+# Inspect the bootstrapped indicator loadings
+sum_boot_simple_corp_rep$bootstrapped_loadings
+
+# Write the bootstrapped paths object to csv file
+write.csv(x = sum_boot_simple_corp_rep$bootstrapped_loadings,
+file = "boot_loadings.csv")
+
+# Plot reliability results
+plot(summary_simple_corp_rep$reliability)
+
+
+#################
+### Chapter 4 ###
+#################
+
+# Load the SEMinR library
+library(seminr)
+
+# Load the data
+corp_rep_data <- corp_rep_data
+
+# Create measurement model
+corp_rep_mm <- constructs(
+composite("COMP", multi_items("comp_", 1:3)),
+composite("LIKE", multi_items("like_", 1:3)),
+composite("CUSA", single_item("cusa")),
+composite("CUSL", multi_items("cusl_", 1:3)))
+
+# Create structural model
+corp_rep_sm <- relationships(
+paths(from = c("COMP", "LIKE"), to = c("CUSA", "CUSL")),
+paths(from = c("CUSA"), to = c("CUSL")))
+
+# Estimating the model
+corp_rep_pls_model <- estimate_pls(
+data = corp_rep_data,
+measurement_model = corp_rep_mm,
+structural_model = corp_rep_sm,
+missing = mean_replacement,
+missing_value = "-99")
+
+# Summarize the model results
+summary_corp_rep <- summary(corp_rep_pls_model)
+
+# Iterations to converge
+summary_corp_rep$iterations
+
+# Inspect the indicator loadings
+summary_corp_rep$loadings
+
+# Inspect the indicator reliability
+summary_corp_rep$loadings^2
+
+# Inspect the composite reliability
+summary_corp_rep$reliability
+
+# Plot the reliabilities of constructs
+plot(summary_corp_rep$reliability)
+
+# Table of the FL criteria
+summary_corp_rep$validity$fl_criteria
+
+# HTMT criterion
+summary_corp_rep$validity$htmt
+
+# Bootstrap the model
+boot_corp_rep <- bootstrap_model(seminr_model = corp_rep_pls_
+model, nboot = 1000)
+
+# Store the summary of the bootstrapped model
+sum_boot_corp_rep <- summary(boot_corp_rep, alpha = 0.10)
+
+# Extract the bootstrapped HTMT
+sum_boot_corp_rep$bootstrapped_HTMT
+
+
+#################
+### Chapter 5 ###
+#################
+
+# Load the SEMinR library
+library(seminr)
+
+# Load the corporate reputation data
+corp_rep_data <- corp_rep_data
+
+# Create measurement model
+corp_rep_mm_ext <- constructs(
+composite("QUAL", multi_items("qual_", 1:8), weights =
+mode_B),
+composite("PERF", multi_items("perf_", 1:5), weights =
+mode_B),
+composite("CSOR", multi_items("csor_", 1:5), weights =
+mode_B),
+composite("ATTR", multi_items("attr_", 1:3), weights =
+mode_B),
+composite("COMP", multi_items("comp_", 1:3)),
+composite("LIKE", multi_items("like_", 1:3)),
+composite("CUSA", single_item("cusa")),
+composite("CUSL", multi_items("cusl_", 1:3))
+)
+
+# Create structural model
+corp_rep_sm_ext <- relationships(
+paths(from = c("QUAL", "PERF", "CSOR", "ATTR"), to =
+c("COMP", "LIKE")),
+paths(from = c("COMP", "LIKE"), to = c("CUSA", "CUSL")),
+paths(from = c("CUSA"), to = c("CUSL"))
+)
+
+# Estimate the model
+corp_rep_pls_model_ext <- estimate_pls(
+data = corp_rep_data,
+measurement_model = corp_rep_mm_ext,
+structural_model = corp_rep_sm_ext,
+missing = mean_replacement,
+missing_value = "-99")
+
+# Summarize the model results
+summary_corp_rep_ext <- summary(corp_rep_pls_model_ext)
+
+# Iterations to converge
+summary_corp_rep_ext$iterations
+
+# Bootstrap the model
+boot_corp_rep_ext <- bootstrap_model(
+seminr_model = corp_rep_pls_model_ext, nboot = 1000)
+
+# Store the summary of the bootstrapped model
+sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext, alpha =
+0.10)
+
+# Redundancy analysis
+# ATTR
+# Create measurement model
+ATTR_redundancy_mm <- constructs(
+composite("ATTR_F", multi_items("attr_", 1:3), weights =
+mode_B),
+composite("ATTR_G", single_item("attr_global"))
+)
+
+# Create structural model
+ATTR_redundancy_sm <- relationships(
+paths(from = c("ATTR_F"), to = c("ATTR_G"))
+)
+
+# Estimate the model
+ATTR_redundancy_pls_model <- estimate_pls(
+data = corp_rep_data,
+measurement_model = ATTR_redundancy_mm,
+structural_model = ATTR_redundancy_sm,
+missing = mean_replacement,
+missing_value = "-99")
+
+# Summarize the model
+sum_ATTR_red_model <- summary(ATTR_redundancy_pls_model)
+
+# CSOR
+# Create measurement model
+CSOR_redundancy_mm <- constructs(
+composite("CSOR_F", multi_items("csor_", 1:5), weights =
+mode_B),
+composite("CSOR_G", single_item("csor_global"))
+)
+
+# Create structural model
+CSOR_redundancy_sm <- relationships(
+paths(from = c("CSOR_F"), to = c("CSOR_G"))
+
+# Estimate the model
+CSOR_redundancy_pls_model <- estimate_pls(
+data = corp_rep_data,
+measurement_model = CSOR_redundancy_mm,
+structural_model = CSOR_redundancy_sm,
+missing = mean_replacement,
+missing_value = "-99")
+
+# Summarize the model
+sum_CSOR_red_model <- summary(CSOR_redundancy_pls_model)
+
+# PERF
+# Create measurement model
+PERF_redundancy_mm <- constructs(
+composite("PERF_F", multi_items("perf_", 1:5), weights =
+mode_B),
+composite("PERF_G", single_item("perf_global"))
+)
+
+# Create structural model
+PERF_redundancy_sm <- relationships(
+paths(from = c("PERF_F"), to = c("PERF_G"))
+)
+
+# Estimate the model
+PERF_redundancy_pls_model <- estimate_pls(
+data = corp_rep_data,
+measurement_model = PERF_redundancy_mm,
+structural_model = PERF_redundancy_sm,
+missing = mean_replacement,
+missing_value = "-99")
+
+# Summarize the model
+sum_PERF_red_model <- summary(PERF_redundancy_pls_model)
+
+# QUAL
+# Create measurement model
+QUAL_redundancy_mm <- constructs(
+composite("QUAL_F", multi_items("qual_", 1:8), weights =
+mode_B),
+composite("QUAL_G", single_item("qual_global"))
+)
+
+# Create structural model
+QUAL_redundancy_sm <- relationships(
+paths(from = c("QUAL_F"), to = c("QUAL_G"))
+)
+
+# Estimate the model
+QUAL_redundancy_pls_model <- estimate_pls(
+data = corp_rep_data,
+measurement_model = QUAL_redundancy_mm,
+structural_model = QUAL_redundancy_sm,
+missing = mean_replacement,
+missing_value = "-99")
+
+# Summarize the model
+sum_QUAL_red_model <- summary(QUAL_redundancy_pls_model)
+
+# Check the path coefficients for convergent validity
+sum_ATTR_red_model$paths
+sum_CSOR_red_model$paths
+sum_PERF_red_model$paths
+sum_QUAL_red_model$paths
+
+# Collinearity analysis
+summary_corp_rep_ext$validity$vif_items
+
+# Bootstrap the model
+# seminr_model is the SEMinR model to be bootstrapped
+# nboot is the number of bootstrap iterations to run
+# cores is the number of cpu cores to use
+# in multicore bootstrapping
+# parallel::detectCores() allows for using
+# the maximum cores on your device
+# seed is the seed to be used for making bootstrap replicable
+boot_corp_rep_ext <- bootstrap_model(
+seminr_model = corp_rep_pls_model_ext,
+nboot = 1000,
+cores = parallel::detectCores(),
+seed = 123)
+
+# Summarize the results of the bootstrap
+# alpha sets the specified level for significance, i.e. 0.05
+sum_boot_corp_rep_ext <- summary(boot_corp_rep_ext, alpha =
+0.05)
+
+# Inspect the bootstrapping results for indicator weights
+sum_boot_corp_rep_ext$bootstrapped_weights
+
+
+#################
+### Chapter 6 ###
+#################
+
+# Load the SEMinR library
+library(seminr)
+
+# Load the data
+corp_rep_data <- corp_rep_data
+
+# Create measurement model
+corp_rep_mm_ext <- constructs(
+composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
+composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
+composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
+composite("ATTR", multi_items("attr_", 1:3), weights = mode_B),
+composite("COMP", multi_items("comp_", 1:3)),
+composite("LIKE", multi_items("like_", 1:3)),
+composite("CUSA", single_item("cusa")),
+composite("CUSL", multi_items("cusl_", 1:3))
+)
+
+# Create structural model
+corp_rep_sm_ext <- relationships(
+paths(from = c("QUAL", "PERF", "CSOR", "ATTR"), to = c("COMP",
+"LIKE")),
+paths(from = c("COMP", "LIKE"), to = c("CUSA", "CUSL")),
+paths(from = c("CUSA"), to = c("CUSL"))
+)
+
+# Estimate the model
+corp_rep_pls_model_ext <- estimate_pls(
+data = corp_rep_data,
+measurement_model = corp_rep_mm_ext,
+structural_model = corp_rep_sm_ext,
+missing = mean_replacement,
+missing_value = "-99")
+
+# Summarize the results of the model estimation
+summary_corp_rep_ext <- summary(corp_rep_pls_model_ext)
+
+# Bootstrap the model
+boot_corp_rep_ext <- bootstrap_model(
+seminr_model = corp_rep_pls_model_ext,
+nboot = 1000,
+cores = parallel::detectCores(),
+seed = 123)
+
+# Summarize the results of the bootstrap
+summary_boot_corp_rep_ext <- summary(boot_corp_rep_ext,
+alpha = 0.05)
+
+# Inspect the structural model collinearity VIF
+summary_corp_rep_ext$vif_antecedents
+
+# Inspect the structural paths
+summary_boot_corp_rep_ext$bootstrapped_paths
+
+# Inspect the total effects
+summary_boot_corp_rep_ext$bootstrapped_total_paths
+
+# Inspect the model RSquares
+summary_corp_rep_ext$paths
+
+# Inspect the effect sizes
+summary_corp_rep_ext$fSquare
+
+# Generate the model predictions
+predict_corp_rep_ext <- predict_pls(
+model = corp_rep_pls_model_ext,
+technique = predict_DA,
+noFolds = 10,
+reps = 10)
+
+# Summarize the prediction results
+sum_predict_corp_rep_ext <- summary(predict_corp_rep_ext)
+
+# Analyze the distribution of prediction error
+par(mfrow=c(1,3))
+plot(sum_predict_corp_rep_ext, indicator = "cusl_1")
+plot(sum_predict_corp_rep_ext, indicator = "cusl_2")
+plot(sum_predict_corp_rep_ext, indicator = "cusl_3")
+par(mfrow=c(1,1))
+
+# Compute the prediction statistics
+sum_predict_corp_rep_ext
+
+# Estimate alternative models
+# Create measurement model
+measurement_model <- constructs(
+composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
+composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
+composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
+composite("ATTR", multi_items("attr_", 1:3), weights = mode_B),
+composite("COMP", multi_items("comp_", 1:3)),
+composite("LIKE", multi_items("like_", 1:3)),
+composite("CUSA", single_item("cusa")),
+composite("CUSL", multi_items("cusl_", 1:3))
+)
+
+# Create structural models
+# Model 1
+structural_model1 <- relationships(
+paths(from = c("QUAL","PERF","CSOR","ATTR"), to = c("COMP",
+"LIKE")),
+paths(from = c("COMP","LIKE"), to = c("CUSA", "CUSL")),
+paths(from = "CUSA", to = c("CUSL"))
+)
+
+# Model 2
+structural_model2 <- relationships(
+paths(from = c("QUAL","PERF","CSOR","ATTR"), to = c("COMP",
+"LIKE", "CUSA")),
+paths(from = c("COMP","LIKE"), to = c("CUSA", "CUSL")),
+paths(from = "CUSA", to = c("CUSL"))
+)
+
+# Model 3
+structural_model3 <- relationships(
+paths(from = c("QUAL","PERF","CSOR","ATTR"),
+to = c("COMP", "LIKE", "CUSA", "CUSL")),
+paths(from = c("COMP","LIKE"), to = c("CUSA", "CUSL")),
+paths(from = "CUSA", to = c("CUSL"))
+)
+
+# Estimate and summarize the models
+pls_model1 <- estimate_pls(
+data = corp_rep_data,
+measurement_model = measurement_model,
+structural_model = structural_model1,
+missing_value = "-99"
+)
+sum_model1 <- summary(pls_model1)
+pls_model2 <- estimate_pls(
+data = corp_rep_data,
+measurement_model = measurement_model,
+structural_model = structural_model2,
+missing_value = "-99"
+)
+sum_model2 <- summary(pls_model2)
+pls_model3 <- estimate_pls(
+data = corp_rep_data,
+measurement_model = measurement_model,
+structural_model = structural_model3,
+missing_value = "-99"
+)
+sum_model3 <- summary(pls_model3)
+
+
+# Inspect the IT Criteria matrix of Model1
+sum_model1$it_criteria
+
+# Subset the matrix to only return the BIC row and CUSL column
+sum_model1$it_criteria["BIC", "CUSA"]
+
+# Collect the vector of BIC values for CUSL
+itcriteria_vector <- c(sum_model1$it_criteria["BIC","CUSA"],
+sum_model2$it_criteria["BIC","CUSA"],
+sum_model3$it_criteria["BIC","CUSA"])
+
+# Assign the model names to IT Criteria vector
+names(itcriteria_vector) <- c("Model1", "Model2", "Model3")
+
+# Inspect the IT Criteria vector for competing models
+itcriteria_vector
+
+# Calculate the model BIC Akaike weights
+compute_itcriteria_weights(itcriteria_vector)
+
+
+#################
+### Chapter 7 ###
+#################
+
+# Load the SEMinR library
+library(seminr)
+
+# Load the data
+corp_rep_data <- corp_rep_data
+
+# Create measurement model
+corp_rep_mm_ext <- constructs(
+composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
+composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
+composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
+composite("ATTR", multi_items("attr_", 1:3), weights = mode_B),
+composite("COMP", multi_items("comp_", 1:3)),
+composite("LIKE", multi_items("like_", 1:3)),
+composite("CUSA", single_item("cusa")),
+composite("CUSL", multi_items("cusl_", 1:3))
+)
+
+# Create structural model
+corp_rep_sm_ext <- relationships(
+paths(from = c("QUAL", "PERF", "CSOR", "ATTR"), to = c("COMP",
+"LIKE")),
+paths(from = c("COMP", "LIKE"), to = c("CUSA", "CUSL")),
+paths(from = c("CUSA"), to = c("CUSL"))
+)
+
+# Estimate the model
+corp_rep_pls_model_ext <- estimate_pls(
+data = corp_rep_data,
+measurement_model = corp_rep_mm_ext,
+structural_model = corp_rep_sm_ext,
+missing = mean_replacement,
+missing_value = "-99"
+)
+
+# Summarize the results of the model estimation
+summary_corp_rep_ext <- summary(corp_rep_pls_model_ext)
+
+# Bootstrap the model
+boot_corp_rep_ext <- bootstrap_model(
+seminr_model = corp_rep_pls_model_ext,
+nboot = 1000,
+cores = parallel::detectCores(),
+seed = 123
+)
+
+# Summarize the results of the bootstrap
+summary_boot_corp_rep_ext <- summary(boot_corp_rep_ext, alpha =
+0.05)
+
+# Inspect total indirect effects
+summary_corp_rep_ext$total_indirect_effects
+
+# Inspect indirect effects
+specific_effect_significance(boot_corp_rep_ext,
+from = "COMP",
+through = "CUSA",
+to = "CUSL",
+alpha = 0.05)
+specific_effect_significance(boot_corp_rep_ext,
+from = "LIKE",
+through = "CUSA",
+to = "CUSL",
+alpha = 0.05)
+
+# Inspect the direct effects
+summary_corp_rep_ext$paths
+
+# Inspect the confidence intervals for direct effects
+summary_boot_corp_rep_ext$bootstrapped_paths
+
+# Calculate the sign of p1*p2*p3
+summary_corp_rep_ext$paths["LIKE", "CUSL"] *
+summary_corp_rep_ext$paths["LIKE","CUSA"] *
+summary_corp_rep_ext$paths["CUSA","CUSL"]
+
+
+#################
+### Chapter 8 ###
+#################
+
+# Load the SEMinR library
+library(seminr)
+
+# Load the data
+corp_rep_data <- corp_rep_data
+
+# Create the measurement model
+corp_rep_mm_mod <- constructs(
+composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
+composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
+composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
+composite("ATTR", multi_items("attr_", 1:3), weights = mode_B),
+composite("COMP", multi_items("comp_", 1:3)),
+composite("LIKE", multi_items("like_", 1:3)),
+composite("CUSA", single_item("cusa")),
+composite("SC", multi_items("switch_", 1:4)),
+composite("CUSL", multi_items("cusl_", 1:3)),
+interaction_term(iv = "CUSA", moderator = "SC", method = two_stage))
+
+# Create the structural model
+corp_rep_sm_mod <- relationships(
+paths(from = c("QUAL", "PERF", "CSOR", "ATTR"), to = c("COMP",
+"LIKE")),
+paths(from = c("COMP", "LIKE"), to = c("CUSA", "CUSL")),
+paths(from = c("CUSA", "SC", "CUSA*SC"), to = c("CUSL"))
+)
+
+# Estimate the new model with moderator
+corp_rep_pls_model_mod <- estimate_pls(
+data = corp_rep_data,
+measurement_model = corp_rep_mm_mod,
+structural_model = corp_rep_sm_mod,
+missing = mean_replacement,
+missing_value = "-99"
+)
+
+# Extract the summary
+sum_corp_rep_mod <- summary(corp_rep_pls_model_mod)
+
+# Bootstrap the model
+boot_corp_rep_mod <- bootstrap_model(
+seminr_model = corp_rep_pls_model_mod,
+nboot = 1000)
+
+# Summarize the results of the bootstrap
+sum_boot_corp_rep_mod <- summary(boot_corp_rep_mod, alpha = 0.05)
+
+# Inspect the bootstrapped structural paths
+sum_boot_corp_rep_mod$bootstrapped_paths
+
+# Simple slope analysis plot
+slope_analysis(
+moderated_model = corp_rep_pls_model_mod,
+dv = "CUSL",
+moderator = "SC",
+iv = "CUSA",
+leg_place = "bottomright")
+
+
+
+
