@@ -113,7 +113,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         # Function to get PLS estimate results
         getEstimateResults <- function(i, d = d, length) {
           set.seed(seed + i)
-          plsc-bootstrap
+          # plsc-bootstrap
           tryCatch({
             boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
                                                measurement_model,
