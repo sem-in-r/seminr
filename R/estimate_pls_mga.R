@@ -58,13 +58,16 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000) {
   group1_data <- pls_data[condition, ]
   group2_data <- pls_data[!condition, ]
 
+  message("Estimating and bootstrapping groups...")
+
   # TODO: use all models (including interactions)
-  group1_model <- estimate_pls(data = group1_data, measurement_model = pls_model$measurement_model, structural_model = pls_model$sm)
-  group2_model <- estimate_pls(data = group2_data, measurement_model = pls_model$measurement_model, structural_model = pls_model$sm)
+  utils::capture.output(group1_model <- estimate_pls(data = group1_data, measurement_model = pls_model$measurement_model, structural_model = pls_model$sm))
+  utils::capture.output(group2_model <- estimate_pls(data = group2_data, measurement_model = pls_model$measurement_model, structural_model = pls_model$sm))
 
-  group1_boot <- bootstrap_model(seminr_model = group1_model, nboot = nboot, seed = 123456)
-  group2_boot <- bootstrap_model(seminr_model = group2_model, nboot = nboot, seed = 123456)
+  utils::capture.output(group1_boot <- bootstrap_model(seminr_model = group1_model, nboot = nboot, seed = 123456))
+  utils::capture.output(group2_boot <- bootstrap_model(seminr_model = group2_model, nboot = nboot, seed = 123456))
 
+  message("Computing similarity of groups...")
   # Produce beta report matrix on all paths (as rows)
   beta <- as.data.frame(pls_model$smMatrix[,c("source", "target")])
   path_names <- do.call(paste0, cbind(beta["source"], " -> ", beta["target"]))
@@ -86,8 +89,12 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000) {
 
   # PLSc may not resolve in some bootstrap runs - limit bootstrap paths to resolved number of boots
   J <- min(dim(boot1_betas)[1], dim(boot2_betas)[1])
+  if (J < nboot) {
+    message(paste("Using", J, "bootstrapped results of each group after removing inadmissible runs"))
+  }
   boot1_betas <- boot1_betas[1:J,]
   boot2_betas <- boot2_betas[1:J,]
+
 
   # Insert bootstrap descriptives into beta matrix
   beta$group1_beta_mean <- apply(boot1_betas, MARGIN=2, FUN=mean)
