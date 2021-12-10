@@ -206,7 +206,7 @@ rerun <- function (x, ...) {
 
 #' Reruns a previously specified seminr PLS model
 #'
-#' @param pls_model An estimated pls_model object produced by \code{\link{estimate_pls}}
+#' @param x An estimated pls_model object produced by \code{\link{estimate_pls}}
 #'
 #' @param ... Any parameters to change during the re-estimation (e.g., data, measurement_model, etc.)
 #'
@@ -238,19 +238,19 @@ rerun <- function (x, ...) {
 #' mobi_pls3 <- rerun(mobi_pls, measurement_model=as.reflective(mobi_mm))
 #'
 #' @export
-rerun.pls_model <- function(pls_model, ...) {
+rerun.pls_model <- function(x, ...) {
   args <- list(...)
 
   estimate_pls(
-    data              = not_null(args$data, pls_model$rawdata),
-    measurement_model = not_null(args$measurement_model, pls_model$measurement_model),
-    structural_model  = not_null(args$structural_model, pls_model$structural_model),
-    model             = not_null(args$model, pls_model$model),
-    inner_weights     = not_null(args$inner_weights, pls_model$settings$inner_weights),
-    missing           = not_null(args$missing, pls_model$settings$missing),
-    missing_value     = not_null(args$missing_value, pls_model$settings$missing_value),
-    maxIt             = not_null(args$maxIt, pls_model$settings$maxIt),
-    stopCriterion     = not_null(args$stopCriterion, pls_model$settings$stopCriterion)
+    data              = not_null(args$data,              x$rawdata),
+    measurement_model = not_null(args$measurement_model, x$measurement_model),
+    structural_model  = not_null(args$structural_model,  x$structural_model),
+    model             = not_null(args$model,             x$model),
+    inner_weights     = not_null(args$inner_weights,     x$settings$inner_weights),
+    missing           = not_null(args$missing,           x$settings$missing),
+    missing_value     = not_null(args$missing_value,     x$settings$missing_value),
+    maxIt             = not_null(args$maxIt,             x$settings$maxIt),
+    stopCriterion     = not_null(args$stopCriterion,     x$settings$stopCriterion)
   )
 }
 

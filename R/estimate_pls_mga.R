@@ -3,6 +3,7 @@
 #' @param pls_model SEMinR PLS model estimated on the full sample
 #' @param condition logical vector of TRUE/FALSE indicating which rows of sample data are in group 1
 #' @param nboot number of bootstrap resamples to use in PLS-MGA
+#' @param ... any further parameters for bootstrapping (e.g., cores)
 #'
 #' @examples
 #' mobi <- mobi

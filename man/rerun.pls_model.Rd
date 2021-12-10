@@ -4,10 +4,10 @@
 \alias{rerun.pls_model}
 \title{Reruns a previously specified seminr PLS model}
 \usage{
-\method{rerun}{pls_model}(pls_model, ...)
+\method{rerun}{pls_model}(x, ...)
 }
 \arguments{
-\item{pls_model}{An estimated pls_model object produced by \code{\link{estimate_pls}}}
+\item{x}{An estimated pls_model object produced by \code{\link{estimate_pls}}}
 
 \item{...}{Any parameters to change during the re-estimation (e.g., data, measurement_model, etc.)}
 }
