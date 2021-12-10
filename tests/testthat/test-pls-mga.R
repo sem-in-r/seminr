@@ -5,13 +5,13 @@ mobi <- mobi
 
 #seminr syntax for creating measurement model
 mobi_mm <- constructs(
-  reflective("Image",        multi_items("IMAG", 1:5)),
-  reflective("Expectation",  multi_items("CUEX", 1:3)),
-  reflective("Quality",      multi_items("PERQ", 1:7)),
-  reflective("Value",        multi_items("PERV", 1:2)),
-  reflective("Satisfaction", multi_items("CUSA", 1:3)),
-  reflective("Complaints",   single_item("CUSCO")),
-  reflective("Loyalty",      multi_items("CUSL", 1:3))
+  composite("Image",        multi_items("IMAG", 1:5)),
+  composite("Expectation",  multi_items("CUEX", 1:3)),
+  composite("Quality",      multi_items("PERQ", 1:7)),
+  composite("Value",        multi_items("PERV", 1:2)),
+  composite("Satisfaction", multi_items("CUSA", 1:3)),
+  composite("Complaints",   single_item("CUSCO")),
+  composite("Loyalty",      multi_items("CUSL", 1:3))
 )
 
 #seminr syntax for creating structural model
@@ -45,5 +45,5 @@ mga_correct <- readRDS(paste(test_folder, "pls-mga-mobi-100.RDS", sep = ""))
 # Testing
 
 test_that("Seminr estimates the correct PLS-MGA p-values", {
-  expect_equal(mobi_mga$pls_mga_p, mga_correct$pls_mga_p)
+  expect_equal(mobi_mga$pls_mga_p, mga_correct$pls_mga_p, tolerance = 0.00001)
 })

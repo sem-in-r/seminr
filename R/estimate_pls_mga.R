@@ -4,20 +4,18 @@
 #' @param condition logical vector of TRUE/FALSE indicating which rows of sample data are in group 1
 #' @param nboot number of bootstrap resamples to use in PLS-MGA
 #'
-#' TODO: parallelize param
-#'
 #' @examples
 #' mobi <- mobi
 #'
 #' #seminr syntax for creating measurement model
 #' mobi_mm <- constructs(
-#'   reflective("Image",        multi_items("IMAG", 1:5)),
-#'   reflective("Expectation",  multi_items("CUEX", 1:3)),
-#'   reflective("Quality",      multi_items("PERQ", 1:7)),
-#'   reflective("Value",        multi_items("PERV", 1:2)),
-#'   reflective("Satisfaction", multi_items("CUSA", 1:3)),
-#'   reflective("Complaints",   single_item("CUSCO")),
-#'   reflective("Loyalty",      multi_items("CUSL", 1:3))
+#'   composite("Image",        multi_items("IMAG", 1:5)),
+#'   composite("Expectation",  multi_items("CUEX", 1:3)),
+#'   composite("Quality",      multi_items("PERQ", 1:7)),
+#'   composite("Value",        multi_items("PERV", 1:2)),
+#'   composite("Satisfaction", multi_items("CUSA", 1:3)),
+#'   composite("Complaints",   single_item("CUSCO")),
+#'   composite("Loyalty",      multi_items("CUSL", 1:3))
 #' )
 #'
 #' #seminr syntax for creating structural model
@@ -36,11 +34,10 @@
 #'                          missing = mean_replacement,
 #'                          missing_value = NA)
 #'
-#' set.seed=798234; rand_cond <- sample(c(TRUE, FALSE))
-#' mobi_mga <- estimate_pls_mga(mobi_pls, rand_cond, nboot=250)
+#' mobi_mga <- estimate_pls_mga(mobi_pls, mobi$CUEX1 < 8, nboot=100) # should use nboot ~2000
 #'
 #' @export
-estimate_pls_mga <- function(pls_model, condition, nboot = 2000) {
+estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
   pls_data <- pls_model$rawdata
 
   # Given a beta report matrix (paths as rows) get estimates form a path_coef matrix
@@ -60,14 +57,13 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000) {
 
   message("Estimating and bootstrapping groups...")
 
-  # TODO: use all models (including interactions)
-  utils::capture.output(group1_model <- estimate_pls(data = group1_data, measurement_model = pls_model$measurement_model, structural_model = pls_model$sm))
-  utils::capture.output(group2_model <- estimate_pls(data = group2_data, measurement_model = pls_model$measurement_model, structural_model = pls_model$sm))
+  group1_model <- rerun(pls_model, data = group1_data)
+  group2_model <- rerun(pls_model, data = group2_data)
 
-  utils::capture.output(group1_boot <- bootstrap_model(seminr_model = group1_model, nboot = nboot, seed = 123456))
-  utils::capture.output(group2_boot <- bootstrap_model(seminr_model = group2_model, nboot = nboot, seed = 123456))
+  group1_boot <- bootstrap_model(seminr_model = group1_model, nboot = nboot, ...)
+  group2_boot <- bootstrap_model(seminr_model = group2_model, nboot = nboot, ...)
 
-  message("Computing similarity of groups...")
+  message("Computing similarity of groups")
   # Produce beta report matrix on all paths (as rows)
   beta <- as.data.frame(pls_model$smMatrix[,c("source", "target")])
   path_names <- do.call(paste0, cbind(beta["source"], " -> ", beta["target"]))
@@ -90,7 +86,7 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000) {
   # PLSc may not resolve in some bootstrap runs - limit bootstrap paths to resolved number of boots
   J <- min(dim(boot1_betas)[1], dim(boot2_betas)[1])
   if (J < nboot) {
-    message(paste("Using", J, "bootstrapped results of each group after removing inadmissible runs"))
+    message(paste("NOTE: Using", J, "bootstrapped results of each group after removing inadmissible runs"))
   }
   boot1_betas <- boot1_betas[1:J,]
   boot2_betas <- boot2_betas[1:J,]
