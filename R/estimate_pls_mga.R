@@ -118,7 +118,7 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
 
   beta$pls_mga_p <- sapply(1:nrow(beta), FUN=pls_mga_p, beta=beta, beta1_boots=boot1_betas, beta2_boots=boot2_betas)
 
-  class(beta) <- c("seminr-pls-mga", class(beta))
+  class(beta) <- c("seminr_pls_mga", class(beta))
   beta
   # pls_mga_report <- round(beta[,-(1:2)], 2)
 }

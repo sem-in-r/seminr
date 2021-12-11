@@ -12,6 +12,8 @@ estimate_pls_mga(pls_model, condition, nboot = 2000, ...)
 \item{condition}{logical vector of TRUE/FALSE indicating which rows of sample data are in group 1}
 
 \item{nboot}{number of bootstrap resamples to use in PLS-MGA}
+
+\item{...}{any further parameters for bootstrapping (e.g., cores)}
 }
 \description{
 Performs PLS-MGA to report significance of path differences between two subgroups of data
