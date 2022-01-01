@@ -2,7 +2,9 @@
 % Please edit documentation in R/compute_metrics.R
 \name{cor_rsq}
 \alias{cor_rsq}
-\title{Returns R-sq of a dv given correlation matrix of ivs, dv}
+\title{Returns R-sq of a dv given correlation matrix of ivs, dv
+cors <- cbsem_summary$descriptives$correlations$constructs
+cor_rsq(cors, dv_name = "Value", iv_names = c("Image", "Quality"))}
 \usage{
 cor_rsq(cor_matrix, dv_name, iv_names)
 }
@@ -15,8 +17,6 @@ cor_rsq(cor_matrix, dv_name, iv_names)
 }
 \description{
 Returns R-sq of a dv given correlation matrix of ivs, dv
-}
-\examples{
 cors <- cbsem_summary$descriptives$correlations$constructs
 cor_rsq(cors, dv_name = "Value", iv_names = c("Image", "Quality"))
 }

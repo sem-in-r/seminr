@@ -4,7 +4,14 @@
 \alias{print.seminr_pls_mga}
 \title{Summary function for PLS-MGA}
 \usage{
-\method{print}{seminr_pls_mga}(x, na.print = ".", digits = 3, ...)
+\method{print}{seminr_pls_mga}(x, digits = 3, ...)
+}
+\arguments{
+\item{x}{estimated seminr_pls_mga object}
+
+\item{digits}{number of digits to print}
+
+\item{...}{any further parameters for printing}
 }
 \description{
 Summary function for PLS-MGA

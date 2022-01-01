@@ -48,6 +48,7 @@ mobi_pls <- estimate_pls(data = mobi,
                          missing = mean_replacement,
                          missing_value = NA)
 
-mobi_mga <- estimate_pls_mga(mobi_pls, mobi$CUEX1 < 8, nboot=100) # should use nboot ~2000
+# Should usually use nboot ~2000 and don't specify cores for full parallel processing
+mobi_mga <- estimate_pls_mga(mobi_pls, mobi$CUEX1 < 8, nboot=100, cores = 2)
 
 }

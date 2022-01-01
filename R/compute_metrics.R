@@ -11,15 +11,13 @@ compute_AVE <- function(lambdas) {
 }
 
 #' Returns R-sq of a dv given correlation matrix of ivs, dv
+#' cors <- cbsem_summary$descriptives$correlations$constructs
+#' cor_rsq(cors, dv_name = "Value", iv_names = c("Image", "Quality"))
 #'
 #' @param cor_matrix A correlation matrix that includes ivs and dv
 #' @param dv_name Character string of dependent variable
 #' @param iv_names Vector of character strings for independent variables
 #'
-#' @examples
-#' cors <- cbsem_summary$descriptives$correlations$constructs
-#' cor_rsq(cors, dv_name = "Value", iv_names = c("Image", "Quality"))
-#
 cor_rsq <- function(cor_matrix, dv_name, iv_names) {
   iv_cors <- cor_matrix[iv_names, iv_names]
   dv_cors <- cor_matrix[iv_names, dv_name]
