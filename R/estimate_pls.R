@@ -104,6 +104,8 @@ estimate_pls <- function(data,
                          missing_value = NA,
                          maxIt=300,
                          stopCriterion=7) {
+  # NOTE: update rerun.pls_model() if parameters change!
+
   message("Generating the seminr model")
   data[data == missing_value] <- NA
   rawdata <- data
@@ -150,9 +152,13 @@ estimate_pls <- function(data,
                                    maxIt=maxIt,
                                    stopCriterion=stopCriterion,
                                    measurement_mode_scheme = measurement_mode_scheme)
+
+  # Store all settings needed for a rerun
   seminr_model$data <- data
   seminr_model$rawdata <- rawdata
   seminr_model$measurement_model <- measurement_model
+  seminr_model$structural_model <- structural_model
+  seminr_model$settings$inner_weights <- inner_weights
   seminr_model$settings$missing_value <- missing_value
   seminr_model$settings$maxIt <- maxIt
   seminr_model$settings$stopCriterion <- stopCriterion
@@ -173,5 +179,78 @@ estimate_pls <- function(data,
 
   class(seminr_model) <- c("pls_model", "seminr_model")
   return(seminr_model)
+}
+
+not_null <- function(a, b) {
+  if(!is.null(a)) {
+    a
+  } else {
+    b
+  }
+}
+
+#' Reruns a previously specified seminr model/analysis
+#'
+#' @param x An estimated seminr_model object - refer to specific rerun methods
+#'
+#' @param ... Any parameters to change during the rerun.
+#'
+#' @return A re-estimated model of the same class
+#'
+#' @seealso \code{\link{rerun.pls_model}}
+#'
+#' @export
+rerun <- function (x, ...) {
+  UseMethod("rerun", x)
+}
+
+#' Reruns a previously specified seminr PLS model
+#'
+#' @param x An estimated pls_model object produced by \code{\link{estimate_pls}}
+#'
+#' @param ... Any parameters to change during the re-estimation (e.g., data, measurement_model, etc.)
+#'
+#' @return A re-estimated pls_model object
+#'
+#' @examples
+#'
+#' mobi <- mobi
+#'
+#' mobi_mm <- constructs(
+#'   composite("Image",        multi_items("IMAG", 1:5)),
+#'   composite("Loyalty",      multi_items("CUSL", 1:3))
+#' )
+#'
+#' mobi_sm <- relationships(
+#'   paths(from = "Image",        to = c("Loyalty"))
+#' )
+#'
+#' mobi_pls <- estimate_pls(data = mobi,
+#'                          measurement_model = mobi_mm,
+#'                          structural_model = mobi_sm,
+#'                          missing = mean_replacement,
+#'                          missing_value = NA)
+#'
+#' # Re-estimate model faithfully
+#' mobi_pls2 <- rerun(mobi_pls)
+#'
+#' # Re-estimated model with altered measurement model
+#' mobi_pls3 <- rerun(mobi_pls, measurement_model=as.reflective(mobi_mm))
+#'
+#' @export
+rerun.pls_model <- function(x, ...) {
+  args <- list(...)
+
+  estimate_pls(
+    data              = not_null(args$data,              x$rawdata),
+    measurement_model = not_null(args$measurement_model, x$measurement_model),
+    structural_model  = not_null(args$structural_model,  x$structural_model),
+    model             = not_null(args$model,             x$model),
+    inner_weights     = not_null(args$inner_weights,     x$settings$inner_weights),
+    missing           = not_null(args$missing,           x$settings$missing),
+    missing_value     = not_null(args$missing_value,     x$settings$missing_value),
+    maxIt             = not_null(args$maxIt,             x$settings$maxIt),
+    stopCriterion     = not_null(args$stopCriterion,     x$settings$stopCriterion)
+  )
 }
 
