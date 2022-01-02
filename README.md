@@ -357,23 +357,31 @@ or by running the `vignette("SEMinR")` command after installation.
 folder or by running commands such as `demo("seminr-contained")` after
 installation.
 
--   [seminr-alternative-models.R](demo/seminr-alternative-models.R):
-    Reuse measurement and structural components to easily create
-    competing models
--   [seminr-cbsem-cfa-ecsi.R](demo/seminr-cbsem-cfa-ecsi.R): Conduct
+Model Specification:
+
+-   [seminr-cbsem-cfa-ecsi](demo/seminr-cbsem-cfa-ecsi.R): Conduct
     confirmatory model building using CFA and CBSEM
--   [seminr-pls-ecsi.R](demo/seminr-pls-ecsi.R): Conduct PLS path
-    modeling
--   [seminr-pls-higher\_order.R](demo/seminr-pls-higher_order.R): Define
-    higher-order composites for PLS models
--   [seminr-pls-interaction.R](demo/seminr-pls-interaction.R): Define
+-   [seminr-pls-ecsi](demo/seminr-pls-ecsi.R): Conduct PLS path modeling
+-   [seminr-pls-interaction](demo/seminr-pls-interaction.R): Define
     interactions between constructs in SEM models
--   [seminr-plsc-ecsi.R](demo/seminr-plsc-ecsi.R): Run PLSc to emulate
+-   [seminr-pls-higher\_order](demo/seminr-pls-higher_order.R): Define
+    higher-order composites for PLS models
+-   [seminr-pls-mga](demo/seminr-pls-mga.R): Assess structural
+    differences between subgroups using PLS-MGA
+-   [seminr-plsc-ecsi](demo/seminr-plsc-ecsi.R): Run PLSc to emulate
     common factors using in PLSc
--   [seminr-style-contained.R](demo/seminr-style-contained.R): Create
-    and execute a SEM model in one function call
--   [seminr-dot-graph.R](demo/seminr-pls-dot-graph.R): Create a plot
-    from a SEM model
+
+Model Visualization:
+
+-   [seminr-dot-graph](demo/seminr-pls-dot-graph.R): Create a plot from
+    a SEM model
+
+Syntax Style:
+
+-   [seminr-alternative-models](demo/seminr-alternative-models.R): Reuse
+    measurement and structural components in multiple models
+-   [seminr-style-contained](demo/seminr-style-contained.R): Create and
+    execute a SEM model in one function call
 
 ## Sister Projects
 
