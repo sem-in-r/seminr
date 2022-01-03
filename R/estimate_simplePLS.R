@@ -79,7 +79,8 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
   constructs <- construct_names(smMatrix)
 
   #Extract and Normalize the measurements for the model
-  normData <- scale(obsData[, mmVariables], TRUE, TRUE)
+  # normData <- scale(obsData[, mmVariables], TRUE, TRUE)
+  normData <- standardize_safely(obsData[, mmVariables])
 
   #Extract Mean and Standard Deviation of measurements for future prediction
   meanData <- attr(normData, "scaled:center")
@@ -121,7 +122,8 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
     construct_scores <- normData[, mmVariables]%*%outer_weights
 
     #Standardize construct Scores
-    construct_scores <- scale(construct_scores,TRUE,TRUE)
+    # construct_scores <- scale(construct_scores,TRUE,TRUE)
+    construct_scores <- standardize_safely(construct_scores)
 
     #Estimate inner paths using weighting scheme - factorial or path-weighting
     inner_paths <- inner_weights(smMatrix, construct_scores, dependant, paths_matrix)
@@ -130,7 +132,8 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
     construct_scores<-construct_scores%*%inner_paths
 
     #Standarize construct Scores
-    construct_scores <- scale(construct_scores, TRUE, TRUE)
+    #construct_scores <- scale(construct_scores, TRUE, TRUE)
+    construct_scores <- standardize_safely(construct_scores)
 
     #Save last outer_weights
     last_outer_weights <- outer_weights
@@ -187,4 +190,3 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
   class(plsModel) <- "simple_pls_model"
   return(plsModel)
 }
-
