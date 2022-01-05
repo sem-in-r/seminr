@@ -36,7 +36,10 @@
 #'                          missing_value = NA)
 #'
 #' # Should usually use nboot ~2000 and don't specify cores for full parallel processing
-#' mobi_mga <- estimate_pls_mga(mobi_pls, mobi$CUEX1 < 8, nboot=100, cores = 2)
+#'
+#' mobi_mga <- estimate_pls_mga(mobi_pls, mobi$CUEX1 < 8, nboot=50, cores = 2)
+#'
+#' @references Henseler, J., Ringle, C. M. & Sinkovics, R. R. New Challenges to International Marketing. Adv Int Marketing 277–319 (2009) doi:10.1108/s1474-7979(2009)0000020014
 #'
 #' @export
 estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
