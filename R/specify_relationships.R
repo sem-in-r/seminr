@@ -13,6 +13,8 @@
 #' @param paths The function \code{paths} that specifies the source and destination constructs
 #'   for each of the model's structural paths.
 #'
+#' @return A vector of construct names and structural relationships.
+#'
 #' @usage
 #' relationships(...)
 #'
@@ -34,7 +36,7 @@
 relationships <- function(...) {
   smMatrix <- matrix(c(...), ncol = 2, byrow = TRUE,
                      dimnames = list(NULL, c("source", "target")))
-  class(smMatrix) <- c(class(smMatrix), "structural_model")
+  class(smMatrix) <- c(class(smMatrix), "structural_model", "seminr_model")
   return(smMatrix)
 }
 #' @export

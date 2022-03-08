@@ -1,34 +1,39 @@
 # Creates summary statistics for a cbsem object for summary and print functions
-summarize_cb_measurement <- function(object) {
-  lavaan_model <- object$lavaan_model
-  estimates <- lavaan::standardizedSolution(lavaan_model)
+summarize_cb_measurement <- function(object, alpha=0.05) {
+  lavaan_output <- object$lavaan_output
+  estimates <- lavaan::standardizedSolution(lavaan_output)
 
   model <- list(
     item_names       = all_items(object$measurement_model),
     construct_names  = all_construct_names(object$measurement_model),
-    estimation       = lavaan_model@Model@estimator
+    estimation       = lavaan_output@Model@estimator
   )
 
   # Get standardized parameter estimates (won't contain R^2)
   loadings_df <- estimates[estimates$op == "=~",]
   loadings_matrix <- df_xtab_matrix(est.std ~ rhs + lhs, loadings_df,
                                     model$item_names, model$construct_names)
+  alpha_text <- alpha/2*100
+  significance <- with(loadings_df,
+                       data.frame(est.std, se, pvalue, ci.lower, ci.upper))
+  rownames(significance) <- with(loadings_df, paste(lhs, "->", rhs))
+  colnames(significance) <- c( "Std Estimate", "SE", "t-Value", paste(alpha_text, "% CI", sep = ""), paste((100-alpha_text), "% CI", sep = ""))
 
   # Get descriptives and correlations
   # item_descriptives <- desc(object$data)
   item_correlations <- stats::cor(object$data[, model$item_names])
-  construct_correlations <- lavaan::lavInspect(lavaan_model, what = "cor.lv")
+  construct_correlations <- lavaan::lavInspect(lavaan_output, what = "cor.lv")
 
   list(
     meta = list(
       seminr = seminr_info(),
       engine = list(
         pkgname = "lavaan",
-        version = lavaan_model@version,
-        estimator = lavaan_model@Options$estimator
+        version = lavaan_output@version,
+        estimator = lavaan_output@Options$estimator
       ),
-      syntax  = object$lavaan_syntax,
-      call    = lavaan_model@call
+      syntax  = object$lavaan_model,
+      call    = lavaan_output@call
     ),
     model = model,
     descriptives = list(
@@ -41,12 +46,15 @@ summarize_cb_measurement <- function(object) {
         constructs = construct_correlations
       )
     ),
-    loadings = loadings_matrix
+    loadings = list(
+      coefficients = loadings_matrix,
+      significance = significance
+    )
   )
 }
 
-summarize_cb_structure <- function(object) {
-  estimates <- lavaan::standardizedSolution(object$lavaan_model)
+summarize_cb_structure <- function(object, alpha=0.05) {
+  estimates <- lavaan::standardizedSolution(object$lavaan_output, level=1-alpha)
 
   # Capture structural relationship information
   all_antecedents <- all_exogenous(object$smMatrix)
@@ -54,7 +62,7 @@ summarize_cb_structure <- function(object) {
 
   # Path coefficients, p-values, R^2 for path matrix
   path_df <- estimates[estimates$op == "~",]
-  rsq <- lavaan::inspect(object$lavaan_model, "r2")[all_outcomes]
+  rsq <- lavaan::inspect(object$lavaan_output, "r2")[all_outcomes]
 
   path_matrix     <- {
     df_xtab_matrix(est.std ~ rhs + lhs, path_df,
@@ -71,9 +79,18 @@ summarize_cb_structure <- function(object) {
     .
   }
 
+  alpha_text <- alpha/2*100
+  significance <- with(path_df,
+    data.frame(est.std, se, pvalue, ci.lower, ci.upper))
+
+  rownames(significance) <- with(path_df, paste(lhs, "->", rhs))
+  colnames(significance) <- c( "Std Estimate", "SE", "t-Value", paste(alpha_text, "% CI", sep = ""), paste((100-alpha_text), "% CI", sep = ""))
+
+  # TODO v3: Remove pvalues from cbsem summary and add to significance table
   list(
     coefficients = path_matrix,
-    pvalues = pvalue_matrix
+    pvalues = pvalue_matrix,
+    significance = significance
   )
 }
 
@@ -109,8 +126,8 @@ curated_fit_metrics <- function(fit_metrics) {
   )
 }
 
-summarize_fit <- function(lavaan_model) {
-  lavaan_fit <- lavaan::fitMeasures(lavaan_model)
+summarize_fit <- function(lavaan_output) {
+  lavaan_fit <- lavaan::fitMeasures(lavaan_output)
 
   list(
     all = lavaan_fit,

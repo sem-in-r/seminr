@@ -20,6 +20,9 @@ specified, default is "2".}
 \item{constructs}{a \code{list} indicating which constructs to report. If not
 specified, all constructs are graphed and returned.}
 }
+\value{
+A matrix of structural paths.
+}
 \description{
 \code{report_paths} generates an easy to read table reporting path coefficients
   and R2 values for endogenous constructs.\code{plot_scores} generates a
@@ -42,7 +45,7 @@ mobi_mm <- constructs(
 )
 
 #  structural model: note that name of the interactions construct should be
-#  the names of its two main constructs joined by a '.' in between.
+#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value"))

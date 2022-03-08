@@ -10,9 +10,13 @@ evaluate_model <- function(seminr_model) {
 
 # Reliability ----
 reliability <- function(seminr_model) {
+  alpha <- cronbachs_alpha(seminr_model)
   mat1 <- rhoC_AVE(seminr_model)
   mat2 <- rho_A(seminr_model)
-  return(cbind(mat1, mat2))
+  table <- cbind(alpha, mat1, mat2)
+  comment(table) <- "Alpha, rhoC, and rhoA should exceed 0.7 while AVE should exceed 0.5"
+  class(table) <- append(class(table), c("table_output","reliability_table"))
+  return(table)
 }
 
 # Validity ----
@@ -22,16 +26,17 @@ validity <- function(seminr_model) {
     cross_loadings  = cross_loadings(seminr_model),
     item_vifs       = item_vifs(seminr_model),
     # TODO: consider if antecedent vifs should be part of structural results
-    antecedent_vifs = antecedent_vifs(
-      seminr_model$smMatrix, stats::cor(seminr_model$construct_scores))
+    antecedent_vifs = antecedent_vifs(seminr_model$smMatrix, stats::cor(seminr_model$construct_scores)),
+    fl_criteria = fl_criteria_table(seminr_model)
   )
 }
 
 cross_loadings <- function(seminr_model) {
-  return(stats::cor(seminr_model$data[, seminr_model$mmVariables], seminr_model$construct_scores))
+  ret <- stats::cor(seminr_model$data[, seminr_model$mmVariables], seminr_model$construct_scores)
+  convert_to_table_output(ret)
 }
 
-# Measurement Model Evaluation ----
+# Measurement Model Evaluation for tests----
 evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
   stopifnot(inherits(object, "seminr_model"))
 
@@ -54,12 +59,12 @@ evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
     colnames(factor_indicator_reliability) <- factors
 
     discriminant_validity <- HTMT(object)
-  # If many factors
+    # If many factors
   } else if (length(factors) > 1) {
     factor_reliability <- metrics$reliability[factors, c("AVE", "rhoA")]
     factor_indicator_reliability <- object$outer_loadings[factor_items, factors]
     discriminant_validity <- HTMT(object)
-  # If no factors
+    # If no factors
   } else {
     factor_reliability <- NA
     factor_indicator_reliability <- NA
@@ -84,31 +89,29 @@ evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
   }
 
   # Measurement model
-  cat("\nMeasurement Model Evaluation:\n")
+  message("Measurement Model Evaluation:")
 
   # First report Factor metrics:
-  cat("\n------------------Factors:------------------\n")
+  message("------------------Factors:------------------")
 
-  cat("1. Indicator Reliability:\nLoadings:\n")
-  print(factor_indicator_reliability, na.print = na.print, digits=digits)
+  message("1. Indicator Reliability:\nLoadings:")
+  message(factor_indicator_reliability)
 
-  cat("\n2. Factor Reliability and Convergent Validity:\n")
-  print(factor_reliability, na.print = na.print, digits=digits)
-  #cat("\n")
+  message("\n2. Factor Reliability and Convergent Validity:")
+  message(factor_reliability)
 
-  cat("\n3. Discriminant Validity\n")
-  cat("HTMT\n")
-  print(discriminant_validity, na.print = na.print, digits=digits)
+  message("\n3. Discriminant Validity")
+  message("HTMT")
+  message(discriminant_validity)
 
   # First report Factor metrics:
-  cat("\n------------------Composites:---------------\n")
+  message("\n------------------Composites:---------------")
 
-  cat("1. Indicator Reliability:\nWeights:\n")
-  print(composite_indicator_reliability, na.print = na.print, digits=digits)
+  message("1. Indicator Reliability:\nWeights:")
+  message(composite_indicator_reliability)
 
-  cat("\n2. Collinearity:\nItem VIFs per Construct:\n")
-  print(metrics$validity$item_vifs[composites], na.print = na.print, digits=digits)
-  #cat("\n")
+  message("\n2. Collinearity:\nItem VIFs per Construct:")
+  message(metrics$validity$item_vifs[composites])
 
   measurement_model_evaluation <- list(factor_reliability = factor_reliability,
                                        factor_indicator_reliability = factor_indicator_reliability,
@@ -213,39 +216,37 @@ boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...)
   composite_indicator_weights_t[is.nan(composite_indicator_weights_t)] <- NA
   composite_indicator_weights_p[is.nan(composite_indicator_weights_p)] <- NA
 
-  # Measurement model
-  cat("\nMeasurement Model Evaluation:\n")
+  # Boot Measurement model
+  message("Boot Measurement Model Evaluation:")
 
   # First report Factor metrics:
-  cat("\n------------------Factors:------------------\n")
+  message("\n------------------Factors:------------------")
 
-  cat("1. Indicator Reliability:\nLoadings:\n")
-  print(factor_indicator_reliability, na.print = na.print, digits=digits)
+  message("1. Indicator Reliability:\nLoadings:")
+  message(factor_indicator_reliability)
 
-  cat("\n2. Factor Reliability and Convergent Validity:\n")
-  print(factor_reliability, na.print = na.print, digits=digits)
-  #cat("\n")
+  message("\n2. Factor Reliability and Convergent Validity:")
+  message(factor_reliability)
 
-  cat("\n3. Discriminant Validity\n")
-  cat("HTMT\n")
-  print(discriminant_validity, na.print = na.print, digits=digits)
-  cat("HTMT t-values:\n")
-  print(discriminant_validity_t, na.print = na.print, digits=digits)
-  cat("HTMT p-values:\n")
-  print(discriminant_validity_p, na.print = na.print, digits=digits)
+  message("\n3. Discriminant Validity")
+  message("HTMT")
+  message(discriminant_validity)
+  message("HTMT t-values:")
+  message(discriminant_validity_t)
+  message("HTMT p-values:")
+  message(discriminant_validity_p)
 
   # Second report Composite metrics:
-  cat("\n------------------Composites:---------------\n")
+  message("\n------------------Composites:---------------")
 
-  cat("1. Indicator Reliability:\nWeights:\n")
-  print(composite_indicator_reliability, na.print = na.print, digits=digits)
-  cat("\n Weights t-values:\n")
-  print(composite_indicator_weights_t, na.print = na.print, digits=digits)
-  cat("\n Weights p-values:\n")
-  print(composite_indicator_weights_p, na.print = na.print, digits=digits)
-  cat("\n2. Collinearity:\nItem VIFs per Construct:\n")
-  print(metrics$validity$item_vifs[composites], na.print = na.print, digits=digits)
-  #cat("\n")
+  message("1. Indicator Reliability:\nWeights:")
+  message(composite_indicator_reliability)
+  message("\n Weights t-values:")
+  message(composite_indicator_weights_t)
+  message("\n Weights p-values:")
+  message(composite_indicator_weights_p)
+  message("\n2. Collinearity:\nItem VIFs per Construct:")
+  message(metrics$validity$item_vifs[composites])
 
   boot_measurement_model_evaluation <- list(factor_reliability = factor_reliability,
                                             factor_indicator_reliability = factor_indicator_reliability,
@@ -259,4 +260,3 @@ boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...)
   class(boot_measurement_model_evaluation) <- "measurement_model_evaluation.boot_seminr_model"
   return(boot_measurement_model_evaluation)
 }
-

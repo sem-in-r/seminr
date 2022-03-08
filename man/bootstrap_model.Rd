@@ -18,6 +18,19 @@ value is 500. If 0 then no bootstrapping is performed.}
 
 \item{...}{A list of parameters passed on to the estimation method.}
 }
+\value{
+A list of the estimated parameters for the bootstrapped model including:
+ \item{boot_paths}{An array of the `nboot` estimated bootstrap sample path coefficient matrices.}
+ \item{boot_loadings}{An array of the `nboot` estimated bootstrap sample item loadings matrices.}
+ \item{boot_weights}{An array of the `nboot` estimated bootstrap sample item weights matrices.}
+ \item{boot_HTMT}{An array of the `nboot` estimated bootstrap sample model HTMT matrices.}
+ \item{boot_total_paths}{An array of the `nboot` estimated bootstrap sample model total paths matrices.}
+ \item{paths_descriptives}{A matrix of the bootstrap path coefficients and standard deviations.}
+ \item{loadings_descriptives}{A matrix of the bootstrap item loadings and standard deviations.}
+ \item{weights_descriptives}{A matrix of the bootstrap item weights and standard deviations.}
+ \item{HTMT_descriptives}{A matrix of the bootstrap model HTMT and standard deviations.}
+ \item{total_paths_descriptives}{A matrix of the bootstrap model total paths and standard deviations.}
+}
 \description{
 The \code{seminr} package provides a natural syntax for researchers to describe PLS
 structural equation models.
@@ -37,7 +50,7 @@ mobi_mm <- constructs(
 )
 
 # structural model: note that name of the interactions construct should be
-#  the names of its two main constructs joined by a '.' in between.
+#  the names of its two main constructs joined by a '*' in between.
 mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value",

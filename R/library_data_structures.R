@@ -3,6 +3,7 @@
 #' @param df A \code{data.frame} of columns to cross-tabulate
 #' @param rows A \code{vector} of row names for the matrix to sort by
 #' @param columns A \code{vector} of column names for the matrix to sort by
+#' @return A cross-tabulated matrix matrix with NAs for unspecified pairs.
 df_xtab_matrix <- function(model, df, rows, columns) {
   # identify required relationships
   model_parts <- strsplit(deparse(model), '~')[[1]]

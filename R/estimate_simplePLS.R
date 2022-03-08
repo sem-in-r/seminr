@@ -21,6 +21,22 @@
 #'
 #' @param measurement_mode_scheme A named list of constructs and measurement scheme functions
 #'
+#' @return A list of the estimated parameters for the SimplePLS model including:
+#'  \item{meanData}{A vector of the indicator means.}
+#'  \item{sdData}{A vector of the indicator standard deviations}
+#'  \item{mmMatrix}{A Matrix of the measurement model relations.}
+#'  \item{smMatrix}{A Matrix of the structural model relations.}
+#'  \item{constructs}{A vector of the construct names.}
+#'  \item{mmVariables}{A vector of the indicator names.}
+#'  \item{outer_loadings}{The matrix of estimated indicator loadings.}
+#'  \item{outer_weights}{The matrix of estimated indicator weights.}
+#'  \item{path_coef}{The matrix of estimated structural model relationships.}
+#'  \item{iterations}{A numeric indicating the number of iterations required before the algorithm converged.}
+#'  \item{weightDiff}{A numeric indicating the minimum weight difference between iterations of the algorithm.}
+#'  \item{construct_scores}{A matrix of the estimated construct scores for the PLS model.}
+#'  \item{rSquared}{A matrix of the estimated R Squared for each construct.}
+#'  \item{inner_weights}{The inner weight estimation function.}
+#'
 #' @usage
 #' simplePLS(obsData,smMatrix, mmMatrix,inner_weights = path_weighting,
 #'           maxIt=300, stopCriterion=7,measurement_mode_scheme)
@@ -57,7 +73,7 @@
 simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weighting, maxIt=300, stopCriterion=7, measurement_mode_scheme){
 
   #Create list of Measurements Variables
-  mmVariables <- mmMatrix[, "measurement"]
+  mmVariables <- mmMatrix[mmMatrix[,"construct"] %in% construct_names(smMatrix), "measurement"]
 
   #Create list of construct Variables
   constructs <- construct_names(smMatrix)

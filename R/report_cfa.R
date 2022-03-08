@@ -1,12 +1,12 @@
 #' @export
-summary.cfa_model <- function(object, na.print=".", digits=3, ...) {
+summary.cfa_model <- function(object, na.print=".", digits=3, alpha=0.05,...) {
   stopifnot(inherits(object, "cfa_model"))
   #TODO: we should set the package attribute to seminr rather than as class attribute
   stopifnot(inherits(object, "seminr_model"))
 
-  model_summary     <- summarize_cb_measurement(object)
+  model_summary     <- summarize_cb_measurement(object, alpha=alpha)
   model_summary$quality <- list(
-    fit = summarize_fit(object$lavaan_model),
+    fit = summarize_fit(object$lavaan_output),
     reliability = rhoC_AVE(object)
   )
 

@@ -31,6 +31,9 @@ mobi_am <- associations(
 mobi_cfa <- estimate_cfa(mobi, mobi_mm, mobi_am)
 summary(mobi_cfa)
 
+# Plot the CFA model
+plot(mobi_cfa)
+
 # STRUCTURAL EQUATION MODEL
 
 # First, let's append an interaction onto the measurement model
@@ -52,10 +55,13 @@ mobi_sm <- relationships(
 
 
 # Estimate the SEM and get results
-# - if the measurement model contains composites, use `all.reflective(final_mm)` 
+# - if the measurement model contains composites, use `all.reflective(final_mm)`
 #   to convert all constructs to reflective measurement
 mobi_cbsem <- estimate_cbsem(mobi, final_mm, mobi_sm, mobi_am)
 summary(mobi_cbsem)
+
+# Plot the CBSEM Model
+plot(mobi_cbsem)
 
 # Examine other interesting results by inspecting the summary object
 cbsem_summary <- summary(mobi_cbsem)

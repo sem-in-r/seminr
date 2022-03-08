@@ -15,6 +15,9 @@ composite(construct_name, item_names,weights = correlation_weights)
 specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
 \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.}
 }
+\value{
+A vector of the indicators for a composite.
+}
 \description{
 \code{composite} creates the composite measurement model matrix for a specific construct,
 specifying the relevant items of the construct and assigning the relationship of either

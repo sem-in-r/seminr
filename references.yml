@@ -86,4 +86,12 @@
 - code: cohen2013applied
   ref: "Cohen, J. (2013). Statistical power analysis for the behavioral sciences. Routledge."
   cite: Cohen (2013)
-
+- code: fornelllarcker1981
+  ref: "Fornell, C., & Larcker, D. F. (1981). Evaluating structural equation models with unobservable variables and measurement error. Journal of marketing research, 18(1), 39-50."
+  cite: Fornell & Larcker (1981)
+- code: raydanksvaldez2021
+  ref: "Ray, S., Danks, N.P., & Valdez A.C. (2021). Ray, Soumya and Danks, Nicholas and Calero Valdez, André, SEMinR: domain-specific language for building, estimating, and visualizing structural equation models in R (v2.1.0). SSRN"
+  cite: Ray, Danks, & Valdez (2021)
+- code: henseler2009MGA
+  ref: "Henseler, J., Ringle, C. M. & Sinkovics, R. R. New Challenges to International Marketing. Adv Int Marketing 277–319 (2009) doi:10.1108/s1474-7979(2009)0000020014."
+  cite: Henseler, Ringle, & Sinkovics (2009)

@@ -34,19 +34,23 @@ flatten_vifs <- function(vif_results) {
   as.data.frame(t(unlist(vif_results)))
 }
 
-flat_vif_items1 <- flatten_vifs(summary1$vif_items)
+flat_vif_items1 <- flatten_vifs(summary1$validity$vif_items)
 flat_vif_antecedents1 <- flatten_vifs(summary1$vif_antecedents)
 flat_vif_antecedents2 <- flatten_vifs(summary2$vif_antecedents)
+fl_table <- summary1$validity$fl_criteria
 
 ## Create Original Fixtures ----
 # write.csv(flat_vif_items1, "tests/fixtures/vifs/flat_item_vifs1.csv", row.names = FALSE)
 # write.csv(flat_vif_antecedents1, "tests/fixtures/vifs/flat_vif_antecedents1.csv", row.names = FALSE)
 # write.csv(flat_vif_antecedents2, "tests/fixtures/vifs/flat_vif_antecedents2.csv", row.names = FALSE)
+# write.csv(fl_table, "tests/fixtures/V_3_6_0/fl_table.csv", row.names = FALSE)
+# write.csv(fl_table, "tests/fixtures/V_3_5_X/fl_table.csv", row.names = FALSE)
 
 ## Load Fixtures ----
 correct_item_vifs1 <- read.csv(file = paste(test_folder,"vifs/flat_item_vifs1.csv", sep = ""), check.names = FALSE)
 correct_vif_antecedents1 <- read.csv(file = paste(test_folder,"vifs/flat_vif_antecedents1.csv", sep = ""), check.names = FALSE)
 correct_vif_antecedents2 <- read.csv(file = paste(test_folder,"vifs/flat_vif_antecedents2.csv", sep = ""), check.names = FALSE)
+correct_fl_table <- as.matrix(read.csv(file = paste(test_folder,"fl_table.csv", sep = ""), check.names = FALSE))
 
 ## Tests ----
 test_that("Seminr computes the item VIFs correctly", {
@@ -59,4 +63,8 @@ test_that("Seminr computes the antecedent VIFs correctly for single endogenous v
 
 test_that("Seminr computes the antecedent VIFs correctly for multiple endogenous variables", {
   expect_equal(unname(flat_vif_antecedents2), unname(correct_vif_antecedents2), tolerance = 0.00001)
+})
+
+test_that("Seminr computes the Fornell Larcker criteria correctly", {
+  expect_equal(unname(fl_table[1:4,1:4]), unname(correct_fl_table), tolerance = 0.00001)
 })

@@ -3,11 +3,11 @@
 \name{two_stage}
 \alias{two_stage}
 \title{Creates an interaction measurement item using a two-stage approach.
-The two-stage procedure for both PLS and CBSEM models estimates construct 
-scores in the first stage, and uses them to produce a single-item product 
+The two-stage procedure for both PLS and CBSEM models estimates construct
+scores in the first stage, and uses them to produce a single-item product
 item for the interaction term in the second stage.
-For a PLS model, the first stage uses PLS to compute construct scores. 
-For a CBSEM model, the first stage uses a CFA to produce ten Berge 
+For a PLS model, the first stage uses PLS to compute construct scores.
+For a CBSEM model, the first stage uses a CFA to produce ten Berge
 construct scores.}
 \usage{
 # two stage approach as per Henseler & Chin (2010):
@@ -22,13 +22,16 @@ construct scores.}
 specified as \code{correlation_weights} or \code{mode_A} for correlation weights (Mode A) or as
 \code{regression_weights} or \code{mode_B} for regression weights (Mode B). Default is correlation weights.}
 }
+\value{
+An un-evaluated function (promise) for estimating a two-stage interaction effect.
+}
 \description{
 Creates an interaction measurement item using a two-stage approach.
-The two-stage procedure for both PLS and CBSEM models estimates construct 
-scores in the first stage, and uses them to produce a single-item product 
+The two-stage procedure for both PLS and CBSEM models estimates construct
+scores in the first stage, and uses them to produce a single-item product
 item for the interaction term in the second stage.
-For a PLS model, the first stage uses PLS to compute construct scores. 
-For a CBSEM model, the first stage uses a CFA to produce ten Berge 
+For a PLS model, the first stage uses PLS to compute construct scores.
+For a CBSEM model, the first stage uses a CFA to produce ten Berge
 construct scores.
 }
 \examples{

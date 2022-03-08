@@ -1,21 +1,21 @@
 #' @export
-summary.cbsem_model <- function(object, na.print=".", digits=3, ...) {
+summary.cbsem_model <- function(object, na.print=".", digits=3, alpha=0.05,...) {
   stopifnot(inherits(object, "cbsem_model"))
   #TODO: we should set the package attribute to seminr rather than as class attribute
   stopifnot(inherits(object, "seminr_model"))
 
-  model_summary <- summarize_cb_measurement(object)
+  model_summary <- summarize_cb_measurement(object, alpha=alpha)
   regr_vifs = antecedent_vifs(
     object$smMatrix,
     model_summary$descriptives$correlations$constructs)
 
   model_summary$quality <- list(
-    fit = summarize_fit(object$lavaan_model),
+    fit = summarize_fit(object$lavaan_output),
     reliability = rhoC_AVE(object),
     antecedent_vifs = regr_vifs
   )
 
-  model_summary$paths <- summarize_cb_structure(object)
+  model_summary$paths <- summarize_cb_structure(object, alpha=alpha)
 
   class(model_summary) <- c("summary.cbsem_model", class(model_summary))
   model_summary
