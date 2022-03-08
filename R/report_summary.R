@@ -181,19 +181,3 @@ plot.summary.predict_pls_model <- function(x, indicator, ...) {
   # Grid
   graphics::grid(nx = NULL, ny = NULL, col = "lightgray", lty = "dotted")
 }
-
-#' Summary function for PLS-MGA
-#'
-#' @param x estimated seminr_pls_mga object
-#' @param digits number of digits to print
-#' @param ... any further parameters for printing
-#'
-#' @export
-print.seminr_pls_mga <- function(x, digits=3, ...) {
-  stopifnot(inherits(x, "seminr_pls_mga"))
-  cat("\nPLS-MGA results:\n")
-  mga_report <- data.frame(x$source, .=rep("->", nrow(x)), x$target,
-                           x$group1_beta, x$group2_beta, x$pls_mga_p)
-  colnames(mga_report) <- c("from", "", "to", "group1", "group2","p")
-  print(mga_report, row.names = FALSE, digits = digits)
-}

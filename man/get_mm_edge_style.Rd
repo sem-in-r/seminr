@@ -4,14 +4,12 @@
 \alias{get_mm_edge_style}
 \title{individual styles for measurement model edges}
 \usage{
-get_mm_edge_style(theme, construct_type, flip = FALSE)
+get_mm_edge_style(theme, construct_type)
 }
 \arguments{
 \item{theme}{the theme to use}
 
 \item{construct_type}{Forward direction?}
-
-\item{flip}{invert the arrow direction because of sink?}
 }
 \description{
 individual styles for measurement model edges

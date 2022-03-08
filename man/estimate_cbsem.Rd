@@ -48,20 +48,6 @@ See the Lavaan documentation for other supported estimators.}
 \item{...}{Any other parameters to pass to \code{lavaan::sem} during
 estimation.}
 }
-\value{
-A list of the estimated parameters for the CB-SEM model including:
- \item{data}{A matrix of the data upon which the model was estimated.}
- \item{measurement_model}{The SEMinR measurement model specification.}
- \item{factor_loadings}{The matrix of estimated factor loadings.}
- \item{associations}{A matrix of model variable associations.}
- \item{mmMatrix}{A Matrix of the measurement model relations.}
- \item{smMatrix}{A Matrix of the structural model relations.}
- \item{constructs}{A vector of the construct names.}
- \item{construct scores}{A matrix of the estimated construct scores for the CB-SEM model.}
- \item{item_weights}{A matrix of the estimated CFA item weights.}
- \item{lavaan_model}{The lavaan model syntax equivalent of the SEMinR model.}
- \item{lavaan_output}{The raw lavaan output generated after model estimation.}
-}
 \description{
 The \code{seminr} package provides a natural syntax for researchers to describe
 structural equation models.

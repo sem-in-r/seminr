@@ -147,5 +147,5 @@ cronbachs_alpha <- function(seminr_model) {
       alpha_vec[[i]] <- 1
     }
   }
-  return(unlist(alpha_vec))
+  return(alpha_vec)
 }

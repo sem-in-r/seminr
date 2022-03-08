@@ -56,11 +56,11 @@ mobi_pls <- estimate_pls(data = mobi,
 boot_seminr_model <- bootstrap_model(seminr_model = mobi_pls,
                                      nboot = 50, cores = 2, seed = NULL)
 
-specific_effect_significance(boot_seminr_model = boot_seminr_model,
-                             from = "Image",
-                             through = c("Expectation", "Satisfaction","Complaints"),
-                             to = "Loyalty",
-                             alpha = 0.05)
+confidence_interval(boot_seminr_model = boot_seminr_model,
+                    from = "Image",
+                    through = c("Expectation", "Satisfaction","Complaints"),
+                    to = "Loyalty",
+                    alpha = 0.05)
 }
 \references{
 Zhao, X., Lynch Jr, J. G., & Chen, Q. (2010). Reconsidering Baron and Kenny: Myths and truths

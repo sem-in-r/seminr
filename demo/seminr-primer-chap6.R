@@ -43,7 +43,7 @@ summary_corp_rep_ext <- summary(corp_rep_pls_model_ext)
 # Bootstrap the model ----
 boot_corp_rep_ext <- bootstrap_model(
   seminr_model = corp_rep_pls_model_ext,
-  nboot = 1000,
+  nboot = 10000,
   cores = parallel::detectCores(),
   seed = 123)
 
@@ -108,44 +108,42 @@ structural_model1 <- relationships(
 )
 # Model 2
 structural_model2 <- relationships(
-  paths(from = c("QUAL","PERF","CSOR","ATTR"), to = c("COMP", "LIKE", "CUSA")),
-  paths(from = c("COMP","LIKE"),  to = c("CUSA", "CUSL")),
+  paths(from = c("QUAL","PERF","CSOR","ATTR"), to = c("COMP", "LIKE")),
+  paths(from = c("COMP","LIKE"),  to = c("CUSA")),
+  paths(from = c("LIKE"),  to = c("CUSL")),
   paths(from = "CUSA", to = c("CUSL"))
 )
 # Model 3
 structural_model3 <- relationships(
-  paths(from = c("QUAL","PERF","CSOR","ATTR"), to = c("COMP", "LIKE", "CUSA", "CUSL")),
-  paths(from = c("COMP","LIKE"),  to = c("CUSA", "CUSL")),
-  paths(from = "CUSA", to = c("CUSL"))
+  paths(from = c("QUAL","PERF","CSOR","ATTR"),        to = c("COMP", "LIKE")),
+  paths(from = c("COMP","LIKE"),  to = c("CUSA")),
+  paths(from = "CUSA",      to = c("CUSL"))
 )
 
 # Estimate and summarize the models ----
 pls_model1 <- estimate_pls(data  = corp_rep_data,
                            measurement_model = measurement_model,
-                           structural_model  = structural_model1,
-                           missing_value = "-99")
+                           structural_model  = structural_model1)
 sum_model1 <- summary(pls_model1)
 pls_model2 <- estimate_pls(data  = corp_rep_data,
                            measurement_model = measurement_model,
-                           structural_model  = structural_model2,
-                           missing_value = "-99")
+                           structural_model  = structural_model2)
 sum_model2 <- summary(pls_model2)
 pls_model3 <- estimate_pls(data  = corp_rep_data,
                            measurement_model = measurement_model,
-                           structural_model  = structural_model3,
-                           missing_value = "-99")
+                           structural_model  = structural_model3)
 sum_model3 <- summary(pls_model3)
 
 # Inspect the IT Criteria matrix of Model1
 sum_model1$it_criteria
 
 # Subset the matrix to only return the BIC row and CUSL column
-sum_model1$it_criteria["BIC", "CUSA"]
+sum_model1$it_criteria["BIC", "CUSL"]
 
 # Collect the vector of BIC values for CUSL
-itcriteria_vector <- c(sum_model1$it_criteria["BIC","CUSA"],
-                       sum_model2$it_criteria["BIC","CUSA"],
-                       sum_model3$it_criteria["BIC","CUSA"])
+itcriteria_vector <- c(sum_model1$it_criteria["BIC","CUSL"],
+                       sum_model2$it_criteria["BIC","CUSL"],
+                       sum_model3$it_criteria["BIC","CUSL"])
 
 # Assign the model names to IT Criteria vector
 names(itcriteria_vector) <- c("Model1", "Model2", "Model3")

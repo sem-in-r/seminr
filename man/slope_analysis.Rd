@@ -20,7 +20,7 @@ obscure the plot lines.}
 }
 \description{
 \code{slope_analysis} generates an interaction plot for the effect of an antecedent
-  on an outcome given a mediator variable.
+  on an outcome given a mediator variale.
 }
 \examples{
 data(mobi)

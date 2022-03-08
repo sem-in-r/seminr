@@ -94,63 +94,26 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         if (is.null(seed)) {seed <- sample.int(100000, size = 1)}
 
         # Export variables and functions to cluster
-        parallel::clusterExport(cl=cl, varlist=c("measurement_model",
-                                                 "structural_model",
-                                                 "inner_weights",
-                                                 "getRandomIndex",
-                                                 "d",
-                                                 "HTMT",
-                                                 "seed",
-                                                 "total_effects",
-                                                 "missing_value",
-                                                 "maxIt",
-                                                 "stopCriterion",
-                                                 "missing"), envir=environment())
-
-        # Calculate the expected nrow of the bootmatrix
-        length <- 3*nrow(seminr_model$path_coef)^2 + 2*nrow(seminr_model$outer_loadings)*ncol(seminr_model$outer_loadings)
+        parallel::clusterExport(cl=cl, varlist=c("measurement_model", "structural_model", "inner_weights", "getRandomIndex", "d", "HTMT", "seed","total_effects"), envir=environment())
 
         # Function to get PLS estimate results
         getEstimateResults <- function(i, d = d, length) {
           set.seed(seed + i)
-          # plsc-bootstrap
-          tryCatch({
-            boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
-                                               measurement_model,
-                                               structural_model,
-                                               inner_weights = inner_weights)
-            boot_htmt <- HTMT(boot_model)
-            boot_total <- total_effects(boot_model$path_coef)
-            return(as.matrix(c(c(boot_model$path_coef),
-                               c(boot_model$outer_loadings),
-                               c(boot_model$outer_weights),
-                               c(boot_htmt),
-                               c(boot_total))))
-            },
-            error = function(cond) {
-              message("Bootstrapping encountered an ERROR: ")
-              message(cond)
-              return(rep(NA, length))
-            },
-            warning = function(cond) {
-              message("Bootstrapping encountered an ERROR: ")
-              message(cond)
-              return(rep(NA, length))
-            }
-          )
+          boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
+                               measurement_model,
+                               structural_model,
+                               inner_weights = inner_weights)
+          boot_htmt <- HTMT(boot_model)
+          boot_total <- total_effects(boot_model$path_coef)
+          return(as.matrix(c(c(boot_model$path_coef),
+                             c(boot_model$outer_loadings),
+                             c(boot_model$outer_weights),
+                             c(boot_htmt),
+                             c(boot_total))))
         }
 
         # Bootstrap the estimates
         utils::capture.output(bootmatrix <- parallel::parSapply(cl, 1:nboot, getEstimateResults, d, length))
-
-        # Clean the NAs and report the NAs
-        bootmatrix <- bootmatrix[,!is.na(bootmatrix[1,])]
-        fails <- nboot - ncol(bootmatrix)
-        nboot <- nboot - fails
-        if (fails > 0) {
-          message(paste("Bootstrapping encountered a WARNING: ", fails, "models failed to converge in PLSc. \nThese models are excluded from the reported bootstrap statistics."))
-        }
-
 
         # Collect means and sds for all estimates from bootmatrix
         means <- apply(bootmatrix,1,mean)
@@ -325,7 +288,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       seminr_model$boots <- nboot
       seminr_model$seed <- seed
       class(seminr_model) <- c("boot_seminr_model", "seminr_model")
-      message("SEMinR Model successfully bootstrapped")
+      cat("SEMinR Model successfully bootstrapped")
       return(seminr_model)
     },
     error = function(cond) {

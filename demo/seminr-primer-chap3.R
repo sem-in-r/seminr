@@ -4,12 +4,12 @@
 
 ## Chapter 3: Introduction to SEMinR
 
-# Download and install the SEMinR package
+# Download and install the SEMinR package;
 # You only need to do this once to equip RStudio on your computer with SEMinR
 install.packages("seminr")
 
-# Make the SEMinR library ready to use
-# You must do this every time you restart RStudio and wish to use SEMinR
+# Make the SEMinR library read to use
+# You must do this everytime you restart RStudio and wish to use SEMinR
 library(seminr)
 
 # Load the corporate reputation data
@@ -66,11 +66,11 @@ sum_boot_simple_corp_rep <- summary(boot_simple_corp_rep)
 # Inspect the bootstrapped structural paths
 sum_boot_simple_corp_rep$bootstrapped_paths
 
-# Inspect the bootstrapped indicator loadings
-sum_boot_simple_corp_rep$bootstrapped_loadings
+# Inspect the bootstrapped outer weights
+sum_boot_simple_corp_rep$bootstrapped_weights
 
 # Write the bootstrapped paths object to csv file
-write.csv(x = sum_boot_simple_corp_rep$bootstrapped_loadings, file = "boot_loadings.csv")
+write.csv(x = sum_boot_simple_corp_rep$bootstrapped_weights, file = "boot_paths.csv")
 
 # Generate the plot for exporting
 plot(summary_simple_corp_rep$reliability)

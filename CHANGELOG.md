@@ -5,31 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project largely adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.3.0] - 2022-01-04
-
-### [2.2.1] Added
-
-- Added a new feature PLS MGA
-
-## [2.2.1] - 2021-09-01
-
-### [2.2.1] Changed
-
-- Modified the bootstrap function so that it excludes iterations in which the PLSc model fails to converge.
-- Corrected a bug that displayed the incorrect threshold on the reliability plot.=
-
-## [2.2.0] - 2021-08-18
-
-### [2.2.0] Changed
-
-- Updated the summary() function to apply fSquares() to interaction models
-- Updated fSquares() function to not calculate fSquare for antecedents involved in interactions
-- Fixed a bug in the plotting of formative constructs in PLS
-
-### [2.2.0] Added
-
-- Citation to SSRN paper
-
 ## [2.0.1] - 2021-03-21
 
 ### [2.0.1] Changed
