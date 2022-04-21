@@ -16,6 +16,36 @@ mobi_sm <- relationships(
 
 hof_cbsem <- estimate_cbsem(data = mobi, measurement_model = mobi_mm, structural_model = mobi_sm)
 
+hof_summary <- summary(hof_cbsem)
+
 test_that("Seminr estimates PI interaction paths correctly\n", {
   expect_match(hof_cbsem$lavaan_model, "ImageSat =~ Image \\+ Satisfaction")
 })
+
+test_that("Seminr estimates higher order factor loadings\n", {
+  expect_true(all(hof_cbsem$factor_loadings[c("Image", "Satisfaction"), "ImageSat"] > 0))
+  first_order_measures <- which(rownames(hof_cbsem$factor_loadings) %in% c("Image", "Satisfaction"))
+  expect_true(all(hof_cbsem$factor_loadings[-first_order_measures, "ImageSat"] == 0))
+})
+
+test_that("Seminr summarizes higher-order factor reliabilities\n", {
+  expect_true(all(hof_summary$quality$reliability["ImageSat",] > 0))
+})
+
+#
+# mobi_mm2 <- constructs(
+#   reflective("Image",        multi_items("IMAG", 1:5)),
+#   reflective("Satisfaction", multi_items("CUSA", 1:3)),
+#   higher_reflective("ImageSat", c("Image", "Satisfaction")),
+#   reflective("Expectation", multi_items("CUEX", 1:3)),
+#   reflective("Loyalty",     multi_items("CUSL", 1:3)),
+#   higher_reflective("ExpLoy", c("Expectation", "Loyalty"))
+# )
+#
+# mobi_sm2 <- relationships(
+#   paths(from = c("ImageSat"), to=c("ExpLoy"))
+# )
+#
+# hof_cbsem2 <- estimate_cbsem(data = mobi, measurement_model = mobi_mm2, structural_model = mobi_sm2)
+#
+# hof_summary <- summary(hof_cbsem)

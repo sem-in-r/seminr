@@ -204,7 +204,9 @@ single_item <- function(item) {
 #'   )
 #' @export
 higher_reflective <- function(construct_name, dimensions) {
-  reflective(construct_name = construct_name, item_names = dimensions)
+  construct <- reflective(construct_name = construct_name, item_names = dimensions)
+  class(construct) <- c(class(construct)[1], c("construct", "higher_order_reflective"))
+  return(construct)
 }
 
 #' higher_composite

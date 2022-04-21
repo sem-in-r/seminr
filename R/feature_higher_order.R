@@ -80,7 +80,8 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs, maxIt, stopC
 
 # Function to check that the HOCs exist in the structural model under analysis
 HOCs_in_sm <- function(measurement_model, structural_model) {
-  HOCs <- measurement_model[names(measurement_model) == "higher_order_composite"]
+  # HOCs <- measurement_model[names(measurement_model) == "higher_order_composite"]
+  HOCs <- measurement_model[grepl("higher_order_", names(measurement_model))]
   if (length(HOCs) > 0) {
     output <- list()
     for (i in 1:length(HOCs)) {
@@ -154,7 +155,6 @@ combine_first_order_second_order_loadings_cbsem <- function(mmMatrix, rawdata, l
 
   HOC_measures <- lapply(setNames(HOC_names, HOC_names),
                          function(name) { HOCs[HOCs[, "construct"] == name, "measurement"] })
-
 
   loadings <- lavaan_std$lambda
   class(loadings) <- "matrix"

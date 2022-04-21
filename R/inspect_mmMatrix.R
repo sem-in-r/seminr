@@ -160,7 +160,7 @@ mm2matrix <- function(measurement_model) {
     return(measurement_model)
   }
 
-  recognized_constructs <- c("composite", "reflective", "higher_order_composite")
+  recognized_constructs <- c("composite", "reflective", "higher_order_composite", "higher_order_reflective")
   construct_measurements <- measurement_model[names(measurement_model) %in% recognized_constructs]
   mmMatrix <- matrix(
     unlist(construct_measurements), ncol = 3, byrow = TRUE,
