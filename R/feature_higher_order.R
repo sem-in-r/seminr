@@ -144,3 +144,34 @@ combine_first_order_second_order_matrices <- function(model1, model2, mmMatrix) 
   return(list(new_outer_weights = new_weights,
               new_outer_loadings = new_loadings))
 }
+
+combine_first_order_second_order_loadings_cbsem <- function(mmMatrix, rawdata, lavaan_std) {
+  # constructs used to measure HOCs
+  hoc_measure_constructs <- setdiff(mmMatrix[,"measurement"], names(rawdata))
+
+  HOCs <- mmMatrix[which(mmMatrix[,"measurement"] %in% hoc_measure_constructs),]
+  HOC_names <- unique(HOCs[,"construct"])
+
+  HOC_measures <- lapply(setNames(HOC_names, HOC_names),
+                         function(name) { HOCs[HOCs[, "construct"] == name, "measurement"] })
+
+
+  loadings <- lavaan_std$lambda
+  class(loadings) <- "matrix"
+
+  new_loadings <- rbind(loadings,
+                        matrix(data=0,
+                               nrow=length(hoc_measure_constructs),
+                               ncol=ncol(loadings)))
+
+  rownames(new_loadings) <- c(rownames(loadings), hoc_measure_constructs)
+
+  betas <- lavaan_std$beta
+  class(betas) <- "matrix"
+
+  for (hoc in HOC_names) {
+    new_loadings[HOC_measures[[hoc]],hoc] <- betas[HOC_measures[[hoc]],hoc]
+  }
+
+  return(new_loadings)
+}

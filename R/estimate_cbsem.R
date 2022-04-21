@@ -153,8 +153,9 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
   # Inspect results
   constructs <- all_construct_names(measurement_model)
   lavaan_std <- lavaan::lavInspect(lavaan_output, what="std")
-  loadings <- lavaan_std$lambda
-  class(loadings) <- "matrix"
+  # loadings <- lavaan_std$lambda
+  # class(loadings) <- "matrix"
+  loadings <- combine_first_order_second_order_loadings_cbsem(mmMatrix, rawdata, lavaan_std)
   tenB <- estimate_lavaan_ten_berge(lavaan_output)
 
   # Path Coefficients Table
