@@ -106,6 +106,7 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
   message("Generating the seminr model for CBSEM")
 
   # TODO: consider higher order models (see estimate_pls() function for template)
+  rawdata <- data
 
   if (is.null(lavaan_model)) {
     # Extract model specifications
@@ -168,6 +169,7 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
   # Gather model information
   seminr_model <- list(
     data = data,
+    rawdata = rawdata,
     measurement_model = measurement_model,
     factor_loadings = loadings,
     associations = item_associations,

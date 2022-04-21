@@ -20,8 +20,8 @@ summarize_cb_measurement <- function(object, alpha=0.05) {
   colnames(significance) <- c( "Std Estimate", "SE", "t-Value", paste(alpha_text, "% CI", sep = ""), paste((100-alpha_text), "% CI", sep = ""))
 
   # Get descriptives and correlations
-  # item_descriptives <- desc(object$data)
-  item_correlations <- stats::cor(object$data[, model$item_names])
+  available_item_names <- intersect(names(object$data), model$item_names)
+  item_correlations <- stats::cor(object$data[, available_item_names])
   construct_correlations <- lavaan::lavInspect(lavaan_output, what = "cor.lv")
 
   list(
@@ -37,10 +37,6 @@ summarize_cb_measurement <- function(object, alpha=0.05) {
     ),
     model = model,
     descriptives = list(
-      # TODO: report item descriptive stats
-      # statistics = list(
-      #   items = item_descriptives
-      # ),
       correlations = list(
         items = item_correlations,
         constructs = construct_correlations
