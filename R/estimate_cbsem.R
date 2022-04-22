@@ -272,12 +272,24 @@ estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
     "run CFA in Lavaan"
   )
 
+  constructs <- all_construct_names(measurement_model)
+  lavaan_std <- lavaan::lavInspect(lavaan_output, what="std")
+  # HOCs <- HOCs_in_sm(measurement_model, structural_model)
+  # if (length(HOCs) > 0) {
+  #   loadings <- combine_first_order_second_order_loadings_cbsem(mmMatrix, rawdata, lavaan_std)
+  # } else {
+    loadings <- lavaan_std$lambda
+    class(loadings) <- "matrix"
+  # }
+
   tenB <- estimate_lavaan_ten_berge(lavaan_output)
 
   # Gather model information
   seminr_model <- list(
     data = data,
     measurement_model = measurement_model,
+    factor_loadings = loadings,
+    constructs = constructs,
     construct_scores = tenB$scores,
     item_weights = tenB$weights,
     lavaan_model = lavaan_model,
