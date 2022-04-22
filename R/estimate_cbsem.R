@@ -153,7 +153,7 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
   # Inspect results
   constructs <- all_construct_names(measurement_model)
   lavaan_std <- lavaan::lavInspect(lavaan_output, what="std")
-  HOCs <- HOCs_in_sm(measurement_model, structural_model)
+  HOCs <- HOCs_in_model(measurement_model, structural_model)
   if (length(HOCs) > 0) {
     loadings <- combine_first_order_second_order_loadings_cbsem(mmMatrix, rawdata, lavaan_std)
   } else {
@@ -274,13 +274,13 @@ estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
 
   constructs <- all_construct_names(measurement_model)
   lavaan_std <- lavaan::lavInspect(lavaan_output, what="std")
-  # HOCs <- HOCs_in_sm(measurement_model, structural_model)
-  # if (length(HOCs) > 0) {
-  #   loadings <- combine_first_order_second_order_loadings_cbsem(mmMatrix, rawdata, lavaan_std)
-  # } else {
+  HOCs <- HOCs_in_model(measurement_model)
+  if (length(HOCs) > 0) {
+    loadings <- combine_first_order_second_order_loadings_cbsem(mmMatrix, rawdata, lavaan_std)
+  } else {
     loadings <- lavaan_std$lambda
     class(loadings) <- "matrix"
-  # }
+  }
 
   tenB <- estimate_lavaan_ten_berge(lavaan_output)
 
