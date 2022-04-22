@@ -1,7 +1,6 @@
 context("SEMinR correctly specifies higher-order factors for CBSEM\n")
 
-  # reflective("Value",        multi_items("PERV", 1:2)),
-# Test cases
+## Test Single HOF in a model
 mobi_mm <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Satisfaction", multi_items("CUSA", 1:3)),
@@ -24,6 +23,9 @@ test_that("Seminr estimates PI interaction paths correctly\n", {
 
 test_that("Seminr estimates higher order factor loadings\n", {
   expect_true(all(hof_cbsem$factor_loadings[c("Image", "Satisfaction"), "ImageSat"] > 0))
+})
+
+test_that("Seminr estimates zero loadings on non-HOF constructs\n", {
   first_order_measures <- which(rownames(hof_cbsem$factor_loadings) %in% c("Image", "Satisfaction"))
   expect_true(all(hof_cbsem$factor_loadings[-first_order_measures, "ImageSat"] == 0))
 })
@@ -32,20 +34,51 @@ test_that("Seminr summarizes higher-order factor reliabilities\n", {
   expect_true(all(hof_summary$quality$reliability["ImageSat",] > 0))
 })
 
-#
-# mobi_mm2 <- constructs(
-#   reflective("Image",        multi_items("IMAG", 1:5)),
-#   reflective("Satisfaction", multi_items("CUSA", 1:3)),
-#   higher_reflective("ImageSat", c("Image", "Satisfaction")),
-#   reflective("Expectation", multi_items("CUEX", 1:3)),
-#   reflective("Loyalty",     multi_items("CUSL", 1:3)),
-#   higher_reflective("ExpLoy", c("Expectation", "Loyalty"))
-# )
-#
-# mobi_sm2 <- relationships(
-#   paths(from = c("ImageSat"), to=c("ExpLoy"))
-# )
-#
-# hof_cbsem2 <- estimate_cbsem(data = mobi, measurement_model = mobi_mm2, structural_model = mobi_sm2)
-#
-# hof_summary <- summary(hof_cbsem)
+## Test multiple HOFs in a model
+mobi_mm2 <- constructs(
+  reflective("Image",          multi_items("IMAG", 1:5)),
+  reflective("Satisfaction",    multi_items("CUSA", 1:3)),
+  reflective("Expectation",     multi_items("CUEX", 1:3)),
+  reflective("Loyalty",         multi_items("CUSL", 1:3)),
+  reflective("Quality",        multi_items("PERQ", 1:7)),
+  reflective("Value",           multi_items("PERV", 1:2)),
+  reflective("Complaints",      single_item("CUSCO")),
+  higher_reflective("QualExpImg", c("Quality", "Expectation", "Image")),
+  higher_reflective("SatComp", c("Satisfaction", "Complaints"))
+)
+
+mobi_sm2 <- relationships(
+  paths(from = c("SatComp", "Value", "Loyalty"), to=c("QualExpImg"))
+)
+
+hof_cbsem2 <- estimate_cbsem(data = mobi, measurement_model = mobi_mm2, structural_model = mobi_sm2, check.gradient = FALSE)
+
+hof_summary2 <- summary(hof_cbsem2)
+
+# First HOF of model
+test_that("Seminr estimates higher order factor loadings with multiple HOFs (HOF 1)\n", {
+  expect_true(all(hof_cbsem2$factor_loadings[c("Quality", "Expectation", "Image"), "QualExpImg"] > 0))
+})
+
+test_that("Seminr estimates zero loadings on non-HOF constructs (HOF 1)\n", {
+  first_order_measures <- which(rownames(hof_cbsem2$factor_loadings) %in% c("Quality", "Expectation", "Image"))
+  expect_true(all(hof_cbsem2$factor_loadings[-first_order_measures, "QualExpImg"] == 0))
+})
+
+test_that("Seminr summarizes higher-order factor reliabilities (HOF 1)\n", {
+  expect_true(all(hof_summary2$quality$reliability["QualExpImg",] > 0))
+})
+
+# Second HOF of model
+test_that("Seminr estimates higher order factor loadings with multiple HOFs (HOF 2)\n", {
+  expect_true(all(hof_cbsem2$factor_loadings[c("Satisfaction", "Complaints"), "SatComp"] > 0))
+})
+
+test_that("Seminr estimates zero loadings on non-HOF constructs (HOF 1)\n", {
+  first_order_measures <- which(rownames(hof_cbsem2$factor_loadings) %in% c("Satisfaction", "Complaints"))
+  expect_true(all(hof_cbsem2$factor_loadings[-first_order_measures, "SatComp"] == 0))
+})
+
+test_that("Seminr summarizes higher-order factor reliabilities (HOF 1)\n", {
+  expect_true(all(hof_summary2$quality$reliability["SatComp",] > 0))
+})
