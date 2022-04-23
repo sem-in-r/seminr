@@ -144,26 +144,25 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
     mmMatrix <- post_interaction_object$mmMatrix
   }
 
+  # Estimate cbsem in Lavaan
   lavaan_output <- try_or_stop(
     lavaan::sem(
       model=lavaan_model, data=data, std.lv = TRUE, estimator=estimator, ...),
     "estimating CBSEM using Lavaan"
   )
 
-  # Inspect results
-  constructs <- all_construct_names(measurement_model)
+  # Extract lavaan results
+  constructs <- all_construct_names(measurement_model) # needed in object for reliability... move up if lavaan_model no longer supported
   lavaan_std <- lavaan::lavInspect(lavaan_output, what="std")
-  HOCs <- HOCs_in_model(measurement_model, structural_model)
-  if (length(HOCs) > 0) {
+  HOFs <- HOCs_in_model(measurement_model, structural_model)
+  if (length(HOFs) > 0) {
     loadings <- combine_first_order_second_order_loadings_cbsem(mmMatrix, rawdata, lavaan_std)
   } else {
     loadings <- lavaan_std$lambda
     class(loadings) <- "matrix"
   }
 
-  tenB <- estimate_lavaan_ten_berge(lavaan_output)
-
-  # Path Coefficients Table
+  # Arrange Coefficients Table
   estimates <- lavaan::standardizedSolution(lavaan_output)
   path_df <- estimates[estimates$op == "~",]
   all_antecedents <- all_exogenous(smMatrix)
@@ -171,6 +170,9 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
   path_matrix <- df_xtab_matrix(est.std ~ rhs + lhs, path_df,
                                 all_antecedents, all_outcomes)
   rownames(path_matrix) <- gsub("_x_", "*", all_antecedents)
+
+  # Compute results from our own methods
+  tenB <- estimate_lavaan_ten_berge(lavaan_output)
 
   # Gather model information
   seminr_model <- list(
@@ -253,6 +255,7 @@ estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
     )
     measurement_model <- specified_model$measurement_model
     item_associations <- specified_model$item_associations
+    constructs <- all_construct_names(measurement_model)
 
     # Create LAVAAN syntax
     mmMatrix <- mm2matrix(measurement_model)
@@ -265,23 +268,24 @@ estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
                           sep="\n\n")
   }
 
-  # Run the model in LAVAAN
+  # Estimate cfa in Lavaan
   lavaan_output <- try_or_stop(
     lavaan::cfa(model=lavaan_model, data=data, std.lv = TRUE,
                 estimator=estimator, ...),
     "run CFA in Lavaan"
   )
 
-  constructs <- all_construct_names(measurement_model)
+  # Extract Lavaan results
   lavaan_std <- lavaan::lavInspect(lavaan_output, what="std")
-  HOCs <- HOCs_in_model(measurement_model)
-  if (length(HOCs) > 0) {
+  HOFs <- HOCs_in_model(measurement_model)
+  if (length(HOFs) > 0) {
     loadings <- combine_first_order_second_order_loadings_cbsem(mmMatrix, rawdata, lavaan_std)
   } else {
     loadings <- lavaan_std$lambda
     class(loadings) <- "matrix"
   }
 
+  # Compute results from our own methods
   tenB <- estimate_lavaan_ten_berge(lavaan_output)
 
   # Gather model information

@@ -78,11 +78,13 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs, maxIt, stopC
               first_stage_model = new_model))
 }
 
-# Function to check that the HOCs exist in the structural model under analysis
+# Returns all Higher Order Constructs (HOCs) from provided model specifications
 HOCs_in_model <- function(measurement_model, structural_model = NULL) {
+  # Extract HOCs from measurement model
   HOCs <- measurement_model[grepl("higher_order_", names(measurement_model))]
   if (is.null(structural_model)) return(HOCs)
 
+  # Get subset of HOCs also present in structural model, if one is provided
   if (length(HOCs) > 0) {
     output <- list()
     for (i in 1:length(HOCs)) {
