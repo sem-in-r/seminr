@@ -78,9 +78,13 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs, maxIt, stopC
               first_stage_model = new_model))
 }
 
-# Function to check that the HOCs exist in the structural model under analysis
-HOCs_in_sm <- function(measurement_model, structural_model) {
-  HOCs <- measurement_model[names(measurement_model) == "higher_order_composite"]
+# Returns all Higher Order Constructs (HOCs) from provided model specifications
+HOCs_in_model <- function(measurement_model, structural_model = NULL) {
+  # Extract HOCs from measurement model
+  HOCs <- measurement_model[grepl("higher_order_", names(measurement_model))]
+  if (is.null(structural_model)) return(HOCs)
+
+  # Get subset of HOCs also present in structural model, if one is provided
   if (length(HOCs) > 0) {
     output <- list()
     for (i in 1:length(HOCs)) {
@@ -91,6 +95,7 @@ HOCs_in_sm <- function(measurement_model, structural_model) {
   } else {
     output <- c()
   }
+
   return(output)
 }
 
@@ -143,4 +148,34 @@ combine_first_order_second_order_matrices <- function(model1, model2, mmMatrix) 
   }
   return(list(new_outer_weights = new_weights,
               new_outer_loadings = new_loadings))
+}
+
+combine_first_order_second_order_loadings_cbsem <- function(mmMatrix, rawdata, lavaan_std) {
+  # constructs used to measure HOCs
+  hoc_measure_constructs <- setdiff(mmMatrix[,"measurement"], names(rawdata))
+
+  HOCs <- mmMatrix[which(mmMatrix[,"measurement"] %in% hoc_measure_constructs),]
+  HOC_names <- unique(HOCs[,"construct"])
+
+  HOC_measures <- lapply(setNames(HOC_names, HOC_names),
+                         function(name) { HOCs[HOCs[, "construct"] == name, "measurement"] })
+
+  loadings <- lavaan_std$lambda
+  class(loadings) <- "matrix"
+
+  new_loadings <- rbind(loadings,
+                        matrix(data=0,
+                               nrow=length(hoc_measure_constructs),
+                               ncol=ncol(loadings)))
+
+  rownames(new_loadings) <- c(rownames(loadings), hoc_measure_constructs)
+
+  betas <- lavaan_std$beta
+  class(betas) <- "matrix"
+
+  for (hoc in HOC_names) {
+    new_loadings[HOC_measures[[hoc]],hoc] <- betas[HOC_measures[[hoc]],hoc]
+  }
+
+  return(new_loadings)
 }

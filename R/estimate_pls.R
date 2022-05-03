@@ -118,7 +118,7 @@ estimate_pls <- function(data,
   structural_model <- specified_model$structural_model
 
   # Generate first order model if necessary
-  HOCs <- HOCs_in_sm(measurement_model, structural_model)
+  HOCs <- HOCs_in_model(measurement_model, structural_model)
 
   if ( length(HOCs)>0 ) {
     HOM <- prepare_higher_order_model(data = data,
