@@ -1206,7 +1206,13 @@ dot_component_mm <- function(model, theme) {
                                 "// ---------------------\n"))
 
   # we use mmMatrix because model$constructs does not contain HOCs
-  mm_count <- length(unique(model$mmMatrix[,1 ]))
+  if (is.null(model$first_stage_model)) {
+    mm_count <- length(unique(model$mmMatrix[,1 ]))
+  } else {
+    mm_count <- length(intersect(unique(c(model$smMatrix, model$first_stage_model$smMatrix)),unique(model$mmMatrix[,1 ])))
+  }
+
+
   for (i in 1:mm_count) {
     sub_component <- dot_subcomponent_mm(i, model, theme)
     sub_components_mm <- c(sub_components_mm, sub_component)
@@ -1277,9 +1283,17 @@ extract_mm_coding <- function(model) {
   construct_types <- c()
 
   # iterate over all constructs in the mmMatrix
-  for (construct in unique(model$mmMatrix[,1 ])) {
-    construct_names <- c(construct_names, construct)
-    construct_types <- c(construct_types, get_construct_type(model, construct))
+  if (is.null(model$first_stage_model)) {
+    for (construct in unique(model$mmMatrix[,1 ])) {
+      construct_names <- c(construct_names, construct)
+      construct_types <- c(construct_types, get_construct_type(model, construct))
+    }
+  } else {
+    constructs_in_hoc_model <- intersect(unique(c(model$smMatrix, model$first_stage_model$smMatrix)),unique(model$mmMatrix[,1 ]))
+    for (construct in constructs_in_hoc_model) {
+      construct_names <- c(construct_names, construct)
+      construct_types <- c(construct_types, get_construct_type(model, construct))
+    }
   }
 
   # create output matrix
