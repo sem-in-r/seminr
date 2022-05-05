@@ -90,7 +90,7 @@ rhoC_AVE.pls_model <- rhoC_AVE.boot_seminr_model <- function(pls_model){
   for(i in pls_model$constructs){
     loadings <- pls_model$outer_loadings[, i]
     ind <- which(loadings != 0)
-    if(measure_mode(i, pls_model$mmMatrix) %in% c("A", "B", "HOCA", "HOCB")) {
+    if(measure_mode(i, pls_model$mmMatrix) %in% c("A", "B", "HOCA", "HOCB", "C")) {
       if(length(ind) == 1) {
         dgr[i, 1:2] <- 1
       } else {
@@ -98,10 +98,10 @@ rhoC_AVE.pls_model <- rhoC_AVE.boot_seminr_model <- function(pls_model){
         dgr[i, 1] <- compute_rhoC(lambdas)
         dgr[i, 2] <- compute_AVE(lambdas)
       }
-    } else {
-      lambdas <- loadings[ind]
-      dgr[i, 1] <- NA
-      dgr[i, 2] <- compute_AVE(lambdas)
+    # } else {
+    #   lambdas <- loadings[ind]
+    #   dgr[i, 1] <- NA
+    #   dgr[i, 2] <- compute_AVE(lambdas)
     }
   }
   return(dgr)
