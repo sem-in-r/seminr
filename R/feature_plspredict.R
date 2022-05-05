@@ -3,6 +3,16 @@
 predict.seminr_model <- function(object, testData, technique = predict_DA, na.print=".", digits=3, ...){
   stopifnot(inherits(object, "seminr_model"))
 
+  # Abort if received a higher-order-model or moderated model
+  if (!is.null(object$hoc)) {
+    message("There is no published solution for applying PLSpredict to higher-order-models")
+    return()
+  }
+  if (!is.null(object$interaction)) {
+    message("There is no published solution for applying PLSpredict to moderated models")
+    return()
+  }
+
   #Extract Measurements needed for Predictions
   normData <- testData[,object$mmVariables]
 
@@ -112,7 +122,15 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
 predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NULL, cores = NULL) {
 
   stopifnot(inherits(model, "seminr_model"))
-
+  # Abort if received a higher-order-model or moderated model
+  if (!is.null(model$hoc)) {
+    message("There is no published solution for applying PLSpredict to higher-order-models")
+    return()
+  }
+  if (!is.null(model$interaction)) {
+    message("There is no published solution for applying PLSpredict to moderated models")
+    return()
+  }
   # Get endogenous item names
   endogenous_items <- unlist(sapply(unique(model$smMatrix[,2]), function(x) model$mmMatrix[model$mmMatrix[, "construct"] == x,"measurement"]), use.names = FALSE)
 
