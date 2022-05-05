@@ -170,13 +170,15 @@ estimate_pls <- function(data,
   if ( length(HOCs)>0 ) {
     # Append return list with first stage model and
     seminr_model$first_stage_model <- first_stage_model
-
+    seminr_model$hoc <- TRUE
     # Combine first and second stage measurement model matrices
     new_mm <- combine_first_order_second_order_matrices(model1 = first_stage_model, model2 = seminr_model, mmMatrix)
     seminr_model$outer_loadings <- new_mm$new_outer_loadings
     seminr_model$outer_weights <- new_mm$new_outer_weights
   }
-
+  if(length(processed_measurements$ints)>0) {
+    seminr_model$interaction <- TRUE
+  }
   class(seminr_model) <- c("pls_model", "seminr_model")
   return(seminr_model)
 }

@@ -340,9 +340,12 @@ dot_graph.measurement_model <-
   as.data.frame(mm) -> mmodel
 
   hocs <- model$higher_order_composite
-  hocs
+
   a_model <- list(measurement_model = model,
                 mmMatrix = mm,
+                smMatrix = matrix(rep(unique(mmodel$construct),2),
+                                  ncol = 2,
+                                  nrow = length(unique(mmodel$construct))),
                 outer_weights = matrix(c(1), # add only 1s
                                        ncol = length(unique(mmodel$construct) ),
                                        dimnames = list(unique(mmodel$measurement),
@@ -358,11 +361,13 @@ dot_graph.measurement_model <-
                 constructs = unique(mmodel$construct),
                 mmVariables = unique(mmodel$measurement)
   )
-
+  if (length(hocs) > 0) {
+    a_model$hoc <- TRUE
+  }
   class(a_model) <- "pls_model"
 
 
-  # adjust themes to correct for aritifical information
+  # adjust themes to correct for artifical information
   thm$mm.edge.width_multiplier <- 1
   thm$mm.edge.label.show <- FALSE
   dot_graph(a_model, title = title, theme = thm, measurement_only = TRUE)
@@ -1206,8 +1211,8 @@ dot_component_mm <- function(model, theme) {
                                 "// ---------------------\n"))
 
   # we use mmMatrix because model$constructs does not contain HOCs
-  if (is.null(model$first_stage_model)) {
-    mm_count <- length(unique(model$mmMatrix[,1 ]))
+  if (is.null(model$hoc)) {
+    mm_count <- length(intersect(unique(model$smMatrix),unique(model$mmMatrix[,1 ])))
   } else {
     mm_count <- length(intersect(unique(c(model$smMatrix, model$first_stage_model$smMatrix)),unique(model$mmMatrix[,1 ])))
   }
@@ -1283,8 +1288,8 @@ extract_mm_coding <- function(model) {
   construct_types <- c()
 
   # iterate over all constructs in the mmMatrix
-  if (is.null(model$first_stage_model)) {
-    for (construct in unique(model$mmMatrix[,1 ])) {
+  if (is.null(model$hoc)) {
+    for (construct in model$constructs) {
       construct_names <- c(construct_names, construct)
       construct_types <- c(construct_types, get_construct_type(model, construct))
     }
