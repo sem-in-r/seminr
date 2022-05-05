@@ -10,6 +10,7 @@ evaluate_model <- function(seminr_model) {
 
 # Reliability ----
 reliability <- function(seminr_model) {
+  #get HOC
   alpha <- cronbachs_alpha(seminr_model)
   mat1 <- rhoC_AVE(seminr_model)
   mat2 <- rho_A(seminr_model)
@@ -32,7 +33,13 @@ validity <- function(seminr_model) {
 }
 
 cross_loadings <- function(seminr_model) {
-  ret <- stats::cor(seminr_model$data[, seminr_model$mmVariables], seminr_model$construct_scores)
+  if (is.null(seminr_model$hoc)) {
+    construct_scores <- seminr_model$construct_scores
+  } else {
+    constructs <- setdiff(unique(c(seminr_model$smMatrix, seminr_model$first_stage_model$smMatrix)),seminr_model$constructs)
+    construct_scores <- cbind(seminr_model$construct_scores, seminr_model$first_stage_model$construct_scores[,constructs])
+  }
+  ret <- stats::cor(seminr_model$data[, seminr_model$mmVariables], construct_scores)
   convert_to_table_output(ret)
 }
 

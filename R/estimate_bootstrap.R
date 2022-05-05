@@ -254,14 +254,14 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
 
         # Identify start and end points for HTMT data
         start <- end+1
-        end <- start+(path_cols*path_rows)-1
+        end <- start+(ncol(HTMT_matrix)*nrow(HTMT_matrix))-1
 
         # Collect the array of bootstrapped HTMT
-        boot_HTMT <- array(bootmatrix[start:end,1:nboot], dim = c(path_rows, path_cols, nboot), dimnames = list(rownames(HTMT_matrix), colnames(HTMT_matrix),1:nboot))
+        boot_HTMT <- array(bootmatrix[start:end,1:nboot], dim = c(nrow(HTMT_matrix), ncol(HTMT_matrix), nboot), dimnames = list(rownames(HTMT_matrix), colnames(HTMT_matrix),1:nboot))
 
         # Collect the matrices of means and sds for HTMT
-        htmt_means <- matrix(means[start:end], nrow = path_rows, ncol = path_cols)
-        htmt_sds <- matrix(sds[start:end], nrow = path_rows, ncol = path_cols)
+        htmt_means <- matrix(means[start:end], nrow = nrow(HTMT_matrix), ncol = ncol(HTMT_matrix))
+        htmt_sds <- matrix(sds[start:end], nrow = nrow(HTMT_matrix), ncol = ncol(HTMT_matrix))
 
 
         # create HTMT matrix (take care to not be stranded with a single column/row vector)

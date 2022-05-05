@@ -1289,7 +1289,7 @@ extract_mm_coding <- function(model) {
 
   # iterate over all constructs in the mmMatrix
   if (is.null(model$hoc)) {
-    for (construct in model$constructs) {
+    for (construct in unique(model$mmMatrix[,1 ])) {
       construct_names <- c(construct_names, construct)
       construct_types <- c(construct_types, get_construct_type(model, construct))
     }
