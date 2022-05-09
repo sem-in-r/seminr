@@ -247,7 +247,7 @@ estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
   # warnings(measurement_model, data, structural_model)
 
   mmMatrix <- NULL
-
+  rawdata <- data
   if (is.null(lavaan_model)) {
     # Extract specified models
     specified_model <- extract_models(
