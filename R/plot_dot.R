@@ -1284,27 +1284,13 @@ dot_subcomponent_mm <- function(index, model, theme) {
 #'
 #' @param model the model to use
 extract_mm_coding <- function(model) {
-  construct_names <- c()
-  construct_types <- c()
-
   # iterate over all constructs in the mmMatrix
-  if (is.null(model$hoc)) {
-    for (construct in unique(model$mmMatrix[,1 ])) {
-      construct_names <- c(construct_names, construct)
-      construct_types <- c(construct_types, get_construct_type(model, construct))
-    }
-  } else {
-    constructs_in_hoc_model <- intersect(unique(c(model$smMatrix, model$first_stage_model$smMatrix)),unique(model$mmMatrix[,1 ]))
-    for (construct in constructs_in_hoc_model) {
-      construct_names <- c(construct_names, construct)
-      construct_types <- c(construct_types, get_construct_type(model, construct))
-    }
-  }
+  constructs <- constructs_in_model(model)
 
   # create output matrix
-  mm_coding <- matrix(nrow = length(construct_names),
+  mm_coding <- matrix(nrow = length(constructs$construct_names),
                       ncol = 2,
-                      data = c(construct_names, construct_types))
+                      data = c(constructs$construct_names, constructs$construct_types))
   colnames(mm_coding) <- c("name", "type")
   return(mm_coding)
 }

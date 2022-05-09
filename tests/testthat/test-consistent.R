@@ -22,7 +22,7 @@ seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_factori
 
 
 # Load outputs
-rho <- rho_A(seminr_model)
+rho <- rho_A(seminr_model, constructs_in_model(seminr_model)$construct_names)
 
 ## Output originally created using following lines
 # write.csv(rho, file = "tests/fixtures/rho1.csv")
@@ -63,7 +63,7 @@ mobi_sm <- relationships(
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_factorial)
 
 # Load outputs
-rho <- rho_A(seminr_model)
+rho <- rho_A(seminr_model, constructs_in_model(seminr_model)$construct_names)
 
 ## Output originally created using following lines
 ## write.csv(rho, file = "tests/fixtures/rho2.csv")

@@ -5,10 +5,12 @@
 #'
 #' @param seminr_model A \code{seminr_model} containing the estimated seminr model.
 #'
+#' @param constructs A vector containing the names of the constructs to calculate rhoA for.
+#'
 #' @return A matrix containing the rhoA metric for each construct.
 #'
 #' @usage
-#' rho_A(seminr_model)
+#' rho_A(seminr_model, constructs)
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
 #'          \code{\link{bootstrap_model}}
@@ -40,23 +42,16 @@
 #'                            measurement_model = mobi_mm,
 #'                            structural_model = mobi_sm)
 #'
-#' rho_A(mobi_pls)
+#' rho_A(mobi_pls, mobi_pls$constructs)
 #' @export
 # rho_A as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
-rho_A <- function(seminr_model) {
-  # get construct variable scores and weights for each construct
-  constructscores <- seminr_model$construct_scores
+rho_A <- function(seminr_model, constructs) {
+  # get weights for each construct
   weights <- seminr_model$outer_weights
   # get the mmMatrix and smMatrix
   mmMatrix <- seminr_model$mmMatrix
-  smMatrix <- seminr_model$smMatrix
   obsData <- seminr_model$data
 
-  if (is.null(seminr_model$hoc)) {
-    constructs <- intersect(unique(seminr_model$smMatrix),unique(seminr_model$mmMatrix[,1 ]))
-  } else {
-    constructs <- intersect(unique(c(seminr_model$smMatrix, seminr_model$first_stage_model$smMatrix)),unique(seminr_model$mmMatrix[,1 ]))
-  }
   # Create rho_A holder matrix
   rho <- matrix(, nrow = length(constructs), ncol = 1, dimnames = list(constructs, c("rhoA")))
 
@@ -89,12 +84,13 @@ rhoC_AVE <- function(x, ...) {
   UseMethod("rhoC_AVE", x)
 }
 
-rhoC_AVE.pls_model <- rhoC_AVE.boot_seminr_model <- function(pls_model){
-  if (is.null(pls_model$hoc)) {
-    constructs <- intersect(unique(pls_model$smMatrix),unique(pls_model$mmMatrix[,1 ]))
-  } else {
-    constructs <- intersect(unique(c(pls_model$smMatrix, pls_model$first_stage_model$smMatrix)),unique(pls_model$mmMatrix[,1 ]))
-  }
+rhoC_AVE.pls_model <- rhoC_AVE.boot_seminr_model <- function(pls_model, constructs){
+  # if (is.null(pls_model$hoc)) {
+  #   constructs <- intersect(unique(pls_model$smMatrix),unique(pls_model$mmMatrix[,1 ]))
+  # } else {
+  #   constructs <- intersect(unique(c(pls_model$smMatrix, pls_model$first_stage_model$smMatrix)),unique(pls_model$mmMatrix[,1 ]))
+  # }
+  # constructs <- constructs_in_model(pls_model)
   dgr <- matrix(NA, nrow=length(constructs), ncol=2)
 
   rownames(dgr) <- constructs
@@ -110,10 +106,6 @@ rhoC_AVE.pls_model <- rhoC_AVE.boot_seminr_model <- function(pls_model){
         dgr[i, 1] <- compute_rhoC(lambdas)
         dgr[i, 2] <- compute_AVE(lambdas)
       }
-    # } else {
-    #   lambdas <- loadings[ind]
-    #   dgr[i, 1] <- NA
-    #   dgr[i, 2] <- compute_AVE(lambdas)
     }
   }
   return(dgr)
@@ -146,14 +138,14 @@ cron_alpha <- function(cov_mat) {
   return(alpha)
 }
 
-cronbachs_alpha <- function(seminr_model) {
+cronbachs_alpha <- function(seminr_model, constructs) {
   alpha_vec <- c()
-  if (is.null(seminr_model$hoc)) {
-    constructs <- intersect(unique(seminr_model$smMatrix),unique(seminr_model$mmMatrix[,1 ]))
-  } else {
-    constructs <- intersect(unique(c(seminr_model$smMatrix, seminr_model$first_stage_model$smMatrix)),unique(seminr_model$mmMatrix[,1 ]))
-  }
-
+  # if (is.null(seminr_model$hoc)) {
+  #   constructs <- intersect(unique(seminr_model$smMatrix),unique(seminr_model$mmMatrix[,1 ]))
+  # } else {
+  #   constructs <- intersect(unique(c(seminr_model$smMatrix, seminr_model$first_stage_model$smMatrix)),unique(seminr_model$mmMatrix[,1 ]))
+  # }
+  # constructs <- constructs_in_model(seminr_model)
   for (i in constructs) {
     items <- seminr_model$mmMatrix[seminr_model$mmMatrix[,"construct"] == i,"measurement"]
     if (length(items) > 1) {

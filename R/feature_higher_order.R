@@ -157,7 +157,7 @@ combine_first_order_second_order_loadings_cbsem <- function(mmMatrix, rawdata, l
   HOCs <- mmMatrix[which(mmMatrix[,"measurement"] %in% hoc_measure_constructs),]
   HOC_names <- unique(HOCs[,"construct"])
 
-  HOC_measures <- lapply(setNames(HOC_names, HOC_names),
+  HOC_measures <- lapply(stats::setNames(HOC_names, HOC_names),
                          function(name) { HOCs[HOCs[, "construct"] == name, "measurement"] })
 
   loadings <- lavaan_std$lambda

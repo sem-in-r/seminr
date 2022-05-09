@@ -11,14 +11,14 @@ independent_vifs <- function(construct, find_independents, seminr_model, data) {
 }
 
 # Calculate VIF of all items of each construct
-item_vifs <- function(seminr_model) {
-  if (is.null(seminr_model$hoc)) {
-    all_constructs <- intersect(unique(seminr_model$smMatrix),unique(seminr_model$mmMatrix[,1 ]))
-  } else {
-    all_constructs <- intersect(unique(c(seminr_model$smMatrix, seminr_model$first_stage_model$smMatrix)),unique(seminr_model$mmMatrix[,1 ]))
-  }
+item_vifs <- function(seminr_model, model_constructs) {
+  # if (is.null(seminr_model$hoc)) {
+  #   all_constructs <- intersect(unique(seminr_model$smMatrix),unique(seminr_model$mmMatrix[,1 ]))
+  # } else {
+  #   all_constructs <- intersect(unique(c(seminr_model$smMatrix, seminr_model$first_stage_model$smMatrix)),unique(seminr_model$mmMatrix[,1 ]))
+  # }
 
-  item_vifs <- sapply(all_constructs, independent_vifs,
+  item_vifs <- sapply(model_constructs$construct_names, independent_vifs,
                       items_of_construct, seminr_model,
                       data = seminr_model$data)
   class(item_vifs) <- append(class(item_vifs), "list_output")
@@ -49,6 +49,7 @@ HTMT <- function(seminr_model) {
   } else {
     constructs <- intersect(unique(c(seminr_model$smMatrix, seminr_model$first_stage_model$smMatrix)),unique(seminr_model$mmMatrix[,1 ]))
   }
+
   HTMT <- matrix(, nrow=length(constructs), ncol=length(constructs),
                  dimnames = list(constructs,constructs))
   for (constructi in constructs[1:(length(constructs)-1)]) {
@@ -79,16 +80,16 @@ HTMT <- function(seminr_model) {
 
 # fl_criteria_table can be used to generate simple and effective table for checking Fornell Larcker criteria.
 # Fornell, C., & Larcker, D. F. (1981). Evaluating structural equation models with unobservable variables and measurement error. Journal of marketing research, 18(1), 39-50.
-fl_criteria_table <- function(seminr_model) {
-  if (is.null(seminr_model$hoc)) {
-    construct_scores <- seminr_model$construct_scores
-  } else {
-    constructs <- setdiff(unique(c(seminr_model$smMatrix, seminr_model$first_stage_model$smMatrix)),seminr_model$constructs)
-    construct_scores <- cbind(seminr_model$construct_scores, seminr_model$first_stage_model$construct_scores[,constructs])
-  }
-  table <- stats::cor(construct_scores)
+fl_criteria_table <- function(seminr_model, model_constructs) {
+  # if (is.null(seminr_model$hoc)) {
+  #   construct_scores <- seminr_model$construct_scores
+  # } else {
+  #   constructs <- setdiff(unique(c(seminr_model$smMatrix, seminr_model$first_stage_model$smMatrix)),seminr_model$constructs)
+  #   construct_scores <- cbind(seminr_model$construct_scores, seminr_model$first_stage_model$construct_scores[,constructs])
+  # }
+  table <- stats::cor(model_constructs$construct_scores)
   table[upper.tri(table)] <- NA
-  diag(table) <- sqrt(rhoC_AVE(seminr_model)[,"AVE"])
+  diag(table) <- sqrt(rhoC_AVE(seminr_model, model_constructs$construct_names)[,"AVE"])
   comment(table) <- "FL Criteria table reports square root of AVE on the diagonal and construct correlations on the lower triangle."
   convert_to_table_output(table)
 }

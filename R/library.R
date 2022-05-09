@@ -322,3 +322,26 @@ convert_to_table_output <- function(matrix) {
   class(matrix) <- append(class(matrix), "table_output")
   return(matrix)
 }
+
+constructs_in_model <- function(model) {
+  construct_names <- c()
+  construct_types <- c()
+  if (is.null(model$hoc)) {
+    for (construct in intersect(unique(model$smMatrix),unique(model$mmMatrix[,1 ]))) {
+      construct_names <- c(construct_names, construct)
+      construct_types <- c(construct_types, get_construct_type(model, construct))
+    }
+    construct_scores <- model$construct_scores
+  } else {
+    constructs_in_hoc_model <- intersect(unique(c(model$smMatrix, model$first_stage_model$smMatrix)),unique(model$mmMatrix[,1 ]))
+    for (construct in constructs_in_hoc_model) {
+      construct_names <- c(construct_names, construct)
+      construct_types <- c(construct_types, get_construct_type(model, construct))
+
+    }
+    construct_scores <- cbind(model$construct_scores, model$first_stage_model$construct_scores[,setdiff(unique(model$first_stage_model$smMatrix),unique(model$smMatrix))])
+  }
+  return(list(construct_names = construct_names,
+              construct_types = construct_types,
+              construct_scores = construct_scores))
+}
