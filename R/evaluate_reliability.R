@@ -61,7 +61,7 @@ rho_A <- function(seminr_model, constructs) {
       rho[i, 1] <- 1
     }
     #If the measurement model is Reflective Calculate RhoA
-    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1] %in% c("C", "A", "HOCA")) {#| mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="A"|){
+    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1] %in% c("C", "A", "HOCA", "UNIT")) {#| mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="A"|){
       #if the construct is a single item rhoA = 1
       if(nrow(mmMatrix_per_construct(i, mmMatrix)) == 1 | grepl("\\*", i)) {
         rho[i, 1] <- 1
@@ -85,12 +85,6 @@ rhoC_AVE <- function(x, ...) {
 }
 
 rhoC_AVE.pls_model <- rhoC_AVE.boot_seminr_model <- function(pls_model, constructs){
-  # if (is.null(pls_model$hoc)) {
-  #   constructs <- intersect(unique(pls_model$smMatrix),unique(pls_model$mmMatrix[,1 ]))
-  # } else {
-  #   constructs <- intersect(unique(c(pls_model$smMatrix, pls_model$first_stage_model$smMatrix)),unique(pls_model$mmMatrix[,1 ]))
-  # }
-  # constructs <- constructs_in_model(pls_model)
   dgr <- matrix(NA, nrow=length(constructs), ncol=2)
 
   rownames(dgr) <- constructs
@@ -98,7 +92,7 @@ rhoC_AVE.pls_model <- rhoC_AVE.boot_seminr_model <- function(pls_model, construc
   for(i in constructs){
     loadings <- pls_model$outer_loadings[, i]
     ind <- which(loadings != 0)
-    if(measure_mode(i, pls_model$mmMatrix) %in% c("A", "B", "HOCA", "HOCB", "C")) {
+    if(measure_mode(i, pls_model$mmMatrix) %in% c("A", "B", "HOCA", "HOCB", "C", "UNIT")) {
       if(length(ind) == 1) {
         dgr[i, 1:2] <- 1
       } else {
@@ -140,12 +134,6 @@ cron_alpha <- function(cov_mat) {
 
 cronbachs_alpha <- function(seminr_model, constructs) {
   alpha_vec <- c()
-  # if (is.null(seminr_model$hoc)) {
-  #   constructs <- intersect(unique(seminr_model$smMatrix),unique(seminr_model$mmMatrix[,1 ]))
-  # } else {
-  #   constructs <- intersect(unique(c(seminr_model$smMatrix, seminr_model$first_stage_model$smMatrix)),unique(seminr_model$mmMatrix[,1 ]))
-  # }
-  # constructs <- constructs_in_model(seminr_model)
   for (i in constructs) {
     items <- seminr_model$mmMatrix[seminr_model$mmMatrix[,"construct"] == i,"measurement"]
     if (length(items) > 1) {

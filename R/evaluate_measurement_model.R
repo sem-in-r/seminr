@@ -35,12 +35,6 @@ validity <- function(seminr_model) {
 }
 
 cross_loadings <- function(seminr_model, model_constructs) {
-  # if (is.null(seminr_model$hoc)) {
-  #   construct_scores <- seminr_model$construct_scores
-  # } else {
-  #   constructs <- setdiff(unique(c(seminr_model$smMatrix, seminr_model$first_stage_model$smMatrix)),seminr_model$constructs)
-  #   construct_scores <- cbind(seminr_model$construct_scores, seminr_model$first_stage_model$construct_scores[,constructs])
-  # }
   ret <- stats::cor(seminr_model$data[, seminr_model$mmVariables], model_constructs$construct_scores)
   convert_to_table_output(ret)
 }
