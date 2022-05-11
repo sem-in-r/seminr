@@ -214,7 +214,11 @@ return_only_composite_scores <- function(object){
                           object$mmMatrix[which(object$mmMatrix[,3]=="HOCA"),1],
                           object$mmMatrix[which(object$mmMatrix[,3]=="UNIT"),1]))
   used_composites <- intersect(mm_composites, object$constructs)
-  object$construct_scores[, used_composites]
+  if (length(used_composites) == 0) {
+      return(NULL)
+  } else {
+    return(object$construct_scores[, used_composites])
+  }
 }
 
 # Function to return the total effects of a model

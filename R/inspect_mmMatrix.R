@@ -33,8 +33,16 @@ construct_items <- function(construct) {
 
 # Get names of all items from measurement model
 all_items <- function(measurement_model) {
-  constructs_only <- mm_constructs(measurement_model)
+  constructs_only <- seminr:::mm_constructs(measurement_model)
   sapply(constructs_only, FUN=construct_items) -> .
+  unlist(., use.names = FALSE) -> .
+  unique(.)
+}
+
+all_loc_non_int_items <- function(measurement_model) {
+  loc_constructs_only <- loc_constructs(measurement_model)
+  constructs_only <- seminr:::mm_constructs(loc_constructs_only)
+  sapply(constructs_only, FUN=seminr:::construct_items) -> .
   unlist(., use.names = FALSE) -> .
   unique(.)
 }
@@ -173,6 +181,10 @@ mm2matrix <- function(measurement_model) {
 
 mm_constructs <- function(measurement_model) {
   Filter(function(e) {!("interaction" %in% class(e))}, measurement_model)
+}
+
+loc_constructs <- function(measurement_model) {
+  Filter(function(e) {!("higher_order_composite" %in% class(e))}, measurement_model)
 }
 
 # Extract only interaction closures from measurement model

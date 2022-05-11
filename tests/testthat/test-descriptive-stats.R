@@ -27,9 +27,9 @@ construct_cors <- summary_object$descriptives$correlations$constructs
 
 ## Output originally created using following lines
 # write.csv(summary_object$descriptive_statistics$item_descriptives, file = "tests/fixtures/V_3_5_X/item_stats.csv")
-# write.csv(summary_object$descriptive_statistics$item_descriptives, file = "tests/fixtures/V_3_6_0/item_stats.csv")
+# write.csv(summary_object$descriptives$statistics$items, file = "tests/fixtures/V_3_6_0/item_stats.csv")
 # write.csv(summary_object$descriptive_statistics$item_correlations, file = "tests/fixtures/V_3_5_X/item_cors.csv")
-# write.csv(summary_object$descriptive_statistics$item_correlations, file = "tests/fixtures/V_3_6_0/item_cors.csv")
+# write.csv(summary_object$descriptives$correlations$items, file = "tests/fixtures/V_3_6_0/item_cors.csv")
 # write.csv(summary_object$descriptive_statistics$construct_descriptives, file = "tests/fixtures/V_3_5_X/construct_stats.csv")
 # write.csv(summary_object$descriptive_stats$construct_descriptives, file = "tests/fixtures/V_3_6_0/construct_stats.csv")
 # write.csv(summary_object$descriptive_statistics$construct_correlations, file = "tests/fixtures/V_3_5_X/construct_cors.csv")
@@ -43,11 +43,11 @@ construct_cors_control <- as.matrix(read.csv(file = paste(test_folder,"construct
 
 # Testing
 test_that("Seminr estimates the item descriptives correctly", {
-  expect_equal(item_stats[1:24, 1:9], item_stats_control[1:24, 1:9], tolerance = 0.00001)
+  expect_equal(item_stats[1:13, 1:9], item_stats_control[1:13, 1:9], tolerance = 0.00001)
 })
 
 test_that("Seminr estimates the item correlations correctly", {
-  expect_equal(item_cors[1:24, 1:24], item_cors_control[1:24, 1:24], tolerance = 0.00001)
+  expect_equal(item_cors[1:13, 1:13], item_cors_control[1:13, 1:13], tolerance = 0.00001)
 })
 
 test_that("Seminr estimates the construct descriptives correctly", {
