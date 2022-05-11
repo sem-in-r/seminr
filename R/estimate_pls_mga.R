@@ -70,7 +70,7 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
 
   message("Computing similarity of groups")
   # Produce beta report matrix on all paths (as rows)
-  beta <- as.data.frame(pls_model$smMatrix[,c("source", "target")])
+  beta <- as.data.frame(pls_model$smMatrix[,c("source", "target"), drop = F])
   path_names <- do.call(paste0, cbind(beta["source"], " -> ", beta["target"]))
   rownames(beta) <- path_names
   beta$estimate <- apply(beta, MARGIN = 1, FUN=path_estimate, path_coef = pls_model$path_coef)
