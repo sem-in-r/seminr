@@ -46,3 +46,4 @@ test_that("Seminr estimates the correct PLS-MGA p-values", {
   # Testing
   expect_equal(mobi_mga$pls_mga_p, mga_correct$pls_mga_p, tolerance = 0.00001)
 })
+
