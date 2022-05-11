@@ -981,7 +981,8 @@ get_sm_node_shape <- function(model, construct, theme) {
                    "B" = paste0(", shape = ", theme$construct.compositeB.shape),
                    "A" = paste0(", shape = ", theme$construct.compositeA.shape),
                    "HOCA" = paste0(", shape = ", theme$construct.compositeA.shape),
-                   "HOCB" = paste0(", shape = ", theme$construct.compositeB.shape)
+                   "HOCB" = paste0(", shape = ", theme$construct.compositeB.shape),
+                   "UNIT" = paste0(", shape = ", theme$construct.compositeB.shape)
   )
   return(result)
 }
@@ -1353,7 +1354,8 @@ get_mm_node_shape <- function(model, construct, theme) {
                    "B" = paste0(", shape = ", theme$manifest.compositeB.shape),
                    "A" = paste0(", shape = ", theme$manifest.compositeA.shape),
                    "HOCA" = paste0(", shape = ", theme$manifest.compositeA.shape),
-                   "HOCB" = paste0(", shape = ", theme$manifest.compositeB.shape)
+                   "HOCB" = paste0(", shape = ", theme$manifest.compositeB.shape),
+                   "UNIT" = paste0(", shape = ", theme$construct.compositeB.shape)
   )
   return(result)
 }
