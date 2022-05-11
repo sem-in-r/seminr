@@ -981,7 +981,8 @@ get_sm_node_shape <- function(model, construct, theme) {
                    "B" = paste0(", shape = ", theme$construct.compositeB.shape),
                    "A" = paste0(", shape = ", theme$construct.compositeA.shape),
                    "HOCA" = paste0(", shape = ", theme$construct.compositeA.shape),
-                   "HOCB" = paste0(", shape = ", theme$construct.compositeB.shape)
+                   "HOCB" = paste0(", shape = ", theme$construct.compositeB.shape),
+                   "UNIT" = paste0(", shape = ", theme$construct.compositeB.shape)
   )
   return(result)
 }
@@ -1353,7 +1354,8 @@ get_mm_node_shape <- function(model, construct, theme) {
                    "B" = paste0(", shape = ", theme$manifest.compositeB.shape),
                    "A" = paste0(", shape = ", theme$manifest.compositeA.shape),
                    "HOCA" = paste0(", shape = ", theme$manifest.compositeA.shape),
-                   "HOCB" = paste0(", shape = ", theme$manifest.compositeB.shape)
+                   "HOCB" = paste0(", shape = ", theme$manifest.compositeB.shape),
+                   "UNIT" = paste0(", shape = ", theme$construct.compositeB.shape)
   )
   return(result)
 }
@@ -1378,7 +1380,7 @@ get_mm_edge_style <- function(theme, construct_type, flip = FALSE){
   if (construct_type == "A" || construct_type == "HOCA") {
     direction <- theme$construct.compositeA.arrow
   }
-  if (construct_type == "B" || construct_type == "HOCB") {
+  if (construct_type == "B" || construct_type == "HOCB" || construct_type == "UNIT") {
     direction <- theme$construct.compositeB.arrow
   }
 
@@ -1476,7 +1478,7 @@ use_construct_weights <- function(theme, construct_type) {
   if (construct_type == "A" || construct_type == "HOCA") {
     return(theme$construct.compositeA.use_weights)
   }
-  if (construct_type == "B" || construct_type == "HOCB") {
+  if (construct_type == "B" || construct_type == "HOCB" || construct_type == "UNIT") {
     return(theme$construct.compositeB.use_weights)
   }
 
@@ -1520,7 +1522,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     construct_variable = mm_matrix_subset[i, 1]
 
     use_weights <- use_construct_weights(theme,
-                                         get_construct_type(model, construct_variable))
+                                                  get_construct_type(model, construct_variable))
 
 
     # If interaction variable, we skip
