@@ -110,10 +110,10 @@ estimate_pls <- function(data,
   data[data == missing_value] <- NA
   rawdata <- data
   if (!is.null(model)) {
-    data <- data[,seminr:::all_loc_non_int_items(model$measurement_model)]
+    data <- data[,all_loc_non_int_items(model$measurement_model)]
 
   } else {
-    data <- data[,seminr:::all_loc_non_int_items(measurement_model)]
+    data <- data[,all_loc_non_int_items(measurement_model)]
   }
   data <- missing(data)
   data <- stats::na.omit(data)

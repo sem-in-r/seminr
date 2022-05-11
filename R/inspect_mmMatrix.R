@@ -33,7 +33,7 @@ construct_items <- function(construct) {
 
 # Get names of all items from measurement model
 all_items <- function(measurement_model) {
-  constructs_only <- seminr:::mm_constructs(measurement_model)
+  constructs_only <- mm_constructs(measurement_model)
   sapply(constructs_only, FUN=construct_items) -> .
   unlist(., use.names = FALSE) -> .
   unique(.)
@@ -41,8 +41,8 @@ all_items <- function(measurement_model) {
 
 all_loc_non_int_items <- function(measurement_model) {
   loc_constructs_only <- loc_constructs(measurement_model)
-  constructs_only <- seminr:::mm_constructs(loc_constructs_only)
-  sapply(constructs_only, FUN=seminr:::construct_items) -> .
+  constructs_only <- mm_constructs(loc_constructs_only)
+  sapply(constructs_only, FUN=construct_items) -> .
   unlist(., use.names = FALSE) -> .
   unique(.)
 }
