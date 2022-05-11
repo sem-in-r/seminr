@@ -51,7 +51,7 @@ test_that("two higher order composits are plotted", {
 
   #seminr syntax for creating measurement model
   mobi_mm <- constructs(
-    composite("Image",        multi_items("IMAG", 1:5)),
+    composite("Image",        multi_items("IMAG", 1:5), weights = unit_weights),
     composite("Expectation",  multi_items("CUEX", 1:3)),
     composite("Quality",      multi_items("PERQ", 1:7)),
     composite("Value",        multi_items("PERV", 1:2)),
