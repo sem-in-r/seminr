@@ -35,7 +35,12 @@ validity <- function(seminr_model) {
 }
 
 cross_loadings <- function(seminr_model, model_constructs) {
-  ret <- stats::cor(seminr_model$data[, seminr_model$mmVariables], model_constructs$construct_scores)
+  if (is.null(seminr_model$hoc)) {
+    all_mm_vars <- seminr_model$mmVariables
+  } else {
+    all_mm_vars <- all_items(seminr_model$measurement_model)
+  }
+  ret <- stats::cor(seminr_model$data[, all_mm_vars], model_constructs$construct_scores)
   convert_to_table_output(ret)
 }
 
