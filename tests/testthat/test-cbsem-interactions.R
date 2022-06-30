@@ -69,7 +69,7 @@ mobi_cbsem <- estimate_cbsem(data = mobi, measurement_model = mobi_mm, structura
 
 cbsem_summary <- summary(mobi_cbsem)
 
-# write_controls(cbsem_summary, "2stage")
+# write_controls(mobi_cbsem,cbsem_summary, "2stage")
 controls <- load_controls(test_folder, "2stage")
 
 test_that("Seminr estimates TWO-STAGE interaction paths correctly\n", {
