@@ -31,7 +31,7 @@ Imports:
 License: GPL-3
 Depends: R (>= 3.5.0)
 LazyData: TRUE
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Enhances: rsvg (>= 2.1),
           semPlot,
           vdiffr
