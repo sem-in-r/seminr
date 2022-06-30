@@ -107,6 +107,8 @@ composite <- function(construct_name, item_names, weights = correlation_weights)
     composite_type = "A"
   } else if (identical(weights, regression_weights)) {
     composite_type = "B"
+  } else if (identical(weights, unit_weights)) {
+    composite_type = "UNIT"
   } else {
     stop("Composites must be defined as mode A (correlation weights) or B (regression weights)")
   }
@@ -204,7 +206,9 @@ single_item <- function(item) {
 #'   )
 #' @export
 higher_reflective <- function(construct_name, dimensions) {
-  reflective(construct_name = construct_name, item_names = dimensions)
+  construct <- reflective(construct_name = construct_name, item_names = dimensions)
+  class(construct) <- c(class(construct)[1], c("construct", "higher_order_reflective"))
+  return(construct)
 }
 
 #' higher_composite
@@ -242,6 +246,8 @@ higher_composite <- function(construct_name, dimensions, method = two_stage,  we
     composite_type = "HOCA"
   } else if (identical(weights, regression_weights)) {
     composite_type = "HOCB"
+  } else if (identical(weights, unit_weights)){
+    composite_type = "UNIT"
   } else {
     stop("Composites must be defined as mode A (correlation weights) or B (regression weights)")
   }

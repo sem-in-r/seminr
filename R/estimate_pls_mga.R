@@ -36,7 +36,10 @@
 #'                          missing_value = NA)
 #'
 #' # Should usually use nboot ~2000 and don't specify cores for full parallel processing
-#' mobi_mga <- estimate_pls_mga(mobi_pls, mobi$CUEX1 < 8, nboot=100, cores = 2)
+#'
+#' mobi_mga <- estimate_pls_mga(mobi_pls, mobi$CUEX1 < 8, nboot=50, cores = 2)
+#'
+#' @references Henseler, J., Ringle, C. M. & Sinkovics, R. R. New Challenges to International Marketing. Adv Int Marketing 277–319 (2009) doi:10.1108/s1474-7979(2009)0000020014
 #'
 #' @export
 estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
@@ -45,12 +48,6 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
   # Given a beta report matrix (paths as rows) get estimates form a path_coef matrix
   path_estimate <- function(path, path_coef) {
     path_coef[path["source"], path["target"]]
-  }
-
-  # Get all path estimates of a given beta metrix from a given path_coef matrix
-  # Typically used to apply on 3rd dimension of a 3x3 bootstrap paths array [from,to,boot]
-  boot_paths <- function(path_coef, beta_df) {
-    betas <- apply(beta_df, MARGIN=1, FUN=path_estimate, path_coef = path_coef)
   }
 
   # Allocate and Estimate Two Alternative Datasets + Models
@@ -67,7 +64,7 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
 
   message("Computing similarity of groups")
   # Produce beta report matrix on all paths (as rows)
-  beta <- as.data.frame(pls_model$smMatrix[,c("source", "target")])
+  beta <- as.data.frame(pls_model$smMatrix[,c("source", "target"), drop = F])
   path_names <- do.call(paste0, cbind(beta["source"], " -> ", beta["target"]))
   rownames(beta) <- path_names
   beta$estimate <- apply(beta, MARGIN = 1, FUN=path_estimate, path_coef = pls_model$path_coef)
@@ -79,11 +76,8 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
   beta$diff <- apply(beta, MARGIN = 1, FUN=path_estimate, path_coef = beta_diff)
 
   # Get bootstrapped paths for both groups
-  boot1_betas <- t(apply(group1_boot$boot_paths, MARGIN=3, FUN=boot_paths, beta_df=beta))
-  colnames(boot1_betas) <- path_names
-
-  boot2_betas <- t(apply(group2_boot$boot_paths, MARGIN=3, FUN=boot_paths, beta_df=beta))
-  colnames(boot2_betas) <- path_names
+  boot1_betas <- boot_paths_df(group1_boot)
+  boot2_betas <- boot_paths_df(group2_boot)
 
   # PLSc may not resolve in some bootstrap runs - limit bootstrap paths to resolved number of boots
   J <- min(dim(boot1_betas)[1], dim(boot2_betas)[1])

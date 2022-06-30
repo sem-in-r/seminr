@@ -106,6 +106,7 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
   message("Generating the seminr model for CBSEM")
 
   # TODO: consider higher order models (see estimate_pls() function for template)
+  rawdata <- data
 
   if (is.null(lavaan_model)) {
     # Extract model specifications
@@ -143,20 +144,25 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
     mmMatrix <- post_interaction_object$mmMatrix
   }
 
+  # Estimate cbsem in Lavaan
   lavaan_output <- try_or_stop(
     lavaan::sem(
       model=lavaan_model, data=data, std.lv = TRUE, estimator=estimator, ...),
     "estimating CBSEM using Lavaan"
   )
 
-  # Inspect results
-  constructs <- all_construct_names(measurement_model)
+  # Extract lavaan results
+  constructs <- all_construct_names(measurement_model) # needed in object for reliability... move up if lavaan_model no longer supported
   lavaan_std <- lavaan::lavInspect(lavaan_output, what="std")
-  loadings <- lavaan_std$lambda
-  class(loadings) <- "matrix"
-  tenB <- estimate_lavaan_ten_berge(lavaan_output)
+  HOFs <- HOCs_in_model(measurement_model, structural_model)
+  if (length(HOFs) > 0) {
+    loadings <- combine_first_order_second_order_loadings_cbsem(mmMatrix, rawdata, lavaan_std)
+  } else {
+    loadings <- lavaan_std$lambda
+    class(loadings) <- "matrix"
+  }
 
-  # Path Coefficients Table
+  # Arrange Coefficients Table
   estimates <- lavaan::standardizedSolution(lavaan_output)
   path_df <- estimates[estimates$op == "~",]
   all_antecedents <- all_exogenous(smMatrix)
@@ -165,9 +171,13 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
                                 all_antecedents, all_outcomes)
   rownames(path_matrix) <- gsub("_x_", "*", all_antecedents)
 
+  # Compute results from our own methods
+  tenB <- estimate_lavaan_ten_berge(lavaan_output)
+
   # Gather model information
   seminr_model <- list(
     data = data,
+    rawdata = rawdata,
     measurement_model = measurement_model,
     factor_loadings = loadings,
     associations = item_associations,
@@ -237,7 +247,7 @@ estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
   # warnings(measurement_model, data, structural_model)
 
   mmMatrix <- NULL
-
+  rawdata <- data
   if (is.null(lavaan_model)) {
     # Extract specified models
     specified_model <- extract_models(
@@ -245,6 +255,7 @@ estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
     )
     measurement_model <- specified_model$measurement_model
     item_associations <- specified_model$item_associations
+    constructs <- all_construct_names(measurement_model)
 
     # Create LAVAAN syntax
     mmMatrix <- mm2matrix(measurement_model)
@@ -257,19 +268,32 @@ estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
                           sep="\n\n")
   }
 
-  # Run the model in LAVAAN
+  # Estimate cfa in Lavaan
   lavaan_output <- try_or_stop(
     lavaan::cfa(model=lavaan_model, data=data, std.lv = TRUE,
                 estimator=estimator, ...),
     "run CFA in Lavaan"
   )
 
+  # Extract Lavaan results
+  lavaan_std <- lavaan::lavInspect(lavaan_output, what="std")
+  HOFs <- HOCs_in_model(measurement_model)
+  if (length(HOFs) > 0) {
+    loadings <- combine_first_order_second_order_loadings_cbsem(mmMatrix, rawdata, lavaan_std)
+  } else {
+    loadings <- lavaan_std$lambda
+    class(loadings) <- "matrix"
+  }
+
+  # Compute results from our own methods
   tenB <- estimate_lavaan_ten_berge(lavaan_output)
 
   # Gather model information
   seminr_model <- list(
     data = data,
     measurement_model = measurement_model,
+    factor_loadings = loadings,
+    constructs = constructs,
     construct_scores = tenB$scores,
     item_weights = tenB$weights,
     lavaan_model = lavaan_model,

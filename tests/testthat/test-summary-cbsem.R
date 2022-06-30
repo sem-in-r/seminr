@@ -105,3 +105,8 @@ test_that("Summary of CFA has proper structure", {
   expect_equal(seminr:::traverse_names(cfa_summary),
                seminr:::traverse_names(cfa_summary_tree))
 })
+
+test_that("Summary of CFA has reliability values", {
+  expect_equal(nrow(cfa_summary$quality$reliability), 3)
+  expect_true(all(cfa_summary$quality$reliability > 0))
+})

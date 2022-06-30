@@ -1,8 +1,8 @@
 Package: seminr
 Type: Package
 Title: Building and Estimating Structural Equation Models
-Version: 2.2.1
-Date: 2021-09-01
+Version: 2.3.0
+Date: 2022-01-04
 Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("aut", "ths")),
              person("Nicholas Patrick", "Danks", email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
              person("André", "Calero Valdez", role = "aut", email = "andrecalerovaldez@gmail.com"),
@@ -31,7 +31,7 @@ Imports:
 License: GPL-3
 Depends: R (>= 3.5.0)
 LazyData: TRUE
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.0
 Enhances: rsvg (>= 2.1),
           semPlot,
           vdiffr

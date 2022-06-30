@@ -5,10 +5,12 @@
 #'
 #' @param seminr_model A \code{seminr_model} containing the estimated seminr model.
 #'
+#' @param constructs A vector containing the names of the constructs to calculate rhoA for.
+#'
 #' @return A matrix containing the rhoA metric for each construct.
 #'
 #' @usage
-#' rho_A(seminr_model)
+#' rho_A(seminr_model, constructs)
 #'
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
 #'          \code{\link{bootstrap_model}}
@@ -40,19 +42,18 @@
 #'                            measurement_model = mobi_mm,
 #'                            structural_model = mobi_sm)
 #'
-#' rho_A(mobi_pls)
+#' rho_A(mobi_pls, mobi_pls$constructs)
 #' @export
 # rho_A as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
-rho_A <- function(seminr_model) {
-  # get construct variable scores and weights for each construct
-  constructscores <- seminr_model$construct_scores
+rho_A <- function(seminr_model, constructs) {
+  # get weights for each construct
   weights <- seminr_model$outer_weights
   # get the mmMatrix and smMatrix
   mmMatrix <- seminr_model$mmMatrix
-  smMatrix <- seminr_model$smMatrix
   obsData <- seminr_model$data
+
   # Create rho_A holder matrix
-  rho <- matrix(, nrow = ncol(constructscores), ncol = 1, dimnames = list(colnames(constructscores), c("rhoA")))
+  rho <- matrix(, nrow = length(constructs), ncol = 1, dimnames = list(constructs, c("rhoA")))
 
   for (i in rownames(rho))  {
     #If the measurement model is Formative assign rhoA = 1
@@ -60,7 +61,7 @@ rho_A <- function(seminr_model) {
       rho[i, 1] <- 1
     }
     #If the measurement model is Reflective Calculate RhoA
-    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1] %in% c("C", "A", "HOCA")) {#| mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="A"|){
+    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1] %in% c("C", "A", "HOCA", "UNIT")) {#| mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="A"|){
       #if the construct is a single item rhoA = 1
       if(nrow(mmMatrix_per_construct(i, mmMatrix)) == 1 | grepl("\\*", i)) {
         rho[i, 1] <- 1
@@ -83,14 +84,15 @@ rhoC_AVE <- function(x, ...) {
   UseMethod("rhoC_AVE", x)
 }
 
-rhoC_AVE.pls_model <- rhoC_AVE.boot_seminr_model <- function(pls_model){
-  dgr <- matrix(NA, nrow=length(pls_model$constructs), ncol=2)
-  rownames(dgr) <- pls_model$constructs
+rhoC_AVE.pls_model <- rhoC_AVE.boot_seminr_model <- function(pls_model, constructs){
+  dgr <- matrix(NA, nrow=length(constructs), ncol=2)
+
+  rownames(dgr) <- constructs
   colnames(dgr) <- c("rhoC", "AVE")
-  for(i in pls_model$constructs){
+  for(i in constructs){
     loadings <- pls_model$outer_loadings[, i]
     ind <- which(loadings != 0)
-    if(measure_mode(i, pls_model$mmMatrix) %in% c("A", "B", "HOCA", "HOCB")) {
+    if(measure_mode(i, pls_model$mmMatrix) %in% c("A", "B", "HOCA", "HOCB", "C", "UNIT")) {
       if(length(ind) == 1) {
         dgr[i, 1:2] <- 1
       } else {
@@ -98,10 +100,6 @@ rhoC_AVE.pls_model <- rhoC_AVE.boot_seminr_model <- function(pls_model){
         dgr[i, 1] <- compute_rhoC(lambdas)
         dgr[i, 2] <- compute_AVE(lambdas)
       }
-    } else {
-      lambdas <- loadings[ind]
-      dgr[i, 1] <- NA
-      dgr[i, 2] <- compute_AVE(lambdas)
     }
   }
   return(dgr)
@@ -130,15 +128,13 @@ rhoC_AVE.cbsem_model <- rhoC_AVE.cfa_model <-  function(seminr_model) {
 cron_alpha <- function(cov_mat) {
   k <- nrow(cov_mat)
   cov_i <- sum(diag(cov_mat))
-  # mean_cov <- mean(cov_mat[upper.tri(cov_mat)])
-  # alpha <- (k^2*mean_cov)/sum(cov_mat)
   alpha <- (k/(k-1))*(1 - (cov_i/sum(cov_mat)))
   return(alpha)
 }
 
-cronbachs_alpha <- function(seminr_model) {
+cronbachs_alpha <- function(seminr_model, constructs) {
   alpha_vec <- c()
-  for (i in seminr_model$constructs) {
+  for (i in constructs) {
     items <- seminr_model$mmMatrix[seminr_model$mmMatrix[,"construct"] == i,"measurement"]
     if (length(items) > 1) {
       cov_mat <- stats::cor(seminr_model$data, seminr_model$data)[items, items]
