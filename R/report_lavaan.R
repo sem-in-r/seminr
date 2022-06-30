@@ -6,7 +6,7 @@ summarize_cb_measurement <- function(object, alpha=0.05) {
   model <- list(
     item_names       = all_items(object$measurement_model),
     construct_names  = all_construct_names(object$measurement_model),
-    estimation       = lavaan_output@Model@estimator
+    estimation       = lavaan::lavInspect(lavaan_output, "options")$estimator
   )
 
   # Get standardized parameter estimates (won't contain R^2)
@@ -29,8 +29,8 @@ summarize_cb_measurement <- function(object, alpha=0.05) {
       seminr = seminr_info(),
       engine = list(
         pkgname = "lavaan",
-        version = lavaan_output@version,
-        estimator = lavaan_output@Options$estimator
+        version = lavaan::lavInspect(lavaan_output, "version"),
+        estimator = lavaan::lavInspect(lavaan_output, "options")$estimator
       ),
       syntax  = object$lavaan_model,
       call    = lavaan_output@call
