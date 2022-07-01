@@ -71,9 +71,13 @@
 estimate_pls <- function(data, measurement_model=NULL, structural_model=NULL, model=NULL, inner_weights = path_weighting, missing = mean_replacement, missing_value = NA) {
   cat("Generating the seminr model\n")
   data[data == missing_value] <- NA
-  data <- missing(data)
-  data <- stats::na.omit(data)
   rawdata <- data
+  if (!is.null(model)) {
+    data <- data[,all_loc_non_int_items(model$measurement_model)]
+
+  } else {
+    data <- data[,all_loc_non_int_items(measurement_model)]
+  }
 
   # Extract model specifications
   specified_model <- extract_models(model, measurement_model, structural_model)
@@ -81,7 +85,7 @@ estimate_pls <- function(data, measurement_model=NULL, structural_model=NULL, mo
   structural_model <- specified_model$structural_model
 
   # Generate first order model if necessary
-  HOCs <- HOCs_in_sm(measurement_model, structural_model)
+  HOCs <- HOCs_in_model(measurement_model, structural_model)
 
   if ( length(HOCs)>0 ) {
     HOM <- prepare_higher_order_model(data = data,
@@ -133,13 +137,15 @@ estimate_pls <- function(data, measurement_model=NULL, structural_model=NULL, mo
   if ( length(HOCs)>0 ) {
     # Append return list with first stage model and
     seminr_model$first_stage_model <- first_stage_model
-
+    seminr_model$hoc <- TRUE
     # Combine first and second stage measurement model matrices
     new_mm <- combine_first_order_second_order_matrices(model1 = first_stage_model, model2 = seminr_model, mmMatrix)
     seminr_model$outer_loadings <- new_mm$new_outer_loadings
     seminr_model$outer_weights <- new_mm$new_outer_weights
   }
-
+  if(length(processed_measurements$ints)>0) {
+    seminr_model$interaction <- TRUE
+  }
   class(seminr_model) <- c("pls_model", "seminr_model")
   return(seminr_model)
 }

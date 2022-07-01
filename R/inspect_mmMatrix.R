@@ -39,6 +39,14 @@ all_items <- function(measurement_model) {
   unique(.)
 }
 
+all_loc_non_int_items <- function(measurement_model) {
+  loc_constructs_only <- loc_constructs(measurement_model)
+  constructs_only <- mm_constructs(loc_constructs_only)
+  sapply(constructs_only, FUN=construct_items) -> .
+  unlist(., use.names = FALSE) -> .
+  unique(.)
+}
+
 ## Public functions for manipulating mmMatrix or its rows
 
 #' Converts all contructs of a measurement model, or just a single construct
@@ -160,7 +168,7 @@ mm2matrix <- function(measurement_model) {
     return(measurement_model)
   }
 
-  recognized_constructs <- c("composite", "reflective", "higher_order_composite")
+  recognized_constructs <- c("composite", "reflective", "higher_order_composite", "higher_order_reflective")
   construct_measurements <- measurement_model[names(measurement_model) %in% recognized_constructs]
   mmMatrix <- matrix(
     unlist(construct_measurements), ncol = 3, byrow = TRUE,
@@ -173,6 +181,10 @@ mm2matrix <- function(measurement_model) {
 
 mm_constructs <- function(measurement_model) {
   Filter(function(e) {!("interaction" %in% class(e))}, measurement_model)
+}
+
+loc_constructs <- function(measurement_model) {
+  Filter(function(e) {!("higher_order_composite" %in% class(e))}, measurement_model)
 }
 
 # Extract only interaction closures from measurement model
