@@ -26,39 +26,12 @@
 #' @param missing_value Value in dataset that indicates missing values.
 #'   NA is used by default.
 #'
-#' @param maxIt A parameter that specifies that maximum number of iterations when estimating the
-#'   PLS model. Default value is 300.
-#'
-#' @param stopCriterion A parameter specifying the stop criterion for estimating the PLS model.
-#'   Default value is 7.
-#'
-#' @return A list of the estimated parameters for the SEMinR model including:
-#'  \item{meanData}{A vector of the indicator means.}
-#'  \item{sdData}{A vector of the indicator standard deviations}
-#'  \item{mmMatrix}{A Matrix of the measurement model relations.}
-#'  \item{smMatrix}{A Matrix of the structural model relations.}
-#'  \item{constructs}{A vector of the construct names.}
-#'  \item{mmVariables}{A vector of the indicator names.}
-#'  \item{outer_loadings}{The matrix of estimated indicator loadings.}
-#'  \item{outer_weights}{The matrix of estimated indicator weights.}
-#'  \item{path_coef}{The matrix of estimated structural model relationships.}
-#'  \item{iterations}{A numeric indicating the number of iterations required before the algorithm converged.}
-#'  \item{weightDiff}{A numeric indicating the minimum weight difference between iterations of the algorithm.}
-#'  \item{construct_scores}{A matrix of the estimated construct scores for the PLS model.}
-#'  \item{rSquared}{A matrix of the estimated R Squared for each construct.}
-#'  \item{inner_weights}{The inner weight estimation function.}
-#'  \item{data}{A matrix of the data upon which the model was estimated (INcluding interactions.}
-#'  \item{rawdata}{A matrix of the data upon which the model was estimated (EXcluding interactions.}
-#'  \item{measurement_model}{The SEMinR measurement model specification.}
-#'
 #' @usage
 #' estimate_pls(data,
 #'              measurement_model = NULL, structural_model = NULL, model = NULL,
 #'              inner_weights = path_weighting,
 #'              missing = mean_replacement,
-#'              missing_value = NA,
-#'              maxIt = 300,
-#'              stopCriterion = 7)
+#'              missing_value = NA)
 #'
 #' @seealso \code{\link{specify_model}} \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
 #'          \code{\link{bootstrap_model}}
@@ -95,18 +68,8 @@
 #' summary(mobi_pls)
 #' plot_scores(mobi_pls)
 #' @export
-estimate_pls <- function(data,
-                         measurement_model = NULL,
-                         structural_model = NULL,
-                         model = NULL,
-                         inner_weights = path_weighting,
-                         missing = mean_replacement,
-                         missing_value = NA,
-                         maxIt=300,
-                         stopCriterion=7) {
-  # NOTE: update rerun.pls_model() if parameters change!
-
-  message("Generating the seminr model")
+estimate_pls <- function(data, measurement_model=NULL, structural_model=NULL, model=NULL, inner_weights = path_weighting, missing = mean_replacement, missing_value = NA) {
+  cat("Generating the seminr model\n")
   data[data == missing_value] <- NA
   rawdata <- data
   if (!is.null(model)) {
@@ -115,8 +78,6 @@ estimate_pls <- function(data,
   } else {
     data <- data[,all_loc_non_int_items(measurement_model)]
   }
-  data <- missing(data)
-  data <- stats::na.omit(data)
 
   # Extract model specifications
   specified_model <- extract_models(model, measurement_model, structural_model)

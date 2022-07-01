@@ -502,7 +502,7 @@ summary(boot_mobi_pls)
 
 ## Reporting confidence intervals for direct and mediated bootstrapped structural paths
 
-The `summary(boot_seminr_model)` function will return the mean estimate, standard deviation, t_value and confidence intervals for direct structural paths in PLS models. However, the `specific_effect_significance()` function can be used to evaluate the mean estimate, standard deviation, t_value and confidence intervals for specific paths - direct and mediated (Zhao et al., 2010) - in a `boot_seminr_model` object returned by the `bootstrap_model()` function.
+The `summary(boot_seminr_model)` function will return t_values and confidence intervals for direct structural paths in PLS models. However, the `confidence_interval()` function can be used to evaluate the confidence intervals for specific paths - direct and mediated (Zhao et al., 2010) - in a `boot_seminr_model` object returned by the `bootstrap_model()` function.
 
 This function takes the following parameters:
 
@@ -542,11 +542,11 @@ boot_seminr_model <- bootstrap_model(seminr_model = mobi_pls,
                                     nboot = 50, cores = 2, seed = NULL)
 
 # Calculate the 5% confidence interval for mediated path Image -> Expectation -> Satisfaction
-specific_effect_significance(boot_seminr_model = boot_seminr_model,
-                             from = "Image",
-                             through = c("Expectation", "Satisfaction"),
-                             to = "Complaints",
-                             alpha = 0.05)
+confidence_interval(boot_seminr_model = boot_seminr_model,
+                   from = "Image",
+                   through = c("Expectation", "Satisfaction"),
+                   to = "Complaints",
+                   alpha = 0.05)
 
 # Calculate the 10% confidence interval for direct path Image -> Satisfaction
 specific_effect_significance(boot_seminr_model = boot_seminr_model,

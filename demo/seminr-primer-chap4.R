@@ -56,10 +56,10 @@ summary_corp_rep$validity$htmt
 
 # Bootstrap the model
 boot_corp_rep <- bootstrap_model(seminr_model = corp_rep_pls_model,
-                                 nboot = 1000)
+                                 nboot = 10000)
 
 # Store the summary of the bootstrapped model
-sum_boot_corp_rep <- summary(boot_corp_rep, alpha = 0.10)
+sum_boot_corp_rep <- summary(boot_corp_rep)
 
 # Extract the bootstrapped HTMT
 sum_boot_corp_rep$bootstrapped_HTMT

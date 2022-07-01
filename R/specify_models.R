@@ -13,8 +13,6 @@
 #'   This matrix is created by \code{associations()}, or defaults to NULL
 #'   (no inter-item associations).
 #'
-#' @return A list containing a SEMinR measurement model, structural model, and item associations.
-#'
 #' @seealso \code{\link{estimate_pls}} \code{\link{estimate_cbsem}} \code{\link{estimate_cfa}}
 #'
 #' @export

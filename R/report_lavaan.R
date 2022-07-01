@@ -1,5 +1,5 @@
 # Creates summary statistics for a cbsem object for summary and print functions
-summarize_cb_measurement <- function(object, alpha=0.05) {
+summarize_cb_measurement <- function(object) {
   lavaan_output <- object$lavaan_output
   estimates <- lavaan::standardizedSolution(lavaan_output)
 
@@ -49,8 +49,8 @@ summarize_cb_measurement <- function(object, alpha=0.05) {
   )
 }
 
-summarize_cb_structure <- function(object, alpha=0.05) {
-  estimates <- lavaan::standardizedSolution(object$lavaan_output, level=1-alpha)
+summarize_cb_structure <- function(object) {
+  estimates <- lavaan::standardizedSolution(object$lavaan_output)
 
   # Capture structural relationship information
   all_antecedents <- all_exogenous(object$smMatrix)

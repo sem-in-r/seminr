@@ -22,9 +22,6 @@ covariances that are freed for estimation.
 This matrix is created by \code{associations()}, or defaults to NULL
 (no inter-item associations).}
 }
-\value{
-A list containing a SEMinR measurement model, structural model, and item associations.
-}
 \description{
 Combines model components together into a single \code{specified_model} object for estimation functions
 }

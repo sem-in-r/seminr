@@ -54,14 +54,9 @@ plot.seminr_model <- function(x,
     }
 
     # actual plotting
-    if(requireNamespace("DiagrammeR", quietly = TRUE)){
-      res <- DiagrammeR::grViz(dot_graph(model, title, theme, ...))
-      set_last_seminr_plot(res)
-      return(res)
-    } else {
-      return(NULL)
-    }
-
+    res <- DiagrammeR::grViz(dot_graph(model, title, theme, ...))
+    set_last_seminr_plot(res)
+    return(res)
 }
 
 
@@ -140,21 +135,11 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
   query_install("DiagrammeRsvg")
   query_install("rsvg")
 
-  # prevent failure quietly
-  if(!requireNamespace("DiagrammeRsvg", quietly = TRUE)){
-    return(NULL)
-  }
-  if(!requireNamespace("rsvg", quietly = TRUE)){
-    return(NULL)
-  }
-
-
   if (is.null(plot)) {
     stop("No compatible plot was created.")
   }
 
   # generate svg string
-
   svg <- charToRaw( DiagrammeRsvg::export_svg(plot) )
 
   file_extension <- tolower(tools::file_ext(filename))
@@ -249,7 +234,7 @@ dot_graph <- function(model,
 
 #' Plotting of confirmatory factor analysis models using semPLOT
 #'
-#' For a full description of parameters for lavaan models see semPaths method in the semPlot package.
+#' For a full description of parameters for lavaan models see \link[semPlot]{semPaths}
 #'
 #' @rdname dot_graph
 #' @param model the CFA model
@@ -261,11 +246,7 @@ dot_graph <- function(model,
 #' @export
 dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
   query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
-  if(requireNamespace("semPlot", quietly = TRUE)){
-    return(semPlot::semPaths(model$lavaan_output, what = what, whatLabels = whatLabels,...))
-  } else {
-    return("")
-  }
+  semPlot::semPaths(model$lavaan_output, what = what, whatLabels = whatLabels,...)
 }
 
 #' Plotting of covariance based SEMs models using semPLOT
@@ -280,13 +261,7 @@ dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", w
 #' @export
 dot_graph.cbsem_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
   query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
-  if(requireNamespace("semPlot", quietly = TRUE)){
-    return(
-      semPlot::semPaths(model$lavaan_output, what = what, whatLabels = whatLabels,...)
-    )
-  } else {
-    return("")
-  }
+  semPlot::semPaths(model$lavaan_output, what = what, whatLabels = whatLabels,...)
 }
 
 #' @export
@@ -784,7 +759,7 @@ extract_bootstrapped_values <- function(ltbl, row_index, model, theme) {
     mean = round(ltbl[rownames(ltbl) == row_index, 1], theme$plot.rounding),
     lower = round(ltbl[rownames(ltbl) == row_index, 5], theme$plot.rounding),
     upper = round(ltbl[rownames(ltbl) == row_index, 6], theme$plot.rounding),
-    tvalue = round(t_value, theme$plot.rounding),
+    t = round(t_value, theme$plot.rounding),
     p = pvalue
   )
 }
@@ -875,7 +850,7 @@ dot_component_sm_parts <- function(model, theme){
 #' @param structure_only is this called in a structure_only model
 #'
 #' @return Returns a string of the structural model in dot notation.
-extract_sm_nodes <- function(model, theme, structure_only = FALSE) {
+extract_sm_nodes <- function(model, theme, structure_only = F) {
   sm_nodes <- model$constructs
 
 
@@ -1070,7 +1045,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
 
       # show element depending on theme
       if (theme$sm.edge.boot.show_t_value) {
-        tvalue <- paste0("t = ", round(boot_values[["tvalue"]], theme$plot.rounding))
+        tvalue <- paste0("t = ", round(boot_values[["t"]], theme$plot.rounding))
       } else
         tvalue <- ""
 
@@ -1164,44 +1139,6 @@ get_value_dependent_sm_edge_style <- function(value, theme){
 
 # ___________________  ----
 # 2. Measurement Model ----------------------
-
-
-
-#' Tests whether the i_th construct is endogenous or not
-#'
-#' @param model the model object
-#' @param index the index of the construct to test
-#'
-#' @return whether the construct is endogenous or not
-#' @export
-is_sink <- function(model, index) {
-  # get the mm_coding
-  mm_coding <- extract_mm_coding(model)
-
-
-  # Code explanation
-  # as the lower order constructs are not part of the structural model,
-  # we cannot extract their coding directly
-
-  # where does the indexed construct appear as a measurement?
-  idx <- model$mmMatrix[,2] == mm_coding[index, 1]
-  #get that construct's type
-  index_type <- model$mmMatrix[idx,3]
-  # is it a HOC?
-  is_higher_order_measurement <- startsWith(index_type, "HOC")
-
-  if(any(is_higher_order_measurement)) {
-    # cannot be sink
-    return(FALSE)
-  }
-
-  # otherwise test if it never appears in source
-  issink <- !any(mm_coding[index, ] %in% model$smMatrix[,1])
-
-  return(issink)
-}
-
-
 #' Generates the dot code for the measurement model
 #'
 #' @param model the model to use
@@ -1259,8 +1196,7 @@ dot_subcomponent_mm <- function(index, model, theme) {
   #}
 
   construct_type <- get_construct_type(model, mm_coding[index, 1])
-  flip <- is_sink(model, index)
-  edge_style <- get_mm_edge_style(theme, construct_type, flip)
+  edge_style <- get_mm_edge_style(theme, construct_type)
 
   nodes <- extract_mm_nodes(index, model, theme)
   edges <- extract_mm_edges(index, model, theme)
@@ -1370,9 +1306,7 @@ get_mm_node_shape <- function(model, construct, theme) {
 #'
 #' @param theme the theme to use
 #' @param construct_type Forward direction?
-#' @param flip invert the arrow direction because of sink?
-get_mm_edge_style <- function(theme, construct_type, flip = FALSE){
-
+get_mm_edge_style <- function(theme, construct_type){
   # read direction for matching construct type from theme
   if (construct_type == "C") {
     direction <- theme$construct.reflective.arrow
@@ -1382,16 +1316,6 @@ get_mm_edge_style <- function(theme, construct_type, flip = FALSE){
   }
   if (construct_type == "B" || construct_type == "HOCB" || construct_type == "UNIT") {
     direction <- theme$construct.compositeB.arrow
-  }
-
-  # flip the direction if sink
-  if(flip){
-    if(direction == "forward") {
-      direction <- "backward"
-    } else
-    if(direction == "backward") {
-      direction <- "forward"
-    }
   }
 
   # generate arrows from direction
@@ -1557,7 +1481,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
 
       if (theme$mm.edge.boot.show_t_value) {
         tvalue <-
-          paste0("t = ", round(boot_values[["tvalue"]], theme$plot.rounding))
+          paste0("t = ", round(boot_values[["t"]], theme$plot.rounding))
       }
       if (theme$mm.edge.boot.show_p_value) {
         pvalue <- paste0("p ", pvalr(boot_values[["p"]], html = TRUE))
@@ -1592,22 +1516,13 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     edge_style <-
       get_value_dependent_mm_edge_style(loading, theme)
 
-    if(is_sink(model,index)) {
-      source_node <- mm_matrix_subset[i, 1]
-      target_node <- mm_matrix_subset[i, 2]
-    } else {
-      # TODO flip edges
-      source_node <- mm_matrix_subset[i, 2]
-      target_node <- mm_matrix_subset[i, 1]
-    }
-
     # append edge
     edges <- paste0(
       edges,
       "\"",
-      source_node,
+      mm_matrix_subset[i, 2],
       "\" -> {\"",
-      target_node,
+      mm_matrix_subset[i, 1],
       "\"}",
       "[weight = ",
       weights,

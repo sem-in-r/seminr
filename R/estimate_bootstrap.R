@@ -322,7 +322,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       seminr_model$boots <- nboot
       seminr_model$seed <- seed
       class(seminr_model) <- c("boot_seminr_model", "seminr_model")
-      message("SEMinR Model successfully bootstrapped")
+      cat("SEMinR Model successfully bootstrapped")
       return(seminr_model)
     },
     error = function(cond) {

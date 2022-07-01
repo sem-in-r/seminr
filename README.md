@@ -14,13 +14,13 @@ models (SEM). It allows estimation using either covariance-based SEM
 (CBSEM, such as LISREL/Lavaan), or Partial Least Squares Path Modeling
 (PLS-PM, such as SmartPLS/semPLS).
 
--   [First Look](#first-look)
--   [Installation](#installation)
--   [Usage and Examples](#usage-and-examples)
--   [Documentation](#documentation)
--   [Partner Projects](#partner-projects)
--   [Contact Us](#contact-us)
--   [About Us](#about-us)
+  - [First Look](#first-look)
+  - [Installation](#installation)
+  - [Usage and Examples](#usage-and-examples)
+  - [Documentation](#documentation)
+  - [Partner Projects](#partner-projects)
+  - [Contact Us](#contact-us)
+  - [About Us](#about-us)
 
 ## First Look
 
@@ -302,7 +302,7 @@ for individual plots as a parameter or set as a default. Using the
 
 ``` r
 # Tip: auto complete is your friend in finding all possible themeing options.
-thm <- seminr_theme_create(plot.rounding = 2, plot.adj = FALSE, 
+thm <- seminr_theme_create(plot.rounding = 2, plot.adj = F, 
                            sm.node.fill = "cadetblue1",
                            mm.node.fill = "lightgray")
 # change new default theme - valid until R is restarted
@@ -370,22 +370,14 @@ Model Specification:
     differences between subgroups using PLS-MGA
 -   [seminr-plsc-ecsi](demo/seminr-plsc-ecsi.R): Run PLSc to emulate
     common factors using in PLSc
-
-Model Visualization:
-
--   [seminr-dot-graph](demo/seminr-pls-dot-graph.R): Create a plot from
-    a SEM model
-
-Syntax Style:
-
--   [seminr-alternative-models](demo/seminr-alternative-models.R): Reuse
-    measurement and structural components in multiple models
--   [seminr-style-contained](demo/seminr-style-contained.R): Create and
-    execute a SEM model in one function call
+  - [seminr-style-contained.R](demo/seminr-style-contained.R): Create
+    and execute a SEM model in one function call
+  - [seminr-dot-graph.R](demo/seminr-pls-dot-graph.R): Create a plot
+    from a SEM model
 
 ## Sister Projects
 
--   [seminrstudio](https://github.com/sem-in-r/seminrstudio): A set of
+  - [seminrstudio](https://github.com/sem-in-r/seminrstudio): A set of
     addins for RStudio to simplify using SEMinR.
 
 ## Partner Projects
@@ -393,14 +385,14 @@ Syntax Style:
 We communicate and collaborate with several other open-source projects
 on SEM related issues.
 
--   [plspm package for R](https://github.com/gastonstat/plspm): an early
+  - [plspm package for R](https://github.com/gastonstat/plspm): an early
     and limited PLS path modeling package for R that inspired the
     development of SEMinR, among others; it is no longer maintained.
--   [plspm package for
+  - [plspm package for
     Python](https://github.com/GoogleCloudPlatform/plspm-python): a
     well-maintained PLS modeling pakage for Python; it is tested against
     SEMinR and borrows some syntactic ideas from SEMinR.
--   [cSEM](https://github.com/M-E-Rademaker/cSEM): a well-maintained and
+  - [cSEM](https://github.com/M-E-Rademaker/cSEM): a well-maintained and
     comprehensive composite analysis project implementing PLS and GSCA
     for R, using Lavaan style syntax
 
@@ -420,18 +412,18 @@ features for consideration.
 
 Primary Authors:
 
--   [Soumya Ray](https://soumyaray.com)
--   [Nicholas Danks](https://nicholasdanks.com)
--   [André Calero Valdez](https://calerovaldez.com/)
+  - [Soumya Ray](https://soumyaray.com)
+  - [Nicholas Danks](https://nicholasdanks.com)
+  - [André Calero Valdez](https://calerovaldez.com/)
 
 Key Contributors:
 
--   [James Uanhoro](https://www.jamesuanhoro.com/) (ten Berge factor
+  - [James Uanhoro](https://www.jamesuanhoro.com/) (ten Berge factor
     extraction, advice on covariance-based methods)
 -   [Arturo Heynar Cano
     Bejar](https://www.iss.nthu.edu.tw/PhD/PhD-Students/arturo-h-cano-bejar)
     (evaluation and testing of PLS and CBSEM models)
--   [Johannes Nakayama](https://github.com/JohannesNakayama)
+  - [Johannes Nakayama](https://github.com/JohannesNakayama)
     (contributions to the model visualization functionality)
 
 And many thanks to the growing number of folks who have reached out with

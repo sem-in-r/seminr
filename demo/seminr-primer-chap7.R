@@ -43,20 +43,19 @@ summary_corp_rep_ext <- summary(corp_rep_pls_model_ext)
 # Bootstrap the model ----
 boot_corp_rep_ext <- bootstrap_model(
   seminr_model = corp_rep_pls_model_ext,
-  nboot = 1000,
+  nboot = 10000,
   cores = parallel::detectCores(),
   seed = 123)
 
 # Summarize the results of the bootstrap
 summary_boot_corp_rep_ext <- summary(boot_corp_rep_ext, alpha = 0.05)
 
-# Inspect total indirect effects
+# Inspect indirect effects
 summary_corp_rep_ext$total_indirect_effects
 
-# Inspect indirect effects
-specific_effect_significance(boot_corp_rep_ext, from = "COMP", through = "CUSA", to = "CUSL", alpha = 0.05)
-specific_effect_significance(boot_corp_rep_ext, from = "LIKE", through = "CUSA", to = "CUSL", alpha = 0.05)
-
+# Obtain confidence intervals for indirect effects
+total_indirect_ci(boot_corp_rep_ext, from = "COMP", to = "CUSL", alpha = 0.05)
+total_indirect_ci(boot_corp_rep_ext, from = "LIKE", to = "CUSL", alpha = 0.05)
 # Inspect the direct effects
 summary_corp_rep_ext$paths
 
