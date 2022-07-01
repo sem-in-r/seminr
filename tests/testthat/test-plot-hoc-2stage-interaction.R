@@ -3,7 +3,7 @@ test_that("higher order composits are plotted", {
   set.seed(123)
   mobi <- mobi
   mobi_mm <- constructs(
-    composite("Image",        multi_items("IMAG", 1:5), weights = unit_weights),
+    composite("Image",        multi_items("IMAG", 1:5)),
     composite("Expectation",  multi_items("CUEX", 1:3)),
     composite("Quality",      multi_items("PERQ", 1:5)),
     composite("Loyalty",      multi_items("CUSL", 1:3)),

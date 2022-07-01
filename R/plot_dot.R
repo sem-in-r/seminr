@@ -315,12 +315,9 @@ dot_graph.measurement_model <-
   as.data.frame(mm) -> mmodel
 
   hocs <- model$higher_order_composite
-
+  hocs
   a_model <- list(measurement_model = model,
                 mmMatrix = mm,
-                smMatrix = matrix(rep(unique(mmodel$construct),2),
-                                  ncol = 2,
-                                  nrow = length(unique(mmodel$construct))),
                 outer_weights = matrix(c(1), # add only 1s
                                        ncol = length(unique(mmodel$construct) ),
                                        dimnames = list(unique(mmodel$measurement),
@@ -336,13 +333,11 @@ dot_graph.measurement_model <-
                 constructs = unique(mmodel$construct),
                 mmVariables = unique(mmodel$measurement)
   )
-  if (length(hocs) > 0) {
-    a_model$hoc <- TRUE
-  }
+
   class(a_model) <- "pls_model"
 
 
-  # adjust themes to correct for artifical information
+  # adjust themes to correct for aritifical information
   thm$mm.edge.width_multiplier <- 1
   thm$mm.edge.label.show <- FALSE
   dot_graph(a_model, title = title, theme = thm, measurement_only = TRUE)
@@ -956,8 +951,7 @@ get_sm_node_shape <- function(model, construct, theme) {
                    "B" = paste0(", shape = ", theme$construct.compositeB.shape),
                    "A" = paste0(", shape = ", theme$construct.compositeA.shape),
                    "HOCA" = paste0(", shape = ", theme$construct.compositeA.shape),
-                   "HOCB" = paste0(", shape = ", theme$construct.compositeB.shape),
-                   "UNIT" = paste0(", shape = ", theme$construct.compositeB.shape)
+                   "HOCB" = paste0(", shape = ", theme$construct.compositeB.shape)
   )
   return(result)
 }
@@ -1149,13 +1143,7 @@ dot_component_mm <- function(model, theme) {
                                 "// ---------------------\n"))
 
   # we use mmMatrix because model$constructs does not contain HOCs
-  if (is.null(model$hoc)) {
-    mm_count <- length(intersect(unique(model$smMatrix),unique(model$mmMatrix[,1 ])))
-  } else {
-    mm_count <- length(intersect(unique(c(model$smMatrix, model$first_stage_model$smMatrix)),unique(model$mmMatrix[,1 ])))
-  }
-
-
+  mm_count <- length(unique(model$mmMatrix[,1 ]))
   for (i in 1:mm_count) {
     sub_component <- dot_subcomponent_mm(i, model, theme)
     sub_components_mm <- c(sub_components_mm, sub_component)
@@ -1221,13 +1209,19 @@ dot_subcomponent_mm <- function(index, model, theme) {
 #'
 #' @param model the model to use
 extract_mm_coding <- function(model) {
+  construct_names <- c()
+  construct_types <- c()
+
   # iterate over all constructs in the mmMatrix
-  constructs <- constructs_in_model(model)
+  for (construct in unique(model$mmMatrix[,1 ])) {
+    construct_names <- c(construct_names, construct)
+    construct_types <- c(construct_types, get_construct_type(model, construct))
+  }
 
   # create output matrix
-  mm_coding <- matrix(nrow = length(constructs$construct_names),
+  mm_coding <- matrix(nrow = length(construct_names),
                       ncol = 2,
-                      data = c(constructs$construct_names, constructs$construct_types))
+                      data = c(construct_names, construct_types))
   colnames(mm_coding) <- c("name", "type")
   return(mm_coding)
 }
@@ -1290,8 +1284,7 @@ get_mm_node_shape <- function(model, construct, theme) {
                    "B" = paste0(", shape = ", theme$manifest.compositeB.shape),
                    "A" = paste0(", shape = ", theme$manifest.compositeA.shape),
                    "HOCA" = paste0(", shape = ", theme$manifest.compositeA.shape),
-                   "HOCB" = paste0(", shape = ", theme$manifest.compositeB.shape),
-                   "UNIT" = paste0(", shape = ", theme$construct.compositeB.shape)
+                   "HOCB" = paste0(", shape = ", theme$manifest.compositeB.shape)
   )
   return(result)
 }
@@ -1314,7 +1307,7 @@ get_mm_edge_style <- function(theme, construct_type){
   if (construct_type == "A" || construct_type == "HOCA") {
     direction <- theme$construct.compositeA.arrow
   }
-  if (construct_type == "B" || construct_type == "HOCB" || construct_type == "UNIT") {
+  if (construct_type == "B" || construct_type == "HOCB") {
     direction <- theme$construct.compositeB.arrow
   }
 
@@ -1402,7 +1395,7 @@ use_construct_weights <- function(theme, construct_type) {
   if (construct_type == "A" || construct_type == "HOCA") {
     return(theme$construct.compositeA.use_weights)
   }
-  if (construct_type == "B" || construct_type == "HOCB" || construct_type == "UNIT") {
+  if (construct_type == "B" || construct_type == "HOCB") {
     return(theme$construct.compositeB.use_weights)
   }
 
@@ -1446,7 +1439,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     construct_variable = mm_matrix_subset[i, 1]
 
     use_weights <- use_construct_weights(theme,
-                                                  get_construct_type(model, construct_variable))
+                                         get_construct_type(model, construct_variable))
 
 
     # If interaction variable, we skip

@@ -4,12 +4,10 @@
 \alias{rho_A}
 \title{seminr rho_A Function}
 \usage{
-rho_A(seminr_model, constructs)
+rho_A(seminr_model)
 }
 \arguments{
 \item{seminr_model}{A \code{seminr_model} containing the estimated seminr model.}
-
-\item{constructs}{A vector containing the names of the constructs to calculate rhoA for.}
 }
 \value{
 A matrix containing the rhoA metric for each construct.
@@ -43,7 +41,7 @@ mobi_pls <- estimate_pls(data = mobi,
                            measurement_model = mobi_mm,
                            structural_model = mobi_sm)
 
-rho_A(mobi_pls, mobi_pls$constructs)
+rho_A(mobi_pls)
 }
 \references{
 Dijkstra, T. K., & Henseler, J. (2015). Consistent partial least squares path modeling. MIS quarterly, 39(2).

@@ -6,7 +6,7 @@ summarize_cb_measurement <- function(object) {
   model <- list(
     item_names       = all_items(object$measurement_model),
     construct_names  = all_construct_names(object$measurement_model),
-    estimation       = lavaan::lavInspect(lavaan_output, "options")$estimator
+    estimation       = lavaan_output@Model@estimator
   )
 
   # Get standardized parameter estimates (won't contain R^2)
@@ -20,8 +20,8 @@ summarize_cb_measurement <- function(object) {
   colnames(significance) <- c( "Std Estimate", "SE", "t-Value", paste(alpha_text, "% CI", sep = ""), paste((100-alpha_text), "% CI", sep = ""))
 
   # Get descriptives and correlations
-  available_item_names <- intersect(names(object$data), model$item_names)
-  item_correlations <- stats::cor(object$data[, available_item_names])
+  # item_descriptives <- desc(object$data)
+  item_correlations <- stats::cor(object$data[, model$item_names])
   construct_correlations <- lavaan::lavInspect(lavaan_output, what = "cor.lv")
 
   list(
@@ -29,14 +29,18 @@ summarize_cb_measurement <- function(object) {
       seminr = seminr_info(),
       engine = list(
         pkgname = "lavaan",
-        version = lavaan::lavInspect(lavaan_output, "version"),
-        estimator = lavaan::lavInspect(lavaan_output, "options")$estimator
+        version = lavaan_output@version,
+        estimator = lavaan_output@Options$estimator
       ),
       syntax  = object$lavaan_model,
       call    = lavaan_output@call
     ),
     model = model,
     descriptives = list(
+      # TODO: report item descriptive stats
+      # statistics = list(
+      #   items = item_descriptives
+      # ),
       correlations = list(
         items = item_correlations,
         constructs = construct_correlations

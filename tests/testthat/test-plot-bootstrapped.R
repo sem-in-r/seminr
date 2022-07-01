@@ -6,7 +6,6 @@ test_that("bootstrapped models work", {
 
   #seminr syntax for creating measurement model
   mobi_mm <- constructs(
-    composite("Value", multi_items("PERV", 1:2), weights = unit_weights),
     reflective("Satisfaction", multi_items("CUSA", 1:3)),
     composite("Complaints",   single_item("CUSCO")),
     reflective("Loyalty",      multi_items("CUSL", 1:3))

@@ -50,6 +50,12 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
     path_coef[path["source"], path["target"]]
   }
 
+  # Get all path estimates of a given beta metrix from a given path_coef matrix
+  # Typically used to apply on 3rd dimension of a 3x3 bootstrap paths array [from,to,boot]
+  boot_paths <- function(path_coef, beta_df) {
+    betas <- apply(beta_df, MARGIN=1, FUN=path_estimate, path_coef = path_coef)
+  }
+
   # Allocate and Estimate Two Alternative Datasets + Models
   group1_data <- pls_data[condition, ]
   group2_data <- pls_data[!condition, ]
@@ -64,7 +70,7 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
 
   message("Computing similarity of groups")
   # Produce beta report matrix on all paths (as rows)
-  beta <- as.data.frame(pls_model$smMatrix[,c("source", "target"), drop = F])
+  beta <- as.data.frame(pls_model$smMatrix[,c("source", "target")])
   path_names <- do.call(paste0, cbind(beta["source"], " -> ", beta["target"]))
   rownames(beta) <- path_names
   beta$estimate <- apply(beta, MARGIN = 1, FUN=path_estimate, path_coef = pls_model$path_coef)
@@ -76,8 +82,11 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
   beta$diff <- apply(beta, MARGIN = 1, FUN=path_estimate, path_coef = beta_diff)
 
   # Get bootstrapped paths for both groups
-  boot1_betas <- boot_paths_df(group1_boot)
-  boot2_betas <- boot_paths_df(group2_boot)
+  boot1_betas <- t(apply(group1_boot$boot_paths, MARGIN=3, FUN=boot_paths, beta_df=beta))
+  colnames(boot1_betas) <- path_names
+
+  boot2_betas <- t(apply(group2_boot$boot_paths, MARGIN=3, FUN=boot_paths, beta_df=beta))
+  colnames(boot2_betas) <- path_names
 
   # PLSc may not resolve in some bootstrap runs - limit bootstrap paths to resolved number of boots
   J <- min(dim(boot1_betas)[1], dim(boot2_betas)[1])

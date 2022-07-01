@@ -54,9 +54,9 @@ PLSc <- function(seminr_model) {
   loadings <- seminr_model$outer_loadings
   rSquared <- seminr_model$rSquared
   construct_scores <- seminr_model$construct_scores
-  constructs_in_model(seminr_model)$construct_names
+
   # Calculate rho_A for adjustments and adjust the correlation matrix
-  rho <- rho_A(seminr_model,constructs_in_model(seminr_model)$construct_names)
+  rho <- rho_A(seminr_model)
   ### Coerce interactions to rhoA of 1
   rho[grepl("\\*", rownames(rho)), ] <- 1
   adjustment <- sqrt(rho %*% t(rho))

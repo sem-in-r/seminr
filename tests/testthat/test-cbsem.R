@@ -36,14 +36,9 @@ sm <- relationships(
   paths(from = c("Value", "Satisfaction"),         to = "Complaints")
 )
 
-cbcfa <- estimate_cfa(mobi, mm_r)
-
 test_that("Measurement model CFA is estimated", {
+  cbcfa <- estimate_cfa(mobi, mm_r)
   expect_true(!is.null(cbcfa))
-})
-
-test_that("CFA reports right number of non-zero loadings", {
-  expect_equal(sum(cbcfa$factor_loadings != 0), 14)
 })
 
 test_that("CBSEM with measurement structure is estimated", {
