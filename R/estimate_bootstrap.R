@@ -185,8 +185,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       if (length(unique(structural_model[,"target"])) == 1) {
         dependant <- unique(structural_model[,"target"])
       } else {
-        dependant <- colnames(paths_descriptives[, 1:length(unique(structural_model[,"target"]))])
-      }
+        dependant <- colnames(paths_descriptives[, 1:length(unique(structural_model[,"target"])), drop = F])      }
 
       # Construct the vector of column names
       col_names <- c()
