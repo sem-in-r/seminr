@@ -182,7 +182,6 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       paths_descriptives <- subset(paths_descriptives, filled_rows, filled_cols)
 
       # Get the names of endogenous variables
-      browser()
       if (length(all_endogenous(structural_model)) == 1) {
         dependant <- all_endogenous(structural_model)
       } else {
