@@ -327,7 +327,8 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
                       ordered_data = ordered_data[,model$mmVariables],
                       testIndexes = testIndexes,
                       endogenous_items = endogenous_items,
-                      trainIndexes = trainIndexes)
+                      trainIndexes = trainIndexes,
+                      technique = technique)
 
   lmprediction_in_sample <- matrix(0, ncol = 0 , nrow = length(trainIndexes))
   lmprediction_out_sample <- matrix(0, ncol = 0 , nrow = length(testIndexes))
@@ -465,7 +466,7 @@ predict_lm_matrices <- function(x, depTrainData, indepTrainData,indepTestData, e
               lm_prediction_out_sample = lmprediction_out_sample))
 }
 
-generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogenous_items, trainIndexes) {
+generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogenous_items, trainIndexes, technique) {
   # Extract the target and non-target variables for Linear Model
   dependant_items <- model$mmMatrix[model$mmMatrix[,1] == x,2]
 
@@ -473,20 +474,24 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
   in_sample_matrix <- matrix(0,nrow = nrow(ordered_data), ncol = length(dependant_items), dimnames = list(rownames(ordered_data),dependant_items))
   out_sample_matrix <- matrix(0,nrow = nrow(ordered_data), ncol = length(dependant_items), dimnames = list(rownames(ordered_data),dependant_items))
 
-  # Exclude dependant items from independant matrix
-  independant_matrix <- ordered_data[ , -which(names(ordered_data) %in% dependant_items)]
+  # Select the correct independent variables to be icluded in independent matrix
+  # for predict_DA this would be the indicators of the direct antecedents only
+  # for predict_EA this would be the indicators of the earliest antecedents only
+  if (identical(technique, predict_DA)) {
+    focal_construct_antecedents <- antecedents_of(x, model$smMatrix)
+    focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_indicators(focal, model$mmMatrix)))
+  } else {
+    focal_construct_antecedents <- only_exogenous(corp_rep_pls_model_ext$smMatrix)
+    focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_indicators(focal, model$mmMatrix)))
+  }
+  independant_matrix <- ordered_data[ , focal_construct_antecedent_items]
   dependant_matrix <- as.matrix(ordered_data[,dependant_items])
-
   # Create independant items matrices - training and testing
   indepTestData <- independant_matrix[testIndexes, ]
   indepTrainData <- independant_matrix[-testIndexes, ]
 
   # Create dependant matrices - training and testing
-  if (length(testIndexes) == 1) {
-    depTestData <- t(as.matrix(dependant_matrix[testIndexes, ]))
-  } else {
-    depTestData <- as.matrix(dependant_matrix[testIndexes, ])
-  }
+  depTestData <- as.matrix(dependant_matrix[testIndexes, ,drop = F])
 
   #depTestData <- as.matrix(dependant_matrix[testIndexes, ])
   depTrainData <- as.matrix(dependant_matrix[-testIndexes, ])

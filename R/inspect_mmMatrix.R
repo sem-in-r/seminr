@@ -2,6 +2,10 @@
 # and mmMatrix.
 
 # Construct (mmMatrix row) level functions
+# Return indicators of a construct from mmMatrix
+construct_indicators <- function(construct_name, mmMatrix) {
+  mmMatrix[mmMatrix[,1] == construct_name, 2]
+}
 
 # get number of items from a construct in a measurement model
 number_of_items <- function(construct) {

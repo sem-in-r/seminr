@@ -15,6 +15,10 @@ all_exogenous <- function(smMatrix) {
   unique(smMatrix[, "source"])
 }
 
+only_exogenous <- function(smMatrix) {
+  setdiff(unique(smMatrix[,1]), unique(smMatrix[,2]))
+}
+
 # Get antecedent construct names for a give construct in a model
 antecedents_of <- function(outcome, smMatrix) {
   smMatrix[smMatrix[,2] == outcome, "source"]
