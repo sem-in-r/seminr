@@ -361,8 +361,8 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
         # Create cluster
         suppressWarnings(ifelse(is.null(cores), cl <- parallel::makeCluster(parallel::detectCores()), cl <- parallel::makeCluster(cores)))
 
-        #generate_lm_predictions <- PLSpredict:::generate_lm_predictions
-        #predict_lm_matrices <- PLSpredict:::predict_lm_matrices
+        # generate_lm_predictions <- generate_lm_predictions
+        # predict_lm_matrices <- predict_lm_matrices
         # Export variables and functions to cluster
         parallel::clusterExport(cl=cl, varlist=c("generate_lm_predictions",
                                                  "predict_lm_matrices"), envir=environment())
@@ -484,11 +484,11 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
     focal_construct_antecedents <- only_exogenous(corp_rep_pls_model_ext$smMatrix)
     focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_indicators(focal, model$mmMatrix)))
   }
-  independant_matrix <- ordered_data[ , focal_construct_antecedent_items]
-  dependant_matrix <- as.matrix(ordered_data[,dependant_items])
+  independant_matrix <- ordered_data[ , focal_construct_antecedent_items,drop = F]
+  dependant_matrix <- as.matrix(ordered_data[,dependant_items, drop = F])
   # Create independant items matrices - training and testing
-  indepTestData <- independant_matrix[testIndexes, ]
-  indepTrainData <- independant_matrix[-testIndexes, ]
+  indepTestData <- independant_matrix[testIndexes, ,drop = F]
+  indepTrainData <- independant_matrix[-testIndexes, ,drop = F]
 
   # Create dependant matrices - training and testing
   depTestData <- as.matrix(dependant_matrix[testIndexes, ,drop = F])
