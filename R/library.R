@@ -225,7 +225,7 @@ return_only_composite_scores <- function(object){
 total_effects <- function(path_coef) {
   output <- path_coef
   paths <- path_coef
-  while (sum(paths) > 0) {
+  while (sum(paths) != 0) {
     paths <- paths %*% path_coef
     output <- output + paths
   }
