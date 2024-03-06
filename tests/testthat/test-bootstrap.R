@@ -31,31 +31,35 @@ mobi_mm <- constructs(
 )
 
 mobi_sm <- relationships(
-  paths(to = "Satisfaction",
-        from = c("Image", "Expectation", "Value"))
+  paths(from = c("Image", "Expectation", "Value"),
+        to = "Satisfaction")
 )
 
-# Load data, assemble model, and estimate using semPLS
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm, inner_weights = path_factorial)
 bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
-
-# Load outputs
 bootmatrix <- bootmodel$paths_descriptives
 
 ## Output originally created using following lines
 # write.csv(bootmodel$paths_descriptives, file = "tests/fixtures/V_3_5_X/boostrapmatrix1.csv")     # V3.5.X
 # write.csv(bootmodel$paths_descriptives, file = "tests/fixtures/V_3_6_0/boostrapmatrix1.csv")     # V3.6.0
 
-# Load controls
 bootmatrix_control <- as.matrix(read.csv(file = paste(test_folder,"boostrapmatrix1.csv", sep = ""), row.names = 1))
-
-# Testing
 
 test_that("Seminr performs the bootstrapping correctly", {
   expect_equal(bootmatrix[,1], bootmatrix_control[,1], tolerance = 0.00001)
   expect_equal(bootmatrix[,2], bootmatrix_control[,2], tolerance = 0.00001)
   expect_equal(bootmatrix[,3], bootmatrix_control[,3], tolerance = 0.00001)
+})
+
+path_diff <- test_path_diff(
+  path(from="Image", to="Satisfaction"),
+  path(from="Expectation", to="Satisfaction"),
+  bootmodel
+)
+
+test_that("Seminr correctly tests the difference between paths", {
+  expect_equal(path_diff$pval, 0.003111947, tolerance = 0.00001)
 })
 
 context("SEMinR correctly bootstraps the interaction model\n")
