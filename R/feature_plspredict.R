@@ -473,8 +473,11 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
   in_sample_matrix <- matrix(0,nrow = nrow(ordered_data), ncol = length(dependant_items), dimnames = list(rownames(ordered_data),dependant_items))
   out_sample_matrix <- matrix(0,nrow = nrow(ordered_data), ncol = length(dependant_items), dimnames = list(rownames(ordered_data),dependant_items))
 
+  # select only direct antecedents
+  indendent_items <- unlist(lapply(seminr:::antecedents_of(x,model$smMatrix), function (x) seminr:::items_of_construct(construct = x, model = model)))
+
   # Exclude dependant items from independant matrix
-  independant_matrix <- ordered_data[ , -which(names(ordered_data) %in% dependant_items)]
+  independant_matrix <- ordered_data[ , indendent_items]
   dependant_matrix <- as.matrix(ordered_data[,dependant_items])
 
   # Create independant items matrices - training and testing
