@@ -295,7 +295,7 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
   PLS_predicted_insample_item <- matrix(0,nrow = nrow(ordered_data),ncol = length(model$mmVariables),dimnames = list(rownames(ordered_data),model$mmVariables))
   PLS_predicted_insample_item_residuals <- matrix(0,nrow = nrow(ordered_data),ncol = length(model$mmVariables),dimnames = list(rownames(ordered_data),model$mmVariables))
   #PLS prediction on testset model
-  suppressMessages(train_model <- seminr::estimate_pls(data = trainingData,
+  suppressMessages(train_model <- estimate_pls(data = trainingData,
                                                        measurement_model = model$measurement_model,
                                                        structural_model = model$smMatrix,
                                                        inner_weights = model$inner_weights,
@@ -480,8 +480,9 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
   if (identical(technique, predict_DA)) {
     focal_construct_antecedents <- antecedents_of(x, model$smMatrix)
     focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_indicators(focal, model$mmMatrix)))
-  } else {
-    focal_construct_antecedents <- only_exogenous(corp_rep_pls_model_ext$smMatrix)
+  }
+  if (identical(technique, predict_EA)) {
+    focal_construct_antecedents <- only_exogenous(model$smMatrix)
     focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_indicators(focal, model$mmMatrix)))
   }
   independant_matrix <- ordered_data[ , focal_construct_antecedent_items,drop = F]

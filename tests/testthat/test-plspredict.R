@@ -74,3 +74,4 @@ test_that("Seminr performs the DA prediction correctly for PLS and LM in and out
   expect_equal(DA_control, DA_predictions, tolerance = 0.00001)
   expect_equal(EA_control, EA_predictions, tolerance = 0.00001)
 })
+

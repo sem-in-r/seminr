@@ -17,15 +17,14 @@ Converts lavaan syntax for composite models used by \code{cSEM} package to \code
 }
 \examples{
 lav_syntax <- '
-  Composite model
-  Image <~ IMAG1 + IMAG2 + IMAG3 + IMAG4 + IMAG5
-  Expectation <~ CUEX1 + CUEX2 + CUEX3
-  Value  <~ PERV1  + PERV2
-  Satisfaction <~ CUSA1 + CUSA2 + CUSA3
+# Composite model
+ Image <~ IMAG1 + IMAG2 + IMAG3 + IMAG4 + IMAG5
+ Expectation <~ CUEX1 + CUEX2 + CUEX3
+ Value  <~ PERV1  + PERV2
+ Satisfaction <~ CUSA1 + CUSA2 + CUSA3
 
-  # Structural model
-  Satisfaction ~ Image + Expectation + Value
-'
+ # Structural model
+ Satisfaction ~ Image + Expectation + Value '
 
 csem_model <- estimate_pls(mobi, model = csem2seminr(lav_syntax))
 
