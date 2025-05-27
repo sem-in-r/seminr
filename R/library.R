@@ -225,7 +225,7 @@ return_only_composite_scores <- function(object){
 total_effects <- function(path_coef) {
   output <- path_coef
   paths <- path_coef
-  while (sum(paths) > 0) {
+  while (sum(paths) != 0) {
     paths <- paths %*% path_coef
     output <- output + paths
   }
@@ -345,13 +345,13 @@ constructs_in_model <- function(model) {
   construct_names <- c()
   construct_types <- c()
   if (is.null(model$hoc)) {
-    for (construct in intersect(unique(model$smMatrix),unique(model$mmMatrix[,1 ]))) {
+    for (construct in intersect(construct_names(model$smMatrix),unique(model$mmMatrix[,1 ]))) {
       construct_names <- c(construct_names, construct)
       construct_types <- c(construct_types, get_construct_type(model, construct))
     }
     construct_scores <- model$construct_scores
   } else {
-    constructs_in_hoc_model <- intersect(unique(c(model$smMatrix, model$first_stage_model$smMatrix)),unique(model$mmMatrix[,1 ]))
+    constructs_in_hoc_model <- intersect(unique(c(model$smMatrix[,1],model$smMatrix[,2], model$first_stage_model$smMatrix)),unique(model$mmMatrix[,1 ]))
     for (construct in constructs_in_hoc_model) {
       construct_names <- c(construct_names, construct)
       construct_types <- c(construct_types, get_construct_type(model, construct))
@@ -386,3 +386,4 @@ unit_weights <- function(mmMatrix, i,normData, construct_scores) {
   # matrix(1,nrow = sum(mmMatrix[,1] == i), ncol = 1)
   return(matrix(1,nrow = sum(mmMatrix[,1] == i), ncol = 1))
 }
+

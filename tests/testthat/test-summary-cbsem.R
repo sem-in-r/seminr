@@ -58,8 +58,8 @@ cbsem_summary_tree <- list(
 )
 
 test_that("Summary of CBSEM has proper structure", {
-  expect_equal(seminr:::traverse_names(cbsem_summary),
-               seminr:::traverse_names(cbsem_summary_tree))
+  expect_equal(traverse_names(cbsem_summary),
+               traverse_names(cbsem_summary_tree))
 })
 
 
@@ -102,8 +102,8 @@ cfa_summary_tree <- list(
 )
 
 test_that("Summary of CFA has proper structure", {
-  expect_equal(seminr:::traverse_names(cfa_summary),
-               seminr:::traverse_names(cfa_summary_tree))
+  expect_equal(traverse_names(cfa_summary),
+               traverse_names(cfa_summary_tree))
 })
 
 test_that("Summary of CFA has reliability values", {

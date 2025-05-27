@@ -1,11 +1,11 @@
 ## ----echo=FALSE, out.width='25%'----------------------------------------------
 knitr::include_graphics('SEMinR_logo.jpg')
 
-## ---- echo = FALSE, message = FALSE-------------------------------------------
+## ----echo = FALSE, message = FALSE--------------------------------------------
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(seminr)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # Distinguish and mix composite measurement (used in PLS-PM)
 #  # or reflective (common-factor) measurement (used in CBSEM, CFA, and PLSc)
 #  # - We will first use composites in PLS-PM analysis
@@ -18,14 +18,14 @@ library(seminr)
 #    interaction_term(iv = "Image", moderator = "Expectation")
 #  )
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # Quickly create multiple paths "from" and "to" sets of constructs
 #  structure <- relationships(
 #    paths(from = c("Image", "Expectation", "Image*Expectation"), to = "Value"),
 #    paths(from = "Value", to = "Satisfaction")
 #  )
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # Estimate using PLS-PM from model parts defined earlier
 #  pls_model <- estimate_pls(data = mobi,
 #                            measurement_model = measurements,
@@ -50,20 +50,20 @@ library(seminr)
 #  cbsem_model$lavaan_syntax
 #  cbsem_model$lavaan_model
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  install.packages("seminr")
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  library(seminr)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  survey_data <- read.csv("mobi_survey_data.csv")
 
 ## -----------------------------------------------------------------------------
 dim(mobi)
 head(mobi)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  measurements <- constructs(
 #    composite("Image",         multi_items("IMAG", 1:5), weights = mode_B),
 #    composite("Expectation",   multi_items("CUEX", 1:3), weights = regression_weights),
@@ -76,20 +76,20 @@ head(mobi)
 #    reflective("Loyalty",      multi_items("CUSL", 1:3))
 #  )
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  composite("Expectation", multi_items("CUEX", 1:3), weights = mode_A)
 #  # is equivalent to:
 #  composite("Expectation", multi_items("CUEX", 1:3), weights = correlation_weights)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  composite("Image", multi_items("IMAG", 1:5), weights = mode_B)
 #  # is equivalent to:
 #  composite("Image", multi_items("IMAG", 1:5), weights = regression_weights)
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  reflective("Satisfaction", multi_items("CUSA", 1:3))
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  # Coerce a composite into reflective form
 #  img_composite <- composite("Image", multi_items("IMAG", 1:5))
 #  img_reflective <- as.reflective(img_composite)
@@ -102,29 +102,29 @@ head(mobi)
 #  )
 #  mobi_reflective <- as.reflective(mobi_composites)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  multi_items("IMAG", 1:5)
 #  # which is equivalent to the R vector:
 #  c("IMAG1", "IMAG2", "IMAG3", "IMAG4", "IMAG5")
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  multi_items("IMAG", c(1, 3:5))
 #  # which is equivalent to the R vector:
 #  c("IMAG1", "IMAG3", "IMAG4", "IMAG5")
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  single_item("CUSCO")
 #  # which is equivalent to the R character string:
 #  "CUSCO"
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # The following specifies that items PERQ1 and PERQ2 covary with each other, both covary with IMAG1
 #  mobi_am <- associations(
 #    item_errors("PERQ1", "PERQ2"),
 #    item_errors(c("PERQ1", "PERQ2"), "IMAG1")
 #  )
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  # By default, interaction terms are computed using two stage procedures
 #  interaction_term(iv = "Image", moderator = "Expectation")
 #  
@@ -133,7 +133,7 @@ head(mobi)
 #  interaction_term(iv = "Image", moderator = "Expectation", method =  product_indicator)
 #  interaction_term(iv = "Image", moderator = "Expectation", method =  orthogonal)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  mobi_sm <- relationships(
 #    paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
 #    paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
@@ -143,21 +143,21 @@ head(mobi)
 #    paths(from = "Complaints",   to = "Loyalty")
 #  )
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # "Image" -> "Expectation"
 #  paths(from = "Image", to = "Expectation")
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # "Image" -> "Expectation"
 #  # "Image" -> "Satisfaction"
 #  paths(from = "Image", to = c("Expectation", "Satisfaction"))
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # "Image" -> "Satisfaction"
 #  # "Expectation" -> "Satisfaction"
 #  paths(from = c("Image", "Expectation"), to = "Satisfaction")
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  # "Expectation" -> "Value"
 #  # "Expectation" -> "Satisfaction"
 #  # "Quality" -> "Value"
@@ -210,7 +210,7 @@ boot_mobi_pls <- bootstrap_model(seminr_model = mobi_pls,
 ## -----------------------------------------------------------------------------
 summary(mobi_pls)
 
-## ---- eval = FALSE------------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  summary(boot_mobi_pls)
 
 ## -----------------------------------------------------------------------------
@@ -253,7 +253,7 @@ specific_effect_significance(boot_seminr_model = boot_seminr_model,
                              to = "Satisfaction",
                              alpha = 0.10)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  model_summary <- summary(mobi_pls)
 #  model_summary$descriptives$statistics$items
 #  model_summary$descriptives$correlations$items

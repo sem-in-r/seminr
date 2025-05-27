@@ -32,7 +32,7 @@ test_that("dot_graph does not fail for a demo data set", {
   expect_error(plot(model), NA)
 
   plot <- plot(model)
-  #testthat::expect_true(seminr:::check_test_plot(plot, title = "Plot with only reflectives"))
+  #testthat::expect_true(check_test_plot(plot, title = "Plot with only reflectives"))
   #vdiffr::expect_doppelganger(title = "only-reflectives", fig = plot, writer = write_test)
 })
 
@@ -70,7 +70,7 @@ test_that("dot_graph can handle both composite measurement types", {
   expect_error(plot(model), NA)
 
   plot <- plot(model)
-  #testthat::expect_true(seminr:::check_test_plot(plot, title = "Plot with reflectives and composite"))
+  #testthat::expect_true(check_test_plot(plot, title = "Plot with reflectives and composite"))
   #vdiffr::expect_doppelganger(title = "reflectives and composite", fig = plot, writer = write_test)
 })
 
