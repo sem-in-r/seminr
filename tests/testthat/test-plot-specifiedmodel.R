@@ -36,7 +36,7 @@ test_that("dot_graph does not fail for a specified model", {
 
 
   plot <- plot(model)
-  #testthat::expect_true(seminr:::check_test_plot(plot, title = "Plot with reflectives and composite"))
+  #testthat::expect_true(check_test_plot(plot, title = "Plot with reflectives and composite"))
   #vdiffr::expect_doppelganger(title = "reflectives and composite", fig = plot, writer = write_test)
 })
 

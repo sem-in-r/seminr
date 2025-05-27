@@ -87,9 +87,11 @@ HOCs_in_model <- function(measurement_model, structural_model = NULL) {
   # Get subset of HOCs also present in structural model, if one is provided
   if (length(HOCs) > 0) {
     output <- list()
+    j <- 1
     for (i in 1:length(HOCs)) {
       if(HOCs[[i]][1] %in% construct_names(structural_model)) {
-        output[[i]] <- HOCs[[i]]
+        output[[j]] <- HOCs[[i]]
+        j <- j + 1
       }
     }
   } else {

@@ -181,11 +181,11 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       filled_rows <- apply(paths_descriptives != 0, 1, any, na.rm=TRUE)
       paths_descriptives <- subset(paths_descriptives, filled_rows, filled_cols)
 
-      # Get the number of DVs
-      if (length(unique(structural_model[,"target"])) == 1) {
-        dependant <- unique(structural_model[,"target"])
+      # Get the names of endogenous variables
+      if (length(all_endogenous(structural_model)) == 1) {
+        dependant <- all_endogenous(structural_model)
       } else {
-        dependant <- colnames(paths_descriptives[, 1:length(unique(structural_model[,"target"]))])
+        dependant <- colnames(paths_descriptives[, 1:length(all_endogenous(structural_model)), drop = F])
       }
 
       # Construct the vector of column names

@@ -394,7 +394,7 @@ We communicate and collaborate with several other open-source projects on SEM re
 - [plspm package for R](https://github.com/gastonstat/plspm): an early and limited PLS path 
 modeling package for R that inspired the development of SEMinR, among others; it is no longer maintained.
 - [plspm package for Python](https://github.com/GoogleCloudPlatform/plspm-python): a well-maintained PLS modeling pakage for Python; it is tested against SEMinR and borrows some syntactic ideas from SEMinR.
-- [cSEM](https://github.com/M-E-Rademaker/cSEM): a well-maintained and comprehensive composite analysis project implementing PLS and GSCA for R, using Lavaan style syntax
+- [cSEM](https://github.com/FloSchuberth/cSEM): a well-maintained and comprehensive composite analysis project implementing PLS and GSCA for R, using Lavaan style syntax
 
 ## Contact Us
 
@@ -411,7 +411,7 @@ This is the official place to submit potential bugs or request new features for 
 Primary Authors:
 
 * [Soumya Ray](https://soumyaray.com)
-* [Nicholas Danks](https://nicholasdanks.com)
+* [Nicholas Danks](https://www.tcd.ie/business/people/faculty-professors/danksn/)
 * [André Calero Valdez](https://calerovaldez.com/)
 
 Key Contributors:

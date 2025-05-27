@@ -743,10 +743,8 @@ format_edge_label <- function(template, variable, value) {
 }
 
 #' Returns the type of a construct from a model
-#'
 #' @param model the model to get the type from
 #' @param construct the character string name of the construct
-#'
 #' @return Returns a character string
 get_construct_type <- function(model, construct) {
   #if (!(construct %in% model$constructs)) {
@@ -885,7 +883,8 @@ extract_sm_nodes <- function(model, theme, structure_only = FALSE) {
 
     if (startsWith(construct_type, "HOC") && !structure_only) {
 
-      row_index <- grepl(construct, model$mmMatrix[,1])
+      # row_index <- grepl(construct, model$mmMatrix[,1])
+      row_index <- model$mmMatrix[,1] == construct
       result <- model$mmMatrix[row_index, 2]
       sm_nodes <- c(sm_nodes, result)
     }
@@ -1213,7 +1212,7 @@ dot_component_mm <- function(model, theme) {
 
   # we use mmMatrix because model$constructs does not contain HOCs
   if (is.null(model$hoc)) {
-    mm_count <- length(intersect(unique(model$smMatrix),unique(model$mmMatrix[,1 ])))
+    mm_count <- length(intersect(construct_names(model$smMatrix),unique(model$mmMatrix[,1 ])))
   } else {
     mm_count <- length(intersect(unique(c(model$smMatrix, model$first_stage_model$smMatrix)),unique(model$mmMatrix[,1 ])))
   }
@@ -1671,7 +1670,3 @@ dot <- "digraph {
 }"
 
 #DiagrammeR::grViz(dot)
-
-
-
-

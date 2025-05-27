@@ -45,9 +45,9 @@ antecedent_vifs <- function(smMatrix, cor_matrix) {
 # https://doi.org/10.1007/s11747-014-0403-8
 HTMT <- function(seminr_model) {
   if (is.null(seminr_model$hoc)) {
-    constructs <- intersect(unique(seminr_model$smMatrix),unique(seminr_model$mmMatrix[,1 ]))
+    constructs <- intersect(construct_names(seminr_model$smMatrix),unique(seminr_model$mmMatrix[,1 ]))
   } else {
-    constructs <- intersect(unique(c(seminr_model$smMatrix, seminr_model$first_stage_model$smMatrix)),unique(seminr_model$mmMatrix[,1 ]))
+    constructs <- intersect(unique(c(seminr_model$smMatrix[,1],seminr_model$smMatrix[,2], seminr_model$first_stage_model$smMatrix[,1],seminr_model$first_stage_model$smMatrix[,2])),unique(seminr_model$mmMatrix[,1 ]))
   }
 
   HTMT <- matrix(, nrow=length(constructs), ncol=length(constructs),
@@ -89,7 +89,7 @@ fl_criteria_table <- function(seminr_model, model_constructs) {
   # }
   table <- stats::cor(model_constructs$construct_scores)
   table[upper.tri(table)] <- NA
-  diag(table) <- sqrt(rhoC_AVE(seminr_model, model_constructs$construct_names)[,"AVE"])
+  diag(table) <- sqrt(rhoC_AVE(seminr_model, constructs = model_constructs$construct_names)[,"AVE"])
   comment(table) <- "FL Criteria table reports square root of AVE on the diagonal and construct correlations on the lower triangle."
   convert_to_table_output(table)
 }

@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' lav_syntax <- '
-#'   Composite model
+#'   # Composite model
 #'   Image <~ IMAG1 + IMAG2 + IMAG3 + IMAG4 + IMAG5
 #'   Expectation <~ CUEX1 + CUEX2 + CUEX3
 #'   Value  <~ PERV1  + PERV2

@@ -44,7 +44,7 @@ plot_scores <- function(seminr_model, constructs=NULL) {
 plot.reliability_table <- function(x, ...) {
   stopifnot(inherits(x, "reliability_table"))
 
-  metrics <- cbind(1:nrow(x), x)
+  metrics <- cbind(matrix(1:nrow(x),ncol = 1), x)
   lower_lim <- ifelse(min(as.numeric(metrics[,-1]) - 0.2) >= 0.6, 0.6, min(as.numeric(metrics[,-1]) - 0.2))
   graphics::plot(metrics[,1:2], xlim=c(0.7, nrow(metrics[,-1])+0.2), ylim=c(lower_lim, max(as.numeric(metrics[,-1]))),
        frame.plot = FALSE, xaxt='n', ylab='', xlab = '', pch='')
