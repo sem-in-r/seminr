@@ -137,8 +137,8 @@ mobi_sm <- relationships(
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm,  mobi_sm,inner_weights = path_weighting)
 boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2, seed = 123)
-utils::capture.output(summary_object <- evaluate_measurement_model(seminr_model))
-utils::capture.output(boot_summary_object <- boot_evaluate_measurement_model(boot_seminr_model))
+utils::capture.output(summary_object <- seminr:::evaluate_measurement_model(seminr_model))
+utils::capture.output(boot_summary_object <- seminr:::boot_evaluate_measurement_model(boot_seminr_model))
 
 # Load outputs
 factor_reliability <- summary_object$factor_reliability

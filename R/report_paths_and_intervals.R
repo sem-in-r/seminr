@@ -291,3 +291,59 @@ parse_boot_array <- function(original_matrix, boot_array, alpha = 0.05) {
   rownames(return_matrix) <- Path
   convert_to_table_output(return_matrix)
 }
+
+# object <- boot_corp_rep_ext
+# parse_boot_array(total_effects(object$path_coef), object$boot_total_paths, alpha = alpha)
+# original_matrix <- total_indirect_effects(object$path_coef)
+# tp <- object$boot_total_paths
+# rp <- object$boot_paths
+# alpha = 0.05
+parse_boot_array_total_indirect <- function(original_matrix,
+                                            tp,
+                                            rp,
+                                            alpha = 0.05) {
+
+
+  if (all(original_matrix == 0)) {
+  return(c("No indirect effects"))
+    }
+
+  if (any(!original_matrix == 0)) {
+
+
+  Path <- c()
+  original <- c()
+  boot_mean <- c()
+  boot_SD <- c()
+  t_stat <- c()
+  lower <- c()
+  upper <- c()
+  alpha_text <- alpha/2*100
+  original_matrix[is.na(original_matrix)] <- 0
+  for (i in 1:nrow(original_matrix)) {
+    for (j in 1:ncol(original_matrix)) {
+      if (original_matrix[i,j]!=0 ) {
+        Path <- append(Path, paste(rownames(original_matrix)[i], " -> ", colnames(original_matrix)[j]))
+        original <- append(original, original_matrix[i,j])
+        boot_mean <- append(boot_mean, mean((tp[i,j,] - rp[i,j,])))
+        boot_SD <- append(boot_SD, stats::sd((tp[i,j,] - rp[i,j,])))
+        if (original_matrix[i,j]/ stats::sd((tp[i,j,] - rp[i,j,])) > 999999999) {
+          t_stat <- append(t_stat, NA)
+        } else {
+          t_stat <- append(t_stat,  original_matrix[i,j]/ stats::sd((tp[i,j,] - rp[i,j,])))
+        }
+        lower <- append(lower, (conf_int(tp - rp, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[1]])
+        upper <- append(upper, (conf_int(tp - rp, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[2]])
+      }
+    }
+  }
+  }
+  return_matrix <- cbind(original, boot_mean, boot_SD, t_stat, lower, upper)
+  colnames(return_matrix) <- c( "Original Est.", "Bootstrap Mean", "Bootstrap SD", "T Stat.",paste(alpha_text, "% CI", sep = ""),paste((100-alpha_text), "% CI", sep = ""))
+  rownames(return_matrix) <- Path
+
+
+  return(convert_to_table_output(return_matrix))
+}
+
+

@@ -66,13 +66,19 @@ summary.boot_seminr_model <- function(object, alpha = 0.05, ...) {
   htmt_summary <- parse_boot_array(HTMT(object), object$boot_HTMT, alpha = alpha)
   # bootstrapped total paths
   total_paths_summary <- parse_boot_array(total_effects(object$path_coef), object$boot_total_paths, alpha = alpha)
+  # Bootstrapped total indirect paths
+  total_indirect_paths_summary <- parse_boot_array_total_indirect(original_matrix = total_indirect_effects(object$path_coef),
+                                  tp = object$boot_total_paths,
+                                  rp = object$boot_paths,
+                                  alpha = alpha)
 
   boot_summary <- list(nboot = object$boots,
                        bootstrapped_paths = paths_summary,
                        bootstrapped_weights = weights_summary,
                        bootstrapped_loadings = loadings_summary,
                        bootstrapped_HTMT = htmt_summary,
-                       bootstrapped_total_paths = total_paths_summary)
+                       bootstrapped_total_paths = total_paths_summary,
+                       bootstrapped_total_indirect_paths = total_indirect_paths_summary)
   class(boot_summary) <- "summary.boot_seminr_model"
   boot_summary
 }
