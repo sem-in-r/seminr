@@ -100,6 +100,20 @@ paths_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_paths.
 loadings_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_loadings.csv", sep = ""), row.names = 1))
 weights_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_weights", sep = ""), row.names = 1))
 htmt_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_htmt.csv", sep = ""), row.names = 1))
+
+mobi_sm <- relationships(
+  paths(to = "Satisfaction",from = c("Image", "Expectation")),
+  paths(from = "Satisfaction", to = "Value")
+)
+
+mobi <- mobi
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_weighting)
+boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2, seed = 123)
+summary_object <- summary(boot_seminr_model)
+total_indirect <- summary_object$bootstrapped_total_indirect_paths
+# write.csv(summary_object$bootstrapped_total_indirect_paths , file = "tests/fixtures/V_3_6_0/boot_report_total_indirect_paths.csv")
+total_indirect_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_total_indirect_paths.csv", sep = ""), row.names = 1))
+
 # Testing
 
 test_that("Seminr summarizes the bootstrapped paths correctly", {
@@ -116,6 +130,10 @@ test_that("Seminr summarizes the bootstrapped weights correctly", {
 
 test_that("Seminr summarizes the bootstrapped htmt correctly", {
   expect_equal(as.vector(htmt[1, 1:6]), as.vector(htmt_control[1, 1:6]), tolerance = 0.00001)
+})
+
+test_that("Seminr summarizes the bootstrapped total indirect paths correctly", {
+  expect_equal(as.vector(total_indirect[1, 1:6]), as.vector(total_indirect_control[1, 1:6]), tolerance = 0.00001)
 })
 
 context("evaluate_measurement_model() correctly evaluates FACTORS for class seminr_model\n")
