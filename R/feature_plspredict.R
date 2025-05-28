@@ -174,10 +174,10 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
                   lm_out_of_sample = LM_predicted_outsample_item,
                   lm_in_sample = LM_predicted_insample_item,
                   item_actuals = ordered_data[as.character(c(1:nrow(model$data))),model$mmVariables],
-                  PLS_out_of_sample_residuals = (ordered_data[as.character(c(1:nrow(model$data))),endogenous_items] - PLS_predicted_outsample_item[,endogenous_items]),
-                  PLS_in_sample_residuals = (ordered_data[as.character(c(1:nrow(model$data))),endogenous_items] - PLS_predicted_insample_item[,endogenous_items]),
-                  lm_out_of_sample_residuals = (ordered_data[as.character(c(1:nrow(model$data))),endogenous_items] - LM_predicted_outsample_item),
-                  lm_in_sample_residuals = (ordered_data[as.character(c(1:nrow(model$data))),endogenous_items] - LM_predicted_insample_item))
+                  PLS_out_of_sample_residuals = (ordered_data[as.character(c(1:nrow(model$data))),as.vector(endogenous_items)] - PLS_predicted_outsample_item[,endogenous_items]),
+                  PLS_in_sample_residuals = (ordered_data[as.character(c(1:nrow(model$data))),as.vector(endogenous_items)] - PLS_predicted_insample_item[,endogenous_items]),
+                  lm_out_of_sample_residuals = (ordered_data[as.character(c(1:nrow(model$data))),as.vector(endogenous_items)] - LM_predicted_outsample_item),
+                  lm_in_sample_residuals = (ordered_data[as.character(c(1:nrow(model$data))),as.vector(endogenous_items)] - LM_predicted_insample_item))
   class(results) <- "predict_pls_model"
   return(results)
 }
@@ -337,7 +337,7 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
   # collect the odd and even numbered matrices from the matrices return object
   lmprediction_in_sample <- do.call(cbind, lm_holder[((1:(length(unique(model$smMatrix[,2]))*2))[1:(length(unique(model$smMatrix[,2]))*2)%%2==1])])
   lmprediction_out_sample <- do.call(cbind, lm_holder[((1:(length(unique(model$smMatrix[,2]))*2))[1:(length(unique(model$smMatrix[,2]))*2)%%2==0])])
-  lmprediction_in_sample_residuals[trainIndexes,] <- as.matrix(ordered_data[trainIndexes,endogenous_items]) - lmprediction_in_sample[trainIndexes,endogenous_items]
+  lmprediction_in_sample_residuals[trainIndexes,] <- as.matrix(ordered_data[trainIndexes,as.vector(endogenous_items)]) - lmprediction_in_sample[trainIndexes,as.vector(endogenous_items)]
 
   return(list(PLS_predicted_insample_item = PLS_predicted_insample_item,
               PLS_predicted_outsample_item = PLS_predicted_outsample_item,
