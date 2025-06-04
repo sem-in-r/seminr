@@ -140,7 +140,7 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
 
   # collect in-sample and out-sample prediction matrices and sort everything to original row indexes
   if(is.null(reps)) {
-    pred_matrices <- seminr:::prediction_matrices( noFolds, ordered_data, model,technique, cores)
+    pred_matrices <- prediction_matrices( noFolds, ordered_data, model,technique, cores)
     PLS_predicted_outsample_item <- pred_matrices$out_of_sample_item[rownames(model$data),]
     PLS_predicted_insample_item <- pred_matrices$in_sample_item[rownames(model$data),]
     LM_predicted_outsample_item <- pred_matrices$out_of_sample_lm_item[rownames(model$data),]
@@ -151,7 +151,7 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
     lm_pred_oos_array <- array(,dim = c(nrow(ordered_data), length(endogenous_items), reps))
     lm_pred_is_array <- array(,dim = c(nrow(ordered_data), length(endogenous_items), reps))
     for (i in 1:reps) {
-      pred_matrices <- seminr:::prediction_matrices( noFolds, ordered_data, model,technique, cores)
+      pred_matrices <- prediction_matrices( noFolds, ordered_data, model,technique, cores)
       pls_pred_oos_array[,,i] <- pred_matrices$out_of_sample_item[rownames(model$data),]
       pls_pred_is_array[,,i] <- pred_matrices$in_sample_item[rownames(model$data),]
       lm_pred_oos_array[,,i] <- pred_matrices$out_of_sample_lm_item[rownames(model$data),]
@@ -166,7 +166,6 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
     colnames(LM_predicted_outsample_item) <- endogenous_items
     colnames(LM_predicted_insample_item) <- endogenous_items
   }
-
 
   # Allocate results
   results <- list(PLS_out_of_sample = PLS_predicted_outsample_item[,endogenous_items],
@@ -378,7 +377,7 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
       } else {
         #Create noFolds equally sized folds
         folds <- cut(seq(1,nrow(ordered_data)),breaks=noFolds,labels=FALSE)
-        matrices <- sapply(1:noFolds, seminr:::in_and_out_sample_predictions, folds = folds,ordered_data = ordered_data, model = model, technique = technique)
+        matrices <- sapply(1:noFolds, in_and_out_sample_predictions, folds = folds,ordered_data = ordered_data, model = model, technique = technique)
       }
 
       # collect the odd and even numbered matrices from the matrices return object
@@ -390,34 +389,34 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
       LM_in_sample_item_residuals <- do.call(cbind, matrices[(1:(noFolds*6))[1:(noFolds*6)%%6==0]])
 
       # mean the in-sample item predictions by row
-      average_insample_item <- sapply(1:length(model$mmVariables), seminr:::mean_rows, matrix = in_sample_item_matrix,
+      average_insample_item <- sapply(1:length(model$mmVariables), mean_rows, matrix = in_sample_item_matrix,
                                       noFolds = noFolds,
                                       constructs = model$mmVariables)
 
       # sum the out-sample item predictions by row
-      average_outsample_item <- sapply(1:length(model$mmVariables), seminr:::sum_rows, matrix = out_sample_item_matrix,
+      average_outsample_item <- sapply(1:length(model$mmVariables), sum_rows, matrix = out_sample_item_matrix,
                                        noFolds = noFolds,
                                        constructs = model$mmVariables)
 
       # square the out-sample pls residuals, mean them and take the square root
-      average_insample_pls_item_residuals <- sqrt(sapply(1:length(model$mmVariables), seminr:::mean_rows, matrix = PLS_in_sample_item_residuals^2,
+      average_insample_pls_item_residuals <- sqrt(sapply(1:length(model$mmVariables), mean_rows, matrix = PLS_in_sample_item_residuals^2,
                                                          noFolds = noFolds,
                                                          constructs = model$mmVariables))
       # Collect endogenous items
       endogenous_items <- unlist(sapply(unique(model$smMatrix[,2]), function(x) model$mmMatrix[model$mmMatrix[, "construct"] == x,"measurement"]), use.names = FALSE)
 
       # mean the in-sample lm predictions by row
-      average_insample_lm <- sapply(1:length(endogenous_items), seminr:::mean_rows, matrix = in_sample_lm_matrix,
+      average_insample_lm <- sapply(1:length(endogenous_items), mean_rows, matrix = in_sample_lm_matrix,
                                     noFolds = noFolds,
                                     constructs = endogenous_items)
 
       # sum the out-sample item predictions by row
-      average_outsample_lm <- sapply(1:length(endogenous_items), seminr:::sum_rows, matrix = out_sample_lm_matrix,
+      average_outsample_lm <- sapply(1:length(endogenous_items), sum_rows, matrix = out_sample_lm_matrix,
                                      noFolds = noFolds,
                                      constructs = endogenous_items)
 
       # square the out-sample lm residuals, mean them, and take square root
-      average_insample_lm_item_residuals <- sqrt(sapply(1:length(endogenous_items), seminr:::mean_rows, matrix = LM_in_sample_item_residuals^2,
+      average_insample_lm_item_residuals <- sqrt(sapply(1:length(endogenous_items), mean_rows, matrix = LM_in_sample_item_residuals^2,
                                                         noFolds = noFolds,
                                                         constructs = endogenous_items))
 
