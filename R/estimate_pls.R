@@ -32,6 +32,9 @@
 #' @param stopCriterion A parameter specifying the stop criterion for estimating the PLS model.
 #'   Default value is 7.
 #'
+#' @param assess_model_syntax A parameter that specifies whether the measurement and structural
+#'   model should be assessed for errors. Default value is FALSE.
+#'
 #' @return A list of the estimated parameters for the SEMinR model including:
 #'  \item{meanData}{A vector of the indicator means.}
 #'  \item{sdData}{A vector of the indicator standard deviations}
@@ -58,7 +61,8 @@
 #'              missing = mean_replacement,
 #'              missing_value = NA,
 #'              maxIt = 300,
-#'              stopCriterion = 7)
+#'              stopCriterion = 7,
+#'              assess_model_syntax = FALSE)
 #'
 #' @seealso \code{\link{specify_model}} \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
 #'          \code{\link{bootstrap_model}}
@@ -103,8 +107,14 @@ estimate_pls <- function(data,
                          missing = mean_replacement,
                          missing_value = NA,
                          maxIt=300,
-                         stopCriterion=7) {
+                         stopCriterion=7,
+                         assess_model_syntax = FALSE) {
   # NOTE: update rerun.pls_model() if parameters change!
+
+  # Check if the user has correct specified the model
+  if (assess_model_syntax) {assess_specified_model(measurement_model,
+                                            structural_model,
+                                            data)}
 
   message("Generating the seminr model")
   data[data == missing_value] <- NA
