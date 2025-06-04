@@ -354,7 +354,7 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
       # If noFolds is NULL, perform parallel LOOCV
       if (is.null(noFolds)) {
         # Automatically perform LOOCV if number of folds not specified
-        noFolds = nrow(model$data)
+        noFolds = nrow(ordered_data)
         #Create noFolds equally sized folds
         folds <- cut(seq(1,nrow(ordered_data)),breaks=noFolds,labels=FALSE)
 
@@ -481,7 +481,7 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
     focal_construct_antecedents <- antecedents_of(x, model$smMatrix)
     focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_indicators(focal, model$mmMatrix)))
   }
-  if (identical(technique, predict_EA)) {
+  else {
     focal_construct_antecedents <- only_exogenous(model$smMatrix)
     focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_indicators(focal, model$mmMatrix)))
   }
