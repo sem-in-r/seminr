@@ -1,3 +1,158 @@
+# prediction function for a two-stage estimated seminr model ----
+estimate_actual_star <- function(pls_model, train_data, testData) {
+  no_int_mmvars <- pls_model$mmVariables[!grepl("\\*", pls_model$mmVariables)]
+  actual_star <- estimate_pls(data = rbind(train_data[,no_int_mmvars], testData[,no_int_mmvars]),
+                                       measurement_model = pls_model$measurement_model,
+                                       structural_model = pls_model$structural_model)$construct_scores[,all_endogenous(pls_model$smMatrix),drop = F] |> suppressMessages()
+
+  actual_star_out <- actual_star[(nrow(train_data)+1):(nrow(testData) + nrow(train_data)),,drop = F]
+  actual_star_in <- actual_star[1:(nrow(train_data)),,drop = F]
+  return(list(actual_oos = actual_star_out,
+              actual_is = actual_star_in))
+}
+
+parse_interactions <- function(x) {
+  ind1 <- regexpr("\\*", x)
+  return(list(interaction = x,
+              antecedent = substr(x,0,ind1-1),
+              moderator = substr(x, ind1+1,nchar(x)),
+              inter_ind = paste(x,"_intxn",sep = "")))
+}
+return_mod_scores <- function(OOS_composite_scores,
+                              testData,
+                              x) {
+  Moderator_score <- matrix(OOS_composite_scores[, x$antecedent] * OOS_composite_scores[,x$moderator], ncol = 1)
+  colnames(Moderator_score) <- x$inter_ind
+  return(Moderator_score)
+}
+
+one_stage_predict <- function(pls_model, testData, technique) {
+  #Extract Measurements needed for Predictions
+  normData <- testData[,pls_model$mmVariables]
+
+  # Standardize data
+  normData[,pls_model$mmVariables] <- standardize_data(normData[,pls_model$mmVariables],pls_model$meanData[pls_model$mmVariables],pls_model$sdData[pls_model$mmVariables])
+
+  #Convert dataset to matrix
+  normData<-data.matrix(normData)
+
+  #Estimate Factor Scores from Outter Path
+  predicted_construct_scores <- normData%*%pls_model$outer_weights
+
+  #Estimate Factor Scores from Inner Path and complete Matrix
+  predicted_construct_scores <- technique(pls_model$smMatrix, pls_model$path_coef, predicted_construct_scores)
+
+  #Predict Measurements with loadings
+  predictedMeasurements<-predicted_construct_scores%*% t(pls_model$outer_loadings)
+
+  # Unstandardize data
+  predictedMeasurements[,pls_model$mmVariables] <- unstandardize_data(predictedMeasurements[,pls_model$mmVariables],pls_model$meanData[pls_model$mmVariables],pls_model$sdData[pls_model$mmVariables])
+
+  #Calculating the residuals
+  residuals <- testData[,pls_model$mmVariables] - predictedMeasurements[,pls_model$mmVariables]
+
+  #Prepare return pls_model
+  predictResults <- list(testData = testData[,pls_model$mmVariables],
+                         predicted_items = predictedMeasurements[,pls_model$mmVariables],
+                         item_residuals = residuals)
+
+  class(predictResults) <- "predicted_seminr_model"
+  return(predictResults)
+}
+
+two_stage_predict <- function(pls_model, testData, technique) {
+  actual_star <- estimate_actual_star(pls_model = pls_model,
+                                      train_data = pls_model$rawdata,
+                                      testData = testData)
+  # collect all interactions
+  interactions <- pls_model$constructs[grepl("\\*", pls_model$constructs)]
+
+  # parse interactions to get the iv, mv, and indicator name
+  int_list <- lapply(interactions,parse_interactions)
+
+  # identify the indicators that do not take part in the interaction
+  no_int_mmvars <- pls_model$mmVariables[!grepl("\\*", pls_model$mmVariables)]
+
+  # identify the training data
+  train_data <- pls_model$rawdata
+
+  # recreate the first stage measurement model
+  first_stage_mm <- pls_model$measurement_model[!(unique(pls_model$mmMatrix[,1]) %in% interactions)]
+
+  # recreate the first stage structural model
+  first_stage_sm <- pls_model$structural_model[ !(pls_model$structural_model[,"source"] %in% interactions),]
+  first_stage_model <- estimate_pls(data = train_data,
+                                    measurement_model = first_stage_mm,
+                                    structural_model = first_stage_sm) |> suppressMessages()
+
+  scaled_data <-
+    standardize_data(testData[,no_int_mmvars,drop=F],
+                              first_stage_model$meanData[no_int_mmvars],
+                              first_stage_model$sdData[no_int_mmvars])
+
+  # 1.2. Calculate the composite scores
+  OOS_composite_scores <- as.matrix(scaled_data[,no_int_mmvars,drop=F]) %*% first_stage_model$outer_weights[no_int_mmvars,,drop=F]
+
+  # 1.3. Calculate moderator and add to the rawdata
+  mod_scores <- lapply(int_list, function(x) {return_mod_scores(OOS_composite_scores, testData, x)})
+
+  # return_mod_scores(OOS_composite_scores, testData, int_list)
+  out_data_mod <- cbind(testData, do.call("cbind", mod_scores))
+
+
+  # standardize the data using second stage model
+  scaled_out_data_mod <-
+    standardize_data(out_data_mod[,pls_model$mmVariables],
+                              pls_model$meanData[pls_model$mmVariables],
+                              pls_model$sdData[pls_model$mmVariables])
+
+  # OOS_construct_scores <- scaled_out_data_mod[,pls_model$mmVariables] %*% pls_model$outer_weights[pls_model$mmVariables,]
+  # pred_OOS_construct_scores <-  (OOS_construct_scores[,colnames(pls_model$path_coef)] %*% pls_model$path_coef[colnames(pls_model$path_coef),])[,all_endogenous(pls_model$smMatrix),drop=F]
+  #
+  #
+  #
+  # pred_OOS_indicator_scores <- pred_OOS_construct_scores %*% pls_model$outer_loadings
+  #
+  #
+  #
+  # fit_IS_construct_scores <- (pls_model$construct_scores[,colnames(pls_model$path_coef)] %*% pls_model$path_coef[colnames(pls_model$path_coef),])[,all_endogenous(pls_model$smMatrix),drop=F]
+  # construct_pred_error <- actual_star$actual_oos - pred_OOS_construct_scores
+  # construct_fit_error <- actual_star$actual_is - fit_IS_construct_scores
+  # construct_is_mse <-
+  #   apply(construct_fit_error,
+  #         2,
+  #         function(x) mean(x^2))
+  # construct_oos_mse <-
+  #   apply(construct_pred_error,
+  #         2,
+  #         function(x) mean(x^2))
+
+  #Estimate Factor Scores from Outter Path
+  predicted_construct_scores <- scaled_out_data_mod[,pls_model$mmVariables] %*% pls_model$outer_weights[pls_model$mmVariables,]
+
+  #Estimate Factor Scores from Inner Path and complete Matrix
+  predicted_construct_scores <- technique(pls_model$smMatrix, pls_model$path_coef, predicted_construct_scores)
+
+  #Predict Measurements with loadings
+  predictedMeasurements <- predicted_construct_scores%*% t(pls_model$outer_loadings)
+
+  # Unstandardize data
+  predictedMeasurements <- unstandardize_data(predictedMeasurements[,no_int_mmvars],pls_model$meanData[no_int_mmvars],pls_model$sdData[no_int_mmvars])
+
+  colnames(predictedMeasurements) <- no_int_mmvars
+  #Calculating the residuals
+  residuals <- testData[,no_int_mmvars] - predictedMeasurements[,no_int_mmvars]
+
+  #Prepare return Object
+  predictResults <- list(testData = testData[,no_int_mmvars],
+                         predicted_items = predictedMeasurements[,no_int_mmvars],
+                         item_residuals = residuals[,no_int_mmvars])
+
+  class(predictResults) <- "predicted_seminr_model"
+  return(predictResults)
+}
+
+
 # Predict function for SEMinR PLS models
 #' @export
 predict.seminr_model <- function(object, testData, technique = predict_DA, na.print=".", digits=3, ...){
@@ -9,41 +164,14 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
     return()
   }
   if (!is.null(object$interaction)) {
-    message("There is no published solution for applying PLSpredict to moderated models")
-    return()
+    if (all(grepl("two_stage",names(object$measurement_model[grepl("interaction",names(object$measurement_model))])))) {
+      return(two_stage_predict(object, testData, technique) )
+    }
+    stop("Please use two-stage estimation for all interaction terms for generating predictions from moderated models.
+    e.g.: interaction_term(IV, MV, method = two_stage). Two stage yields the leasst biased estimate and best predictive performance
+         as per Danks & Ray (2023)")
   }
-
-  #Extract Measurements needed for Predictions
-  normData <- testData[,object$mmVariables]
-
-  # Standardize data
-  normData[,object$mmVariables] <- standardize_data(normData[,object$mmVariables],object$meanData[object$mmVariables],object$sdData[object$mmVariables])
-
-  #Convert dataset to matrix
-  normData<-data.matrix(normData)
-
-  #Estimate Factor Scores from Outter Path
-  predicted_construct_scores <- normData%*%object$outer_weights
-
-  #Estimate Factor Scores from Inner Path and complete Matrix
-  predicted_construct_scores <- technique(object$smMatrix, object$path_coef, predicted_construct_scores)
-
-  #Predict Measurements with loadings
-  predictedMeasurements<-predicted_construct_scores%*% t(object$outer_loadings)
-
-  # Unstandardize data
-  predictedMeasurements[,object$mmVariables] <- unstandardize_data(predictedMeasurements[,object$mmVariables],object$meanData[object$mmVariables],object$sdData[object$mmVariables])
-
-  #Calculating the residuals
-  residuals <- testData[,object$mmVariables] - predictedMeasurements[,object$mmVariables]
-
-  #Prepare return Object
-  predictResults <- list(testData = testData[,object$mmVariables],
-                         predicted_items = predictedMeasurements[,object$mmVariables],
-                         item_residuals = residuals)
-
-  class(predictResults) <- "predicted_seminr_model"
-  return(predictResults)
+return(one_stage_predict(object, testData, technique))
 }
 
 #' Predict_pls performs either k-fold or LOOCV on a SEMinR PLS model and generates predictions
@@ -127,12 +255,12 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
     message("There is no published solution for applying PLSpredict to higher-order-models")
     return()
   }
-  if (!is.null(model$interaction)) {
-    message("There is no published solution for applying PLSpredict to moderated models")
-    return()
-  }
+  # if (!is.null(model$interaction)) {
+  #   message("There is no published solution for applying PLSpredict to moderated models")
+  #   return()
+  # }
   # Get endogenous item names
-  endogenous_items <- unlist(sapply(unique(model$smMatrix[,2]), function(x) model$mmMatrix[model$mmMatrix[, "construct"] == x,"measurement"]), use.names = FALSE)
+  endogenous_items <- c(unlist(sapply(unique(model$smMatrix[,2]), function(x) model$mmMatrix[model$mmMatrix[, "construct"] == x,"measurement"]), use.names = FALSE))
 
   # shuffle data
   order <- sample(nrow(model$data),nrow(model$data), replace = FALSE)
@@ -140,14 +268,16 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
 
   # collect in-sample and out-sample prediction matrices and sort everything to original row indexes
   if(is.null(reps)) {
+
     pred_matrices <- prediction_matrices( noFolds, ordered_data, model,technique, cores)
     PLS_predicted_outsample_item <- pred_matrices$out_of_sample_item[rownames(model$data),]
     PLS_predicted_insample_item <- pred_matrices$in_sample_item[rownames(model$data),]
     LM_predicted_outsample_item <- pred_matrices$out_of_sample_lm_item[rownames(model$data),]
     LM_predicted_insample_item <- pred_matrices$in_sample_lm_item[rownames(model$data),]
   } else {
-    pls_pred_oos_array <- array(,dim = c(nrow(ordered_data), length(model$mmVariables), reps))
-    pls_pred_is_array <- array(,dim = c(nrow(ordered_data), length(model$mmVariables), reps))
+    no_int_mmvars <- model$mmVariables[!grepl("\\*", model$mmVariables)]
+    pls_pred_oos_array <- array(,dim = c(nrow(ordered_data), length(no_int_mmvars), reps))
+    pls_pred_is_array <- array(,dim = c(nrow(ordered_data), length(no_int_mmvars), reps))
     lm_pred_oos_array <- array(,dim = c(nrow(ordered_data), length(endogenous_items), reps))
     lm_pred_is_array <- array(,dim = c(nrow(ordered_data), length(endogenous_items), reps))
     for (i in 1:reps) {
@@ -161,8 +291,8 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
     PLS_predicted_insample_item <- apply(pls_pred_is_array,c(1,2),mean)
     LM_predicted_outsample_item <- apply(lm_pred_oos_array,c(1,2),mean)
     LM_predicted_insample_item <- apply(lm_pred_is_array,c(1,2),mean)
-    colnames(PLS_predicted_outsample_item) <- model$mmVariables
-    colnames(PLS_predicted_insample_item) <- model$mmVariables
+    colnames(PLS_predicted_outsample_item) <- no_int_mmvars
+    colnames(PLS_predicted_insample_item) <- no_int_mmvars
     colnames(LM_predicted_outsample_item) <- endogenous_items
     colnames(LM_predicted_insample_item) <- endogenous_items
   }
@@ -287,13 +417,15 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
   trainIndexes <- which(folds!=x,arr.ind=TRUE)
   testingData <- ordered_data[testIndexes, ]
   trainingData <- ordered_data[-testIndexes, ]
-
+  no_int_mmvars <- model$mmVariables[!grepl("\\*", model$mmVariables)]
   # Create matrices for return data
   PLS_predicted_outsample_construct <- matrix(0,nrow = nrow(ordered_data),ncol = length(model$constructs),dimnames = list(rownames(ordered_data),model$constructs))
   PLS_predicted_insample_construct <- matrix(0,nrow = nrow(ordered_data),ncol = length(model$constructs),dimnames = list(rownames(ordered_data),model$constructs))
-  PLS_predicted_outsample_item <- matrix(0,nrow = nrow(ordered_data),ncol = length(model$mmVariables),dimnames = list(rownames(ordered_data),model$mmVariables))
-  PLS_predicted_insample_item <- matrix(0,nrow = nrow(ordered_data),ncol = length(model$mmVariables),dimnames = list(rownames(ordered_data),model$mmVariables))
-  PLS_predicted_insample_item_residuals <- matrix(0,nrow = nrow(ordered_data),ncol = length(model$mmVariables),dimnames = list(rownames(ordered_data),model$mmVariables))
+  PLS_predicted_outsample_item <- matrix(0,nrow = nrow(ordered_data),ncol = length(no_int_mmvars),dimnames = list(rownames(ordered_data),no_int_mmvars))
+  PLS_predicted_insample_item <- matrix(0,nrow = nrow(ordered_data),ncol = length(no_int_mmvars),dimnames = list(rownames(ordered_data),no_int_mmvars))
+
+  # identify the indicators that do not take part in the interaction
+  PLS_predicted_insample_item_residuals <- matrix(0,nrow = nrow(ordered_data),ncol = length(no_int_mmvars),dimnames = list(rownames(ordered_data),no_int_mmvars))
   #PLS prediction on testset model
   suppressMessages(train_model <- estimate_pls(data = trainingData,
                                                        measurement_model = model$measurement_model,
@@ -308,7 +440,6 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
                                      technique = technique)
 
   PLS_predicted_outsample_item[testIndexes,] <- test_predictions$predicted_items
-
 
   #PLS prediction on trainset model
   train_predictions <- stats::predict(object = train_model,
@@ -388,20 +519,21 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
       PLS_in_sample_item_residuals <- do.call(cbind, matrices[(1:(noFolds*6))[1:(noFolds*6)%%6==5]])
       LM_in_sample_item_residuals <- do.call(cbind, matrices[(1:(noFolds*6))[1:(noFolds*6)%%6==0]])
 
+      no_int_mmvars <- model$mmVariables[!grepl("\\*", model$mmVariables)]
       # mean the in-sample item predictions by row
-      average_insample_item <- sapply(1:length(model$mmVariables), mean_rows, matrix = in_sample_item_matrix,
+      average_insample_item <- sapply(1:length(no_int_mmvars), mean_rows, matrix = in_sample_item_matrix,
                                       noFolds = noFolds,
-                                      constructs = model$mmVariables)
+                                      constructs = no_int_mmvars)
 
       # sum the out-sample item predictions by row
-      average_outsample_item <- sapply(1:length(model$mmVariables), sum_rows, matrix = out_sample_item_matrix,
+      average_outsample_item <- sapply(1:length(no_int_mmvars), sum_rows, matrix = out_sample_item_matrix,
                                        noFolds = noFolds,
-                                       constructs = model$mmVariables)
+                                       constructs = no_int_mmvars)
 
       # square the out-sample pls residuals, mean them and take the square root
-      average_insample_pls_item_residuals <- sqrt(sapply(1:length(model$mmVariables), mean_rows, matrix = PLS_in_sample_item_residuals^2,
+      average_insample_pls_item_residuals <- sqrt(sapply(1:length(no_int_mmvars), mean_rows, matrix = PLS_in_sample_item_residuals^2,
                                                          noFolds = noFolds,
-                                                         constructs = model$mmVariables))
+                                                         constructs = no_int_mmvars))
       # Collect endogenous items
       endogenous_items <- unlist(sapply(unique(model$smMatrix[,2]), function(x) model$mmMatrix[model$mmMatrix[, "construct"] == x,"measurement"]), use.names = FALSE)
 
@@ -420,7 +552,7 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
                                                         noFolds = noFolds,
                                                         constructs = endogenous_items))
 
-      colnames(average_insample_item) <- colnames(average_insample_pls_item_residuals) <- colnames(average_outsample_item) <- model$mmVariables
+      colnames(average_insample_item) <- colnames(average_outsample_item) <- colnames(average_insample_pls_item_residuals) <- no_int_mmvars
       colnames(average_insample_lm) <- colnames(average_outsample_lm) <- colnames(average_insample_lm_item_residuals) <- endogenous_items
 
       return(list(out_of_sample_item = average_outsample_item,
