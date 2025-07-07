@@ -80,7 +80,7 @@ PLSc <- function(seminr_model) {
   }
 
   #calculate insample metrics
-  rSquared <- calc_insample(seminr_model$data, construct_scores, smMatrix, all_endogenous(smMatrix), adj_construct_score_cors)
+  rSquared <- metrics_insample(seminr_model$data, construct_scores, smMatrix, all_endogenous(smMatrix), adj_construct_score_cors)
 
   # get all common-factor constructs (Mode A Consistent) in a vector
   reflectives <- intersect(all_reflective(mmMatrix), construct_names(seminr_model$smMatrix))

@@ -1,7 +1,7 @@
 ## Goodness-of-fit ----
 
 # Calculate insample metrics ----
-calc_insample <- function(obsData, construct_scores, smMatrix, dependant, construct_score_cors) {
+metrics_insample <- function(obsData, construct_scores, smMatrix, dependant, construct_score_cors) {
   # create matrix return item
   insample <- matrix(, nrow=2, ncol=length(dependant), byrow =TRUE, dimnames = list(c("Rsq", "AdjRsq"), dependant))
 
@@ -61,7 +61,7 @@ calc_insample <- function(obsData, construct_scores, smMatrix, dependant, constr
 ### interaction includes all direct effects
 ### no "*"s or "."s in the data
 # smMatrix <- structural_model
-direct_effects_specified <- function(smMatrix) {
+direct_effects_are_specified <- function(smMatrix) {
   log_vec <- c(FALSE)
   if (any(grepl("\\*", smMatrix))) {
     # first identify all the interaction terms
@@ -82,7 +82,7 @@ direct_effects_specified <- function(smMatrix) {
 }
 
 ### item names consistent throughout and with data
-all_indicator_names_in_data <- function(measurement_model,
+all_indicator_names_are_in_data <- function(measurement_model,
                                         data) {
   return(all(all_items(measurement_model) %in% colnames(data)))
 }
@@ -90,7 +90,7 @@ all_indicator_names_in_data <- function(measurement_model,
 ### latent names constant throughout
 ### SM constructs occur in the mm
 ### constructs do not share name with items
-check_construct_names <- function(measurement_model,
+construct_names_are_valid <- function(measurement_model,
                                   structural_model) {
   # remove interactions from the list (not created yet)
   sm_constructs <- construct_names(structural_model)
@@ -103,18 +103,17 @@ check_construct_names <- function(measurement_model,
   # construct names do not occur in the indicator names
   construct_item_named_same <- any(sm_constructs %in% mm_constructs)
 
-  return(!construct_named_correcty | !construct_item_named_same
-  )
+  return(!construct_named_correcty | !construct_item_named_same)
 }
 
 # Feature to automate model specification quality ----
-assess_specified_model <- function(measurement_model,
+assess_model_specification <- function(measurement_model,
                                    structural_model,
                                    data){
 
   # Check the model specification
-  if (check_construct_names(measurement_model,
-                            structural_model)) {
+  if (construct_names_are_valid(measurement_model,
+                                structural_model)) {
     stop("There is a mismatch in the names of your constructs.
     Please confirm that:
       (1) the construct names in the measurement model are correcly spelled and specified;
@@ -123,7 +122,7 @@ assess_specified_model <- function(measurement_model,
       Please note that plot(measurement_model) or plot(structural_model) help in visualizing the problem.
       Model cannot be estimated.")
   }
-  if(!all_indicator_names_in_data(measurement_model,
+  if(!all_indicator_names_are_in_data(measurement_model,
                                   data)) {
     stop("There is a mismatch in the names of your indicators and data.
     Please confirm that:
@@ -133,7 +132,7 @@ assess_specified_model <- function(measurement_model,
       Please note that plot(measurement_model) or plot(structural_model) help in visualizing the problem.
       Model cannot be estimated.")
   }
-  if(direct_effects_specified(structural_model)) {
+  if(direct_effects_are_specified(structural_model)) {
     stop("It appears that you have not specified both IV and MV as direct effects in the structural model.
    Please confirm that:
       (1) the construct names in the measurement model are correcly spelled and specified;

@@ -15,7 +15,7 @@ mobi_sm <- relationships(
         from = c("Image", "Expectation", "Value"))
 )
 
-expect_error(assess_specified_model(mobi_mm,
+expect_error(assess_model_specification(mobi_mm,
                                     mobi_sm,
                                     mobi),
              regexp = "names of your constructs")
@@ -32,7 +32,7 @@ mobi_sm <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectatin", "Value"))
 )
-expect_error(assess_specified_model(mobi_mm,
+expect_error(assess_model_specification(mobi_mm,
                                     mobi_sm,
                                     mobi),
              regexp = "names of your constructs")
@@ -54,7 +54,7 @@ mobi_sm <- relationships(
         from = c("Image","Image*Expectation","Value"))
 )
 
-expect_error(assess_specified_model(measurement_model = mobi_mm,
+expect_error(assess_model_specification(measurement_model = mobi_mm,
                                     structural_model = mobi_sm,
                                     mobi),
              "IV and MV")
@@ -69,7 +69,7 @@ mobi_mm <- constructs(
   composite("Value",        multi_items("PERV", 1:2), weights = mode_A),
   composite("Satisfaction", multi_items("CUSA", 1:3), weights = mode_A)
 )
-expect_error(assess_specified_model(mobi_mm,
+expect_error(assess_model_specification(mobi_mm,
                                     mobi_sm,
                                     mobi),
              regexp = "colnames")

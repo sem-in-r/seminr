@@ -119,7 +119,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
                                              measurement_model,
                                              structural_model,
                                              inner_weights = inner_weights,
-                                             assess_model_syntax = FALSE)
+                                             assess_syntax = FALSE)
           boot_htmt <- HTMT(boot_model)
           boot_total <- total_effects(boot_model$path_coef)
           return(as.matrix(c(c(boot_model$path_coef),

@@ -11,7 +11,7 @@ estimate_pls(data,
              missing_value = NA,
              maxIt = 300,
              stopCriterion = 7,
-             assess_model_syntax = FALSE)
+             assess_syntax = FALSE)
 }
 \arguments{
 \item{data}{A \code{dataframe} containing the manifest measurement items in named columns.
@@ -44,7 +44,7 @@ PLS model. Default value is 300.}
 \item{stopCriterion}{A parameter specifying the stop criterion for estimating the PLS model.
 Default value is 7.}
 
-\item{assess_model_syntax}{A parameter that specifies whether the measurement and structural
+\item{assess_syntax}{A parameter that specifies whether the measurement and structural
 model should be assessed for errors. Default value is FALSE.}
 }
 \value{

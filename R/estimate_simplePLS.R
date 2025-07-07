@@ -169,7 +169,7 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
   path_coef <- estimate_path_coef(smMatrix, construct_scores, dependant, paths_matrix)
 
   #Calculate and assign rSquared
-  rSquared <- calc_insample(obsData, construct_scores, smMatrix, dependant,stats::cor(construct_scores))
+  rSquared <- metrics_insample(obsData, construct_scores, smMatrix, dependant,stats::cor(construct_scores))
 
   #Prepare return Object
   plsModel <- list(meanData = meanData,
