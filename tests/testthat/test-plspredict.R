@@ -189,7 +189,10 @@ sum_pred_results <- summary(pred_results)
 
 # Load controls
 two_stage_predict_pls_control <- as.matrix(read.csv(file = paste(test_folder,"two_stage_predict_pls.csv", sep = ""), row.names = 1, check.names = FALSE))
+res <- unlist(sum_pred_results)
+names(res) <- c()
 
 test_that("Seminr estimates the construct scores correctly", {
-  expect_equal(unlist(two_stage_predict_pls_control), two_stage_predict_pls_control, tolerance = 0.00001)
+  expect_equal(res[1:24],two_stage_predict_pls_control[1:24], tolerance = 0.000001)
 })
+
