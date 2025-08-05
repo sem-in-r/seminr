@@ -1,8 +1,8 @@
 Package: seminr
 Type: Package
 Title: Building and Estimating Structural Equation Models
-Version: 2.3.5
-Date: 2024-10-12
+Version: 2.3.6
+Date: 2025-07-15
 Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("aut", "ths")),
              person("Nicholas Patrick", "Danks", email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
              person("André", "Calero Valdez", role = "aut", email = "andrecalerovaldez@gmail.com"),
@@ -14,7 +14,7 @@ Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("a
              person("Arturo Heynar", "Cano Bejar", role = "ctb", email = "arturocano997@gmail.com"),
              person("Susanne", "Adler", role = "ctb", email = "susanne.adler@ovgu.de")
             )
-Description: A powerful, easy to syntax for specifying and estimating complex 
+Description: A powerful, easy to use syntax for specifying and estimating complex 
     Structural Equation Models. Models can be estimated using Partial 
     Least Squares Path Modeling or Covariance-Based Structural Equation 
     Modeling or covariance based Confirmatory Factor Analysis. Methods described in Ray, Danks, and Valdez (2021).
@@ -36,6 +36,7 @@ BugReports: https://github.com/sem-in-r/seminr/issues
 RoxygenNote: 7.3.2
 Enhances: rsvg (>= 2.1),
           semPlot,
-          vdiffr
+          vdiffr,
+          seminrExtras
 VignetteBuilder: knitr
 Encoding: UTF-8

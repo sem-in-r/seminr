@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project largely adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.6] - 2025-07-14
+
+### [2.3.6] Changes
+- added prediction for interactions
+- updated the calculation of LM benchmarks for prediction
+
 ## [2.3.1] - 2022-06-30
 
 ### [2.3.1] Changes
