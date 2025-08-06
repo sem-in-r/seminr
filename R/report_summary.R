@@ -155,7 +155,7 @@ get_construct_metrics <- function(x, plspredict_model) {
 
 construct_metrics <- function(predict_pls_object) {
   # Identify endogenous constructs
-  endos <- seminr:::all_endogenous(predict_pls_object$model$smMatrix)
+  endos <- all_endogenous(predict_pls_object$model$smMatrix)
   construct_metrics <- do.call("cbind", lapply(endos,function(x) get_construct_metrics(x = x, plspredict_model = predict_pls_object)))
   colnames(construct_metrics) <- endos
   return(construct_metrics)
