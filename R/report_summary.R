@@ -139,6 +139,29 @@ print.list_output <- function(x, na.print=".", digits=4, ...) {
   }
   invisible(x)
 }
+get_construct_metrics <- function(x, plspredict_model) {
+  fitted <- plspredict_model$composites$composite_in_sample[,x,drop = F]
+  predicted <- plspredict_model$composites$composite_out_of_sample[,x,drop = F]
+  actual_star <- plspredict_model$composites$actuals_star[,x,drop = F]
+  IS_MSE <- mean((actual_star - fitted)^2)
+  IS_MAE <- mean(abs((actual_star - fitted)))
+  OOS_MSE <- mean((actual_star - predicted)^2)
+  OOS_MAE <- mean(abs((actual_star - predicted)))
+  overfit_ratio <- (OOS_MSE - IS_MSE)/IS_MSE
+  return(c(IS_MSE = IS_MSE,
+           IS_MAE = IS_MAE,
+           OOS_MSE = OOS_MSE,
+           OOS_MAE = OOS_MAE,
+           overfit = overfit_ratio))}
+
+construct_metrics <- function(predict_pls_object) {
+  # Identify endogenous constructs
+  endos <- seminr:::all_endogenous(predict_pls_object$model$smMatrix)
+  construct_metrics <- do.call("cbind", lapply(endos,function(x) get_construct_metrics(x = x, plspredict_model = predict_pls_object)))
+  colnames(construct_metrics) <- endos
+  return(construct_metrics)
+}
+
 # Summary for predicted seminr model
 #' @export
 summary.predict_pls_model <- function(object, alpha = 0.05, ...) {
@@ -146,11 +169,12 @@ summary.predict_pls_model <- function(object, alpha = 0.05, ...) {
 
   # Item evaluation
   item_evaluation <- item_metrics(object)
-
+  construct_evaluation <- construct_metrics(object)
   model_summary <- list(PLS_in_sample = item_evaluation$PLS_item_prediction_metrics_IS,
                         PLS_out_of_sample = item_evaluation$PLS_item_prediction_metrics_OOS,
                         LM_in_sample = item_evaluation$LM_item_prediction_metrics_IS,
                         LM_out_of_sample = item_evaluation$LM_item_prediction_metrics_OOS,
+                        construct_error = construct_evaluation,
                         prediction_error = object$PLS_out_of_sample_residuals)
   class(model_summary) <- "summary.predict_pls_model"
   return(model_summary)
@@ -174,6 +198,8 @@ print.summary.predict_pls_model <- function(x, na.print=".", digits=3, ...) {
   cat("\nLM out-of-sample metrics:\n")
   print(x$LM_out_of_sample, na.print = na.print, digits = digits)
 
+  cat("\nConstruct Level metrics:\n")
+  print(x$construct_error, na.print = na.print, digits = digits)
   invisible(x)
 }
 

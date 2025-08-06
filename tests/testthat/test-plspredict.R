@@ -19,7 +19,19 @@ corp_rep_sm_ext <- relationships(
   paths(from = c("COMP", "LIKE"), to = c("CUSA", "CUSL")),
   paths(from = c("CUSA"),         to = c("CUSL"))
 )
+# Create moderated measurement model ----
+corp_rep_mm_mod <- constructs(
+  composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
+  composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
+  composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
+  composite("COMP", multi_items("comp_", 1:3)),
+  interaction_term("QUAL", "PERF", method = two_stage )
+)
 
+# Create moderated structural model ----
+corp_rep_sm_mod <- relationships(
+  paths(from = c("QUAL", "PERF", "CSOR", "QUAL*PERF"), to = "COMP")
+)
 # Estimate the model ----
 corp_rep_pls_model_ext <- estimate_pls(
   data = corp_rep_data,
@@ -44,6 +56,7 @@ predict_corp_rep_ext_EA <- predict_pls(
 # Summarize the prediction results
 sum_predict_corp_rep_ext <- summary(predict_corp_rep_ext)
 sum_predict_corp_rep_ext_EA <- summary(predict_corp_rep_ext_EA)
+sum_predict_corp_rep_mod <- summary(predict_corp_rep_mod)
 
 DA_predictions <- rbind(sum_predict_corp_rep_ext$PLS_in_sample,
                         sum_predict_corp_rep_ext$PLS_out_of_sample,
@@ -54,6 +67,7 @@ EA_predictions <- rbind(sum_predict_corp_rep_ext_EA$PLS_in_sample,
                         sum_predict_corp_rep_ext_EA$LM_in_sample,
                         sum_predict_corp_rep_ext_EA$LM_out_of_sample)
 rownames(DA_predictions) <- rownames(EA_predictions) <- 1:8
+
 # Fixtures were generated with this code
 # write.csv(rbind(sum_predict_corp_rep_ext$PLS_in_sample,
 #                 sum_predict_corp_rep_ext$PLS_out_of_sample,
@@ -76,18 +90,7 @@ test_that("Seminr performs the DA prediction correctly for PLS and LM in and out
 })
 
 context("predict.seminr_model correctly generates PLS predictions from two_stage moderated models\n")
-corp_rep_mm_mod <- constructs(
-  composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
-  composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
-  composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
-  composite("COMP", multi_items("comp_", 1:3)),
-  interaction_term("QUAL", "PERF", method = two_stage )
-)
 
-# Create structural model ----
-corp_rep_sm_mod <- relationships(
-  paths(from = c("QUAL", "PERF", "CSOR", "QUAL*PERF"), to = "COMP")
-)
 
 # Estimate the model ----
 corp_rep_pls_model_mod <- estimate_pls(
@@ -106,7 +109,6 @@ two_stage_control <- as.matrix(read.csv(file = paste(test_folder,"two_stage_pred
 test_that("Seminr estimates the construct scores correctly", {
   expect_equal(as.vector(unlist(Results$item_residuals)), as.vector(two_stage_control), tolerance = 0.00001)
 })
-
 
 context("predict.seminr_model throws an error for orthogonal and product indicators moderated models\n")
 corp_rep_mm_mod <- constructs(
