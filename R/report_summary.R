@@ -174,7 +174,7 @@ summary.predict_pls_model <- function(object, alpha = 0.05, ...) {
                         LM_in_sample = item_evaluation$LM_item_prediction_metrics_IS,
                         LM_out_of_sample = item_evaluation$LM_item_prediction_metrics_OOS,
                         construct_error = construct_evaluation,
-                        prediction_error = object$PLS_out_of_sample_residuals)
+                        prediction_error = object$items$PLS_out_of_sample_residuals)
   class(model_summary) <- "summary.predict_pls_model"
   return(model_summary)
 }
