@@ -8,13 +8,13 @@
 vector <- c(1, 2, 3, 4, 5)
 
 # Install the Swirl package
-install.packages(pkgs = "swirl")
+# install.packages(pkgs = "swirl")
 
 # Load the Swirl library into the environment
-library(swirl)
+# library(swirl)
 
 # Begin learning with Swirl
-swirl()
+# swirl()
 
 # Searching for help using the ? operator
 ?read.csv
