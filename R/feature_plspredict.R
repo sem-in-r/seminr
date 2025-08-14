@@ -33,7 +33,7 @@ one_stage_predict <- function(pls_model, testData, technique) {
   fulldata <- pls_model$data[,no_int_mmvars]
   fulldata[rownames(testData),no_int_mmvars] <- testData[,no_int_mmvars]
 
-  suppressWarnings(fullmodel <- seminr::estimate_pls(data =fulldata,
+  suppressMessages(fullmodel <- seminr::estimate_pls(data =fulldata,
                                                      measurement_model = pls_model$measurement_model,
                                                      structural_model = pls_model$structural_model,
                                                      inner_weights = pls_model$inner_weights,
@@ -84,7 +84,7 @@ two_stage_predict <- function(pls_model, testData, technique) {
   no_int_mmvars <- pls_model$mmVariables[!grepl("\\*", pls_model$mmVariables)]
   fulldata <- pls_model$data[,no_int_mmvars]
   fulldata[rownames(testData),no_int_mmvars] <- testData[,no_int_mmvars]
-  suppressWarnings(fullmodel <- seminr::estimate_pls(data =fulldata,
+  suppressMessages(fullmodel <- seminr::estimate_pls(data =fulldata,
                                                      measurement_model = pls_model$measurement_model,
                                                      structural_model = pls_model$structural_model,
                                                      inner_weights = pls_model$inner_weights,
