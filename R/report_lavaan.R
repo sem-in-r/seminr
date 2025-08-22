@@ -14,10 +14,16 @@ summarize_cb_measurement <- function(object, alpha=0.05) {
   loadings_matrix <- df_xtab_matrix(est.std ~ rhs + lhs, loadings_df,
                                     model$item_names, model$construct_names)
   alpha_text <- alpha/2*100
-  significance <- with(loadings_df,
-                       data.frame(est.std, se, z, pvalue, ci.lower, ci.upper))
+  significance <- with(
+    loadings_df,
+    data.frame(est.std, se, z, pvalue, ci.lower, ci.upper)
+  )
   rownames(significance) <- with(loadings_df, paste(lhs, "->", rhs))
-  colnames(significance) <- c( "Std Estimate", "SE", "z-Value", "p-Value", paste(alpha_text, "% CI", sep = ""), paste((100-alpha_text), "% CI", sep = ""))
+  colnames(significance) <- c(
+    "Std Estimate", "SE", "z-Value", "p-Value",
+    paste(alpha_text, "% CI", sep = ""),
+    paste((100-alpha_text), "% CI", sep = "")
+  )
 
   # Get descriptives and correlations
   available_item_names <- intersect(names(object$data), model$item_names)
@@ -76,16 +82,20 @@ summarize_cb_structure <- function(object, alpha=0.05) {
   }
 
   alpha_text <- alpha/2*100
-  significance <- with(path_df,
-    data.frame(est.std, se, pvalue, ci.lower, ci.upper))
+  significance <- with(
+    path_df,
+    data.frame(est.std, se, z, pvalue, ci.lower, ci.upper)
+  )
 
   rownames(significance) <- with(path_df, paste(lhs, "->", rhs))
-  colnames(significance) <- c( "Std Estimate", "SE", "t-Value", paste(alpha_text, "% CI", sep = ""), paste((100-alpha_text), "% CI", sep = ""))
+  colnames(significance) <- c(
+    "Std Estimate", "SE", "z-Value", "p-Value",
+    paste(alpha_text, "% CI", sep = ""),
+    paste((100-alpha_text), "% CI", sep = "")
+  )
 
-  # TODO v3: Remove pvalues from cbsem summary and add to significance table
   list(
     coefficients = path_matrix,
-    pvalues = pvalue_matrix,
     significance = significance
   )
 }
