@@ -1,5 +1,5 @@
 # Creates summary statistics for a cbsem object for summary and print functions
-summarize_cb_measurement <- function(object, alpha=0.05) {
+summarize_cb_measurement <- function(object, alpha = 0.05) {
   lavaan_output <- object$lavaan_output
   estimates <- lavaan::standardizedSolution(lavaan_output)
 
@@ -10,14 +10,20 @@ summarize_cb_measurement <- function(object, alpha=0.05) {
   )
 
   # Get standardized parameter estimates (won't contain R^2)
-  loadings_df <- estimates[estimates$op == "=~",]
+  loadings_df <- estimates[estimates$op == "=~", ]
   loadings_matrix <- df_xtab_matrix(est.std ~ rhs + lhs, loadings_df,
                                     model$item_names, model$construct_names)
-  alpha_text <- alpha/2*100
-  significance <- with(loadings_df,
-                       data.frame(est.std, se, pvalue, ci.lower, ci.upper))
+  alpha_text <- alpha / 2 * 100
+  significance <- with(
+    loadings_df,
+    data.frame(est.std, se, z, pvalue, ci.lower, ci.upper)
+  )
   rownames(significance) <- with(loadings_df, paste(lhs, "->", rhs))
-  colnames(significance) <- c( "Std Estimate", "SE", "t-Value", paste(alpha_text, "% CI", sep = ""), paste((100-alpha_text), "% CI", sep = ""))
+  colnames(significance) <- c(
+    "Std Estimate", "SE", "z-Value", "p-Value",
+    paste(alpha_text, "% CI", sep = ""),
+    paste((100 - alpha_text), "% CI", sep = "")
+  )
 
   # Get descriptives and correlations
   available_item_names <- intersect(names(object$data), model$item_names)
@@ -50,7 +56,9 @@ summarize_cb_measurement <- function(object, alpha=0.05) {
 }
 
 summarize_cb_structure <- function(object, alpha=0.05) {
-  estimates <- lavaan::standardizedSolution(object$lavaan_output, level=1-alpha)
+  estimates <- lavaan::standardizedSolution(
+    object$lavaan_output, level = 1 - alpha
+  )
 
   # Capture structural relationship information
   all_antecedents <- all_exogenous(object$smMatrix)
@@ -64,28 +72,24 @@ summarize_cb_structure <- function(object, alpha=0.05) {
     df_xtab_matrix(est.std ~ rhs + lhs, path_df,
                    all_antecedents, all_outcomes) -> .
     rownames(.) <- all_antecedents
-    rbind("R^2"=rsq, .)
+    rbind("R^2" = rsq, .)
   }
 
-  pvalue_matrix <- {
-    df_xtab_matrix(pvalue ~ rhs + lhs, path_df,
-                   all_antecedents, all_outcomes) -> .
-    rownames(.) <- all_antecedents
-    colnames(.) <- all_outcomes
-    .
-  }
-
-  alpha_text <- alpha/2*100
-  significance <- with(path_df,
-    data.frame(est.std, se, pvalue, ci.lower, ci.upper))
+  alpha_text <- alpha / 2 * 100
+  significance <- with(
+    path_df,
+    data.frame(est.std, se, z, pvalue, ci.lower, ci.upper)
+  )
 
   rownames(significance) <- with(path_df, paste(lhs, "->", rhs))
-  colnames(significance) <- c( "Std Estimate", "SE", "t-Value", paste(alpha_text, "% CI", sep = ""), paste((100-alpha_text), "% CI", sep = ""))
+  colnames(significance) <- c(
+    "Std Estimate", "SE", "z-Value", "p-Value",
+    paste(alpha_text, "% CI", sep = ""),
+    paste((100 - alpha_text), "% CI", sep = "")
+  )
 
-  # TODO v3: Remove pvalues from cbsem summary and add to significance table
   list(
     coefficients = path_matrix,
-    pvalues = pvalue_matrix,
     significance = significance
   )
 }
@@ -95,15 +99,16 @@ curated_fit_metrics <- function(fit_metrics) {
   metric_names <- names(fit_metrics)
   robust_names <- metric_names[grep("\\.robust", metric_names)]
   scaled_names <- metric_names[grep("\\.scaled", metric_names)]
-  simple_names <- metric_names[grep("\\.|_", metric_names, invert=TRUE)]
+  simple_names <- metric_names[grep("\\.|_", metric_names, invert = TRUE)]
   suffixed_names <- c(robust_names, scaled_names)
 
-  robustable_names <- {
-    regmatches(suffixed_names, regexpr("\\.(robust|scaled)", suffixed_names), invert = TRUE) -> .
-    lapply(., FUN=function(x) { x[1] }) -> .
-    unlist(.) -> .
-    unique(.)
-  }
+  robustable_names <-
+    regmatches(suffixed_names,
+               regexpr("\\.(robust|scaled)", suffixed_names),
+               invert = TRUE) |>
+    lapply(FUN = \(x) x[1]) |>
+    unlist() |>
+    unique()
 
   ordinary_names <- setdiff(simple_names, robustable_names)
 
@@ -111,8 +116,8 @@ curated_fit_metrics <- function(fit_metrics) {
   if (!is.null(robustable_names)) {
     robust_metrics <- data.frame(
       metric = fit_metrics[robustable_names],
-      scaled = fit_metrics[paste(robustable_names, ".scaled", sep="")],
-      robust = fit_metrics[paste(robustable_names, ".robust", sep="")]
+      scaled = fit_metrics[paste(robustable_names, ".scaled", sep = "")],
+      robust = fit_metrics[paste(robustable_names, ".robust", sep = "")]
     )
   }
 

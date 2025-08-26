@@ -41,7 +41,7 @@ cbsem_summary_tree <- list(
     correlations = list(items = NULL, constructs = NULL)
   ),
   loadings = list(coefficients = NULL, significance = NULL),
-  paths = list(coefficients = NULL, pvalues = NULL, significance = NULL),
+  paths = list(coefficients = NULL, significance = NULL),
   quality = list(
     fit = list(
       all = NULL,
