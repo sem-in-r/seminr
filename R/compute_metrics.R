@@ -124,8 +124,9 @@ report_missing <- function(object) {
     missing_count = integer(),
     missing_proportion = numeric()
   )
+  no_int_mmvars <- object$mmVariables[!grepl("\\*", object$mmVariables)]
   # subset raw data for missing analysis
-  data_subset <- object$rawdata[, object$mmVariables]
+  data_subset <- object$rawdata[, no_int_mmvars]
   for (i in 1:ncol(data_subset)) {
     missing_summary <- rbind(missing_summary, data.frame(
       variable = names(data_subset)[i],
