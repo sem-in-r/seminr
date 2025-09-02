@@ -56,7 +56,6 @@ predict_corp_rep_ext_EA <- predict_pls(
 # Summarize the prediction results
 sum_predict_corp_rep_ext <- summary(predict_corp_rep_ext)
 sum_predict_corp_rep_ext_EA <- summary(predict_corp_rep_ext_EA)
-sum_predict_corp_rep_mod <- summary(predict_corp_rep_mod)
 
 DA_predictions <- rbind(sum_predict_corp_rep_ext$PLS_in_sample,
                         sum_predict_corp_rep_ext$PLS_out_of_sample,
@@ -194,7 +193,7 @@ two_stage_predict_pls_control <- as.matrix(read.csv(file = paste(test_folder,"tw
 res <- unlist(sum_pred_results)
 names(res) <- c()
 
-test_that("Seminr estimates the construct scores correctly", {
+test_that("Seminr generates the predicted scores correctly", {
   expect_equal(res[1:24],two_stage_predict_pls_control[1:24], tolerance = 0.000001)
 })
 
