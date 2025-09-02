@@ -56,6 +56,7 @@ predict_corp_rep_ext_EA <- predict_pls(
 # Summarize the prediction results
 sum_predict_corp_rep_ext <- summary(predict_corp_rep_ext)
 sum_predict_corp_rep_ext_EA <- summary(predict_corp_rep_ext_EA)
+sum_predict_corp_rep_mod <- summary(predict_corp_rep_mod)
 
 DA_predictions <- rbind(sum_predict_corp_rep_ext$PLS_in_sample,
                         sum_predict_corp_rep_ext$PLS_out_of_sample,
