@@ -5,6 +5,7 @@
 #'
 #' \code{mean_replacement} provides the verb for replacing all omitted values (NA only) in the dataset with
 #' the mean of the variable.
+#' It gives a warning if more than 5% of values are missing for a given variable.
 #'
 #' @param data A dataset to be used for estimating a SEMinR model
 #'
@@ -19,6 +20,17 @@
 #' @export
 mean_replacement <- function(data) {
   for (i in 1:ncol(data)) {
+    if (mean(is.na(data[, i])) > 0.05 ){
+      # 5% is indicated as a rule of thumb in Hair et al. (2017). We might choose a more liberal threshold.
+      warning(
+        paste0(
+          sprintf("%.1f%%", mean(is.na(data[, i])) * 100),
+          " of data missing for indicator ",
+          names(data)[i],
+          ". Mean replacement may have reduced variability."
+          )
+        )
+    }
     colmean <- mean(data[,i][!(is.na(data[,i]))])
     data[,i][is.na(data[,i])] <- colmean
   }

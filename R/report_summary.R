@@ -26,7 +26,8 @@ summary.seminr_model <- function(object, ...) {
     vif_antecedents = metrics$validity$antecedent_vifs,
     fSquare = fSquare,
     descriptives = descriptives,
-    it_criteria = calculate_itcriteria(object)
+    it_criteria = calculate_itcriteria(object),
+    missing_data = report_missing(object)
   )
   class(model_summary) <- "summary.seminr_model"
   model_summary

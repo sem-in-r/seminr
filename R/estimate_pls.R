@@ -22,6 +22,7 @@
 #'
 #' @param missing Function that replaces missing values.
 #'   \code{mean_replacement} is default.
+#'   \code{na.omit} removes incomplete cases.
 #'
 #' @param missing_value Value in dataset that indicates missing values.
 #'   NA is used by default.
