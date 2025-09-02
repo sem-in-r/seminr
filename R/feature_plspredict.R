@@ -284,10 +284,6 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
     message("There is no published solution for applying PLSpredict to higher-order-models")
     return()
   }
-  # if (!is.null(model$interaction)) {
-  #   message("There is no published solution for applying PLSpredict to moderated models")
-  #   return()
-  # }
   # Get endogenous item names
   endogenous_items <- c(unlist(sapply(unique(model$smMatrix[,2]), function(x) model$mmMatrix[model$mmMatrix[, "construct"] == x,"measurement"]), use.names = FALSE))
 
@@ -298,7 +294,7 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
   # collect in-sample and out-sample prediction matrices and sort everything to original row indexes
   if(is.null(reps)) {
 
-    pred_matrices <- seminr:::prediction_matrices( noFolds, ordered_data, model,technique, cores)
+    pred_matrices <- prediction_matrices( noFolds, ordered_data, model,technique, cores)
     PLS_predicted_outsample_item <- pred_matrices$out_of_sample_item[rownames(model$data),]
     PLS_predicted_insample_item <- pred_matrices$in_sample_item[rownames(model$data),]
     LM_predicted_outsample_item <- pred_matrices$out_of_sample_lm_item[rownames(model$data),]
@@ -533,12 +529,11 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
         # Export variables and functions to cluster
         parallel::clusterExport(cl=cl, varlist=c("generate_lm_predictions",
                                                  "predict_lm_matrices",
-                                                 "predict_seminr_model",
                                                  "standardize_data",
                                                  "unstandardize_data"), envir=environment())
         #parallel::clusterEvalQ(cl=cl,expr = "library(PLSpredict)")
 
-        # Execute the bootstrap
+                # Execute the bootstrap
         utils::capture.output(matrices <- parallel::parSapply(cl,1:noFolds,in_and_out_sample_predictions,folds = folds,
                                                               ordered_data = ordered_data,
                                                               model = model,
@@ -548,7 +543,7 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
       } else {
         #Create noFolds equally sized folds
         folds <- cut(seq(1,nrow(ordered_data)),breaks=noFolds,labels=FALSE)
-        matrices <- sapply(1:noFolds, seminr:::in_and_out_sample_predictions, folds = folds,ordered_data = ordered_data, model = model, technique = technique)
+        matrices <- sapply(1:noFolds, in_and_out_sample_predictions, folds = folds,ordered_data = ordered_data, model = model, technique = technique)
       }
 
       # collect the odd and even numbered matrices from the matrices return object
@@ -665,8 +660,8 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
   # for predict_DA this would be the indicators of the direct antecedents only
   # for predict_EA this would be the indicators of the earliest antecedents only
   if (identical(technique, predict_DA)) {
-    focal_construct_antecedents <- seminr:::antecedents_of(x, model$smMatrix)
-    focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) seminr:::construct_indicators(focal, model$mmMatrix)))
+    focal_construct_antecedents <- antecedents_of(x, model$smMatrix)
+    focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_indicators(focal, model$mmMatrix)))
   }
   else {
     focal_construct_antecedents <- only_exogenous(model$smMatrix)
@@ -688,7 +683,7 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
   depTrainData <- as.matrix(dependant_matrix[-testIndexes, ])
   colnames(depTrainData) <- colnames(depTestData) <- dependant_items
 
-  lm_prediction_list <- sapply(dependant_items, seminr:::predict_lm_matrices, depTrainData = depTrainData,
+  lm_prediction_list <- sapply(dependant_items, predict_lm_matrices, depTrainData = depTrainData,
                                indepTrainData = indepTrainData,
                                indepTestData = indepTestData,
                                endogenous_items = endogenous_items)
