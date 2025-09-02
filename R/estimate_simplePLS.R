@@ -171,6 +171,8 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
   #Calculate and assign rSquared
   rSquared <- metrics_insample(obsData, construct_scores, smMatrix, dependant,stats::cor(construct_scores))
 
+  # Rename the construct scores rows
+  rownames(construct_scores) <- rownames(obsData)
   #Prepare return Object
   plsModel <- list(meanData = meanData,
                    sdData = sdData,
