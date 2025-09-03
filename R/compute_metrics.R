@@ -107,13 +107,15 @@ compute_itcriteria_weights <- function(vector_of_itcriteria) {
 
 #' Function to report how missing data was handled and how much was missing.
 #'
+#' @param seminr_model An estimated seminr PLS model.
+#'
 #' @export
-report_missing <- function(object) {
+report_missing <- function(seminr_model) {
   missing_report <- list()
   # if method is na.omit
-    if (identical(object$settings$missing, na.omit)) {
+    if (identical(seminr_model$settings$missing, na.omit)) {
       missing_report$method = "na.omit"
-      missing_report$n_removed = nrow(object$rawdata) - nrow(object$data)
+      missing_report$n_removed = nrow(seminr_model$rawdata) - nrow(seminr_model$data)
     # if method is mean_replacement (currently only other method)
   } else {
     missing_report$method = "mean_replacement"
@@ -124,9 +126,9 @@ report_missing <- function(object) {
     missing_count = integer(),
     missing_proportion = numeric()
   )
-  no_int_mmvars <- object$mmVariables[!grepl("\\*", object$mmVariables)]
+  no_int_mmvars <- seminr_model$mmVariables[!grepl("\\*", seminr_model$mmVariables)]
   # subset raw data for missing analysis
-  data_subset <- object$rawdata[, no_int_mmvars]
+  data_subset <- seminr_model$rawdata[, no_int_mmvars]
   for (i in 1:ncol(data_subset)) {
     missing_summary <- rbind(missing_summary, data.frame(
       variable = names(data_subset)[i],

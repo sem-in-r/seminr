@@ -19,6 +19,7 @@ structural equation models.
 \details{
 \code{mean_replacement} provides the verb for replacing all omitted values (NA only) in the dataset with
 the mean of the variable.
+It gives a warning if more than 5% of values are missing for a given variable.
 }
 \references{
 Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on Partial Least Squares
