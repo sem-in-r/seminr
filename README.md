@@ -348,8 +348,8 @@ pls_model <- estimate_pls(data = mobi, as.reflective(measurements), structure)
 ## Documentation
 
 The **vignette** for Seminr can be found on
-[CRAN](https://cran.r-project.org/package=seminr/vignettes/SEMinR.html)
-or by running the `vignette("SEMinR")` command after installation.
+[GitHub](https://github.com/sem-in-r/seminr) or by running the
+`vignette("SEMinR")` command after installation.
 
 **Demo code** for various use cases with SEMinR can be found in the
 [seminr/demo/](https://github.com/sem-in-r/seminr/tree/master/demo)

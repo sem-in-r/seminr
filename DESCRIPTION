@@ -1,8 +1,8 @@
 Package: seminr
 Type: Package
 Title: Building and Estimating Structural Equation Models
-Version: 2.3.6
-Date: 2025-07-15
+Version: 2.3.7
+Date: 2025-09-02
 Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("aut", "ths")),
              person("Nicholas Patrick", "Danks", email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
              person("André", "Calero Valdez", role = "aut", email = "andrecalerovaldez@gmail.com"),
@@ -17,7 +17,7 @@ Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("a
 Description: A powerful, easy to use syntax for specifying and estimating complex 
     Structural Equation Models. Models can be estimated using Partial 
     Least Squares Path Modeling or Covariance-Based Structural Equation 
-    Modeling or covariance based Confirmatory Factor Analysis. Methods described in Ray, Danks, and Valdez (2021).
+    Modeling or covariance based Confirmatory Factor Analysis (Ray, Danks, and Valdez 2021 <doi:10.2139/ssrn.3900621>).
 Imports:
     parallel,
     lavaan,
@@ -27,7 +27,8 @@ Imports:
     rmarkdown,
     DiagrammeR (>= 1.0.6),
     DiagrammeRsvg (>= 0.1),
-    webp
+    webp,
+    stats
 License: GPL-3
 Depends: R (>= 4.1.0)
 LazyData: TRUE

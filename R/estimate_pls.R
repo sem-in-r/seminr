@@ -127,7 +127,7 @@ estimate_pls <- function(data,
     data <- data[,all_loc_non_int_items(measurement_model)]
   }
   data <- missing(data)
-  data <- stats::na.omit(data)
+  # data <- stats::na.omit(data)
 
   # Extract model specifications
   specified_model <- extract_models(model, measurement_model, structural_model)
@@ -272,4 +272,3 @@ rerun.pls_model <- function(x, ...) {
     stopCriterion     = not_null(args$stopCriterion,     x$settings$stopCriterion)
   )
 }
-
