@@ -6,7 +6,7 @@
 \alias{seminr-package}
 \title{seminr: Building and Estimating Structural Equation Models}
 \description{
-A powerful, easy to use syntax for specifying and estimating complex Structural Equation Models. Models can be estimated using Partial Least Squares Path Modeling or Covariance-Based Structural Equation Modeling or covariance based Confirmatory Factor Analysis. Methods described in Ray, Danks, and Valdez (2021).
+A powerful, easy to use syntax for specifying and estimating complex Structural Equation Models. Models can be estimated using Partial Least Squares Path Modeling or Covariance-Based Structural Equation Modeling or covariance based Confirmatory Factor Analysis (Ray, Danks, and Valdez 2021 \doi{10.2139/ssrn.3900621}).
 }
 \seealso{
 Useful links:
