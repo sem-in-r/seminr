@@ -126,9 +126,16 @@ report_missing <- function(seminr_model) {
     missing_count = integer(),
     missing_proportion = numeric()
   )
-  no_int_mmvars <- seminr_model$mmVariables[!grepl("\\*", seminr_model$mmVariables)]
+  # extract variables for analysis based on whether there is a higher-order model
+  if (is.null(seminr_model$first_stage_model)) {
+    no_int_mmvars <- seminr_model$mmVariables[!grepl("\\*", seminr_model$mmVariables)]
+  } else {
+    no_int_mmvars <- seminr_model$first_stage_model$mmVariables[!grepl("\\*", seminr_model$first_stage_model$mmVariables)]
+  }
+  # only subset raw data for available variables
+  any_no_int_mmvars <- no_int_mmvars[no_int_mmvars %in% names(seminr_model$rawdata)]
   # subset raw data for missing analysis
-  data_subset <- seminr_model$rawdata[, no_int_mmvars]
+  data_subset <- seminr_model$rawdata[, any_no_int_mmvars]
   for (i in 1:ncol(data_subset)) {
     missing_summary <- rbind(missing_summary, data.frame(
       variable = names(data_subset)[i],
