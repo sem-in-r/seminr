@@ -44,6 +44,6 @@ test_that("Seminr estimates paths and R2 correctly\n", {
 })
 
 test_that("Seminr estimates rhoA, AVE, rhoC (reliability) correctly\n", {
-  expect_equal(as.numeric(sum$reliability), as.numeric(reliability_control), tolerance = 0.00001)
+  expect_equal(as.numeric(sum$reliability), as.numeric(reliability_control[,c(1,4,2,3)]), tolerance = 0.00001)
 })
 

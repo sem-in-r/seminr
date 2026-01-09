@@ -55,7 +55,7 @@ test_that("Seminr estimates the cross-loadings correctly", {
 })
 
 test_that("Seminr estimates the reliability correctly", {
-  expect_equal(as.numeric(reliability), as.numeric(reliability_control), tolerance = 0.00001)
+  expect_equal(as.numeric(reliability), as.numeric(reliability_control[,c(1,4,2,3)]), tolerance = 0.00001)
 })
 
 context("SEMinR correctly returns the summary object for class boot_seminr_model\n")

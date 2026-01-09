@@ -109,8 +109,10 @@ composite <- function(construct_name, item_names, weights = correlation_weights)
     composite_type = "B"
   } else if (identical(weights, unit_weights)) {
     composite_type = "UNIT"
+  } else if (identical(weights, mode_plsc)) {
+    composite_type = "C"
   } else {
-    stop("Composites must be defined as mode A (correlation weights) or B (regression weights)")
+    stop("Composites must be defined as mode A (correlation weights) or B (regression weights) or PLSC")
   }
   construct <- c(rbind(construct_name, item_names, composite_type))
   class(construct) <- c(class(construct), c("construct", "composite"))

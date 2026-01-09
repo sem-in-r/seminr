@@ -54,7 +54,7 @@ plot.reliability_table <- function(x, ...) {
 
   # Add a legend
   graphics::legend("bottom",
-         legend = c("alpha", "RhoA", "RhoC"),
+         legend = c("alpha", "rhoA", "rhoC"),
          col = c("black", "black", "black"),
          pch = c(19, 15,17),
          bty = "n",
