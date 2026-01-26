@@ -185,12 +185,21 @@ specific_effect_significance <- function(boot_seminr_model, from, to, through = 
                                  orig_matrix[from, through[1]] * orig_matrix[through[1], through[2]] * orig_matrix[through[2], through[3]] * orig_matrix[through[3], through[4]] * orig_matrix[through[4], to ])
     }
   }
+  p_value <- 2*min(c(mean(coefficient <= 0),mean(coefficient > 0)))
+
+
   sd_estimate <- stats::sd(coefficient)
   mean_estimate <- mean(coefficient)
   quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
-  return_vec <- c(orig_coefficient, mean_estimate, sd_estimate, orig_coefficient/sd_estimate,quantiles )
-  names(return_vec) <- c( "Original Est.", "Bootstrap Mean", "Bootstrap SD", "T Stat.",paste(alpha/2*100, "% CI", sep = ""),paste((1-(alpha/2))*100, "% CI", sep = ""))
-  return(return_vec)
+  return_vec <- c(orig_coefficient, mean_estimate, sd_estimate, orig_coefficient/sd_estimate,quantiles, p_value)
+  names(return_vec) <- c( "Original Est.", "Bootstrap Mean", "Bootstrap SD", "T Stat.",paste(alpha/2*100, "% CI", sep = ""),paste((1-(alpha/2))*100, "% CI", sep = ""), "Bootstrap P Val")
+  return_mat <- t(as.matrix(return_vec, nrow = 1, byrow = T))
+  rownames(return_mat) <- paste(from, "->",
+                             if (!is.null(through)) {
+                               paste(through, collapse = "->")
+                             },
+                             "->", to, sep = "")
+  convert_to_table_output(return_mat)
 }
 
 #' seminr total indirect confidence intervals function
@@ -265,6 +274,7 @@ parse_boot_array <- function(original_matrix, boot_array, alpha = 0.05) {
   boot_mean <- c()
   boot_SD <- c()
   t_stat <- c()
+  p_value <- c()
   lower <- c()
   upper <- c()
   alpha_text <- alpha/2*100
@@ -283,11 +293,47 @@ parse_boot_array <- function(original_matrix, boot_array, alpha = 0.05) {
         }
         lower <- append(lower, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[1]])
         upper <- append(upper, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[2]])
+        p_value <- append(p_value, 2*min(c(mean(boot_array[i,j,] <= 0),mean(boot_array[i,j,] > 0))))
       }
     }
   }
-  return_matrix <- cbind(original, boot_mean, boot_SD, t_stat, lower, upper)
-  colnames(return_matrix) <- c( "Original Est.", "Bootstrap Mean", "Bootstrap SD", "T Stat.",paste(alpha_text, "% CI", sep = ""),paste((100-alpha_text), "% CI", sep = ""))
+  return_matrix <- cbind(original, boot_mean, boot_SD, t_stat, lower, upper, p_value)
+  colnames(return_matrix) <- c( "Original Est.", "Bootstrap Mean", "Bootstrap SD", "T Stat.",paste(alpha_text, "% CI", sep = ""),paste((100-alpha_text), "% CI", sep = ""), "Bootstrap P Val")
+  rownames(return_matrix) <- Path
+  convert_to_table_output(return_matrix)
+}
+
+parse_boot_array_htmt <- function(original_matrix, boot_array, alpha = 0.05) {
+  Path <- c()
+  original <- c()
+  boot_mean <- c()
+  boot_SD <- c()
+  t_stat <- c()
+  p_value <- c()
+  lower <- c()
+  upper <- c()
+  alpha_text <- alpha/2*100
+  original_matrix[is.na(original_matrix)] <- 0
+  for (i in 1:nrow(original_matrix)) {
+    for (j in 1:ncol(original_matrix)) {
+      if (original_matrix[i,j]!=0 ) {
+        Path <- append(Path, paste(rownames(original_matrix)[i], " -> ", colnames(original_matrix)[j]))
+        original <- append(original, original_matrix[i,j])
+        boot_mean <- append(boot_mean, mean(boot_array[i,j,]))
+        boot_SD <- append(boot_SD, stats::sd(boot_array[i,j,]))
+        if ((1-original_matrix[i,j])/ stats::sd(boot_array[i,j,]) > 999999999) {
+          t_stat <- append(t_stat, NA)
+        } else {
+          t_stat <- append(t_stat,  (1-original_matrix[i,j])/ stats::sd(boot_array[i,j,]))
+        }
+        lower <- append(lower, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[1]])
+        upper <- append(upper, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[2]])
+        p_value <- append(p_value, 2*min(c(mean(boot_array[i,j,] < 1),mean(boot_array[i,j,] >= 1))))
+      }
+    }
+  }
+  return_matrix <- cbind(original, boot_mean, boot_SD, t_stat, lower, upper, p_value)
+  colnames(return_matrix) <- c( "Original Est.", "Bootstrap Mean", "Bootstrap SD", "T Stat.",paste(alpha_text, "% CI", sep = ""),paste((100-alpha_text), "% CI", sep = ""), "Bootstrap P Val")
   rownames(return_matrix) <- Path
   convert_to_table_output(return_matrix)
 }
