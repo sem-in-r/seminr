@@ -1,7 +1,7 @@
 ---
 title: "SEMinR"
 author: "Soumya Ray & Nicholas Danks"
-date: "Dec 31, 2020"
+date: "Jan 1, 2026"
 output:
   html_document:
     toc: true
