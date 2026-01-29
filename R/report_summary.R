@@ -64,7 +64,7 @@ summary.boot_seminr_model <- function(object, alpha = 0.05, ...) {
   # bootstrapped loadings
   loadings_summary <- parse_boot_array(object$outer_loadings, object$boot_loadings, alpha = alpha)
   # bootstrapped HTMT
-  htmt_summary <- parse_boot_array(HTMT(object), object$boot_HTMT, alpha = alpha)
+  htmt_summary <- parse_boot_array_htmt(HTMT(object), object$boot_HTMT, alpha = alpha)
   # bootstrapped total paths
   total_paths_summary <- parse_boot_array(total_effects(object$path_coef), object$boot_total_paths, alpha = alpha)
   # Bootstrapped total indirect paths
@@ -98,16 +98,16 @@ print.summary.boot_seminr_model <- function(x, na.print=".", digits=3, ...) {
   cat("Bootstrap resamples: ", x$nboot)
 
   cat("\n\nBootstrapped Structural Paths:\n")
-  print_matrix(x$bootstrapped_paths[,c(1,2,3,4,5,6)], na.print, digits)
+  print_matrix(x$bootstrapped_paths[,c(1,2,3,4,5,6,7)], na.print, digits)
 
   cat("\nBootstrapped Weights:\n")
-  print_matrix(x$bootstrapped_weights[,c(1,2,3,4,5,6)], na.print, digits)
+  print_matrix(x$bootstrapped_weights[,c(1,2,3,4,5,6,7)], na.print, digits)
 
   cat("\nBootstrapped Loadings:\n")
-  print_matrix(x$bootstrapped_loadings[,c(1,2,3,4,5,6)], na.print, digits)
+  print_matrix(x$bootstrapped_loadings[,c(1,2,3,4,5,6,7)], na.print, digits)
 
   cat("\nBootstrapped HTMT:\n")
-  print_matrix(x$bootstrapped_HTMT[,c(1,2,3,5,6)], na.print, digits)
+  print_matrix(x$bootstrapped_HTMT[,c(1,2,3,5,6,7)], na.print, digits)
 
   cat("\nBootstrapped Total Paths:\n")
   print_matrix(x$bootstrapped_total_paths[,c(1,2,3,5,6)], na.print, digits)

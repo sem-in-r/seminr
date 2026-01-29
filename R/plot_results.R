@@ -54,7 +54,7 @@ plot.reliability_table <- function(x, ...) {
 
   # Add a legend
   graphics::legend("bottom",
-         legend = c("alpha", "RhoA", "RhoC"),
+         legend = c("alpha", "rhoA", "rhoC"),
          col = c("black", "black", "black"),
          pch = c(19, 15,17),
          bty = "n",
@@ -77,7 +77,7 @@ plot.reliability_table <- function(x, ...) {
   graphics::points(unlist(metrics[,1])+0.1, unlist(metrics[, "rhoC"]), pch=17)
 
   # threshhold line
-  graphics::abline(h = 0.7, lty = 2, col = "blue")
+  graphics::abline(h = 0.708, lty = 2, col = "blue")
 
   # rotated axis labels: https://www.tenderisthebyte.com/blog/2019/04/25/rotating-axis-labels-in-r/
   graphics::axis(side = 1, labels = FALSE)

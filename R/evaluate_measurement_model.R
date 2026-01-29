@@ -15,9 +15,9 @@ reliability <- function(seminr_model) {
   alpha <- cronbachs_alpha(seminr_model, model_constructs$construct_names)
   mat1 <- rhoC_AVE(seminr_model, constructs = model_constructs$construct_names)
   mat2 <- rho_A(seminr_model, model_constructs$construct_names)
-  table <- cbind(alpha, mat1, mat2)
-  colnames(table) <- c("alpha", "rhoC",   "AVE",  "rhoA")
-  comment(table) <- "Alpha, rhoC, and rhoA should exceed 0.7 while AVE should exceed 0.5"
+  table <- cbind(alpha, mat2, mat1)
+  colnames(table) <- c("alpha", "rhoA", "rhoC","AVE")
+  comment(table) <- "Alpha, rhoA, and rhoC should exceed 0.7 while AVE should exceed 0.5"
   class(table) <- append(class(table), c("table_output","reliability_table"))
   return(table)
 }

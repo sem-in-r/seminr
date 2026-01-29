@@ -41,7 +41,7 @@
 #'
 #' The data set is used as measurement instrument for corporate reputation.
 #'
-#' @format A data frame with 344 rows and 46 variables:
+#' @format A data frame with 344 rows and 41 variables:
 #' \describe{
 #'   \item{serviceprovider}{A categorical variable for the service provider: 1, 2, 3, or 4.}
 #'   \item{servicetype}{A categorical variable for the service type: 1=Prepaid plan (n=125); 2=Contract plan (n=219).}
@@ -80,15 +80,6 @@
 #'   \item{cusl_2}{If I had to choose again, I would choose the company as my mobile phone services provider.}
 #'   \item{cusl_3}{I will remain a customer of the company in the future.}
 #'   \item{cusa}{I am satisfied with company.}
-#'   \item{age}{?}
-#'   \item{education}{Categorical for education.}
-#'   \item{occupation}{Categorical for type of occupation.}
-#'   \item{nphh}{?}
-#'   \item{sample_type}{?}
-#'   \item{mga_1}{Multi Group Analysis 1.}
-#'   \item{mga_2}{Multi Group Analysis 2.}
-#'   \item{mga_3}{Multi Group Analysis 3.}
-#'   \item{mga_4}{Multi Group Analysis 4.}
 #'   \item{switch_1}{It takes me a great deal of time to switch to another company.}
 #'   \item{switch_2}{It costs me too much to switch to another company.}
 #'   \item{switch_3}{It takes a lot of effort to get used to a new company with its specific "rules" and practices.}
@@ -105,7 +96,7 @@
 #'
 #' The data set is used as measurement instrument for corporate reputation.
 #'
-#' @format A data frame with 347 rows and 49 variables:
+#' @format A data frame with 347 rows and 41 variables:
 #' \describe{
 #'   \item{servicetype}{A categorical variable for the service type: 1=Postpaid plan; 2=Prepaid plan.}
 #'   \item{serviceprovider}{A categorical variable for the service provider: 1, 2, 3, or 4.}

@@ -55,7 +55,7 @@ test_that("Seminr estimates the cross-loadings correctly", {
 })
 
 test_that("Seminr estimates the reliability correctly", {
-  expect_equal(as.numeric(reliability), as.numeric(reliability_control), tolerance = 0.00001)
+  expect_equal(as.numeric(reliability), as.numeric(reliability_control[,c(1,4,2,3)]), tolerance = 0.00001)
 })
 
 context("SEMinR correctly returns the summary object for class boot_seminr_model\n")
@@ -93,7 +93,7 @@ htmt <- summary_object$bootstrapped_HTMT
 # write.csv(summary_object$bootstrapped_paths, file = "tests/fixtures/V_3_5_X/boot_report_paths.csv")
 # write.csv(summary_object$bootstrapped_loadings, file = "tests/fixtures/V_3_5_X/boot_report_loadings.csv")
 # write.csv(summary_object$bootstrapped_weights, file = "tests/fixtures/V_3_5_X/boot_report_weights")
-# write.csv(summary_object$bootstrapped_HTMT, file = "tests/fixtures/V_3_5_X/boot_report_htmt.csv")
+# write.csv(summary_object$bootstrapped_HTMT, file = "tests/fixtures/V_3_6_0/boot_report_htmt.csv")
 
 # Load controls
 paths_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_paths.csv", sep = ""), row.names = 1))
@@ -155,8 +155,8 @@ mobi_sm <- relationships(
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm,  mobi_sm,inner_weights = path_weighting)
 boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2, seed = 123)
-utils::capture.output(summary_object <- seminr:::evaluate_measurement_model(seminr_model))
-utils::capture.output(boot_summary_object <- seminr:::boot_evaluate_measurement_model(boot_seminr_model))
+utils::capture.output(summary_object <- evaluate_measurement_model(seminr_model))
+utils::capture.output(boot_summary_object <- boot_evaluate_measurement_model(boot_seminr_model))
 
 # Load outputs
 factor_reliability <- summary_object$factor_reliability
