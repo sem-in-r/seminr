@@ -13,6 +13,42 @@
 | Bugs | 15 |
 | Feature Requests | 17 |
 | Discussion/Other | 21 |
+| **Open PRs** | **6** |
+
+---
+
+## Open Pull Requests
+
+### Ready for Review / Action Needed
+
+| PR | Title | Author | Created | Status | Notes |
+|----|-------|--------|---------|--------|-------|
+| **#374** | fixed summary error caused by missing data functionality | @Lilikon | 2025-12-18 | ⚠️ Conflicts | Fixes HOC summary error from missing data feature. Large PR (+3546/-694). **Directly addresses #373**. Needs rebase to resolve conflicts. |
+| **#358** | Wald Test for paths in bootstrapped PLS models | @soumyaray | 2024-12-11 | 🔍 Review Required | Adds `vcov()` and `coef()` for bootstrapped models + Wald test. Collaboration with @PascalHessler. Two checklist items incomplete. **Addresses #141, #372** (p-values). |
+
+### Stale PRs (>2 years old)
+
+| PR | Title | Author | Created | Status | Notes |
+|----|-------|--------|---------|--------|-------|
+| **#313** | Update issue templates | @soumyaray | 2022-09-28 | Stale | Maintenance: GitHub issue template updates. Consider closing or completing. |
+| **#221** | Unstandardization features | @soumyaray | 2021-05-26 | Stale | Feature: unstandardized coefficients. 4+ years old - evaluate if still needed. |
+| **#220** | Significance of bootstrap results | @soumyaray | 2021-05-26 | 📝 Draft | Feature: significance testing for bootstrap. **Related to #141, #372**. May be superseded by #358. |
+| **#217** | Paper | @soumyaray | 2021-05-03 | Stale | Documentation: package paper. Very large (+23870/-2770). Tagged `documentation`. |
+
+### PR Action Plan
+
+1. **#374** - High priority: Rebase and merge to fix HOC summary bug (#373)
+2. **#358** - Complete checklist items and review for p-value functionality
+3. **#220** - Evaluate if superseded by #358; close or merge into #358
+4. **#313, #221, #217** - Decide: close as stale, or complete if still relevant
+
+### PR-Issue Relationships
+
+| PR | Addresses Issues |
+|----|------------------|
+| #374 | #373 (HOC summary bug), potentially #369 |
+| #358 | #141 (p-values), #372 (mediation p-values) |
+| #220 | #141 (p-values) - may be superseded by #358 |
 
 ---
 
@@ -182,8 +218,15 @@ Issues without labels that should be categorized:
 
 ## Next Steps
 
-1. [ ] Apply missing labels to issues
-2. [ ] Close #150 (already tagged wontfix)
-3. [ ] Request reproducible examples for #350, #329
-4. [ ] Begin with Phase 1 quick wins
-5. [ ] Consider milestone for v2.5.0 with grouped fixes
+### Pull Requests
+1. [ ] **PR #374**: Rebase to resolve conflicts, then review/merge (fixes #373)
+2. [ ] **PR #358**: Complete remaining checklist items, then review
+3. [ ] **PR #220**: Evaluate if superseded by #358; close or consolidate
+4. [ ] **PRs #313, #221, #217**: Decide fate of stale PRs (close or complete)
+
+### Issues
+5. [ ] Apply missing labels to issues
+6. [ ] Close #150 (already tagged wontfix)
+7. [ ] Request reproducible examples for #350, #329
+8. [ ] Begin with Phase 1 quick wins
+9. [ ] Consider milestone for v2.5.0 with grouped fixes
