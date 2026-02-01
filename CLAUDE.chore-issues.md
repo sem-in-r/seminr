@@ -7,7 +7,7 @@
 
 | Ready to Merge | In Progress | v2.4.0 Staged | Experimental | Ready to Work | Needs Investigation | Backlog |
 |----------------|-------------|---------------|--------------|---------------|---------------------|---------|
-| —              | 1 PR        | 1 PR          | 2 PRs        | 11 issues     | 5 issues            | 20+     |
+| —              | 1 PR        | 1 PR          | 2 PRs        | 10 issues     | 5 issues            | 20+     |
 
 ---
 
@@ -34,7 +34,7 @@ _(none currently)_
 | Issue | Title | Status | Action |
 |-------|-------|--------|--------|
 | ~~[**#377**](https://github.com/sem-in-r/seminr/issues/377)~~ | ~~VIF output structure inconsistent~~ | ✅ PR [#379](https://github.com/sem-in-r/seminr/pull/379) | Review PR |
-| [**#240**](https://github.com/sem-in-r/seminr/issues/240) | summary() fails with factor column | 📋 Open | Filter to numeric before cor() |
+| ~~[**#240**](https://github.com/sem-in-r/seminr/issues/240)~~ | ~~summary() fails with factor column~~ | ✅ Closed | Fixed in v2.3.1 (PR #285) |
 | [**#298**](https://github.com/sem-in-r/seminr/issues/298) | predict_pls() rownames error | 📋 Open | Normalize rownames in predict |
 | [**#226**](https://github.com/sem-in-r/seminr/issues/226) | Lambda symbol not rendered | 📋 Open | Encoding fix |
 
@@ -176,6 +176,6 @@ Understanding these patterns helps prioritize fixes that address multiple issues
 - **Recommendation**: Add input validation and rowname normalization
 
 ### Summary Function Issues
-- **Issues**: [#373](https://github.com/sem-in-r/seminr/issues/373), [#369](https://github.com/sem-in-r/seminr/issues/369), [#353](https://github.com/sem-in-r/seminr/issues/353), [#341](https://github.com/sem-in-r/seminr/issues/341), [#240](https://github.com/sem-in-r/seminr/issues/240)
+- **Issues**: [#373](https://github.com/sem-in-r/seminr/issues/373), [#369](https://github.com/sem-in-r/seminr/issues/369), [#353](https://github.com/sem-in-r/seminr/issues/353), [#341](https://github.com/sem-in-r/seminr/issues/341)
 - **Pattern**: summary() breaks on edge cases
 - **Recommendation**: Fix together - likely shared root causes
