@@ -194,3 +194,8 @@ Visual regression tests for plots use `vdiffr`. Run `vdiffr::manage_cases()` to 
 GitHub Actions runs `R CMD check --as-cran` on macOS and Ubuntu (both release and devel R versions). The workflow is defined in `.github/workflows/rcmdcheck.yml`.
 
 Branches ending in `_noci` skip CI checks.
+
+## Git Preferences
+
+- Never include "Co-Authored-By: Claude" statements in PR descriptions or bodies
+- Co-authored statements are only for commit messages, not PRs
