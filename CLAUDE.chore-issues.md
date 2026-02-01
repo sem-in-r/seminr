@@ -7,7 +7,7 @@
 
 | Ready to Merge | In Progress | v2.4.0 Staged | Experimental | Ready to Work | Needs Investigation | Backlog |
 |----------------|-------------|---------------|--------------|---------------|---------------------|---------|
-| —              | 1 PR        | 1 PR          | 2 PRs        | 10 issues     | 5 issues            | 20+     |
+| —              | 1 PR        | 1 PR          | 2 PRs        | 9 issues      | 5 issues            | 20+     |
 
 ---
 
@@ -35,7 +35,7 @@ _(none currently)_
 |-------|-------|--------|--------|
 | ~~[**#377**](https://github.com/sem-in-r/seminr/issues/377)~~ | ~~VIF output structure inconsistent~~ | ✅ PR [#379](https://github.com/sem-in-r/seminr/pull/379) | Review PR |
 | ~~[**#240**](https://github.com/sem-in-r/seminr/issues/240)~~ | ~~summary() fails with factor column~~ | ✅ Closed | Fixed in v2.3.1 (PR #285) |
-| [**#298**](https://github.com/sem-in-r/seminr/issues/298) | predict_pls() rownames error | 📋 Open | Normalize rownames in predict |
+| ~~[**#298**](https://github.com/sem-in-r/seminr/issues/298)~~ | ~~predict_pls() rownames error~~ | ✅ Closed | Fixed in PR #368 |
 | [**#226**](https://github.com/sem-in-r/seminr/issues/226) | Lambda symbol not rendered | 📋 Open | Encoding fix |
 
 ---
@@ -48,7 +48,7 @@ _(none currently)_
 |-------|-------|--------|-------|---------|
 | [**#369**](https://github.com/sem-in-r/seminr/issues/369) | summary() regression in v2.3.7 | 📋 Open | 6 users affected | summary |
 | [**#353**](https://github.com/sem-in-r/seminr/issues/353) | summary() subscript out of bounds | 📋 Open | Complex models with interactions | summary |
-| [**#347**](https://github.com/sem-in-r/seminr/issues/347) | predict_pls subscript error | 📋 Open | Related to [#298](https://github.com/sem-in-r/seminr/issues/298) | predict |
+| [**#347**](https://github.com/sem-in-r/seminr/issues/347) | predict_pls subscript error | 📋 Open | Check if fixed by PR #368 | predict |
 | [**#341**](https://github.com/sem-in-r/seminr/issues/341) | HTMT Inf error in bootstrap | 📋 Open | Small sample sizes | bootstrap |
 | [**#327**](https://github.com/sem-in-r/seminr/issues/327) | interaction_term() quadratic error | 📋 Open | Single IV edge case | — |
 | [**#299**](https://github.com/sem-in-r/seminr/issues/299) | PLSc + HOC bootstrap length error | 📋 Open | Known pattern | hoc + bootstrap |
@@ -171,9 +171,9 @@ Understanding these patterns helps prioritize fixes that address multiple issues
 - **Recommendation**: Create comprehensive `export_results()` utilities
 
 ### Prediction Issues
-- **Issues**: [#347](https://github.com/sem-in-r/seminr/issues/347), [#298](https://github.com/sem-in-r/seminr/issues/298), [#222](https://github.com/sem-in-r/seminr/issues/222)
+- **Issues**: [#347](https://github.com/sem-in-r/seminr/issues/347), [#222](https://github.com/sem-in-r/seminr/issues/222)
 - **Pattern**: predict_pls() fragile with non-standard data
-- **Recommendation**: Add input validation and rowname normalization
+- **Recommendation**: Add input validation
 
 ### Summary Function Issues
 - **Issues**: [#373](https://github.com/sem-in-r/seminr/issues/373), [#369](https://github.com/sem-in-r/seminr/issues/369), [#353](https://github.com/sem-in-r/seminr/issues/353), [#341](https://github.com/sem-in-r/seminr/issues/341)
