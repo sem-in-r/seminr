@@ -10,8 +10,8 @@ on:
 
 name: R-CMD-check
 
-concurrency: # catch and kill duplicate runs on 'push' and 'pull_request'
-  group: ${{ github.workflow }}-${{ github.ref }}
+concurrency: # cancel duplicate runs from push and pull_request on same branch
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
