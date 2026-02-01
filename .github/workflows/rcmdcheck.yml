@@ -1,18 +1,13 @@
 on:
   push:
     branches:
-      - '**'
-      - '!*_noci'
+      - master
   pull_request:
     branches:
       - '**'
       - '!*_noci'
 
 name: R-CMD-check
-
-concurrency: # cancel duplicate runs from push and pull_request on same branch
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
 
 jobs:
   R-CMD-check:
