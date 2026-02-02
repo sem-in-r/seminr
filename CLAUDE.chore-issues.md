@@ -7,7 +7,7 @@
 
 | Ready to Merge | In Progress | v2.4.0 Staged | Experimental | Ready to Work | Needs Investigation | Backlog |
 |----------------|-------------|---------------|--------------|---------------|---------------------|---------|
-| —              | 1 PR        | 1 PR          | 2 PRs        | 9 issues      | 5 issues            | 20+     |
+| —              | —           | 2 PRs         | 2 PRs        | 9 issues      | 5 issues            | 20+     |
 
 ---
 
@@ -22,18 +22,17 @@ _(none currently)_
 | PR | Fixes | Author | Status | Notes |
 |----|-------|--------|--------|-------|
 | [**#374**](https://github.com/sem-in-r/seminr/pull/374) | [#373](https://github.com/sem-in-r/seminr/issues/373) (HOC summary bug) | @Lilikon | 📦 Staged | Targets `version_2_4_0` branch |
+| [**#379**](https://github.com/sem-in-r/seminr/pull/379) | [#377](https://github.com/sem-in-r/seminr/issues/377) (VIF output) | @soumyaray | ✅ Merged | Merged into `develop` |
 
 ### PRs In Progress
 
-| PR | Fixes | Author | Status | Action |
-|----|-------|--------|--------|--------|
-| [**#379**](https://github.com/sem-in-r/seminr/pull/379) | [#377](https://github.com/sem-in-r/seminr/issues/377) (VIF output) | @soumyaray | 🚧 Open | Review → Merge |
+_(none currently)_
 
 ### Quick Wins (< 1 hour each)
 
 | Issue | Title | Status | Action |
 |-------|-------|--------|--------|
-| ~~[**#377**](https://github.com/sem-in-r/seminr/issues/377)~~ | ~~VIF output structure inconsistent~~ | ✅ PR [#379](https://github.com/sem-in-r/seminr/pull/379) | Review PR |
+| ~~[**#377**](https://github.com/sem-in-r/seminr/issues/377)~~ | ~~VIF output structure inconsistent~~ | ✅ Closed | Fixed in PR #379 |
 | ~~[**#240**](https://github.com/sem-in-r/seminr/issues/240)~~ | ~~summary() fails with factor column~~ | ✅ Closed | Fixed in v2.3.1 (PR #285) |
 | ~~[**#298**](https://github.com/sem-in-r/seminr/issues/298)~~ | ~~predict_pls() rownames error~~ | ✅ Closed | Fixed in PR #368 |
 | [**#226**](https://github.com/sem-in-r/seminr/issues/226) | Lambda symbol not rendered | 📋 Open | Encoding fix |
