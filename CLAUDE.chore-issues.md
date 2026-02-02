@@ -45,7 +45,7 @@ _(none currently)_
 
 | Issue | Title | Status | Notes | Cluster |
 |-------|-------|--------|-------|---------|
-| [**#369**](https://github.com/sem-in-r/seminr/issues/369) | summary() regression in v2.3.7 | 📋 Open | 6 users affected | summary |
+| [**#369**](https://github.com/sem-in-r/seminr/issues/369) | summary() regression in v2.3.7 | ⏳ PR pending | Fix in [#374](https://github.com/sem-in-r/seminr/pull/374); awaiting merge | summary |
 | [**#353**](https://github.com/sem-in-r/seminr/issues/353) | summary() subscript out of bounds | 📋 Open | Complex models with interactions | summary |
 | [**#347**](https://github.com/sem-in-r/seminr/issues/347) | predict_pls subscript error | 📋 Open | Check if fixed by PR #368 | predict |
 | [**#341**](https://github.com/sem-in-r/seminr/issues/341) | HTMT Inf error in bootstrap | 📋 Open | Small sample sizes | bootstrap |
