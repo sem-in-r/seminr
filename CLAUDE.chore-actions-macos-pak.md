@@ -51,16 +51,9 @@ on:
 ```
 **Why keep**: v1 is deprecated; v2 is the current version.
 
-### REVERT LATER: Added `cache: "never"`
-```yaml
-- uses: r-lib/actions/setup-r-dependencies@v2
-  with:
-    cache: "never"  # TEMPORARY - remove when upstream issue resolved
-```
-**Why revert**: This was added to force fresh package resolution, but slows down CI. Remove once r-lib/pak#840 is fixed or CRAN metadata stabilizes.
-
-### ALREADY REVERTED: Other attempted fixes
+### REVERTED: Attempted fixes that didn't work
 These were tried but didn't help and have been removed:
+- `cache: "never"` - didn't fix the issue, only slowed CI
 - `pak-version: devel` - didn't fix the issue
 - `extra-packages: any::psych` - didn't fix the issue
 
