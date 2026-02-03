@@ -39,12 +39,16 @@ jobs:
           r-version: ${{ matrix.config.r }}
 
       # pandoc to check markdown files
-      - uses: r-lib/actions/setup-pandoc@v1
+      - uses: r-lib/actions/setup-pandoc@v2
 
       # Modern dependency management - handles system deps, caching, and R packages
+      # Note: explicit extra-packages help pak resolve transitive dependencies more
+      # reliably, avoiding intermittent failures on macOS (see CLAUDE.chore-actions-macos-pak.md)
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rcmdcheck
+          extra-packages: |
+            any::rcmdcheck
+            any::psych
           needs: check
 
       # --- OLD MANUAL DEPENDENCY MANAGEMENT (commented out) ---
