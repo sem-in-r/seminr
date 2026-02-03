@@ -16,64 +16,65 @@ Caused by error in `file(con, "rb")`:
 - macOS-latest (devel) passed with identical code
 - Ubuntu jobs passed
 
-This suggests a transient/flaky issue rather than a code problem.
+## Root Cause (Confirmed)
 
-## Root Cause Analysis
+This is a **known CRAN infrastructure issue**, not a problem with our code or workflow.
 
-1. **No committed lockfile**: The `setup-r-dependencies@v2` action creates lockfiles dynamically, which can lead to inconsistent package resolution across runs.
+CRAN's macOS binary metadata intermittently becomes out of sync with actual package files. The metadata reports old package versions (e.g., `later 1.4.4`) but the binary files have already been updated (e.g., `later_1.4.5.tgz`). Pak tries to download the old version which no longer exists, causing the "cannot open the connection" error.
 
-2. **Parallel installation race conditions**: `pak` installs packages in parallel, which can cause file I/O issues on macOS runners.
+### Upstream Issues Tracking This
 
-3. **Transitive dependencies**: Packages like `psych` (not a direct seminr dependency) are resolved at runtime and may have availability issues for specific R/OS combinations.
+- [r-lib/actions#1041](https://github.com/r-lib/actions/issues/1041) - Exact same error reported
+- [r-lib/actions#1040](https://github.com/r-lib/actions/issues/1040) - CRAN metadata inconsistencies workaround
+- [r-lib/pak#840](https://github.com/r-lib/pak/issues/840) - pak workaround in progress
+- [yihui/litedown#112](https://github.com/yihui/litedown/issues/112) - Detailed root cause analysis
 
-## Potential Solutions
+### Why It Recurs
 
-### Option A: Simple Re-run (Status Quo)
-- **Approach**: Accept occasional transient failures; re-run when they occur
-- **Pros**: No code changes needed
-- **Cons**: Annoying; blocks PRs until manual intervention
+The CRAN maintainer (@s-u) fixes specific instances when reported, but the issue recurs each time packages are updated and mirrors don't sync properly.
 
-### Option B: Add Explicit Extra Packages
-- **Approach**: Add problematic transitive dependencies to `extra-packages` in workflow
-- **Code change**:
-  ```yaml
-  extra-packages: |
-    any::rcmdcheck
-    any::psych
-  ```
-- **Pros**: Simple change; helps pak resolve dependencies more reliably
-- **Cons**: May need ongoing maintenance as dependencies change
+## Changes Made to Workflow
 
-### Option C: Commit a Lockfile
-- **Approach**: Generate and commit `.github/pkg.lock` for reproducible builds
-- **Steps**:
-  1. Run `pak::lockfile_create()` locally
-  2. Commit the lockfile
-  3. Update workflow if needed
-- **Pros**: Fully reproducible builds; eliminates resolution variability
-- **Cons**: Lockfile needs periodic updates; may cause issues across R versions
+The following changes were made during investigation. Some are worth keeping, others should be reverted once the upstream issue is resolved.
 
-### Option D: Add Retry Logic
-- **Approach**: Wrap dependency installation in retry logic
-- **Pros**: Handles transient failures automatically
-- **Cons**: More complex workflow; masks real issues
+### KEEP: Added `workflow_dispatch` trigger
+```yaml
+on:
+  ...
+  workflow_dispatch:
+```
+**Why keep**: Allows manually triggering CI from GitHub Actions UI - useful for debugging without code changes.
 
-## Recommended Approach
+### KEEP: Updated `setup-pandoc` from v1 to v2
+```yaml
+- uses: r-lib/actions/setup-pandoc@v2  # was @v1
+```
+**Why keep**: v1 is deprecated; v2 is the current version.
 
-**Start with Option B** (add explicit extra packages) as it's low-risk and addresses the immediate issue. If failures persist, escalate to Option C (committed lockfile).
+### REVERT LATER: Added `cache: "never"`
+```yaml
+- uses: r-lib/actions/setup-r-dependencies@v2
+  with:
+    cache: "never"  # TEMPORARY - remove when upstream issue resolved
+```
+**Why revert**: This was added to force fresh package resolution, but slows down CI. Remove once r-lib/pak#840 is fixed or CRAN metadata stabilizes.
 
-## Implementation Steps
+### ALREADY REVERTED: Other attempted fixes
+These were tried but didn't help and have been removed:
+- `pak-version: devel` - didn't fix the issue
+- `extra-packages: any::psych` - didn't fix the issue
 
-1. [ ] Wait for re-run of current PR to confirm if issue is truly transient
-2. [ ] If re-run fails again, implement Option B
-3. [ ] Monitor CI stability over next few PRs
-4. [ ] Consider Option C if issues persist
+## Recommended Action
 
-## Files to Modify
+**Wait for upstream fix.** This is a CRAN infrastructure issue being actively addressed:
+- Monitor [r-lib/pak#840](https://github.com/r-lib/pak/issues/840) for pak-level workaround
+- The issue typically resolves within hours/days when CRAN metadata syncs
+- Re-run failed CI jobs when this happens
 
-- `.github/workflows/rcmdcheck.yml` (lines 44-47)
+## Historical Context
 
-## References
+The old `remotes::` based approach (commented out in workflow) was replaced with `r-lib/actions/setup-r-dependencies@v2` because remotes was causing errors on Ubuntu. Don't revert to remotes without understanding why it was changed.
 
-- Failed run: https://github.com/sem-in-r/seminr/actions/runs/21629028452
-- r-lib/actions setup-r-dependencies: https://github.com/r-lib/actions/tree/v2/setup-r-dependencies
+## Files Modified
+
+- `.github/workflows/rcmdcheck.yml`
