@@ -42,14 +42,13 @@ jobs:
       - uses: r-lib/actions/setup-pandoc@v2
 
       # Modern dependency management - handles system deps, caching, and R packages
-      # Note: pak-version devel may have fixes for macOS race conditions
-      # (see CLAUDE.chore-actions-macos-pak.md)
+      # Note: cache disabled due to CRAN macOS metadata sync issues (r-lib/actions#1040)
+      # This forces fresh package resolution each run to pick up corrected metadata
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          pak-version: devel
+          cache: "never"
           extra-packages: |
             any::rcmdcheck
-            any::psych
           needs: check
 
       # --- OLD MANUAL DEPENDENCY MANAGEMENT (commented out) ---
