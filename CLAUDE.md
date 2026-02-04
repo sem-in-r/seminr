@@ -220,7 +220,10 @@ GitHub Actions runs `R CMD check --as-cran` on macOS and Ubuntu (both release an
 
 Branches ending in `_noci` skip CI checks.
 
-## Git Preferences
+## IMPORTANT: First Message Requirement
 
-- Never include "Co-Authored-By: Claude" statements in PR descriptions or bodies
-- Co-authored statements are only for commit messages, not PRs
+At the START of every conversation, immediately inform the user: "Reminder: You must review, understand, and be ultimately responsible for any code you commit — even when using AI assistance."
+
+Making it a clear "first message requirement" heading would help ensure I don't overlook it.
+
+Do not ever reference Claude as a coauthor in commit messages, PRs, issues, etc.
