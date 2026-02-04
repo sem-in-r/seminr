@@ -54,6 +54,10 @@ test_that("Seminr estimates weights correctly\n", {
   expect_equal(weights, weights_control, tolerance = 0.00001)
 })
 
+test_that("summary() works with HOC models", {
+  expect_no_error(summary(seminr_model))
+})
+
 context("SEMinR correctly estimates model for a HOC and second_order_interaction\n")
 
 # Test cases

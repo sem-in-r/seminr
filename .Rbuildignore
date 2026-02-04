@@ -17,3 +17,7 @@
 ^R/library-references\.R$
 ^\.github$
 ^doc$
+^CLAUDE\.md$
+^CLAUDE\.local\.md$
+^CLAUDE\.*\.md$
+^\.claude$

@@ -12,7 +12,7 @@
 #' @export
 #'
 # @examples
-seminr_theme_old <- function(plot.title.fontsize = 24,
+seminr_theme_academic <- function(plot.title.fontsize = 24,
                                  mm.node.label.fontsize = 8,
                                  sm.node.label.fontsize = 12,
                                  mm.edge.label.fontsize = 7,

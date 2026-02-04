@@ -5,7 +5,7 @@
 \alias{corp_rep_data2}
 \title{A Second Measurement Instrument for the Corporate Reputation Model}
 \format{
-A data frame with 347 rows and 49 variables:
+A data frame with 347 rows and 41 variables:
 \describe{
   \item{servicetype}{A categorical variable for the service type: 1=Postpaid plan; 2=Prepaid plan.}
   \item{serviceprovider}{A categorical variable for the service provider: 1, 2, 3, or 4.}
