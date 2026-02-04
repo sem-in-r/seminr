@@ -189,6 +189,31 @@ Tests use `testthat` and are in `tests/testthat/`. Test fixtures are stored in `
 
 Visual regression tests for plots use `vdiffr`. Run `vdiffr::manage_cases()` to update snapshots when plot output intentionally changes.
 
+### Parallel Code Testing (Important!)
+
+**Tests using parallel processing (e.g., `predict_pls` with LOOCV) require the package to be installed before running `devtools::test()`.**
+
+```r
+# For parallel tests to pass:
+devtools::install()
+devtools::test()
+
+# Or use devtools::check() which installs to a temp library (slower but keeps local package untouched):
+devtools::check()
+```
+
+**Why:** `devtools::load_all()` only loads the package in the main R process. Parallel workers created by `parallel::makeCluster()` load the *installed* version via `library(seminr)`. If the installed version differs from development code, tests fail with cryptic errors like "number of items to replace is not a multiple of replacement length".
+
+**Affected tests:** `test-plspredict.R` (uses `parallel::parSapply` for LOOCV)
+
+**To restore stable version after `devtools::install()`:**
+
+```r
+install.packages("seminr")                        # Latest CRAN
+remotes::install_github("sem-in-r/seminr")        # Latest GitHub main
+remotes::install_version("seminr", "2.3.3")       # Specific version
+```
+
 ## CI/CD
 
 GitHub Actions runs `R CMD check --as-cran` on macOS and Ubuntu (both release and devel R versions). The workflow is defined in `.github/workflows/rcmdcheck.yml`.

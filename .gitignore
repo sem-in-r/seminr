@@ -12,3 +12,7 @@ doc
 /check/
 /doc/
 /Meta/
+
+# R CMD check/build artifacts
+*.Rcheck/
+*.tar.gz
