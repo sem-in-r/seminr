@@ -1023,12 +1023,10 @@ extract_sm_edges <- function(model, theme, weights = 1) {
   # start with empty set of edges
   sm_edges <- c()
 
-  # Unicode for small mathematical symbols
-  # TODO: does not work in <B> sections, yet(?)
+  # Unicode for small Greek symbols (BMP range for broad font support)
   if ( theme$plot.specialcharacters ) {
-    beta <- "\U0001D6FD"
-    gamma <- "\U0001D6FE" # non-bold
-    gamma <- "\U0001D738" # bold
+    beta <- "\u03B2"
+    gamma <- "\u03B3"
   } else {
     beta <- "beta"
     gamma <- "gamma"
@@ -1503,10 +1501,9 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
   edges <- ""
 
   # determine letter to use (What is with A and B type constructs?)
-  # Small mathematical lambda
+  # Small Greek lambda (BMP range for broad font support)
   if (theme$plot.specialcharacters) {
-    lambda <- "\U0001D706" # nonbold
-    # lambda <- "\U0001D740" #bold
+    lambda <- "\u03BB"
   } else {
     lambda <- "lambda"
   }
