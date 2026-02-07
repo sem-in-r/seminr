@@ -21,3 +21,4 @@
 ^CLAUDE\.local\.md$
 ^CLAUDE\.*\.md$
 ^\.claude$
+^\.sw*$
