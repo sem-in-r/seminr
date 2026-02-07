@@ -27,7 +27,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::rsvg, any::DiagrammeRsvg
+          extra-packages: any::rsvg, any::DiagrammeRsvg, any::devtools
           needs: check
 
       - name: Generate plot exports
