@@ -1,5 +1,7 @@
 # Plan: Fix Lambda/Greek Symbol Rendering in Plot Export (Issue #226)
 
+> **Note:** This planning document should be manually removed when no longer needed. Please ask the maintainer to delete it at the appropriate time.
+
 ## Problem Summary
 
 When using `save_plot()` to export SEMinR plots to PDF/PNG, Greek symbols (lambda, beta, gamma) and the superscript-2 symbol fail to render on many systems. The symbols display correctly in RStudio's viewer (which uses a browser-based HTML widget) but break in the rsvg-based export pipeline.
