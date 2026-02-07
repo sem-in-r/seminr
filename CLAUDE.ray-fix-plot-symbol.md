@@ -1,6 +1,8 @@
 # Plan: Fix Lambda/Greek Symbol Rendering in Plot Export (Issue #226)
 
 > **Note:** This planning document should be manually removed when no longer needed. Please ask the maintainer to delete it at the appropriate time.
+>
+> **Important:** This plan must be kept up to date before and after implementations, as conversation context may be cleared at any time before continuing work.
 
 ## Problem Summary
 
@@ -103,6 +105,24 @@ The existing test suite validates that the change doesn't break anything:
 - Visual output is identical — both PNG renders show λ, β, r² symbols correctly
 
 Before/after PNG and PDF comparison files are in the project root (`before.png`, `after.png`, `before.pdf`, `after.pdf`) for manual review. These should be deleted before committing.
+
+## Implementation Status
+
+### Completed
+
+- [x] Root cause analysis
+- [x] Fix applied to `R/plot_dot.R` (3-line change: SMP → BMP Greek characters)
+- [x] Local manual verification on macOS (before/after PNG/PDF comparison)
+- [x] All 61 plot tests pass (`devtools::test(filter = "plot")`)
+- [x] PR created: #389
+- [x] Temporary CI workflow added (`verify-plot-symbols.yml`) to generate plot artifacts on all platforms
+
+### Pending
+
+- [ ] Inspect CI artifacts from `Verify Plot Symbols` workflow on Windows, Ubuntu, and macOS
+- [ ] Update PR description with before/after screenshots from CI artifacts
+- [ ] Remove `verify-plot-symbols.yml` before merge
+- [ ] Remove `devtools` from `extra-packages` in `verify-plot-symbols.yml` (added only for this verification; should be cleaned up when the workflow is removed)
 
 ## Risk Assessment
 
