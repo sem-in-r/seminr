@@ -9,7 +9,7 @@
 
 | v2.4.0 Released | Merged to develop (unreleased) | Experimental | Ready to Work | Needs Investigation | Backlog |
 | --------------- | ------------------------------ | ------------ | ------------- | ------------------- | ------- |
-| 2026-02-04      | 5 PRs                          | 2 PRs        | 8 issues      | 5 issues            | 20+     |
+| 2026-02-04      | 6 PRs                          | 2 PRs        | 8 issues      | 5 issues            | 20+     |
 
 ---
 
@@ -34,6 +34,7 @@ Note: The bug fixes below (PRs #379, #383, etc.) were merged to `develop` but di
 | [**#388**](https://github.com/sem-in-r/seminr/pull/388) | PLSpredict parallel testing | @soumyaray | 2026-02-04 | Fix parallel worker behavior on local macOS |
 | [**#380**](https://github.com/sem-in-r/seminr/pull/380) | CI workflow | @soumyaray | 2026-02-01 | Fix GitHub Actions for Ubuntu 24.04 |
 | [**#389**](https://github.com/sem-in-r/seminr/pull/389) | [#226](https://github.com/sem-in-r/seminr/issues/226) (Plot symbols) | @soumyaray | 2026-02-07 | Fix BMP Greek letters for λ, β, γ in plot exports |
+| [**#390**](https://github.com/sem-in-r/seminr/pull/390) | [#347](https://github.com/sem-in-r/seminr/issues/347) (predict_pls rownames) | @soumyaray | 2026-02-17 | Regression test confirming fix from PR #368 |
 
 ### PRs In Progress
 
@@ -61,7 +62,7 @@ Note: The bug fixes below (PRs #379, #383, etc.) were merged to `develop` but di
 | [**#369**](https://github.com/sem-in-r/seminr/issues/369) | summary() regression in v2.3.7 | ✅ Fixed in develop | Fix in [#383](https://github.com/sem-in-r/seminr/pull/383); close on next release | summary |
 | [**#373**](https://github.com/sem-in-r/seminr/issues/373) | HOC summary undefined columns | ✅ Fixed in develop | Fix in [#383](https://github.com/sem-in-r/seminr/pull/383); close on next release | summary + hoc |
 | ~~[**#353**](https://github.com/sem-in-r/seminr/issues/353)~~ | ~~summary() subscript out of bounds~~ | ✅ Closed | Model misspecification per maintainer | summary |
-| [**#347**](https://github.com/sem-in-r/seminr/issues/347) | predict_pls subscript error | 📋 Open | Check if fixed by PR #368 | predict |
+| [**#347**](https://github.com/sem-in-r/seminr/issues/347) | predict_pls subscript error | ✅ Fixed in develop | Fixed by [PR #368](https://github.com/sem-in-r/seminr/pull/368); regression test in [PR #390](https://github.com/sem-in-r/seminr/pull/390); close on next release | predict |
 | [**#341**](https://github.com/sem-in-r/seminr/issues/341) | HTMT Inf error in bootstrap | 📋 Open | Small sample sizes | bootstrap |
 | [**#327**](https://github.com/sem-in-r/seminr/issues/327) | interaction_term() quadratic error | 📋 Open | Single IV edge case | — |
 | [**#299**](https://github.com/sem-in-r/seminr/issues/299) | PLSc + HOC bootstrap length error | 📋 Open | Known pattern | hoc + bootstrap |
@@ -200,7 +201,7 @@ Understanding these patterns helps prioritize fixes that address multiple issues
 
 ### Prediction Issues
 
-- **Issues**: [#347](https://github.com/sem-in-r/seminr/issues/347), [#222](https://github.com/sem-in-r/seminr/issues/222)
+- **Issues**: ~~[#347](https://github.com/sem-in-r/seminr/issues/347)~~ (✅ fixed), [#222](https://github.com/sem-in-r/seminr/issues/222)
 - **Pattern**: predict_pls() fragile with non-standard data
 - **Recommendation**: Add input validation
 
