@@ -30,7 +30,7 @@ Note: The bug fixes below (PRs #379, #383, etc.) were merged to `develop` but di
 | PR | Fixes | Author | Merged | Notes |
 | --- | --- | --- | --- | --- |
 | [**#379**](https://github.com/sem-in-r/seminr/pull/379) | [#377](https://github.com/sem-in-r/seminr/issues/377) (VIF output) | @soumyaray | 2026-02-01 | Fix vif_items named list structure |
-| [**#383**](https://github.com/sem-in-r/seminr/pull/383) | [#369](https://github.com/sem-in-r/seminr/issues/369), [#373](https://github.com/sem-in-r/seminr/issues/373) (HOC summary) | @soumyaray | 2026-02-03 | Fix + linting for HOC summary; test added in [#381](https://github.com/sem-in-r/seminr/pull/381). Supersedes [#374](https://github.com/sem-in-r/seminr/pull/374) (still open, targets `version_2_4_0`) |
+| [**#383**](https://github.com/sem-in-r/seminr/pull/383) | [#369](https://github.com/sem-in-r/seminr/issues/369), [#373](https://github.com/sem-in-r/seminr/issues/373) (HOC summary) | @soumyaray | 2026-02-03 | Fix + linting for HOC summary; test added in [#381](https://github.com/sem-in-r/seminr/pull/381). Supersedes [#374](https://github.com/sem-in-r/seminr/pull/374) (now closed) |
 | [**#388**](https://github.com/sem-in-r/seminr/pull/388) | PLSpredict parallel testing | @soumyaray | 2026-02-04 | Fix parallel worker behavior on local macOS |
 | [**#380**](https://github.com/sem-in-r/seminr/pull/380) | CI workflow | @soumyaray | 2026-02-01 | Fix GitHub Actions for Ubuntu 24.04 |
 | [**#389**](https://github.com/sem-in-r/seminr/pull/389) | [#226](https://github.com/sem-in-r/seminr/issues/226) (Plot symbols) | @soumyaray | 2026-02-07 | Fix BMP Greek letters for λ, β, γ in plot exports |
@@ -155,7 +155,7 @@ Low priority explorations — not actively being addressed.
 
 | PR | Title | Decision Needed |
 | --- | --- | --- |
-| [**#374**](https://github.com/sem-in-r/seminr/pull/374) | Fixed summary error (missing data + HOC) | Close - superseded by [#383](https://github.com/sem-in-r/seminr/pull/383) (targets stale `version_2_4_0` branch) |
+| ~~[**#374**](https://github.com/sem-in-r/seminr/pull/374)~~ | ~~Fixed summary error (missing data + HOC)~~ | ✅ Closed — superseded by [#383](https://github.com/sem-in-r/seminr/pull/383) |
 
 ### Stale PRs (>2 years)
 
