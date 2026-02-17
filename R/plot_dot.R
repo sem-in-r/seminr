@@ -840,7 +840,7 @@ get_sm_element_offset <- function(element) {
 dot_component_sm <- function(model, theme, structure_only = FALSE, alpha = 0.05) {
   sm_nodes <- extract_sm_nodes(model, theme, structure_only = structure_only)
   sm_node_style <- get_sm_node_style(theme)
-  sm_edges <- extract_sm_edges(model, theme, , alpha = alpha)
+  sm_edges <- extract_sm_edges(model, theme, alpha = alpha)
   sm_edge_style <- get_sm_edge_style(theme)
   glue_dot(paste0("// --------------------\n",
                   "// The structural model\n",
