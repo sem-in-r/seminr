@@ -261,10 +261,10 @@ test_that("predict_pls with non-standard rownames matches standard rowname resul
   result_char <- predict_pls(model_char, technique = predict_DA, noFolds = 10)
 
   # Predictions should be numerically identical (ignoring rownames)
-  expect_equal(unname(result_nonseq$items$PLS_out_of_sample),
-               unname(result_std$items$PLS_out_of_sample))
-  expect_equal(unname(result_char$items$PLS_out_of_sample),
-               unname(result_std$items$PLS_out_of_sample))
+  expect_equal(`rownames<-`(result_nonseq$items$PLS_out_of_sample, NULL),
+               `rownames<-`(result_std$items$PLS_out_of_sample, NULL))
+  expect_equal(`rownames<-`(result_char$items$PLS_out_of_sample, NULL),
+               `rownames<-`(result_std$items$PLS_out_of_sample, NULL))
 
   # Also verify reps path
   set.seed(42)
@@ -274,8 +274,8 @@ test_that("predict_pls with non-standard rownames matches standard rowname resul
   set.seed(42)
   reps_char <- predict_pls(model_char, technique = predict_DA, noFolds = 10, reps = 2)
 
-  expect_equal(unname(reps_nonseq$items$PLS_out_of_sample),
-               unname(reps_std$items$PLS_out_of_sample))
-  expect_equal(unname(reps_char$items$PLS_out_of_sample),
-               unname(reps_std$items$PLS_out_of_sample))
+  expect_equal(`rownames<-`(reps_nonseq$items$PLS_out_of_sample, NULL),
+               `rownames<-`(reps_std$items$PLS_out_of_sample, NULL))
+  expect_equal(`rownames<-`(reps_char$items$PLS_out_of_sample, NULL),
+               `rownames<-`(reps_std$items$PLS_out_of_sample, NULL))
 })
