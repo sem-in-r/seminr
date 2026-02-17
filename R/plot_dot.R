@@ -932,7 +932,7 @@ format_sm_node <- function(construct, model, theme){
 
   #detect if exogenous construct
   if (construct %in% colnames(model$rSquared)) {
-    rstring <- paste0(r_string, "r", squared_symbol, " = ",
+    rstring <- paste0(r_string, "R", squared_symbol, " = ",
                       round(model$rSquared[r_index, construct], theme$plot.rounding))
 
     label_string <- format_endo_node_label(theme, construct, rstring)
@@ -941,7 +941,7 @@ format_sm_node <- function(construct, model, theme){
                              ">", shape_string, "]")
   } else {
     label_string <- format_exo_node_label(theme, construct)
-    formatted_node <- paste0("\"", construct, "\"" , " [label=<",
+    formatted_node <- paste0("\"", construct, "\"", " [label=<",
                              label_string,
                              ">", shape_string, "]")
   }
