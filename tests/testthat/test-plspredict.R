@@ -271,7 +271,11 @@ test_that("predict_pls with non-standard rownames matches standard rowname resul
   reps_std <- predict_pls(model_std, technique = predict_DA, noFolds = 10, reps = 2)
   set.seed(42)
   reps_nonseq <- predict_pls(model_nonseq, technique = predict_DA, noFolds = 10, reps = 2)
+  set.seed(42)
+  reps_char <- predict_pls(model_char, technique = predict_DA, noFolds = 10, reps = 2)
 
   expect_equal(unname(reps_nonseq$items$PLS_out_of_sample),
+               unname(reps_std$items$PLS_out_of_sample))
+  expect_equal(unname(reps_char$items$PLS_out_of_sample),
                unname(reps_std$items$PLS_out_of_sample))
 })
