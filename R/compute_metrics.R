@@ -127,6 +127,8 @@ report_missing <- function(seminr_model) {
     missing_proportion = numeric()
   )
   no_int_mmvars <- seminr_model$mmVariables[!grepl("\\*", seminr_model$mmVariables)]
+  # Check that all no_int_mmvars are present in raw data
+  no_int_mmvars <- intersect(no_int_mmvars, names(seminr_model$rawdata))
   # subset raw data for missing analysis
   data_subset <- seminr_model$rawdata[, no_int_mmvars]
   for (i in 1:ncol(data_subset)) {
