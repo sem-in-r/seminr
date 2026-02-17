@@ -19,7 +19,7 @@ PR #368 already fixed the root cause. This branch adds regression tests only. No
 - [x] Plan created
 - [x] Investigation complete — confirmed fix already in PR #368
 - [x] Regression tests written and passing (all 9 tests pass)
-- [ ] Decision: ship test-only branch, or close and note on issue #347
+- [x] Decision: ship test-only PR (#390)
 
 ## Key Findings
 
@@ -79,11 +79,12 @@ The regression test estimates three models from identical data with different ro
 ## Tasks
 
 - [x] 1 Regression test: `predict_pls()` with non-standard rownames produces identical results to standard rownames (covers non-sequential numeric, character, and `reps` paths)
-- [ ] 2 Decision: ship test-only PR, or close branch and note fix on issue #347
+- [x] 2 Decision: ship test-only PR (#390)
 
 ## Completed
 
 - Task 1: Single consolidated regression test added to `tests/testthat/test-plspredict.R`
+- Task 2: Draft PR #390 created — shipping test-only branch
 
 ---
 
