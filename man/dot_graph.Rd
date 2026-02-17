@@ -19,6 +19,7 @@ dot_graph(model, title = "", theme = NULL, ...)
   theme = NULL,
   what = "std",
   whatLabels = "std",
+  alpha = NULL,
   ...
 )
 
@@ -28,12 +29,13 @@ dot_graph(model, title = "", theme = NULL, ...)
   theme = NULL,
   what = "std",
   whatLabels = "std",
+  alpha = NULL,
   ...
 )
 
-\method{dot_graph}{measurement_model}(model, title = "", theme = NULL, ...)
+\method{dot_graph}{measurement_model}(model, title = "", theme = NULL, alpha = NULL, ...)
 
-\method{dot_graph}{structural_model}(model, title = "", theme = NULL, ...)
+\method{dot_graph}{structural_model}(model, title = "", theme = NULL, alpha = NULL, ...)
 
 \method{dot_graph}{specified_model}(
   model,
@@ -41,6 +43,7 @@ dot_graph(model, title = "", theme = NULL, ...)
   theme = NULL,
   measurement_only = FALSE,
   structure_only = FALSE,
+  alpha = NULL,
   ...
 )
 
@@ -50,6 +53,7 @@ dot_graph(model, title = "", theme = NULL, ...)
   theme = NULL,
   measurement_only = FALSE,
   structure_only = FALSE,
+  alpha = 0.05,
   ...
 )
 
@@ -59,6 +63,7 @@ dot_graph(model, title = "", theme = NULL, ...)
   theme = NULL,
   measurement_only = FALSE,
   structure_only = FALSE,
+  alpha = 0.05,
   ...
 )
 }
@@ -74,6 +79,8 @@ dot_graph(model, title = "", theme = NULL, ...)
 \item{what}{The metric to use for edges ("path", "est", "std", "eq", "col")}
 
 \item{whatLabels}{The metric to use for edge labels}
+
+\item{alpha}{The significance level for the confidence interval. Default is 0.05. Only meaningful for bootstrapped models.}
 
 \item{measurement_only}{Plot only measurement part}
 
@@ -130,7 +137,7 @@ res <- dot_graph(mobi_pls, title = "PLS-Model plot")
 DiagrammeR::grViz(res)}
 
 # generate dot-Notation
-res <- dot_graph(mobi_boot, title = "Bootstrapped PLS-Model plot")
+res <- dot_graph(mobi_boot, title = "Bootstrapped PLS-Model plot", alpha = 0.01)
 
 \dontrun{
 DiagrammeR::grViz(res)}
