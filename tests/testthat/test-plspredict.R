@@ -197,3 +197,85 @@ test_that("Seminr generates the predicted scores correctly", {
   expect_equal(res[1:24],two_stage_predict_pls_control[1:24], tolerance = 0.000001)
 })
 
+# == Regression tests for non-standard rownames (GitHub issue #347) ==
+
+context("predict_pls handles non-standard rownames (issue #347)\n")
+
+# Shared model spec for rowname tests
+rowname_mm <- constructs(
+  composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
+  composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
+  composite("COMP", multi_items("comp_", 1:3)),
+  composite("LIKE", multi_items("like_", 1:3)),
+  composite("CUSA", single_item("cusa")),
+  composite("CUSL", multi_items("cusl_", 1:3))
+)
+
+rowname_sm <- relationships(
+  paths(from = c("QUAL", "PERF"), to = c("COMP", "LIKE")),
+  paths(from = c("COMP", "LIKE"), to = c("CUSA", "CUSL"))
+)
+
+test_that("predict_pls with non-standard rownames matches standard rowname results", {
+  data_standard <- corp_rep_data[1:100, ]
+  rownames(data_standard) <- seq_len(nrow(data_standard))
+
+  # Same data with non-sequential numeric rownames (as if subset from larger df)
+  data_nonseq <- data_standard
+  rownames(data_nonseq) <- seq(from = 10, by = 3, length.out = nrow(data_standard))
+
+  # Same data with character rownames
+  data_char <- data_standard
+  rownames(data_char) <- paste0("obs_", seq_len(nrow(data_standard)))
+
+  suppressMessages({
+    model_std <- estimate_pls(
+      data = data_standard,
+      measurement_model = rowname_mm,
+      structural_model = rowname_sm,
+      missing = mean_replacement,
+      missing_value = "-99"
+    )
+    model_nonseq <- estimate_pls(
+      data = data_nonseq,
+      measurement_model = rowname_mm,
+      structural_model = rowname_sm,
+      missing = mean_replacement,
+      missing_value = "-99"
+    )
+    model_char <- estimate_pls(
+      data = data_char,
+      measurement_model = rowname_mm,
+      structural_model = rowname_sm,
+      missing = mean_replacement,
+      missing_value = "-99"
+    )
+  })
+
+  # Predict with identical shuffle (same seed) for each model
+  set.seed(42)
+  result_std <- predict_pls(model_std, technique = predict_DA, noFolds = 10)
+  set.seed(42)
+  result_nonseq <- predict_pls(model_nonseq, technique = predict_DA, noFolds = 10)
+  set.seed(42)
+  result_char <- predict_pls(model_char, technique = predict_DA, noFolds = 10)
+
+  # Predictions should be numerically identical (ignoring rownames)
+  expect_equal(`rownames<-`(result_nonseq$items$PLS_out_of_sample, NULL),
+               `rownames<-`(result_std$items$PLS_out_of_sample, NULL))
+  expect_equal(`rownames<-`(result_char$items$PLS_out_of_sample, NULL),
+               `rownames<-`(result_std$items$PLS_out_of_sample, NULL))
+
+  # Also verify reps path
+  set.seed(42)
+  reps_std <- predict_pls(model_std, technique = predict_DA, noFolds = 10, reps = 2)
+  set.seed(42)
+  reps_nonseq <- predict_pls(model_nonseq, technique = predict_DA, noFolds = 10, reps = 2)
+  set.seed(42)
+  reps_char <- predict_pls(model_char, technique = predict_DA, noFolds = 10, reps = 2)
+
+  expect_equal(`rownames<-`(reps_nonseq$items$PLS_out_of_sample, NULL),
+               `rownames<-`(reps_std$items$PLS_out_of_sample, NULL))
+  expect_equal(`rownames<-`(reps_char$items$PLS_out_of_sample, NULL),
+               `rownames<-`(reps_std$items$PLS_out_of_sample, NULL))
+})
