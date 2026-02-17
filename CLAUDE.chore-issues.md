@@ -1,14 +1,15 @@
 # SEMinR Development Queue
 
 **Repository**: [sem-in-r/seminr](https://github.com/sem-in-r/seminr)
-**Updated**: 2026-02-10
+**Updated**: 2026-02-17
 **Issue closing policy**: Fixed in develop, close on release
+**Document conventions**: ~~Strikethrough~~ = closed on GitHub; ✅ Fixed in develop = fix merged but issue still open (pending release)
 
 ## Summary
 
 | v2.4.0 Released | Merged to develop (unreleased) | Experimental | Ready to Work | Needs Investigation | Backlog |
 | --------------- | ------------------------------ | ------------ | ------------- | ------------------- | ------- |
-| 2026-02-04      | 4 PRs                          | 2 PRs        | 8 issues      | 5 issues            | 20+     |
+| 2026-02-04      | 5 PRs                          | 2 PRs        | 8 issues      | 5 issues            | 20+     |
 
 ---
 
@@ -32,12 +33,13 @@ Note: The bug fixes below (PRs #379, #383, etc.) were merged to `develop` but di
 | [**#383**](https://github.com/sem-in-r/seminr/pull/383) | [#369](https://github.com/sem-in-r/seminr/issues/369), [#373](https://github.com/sem-in-r/seminr/issues/373) (HOC summary) | @soumyaray | 2026-02-03 | Fix + linting for HOC summary; test added in [#381](https://github.com/sem-in-r/seminr/pull/381). Supersedes [#374](https://github.com/sem-in-r/seminr/pull/374) (still open, targets `version_2_4_0`) |
 | [**#388**](https://github.com/sem-in-r/seminr/pull/388) | PLSpredict parallel testing | @soumyaray | 2026-02-04 | Fix parallel worker behavior on local macOS |
 | [**#380**](https://github.com/sem-in-r/seminr/pull/380) | CI workflow | @soumyaray | 2026-02-01 | Fix GitHub Actions for Ubuntu 24.04 |
+| [**#389**](https://github.com/sem-in-r/seminr/pull/389) | [#226](https://github.com/sem-in-r/seminr/issues/226) (Plot symbols) | @soumyaray | 2026-02-07 | Fix BMP Greek letters for λ, β, γ in plot exports |
 
 ### PRs In Progress
 
 | Branch | Fixes | Author | Status | Notes |
 | --- | --- | --- | --- | --- |
-| `ray/fix-plot-symbol` | [#226](https://github.com/sem-in-r/seminr/issues/226) (Lambda symbol rendering) | @soumyaray | 🔍 Under PR review | Fix plot symbol encoding issue |
+| `ray/chore-actions-macos-pak` | [#386](https://github.com/sem-in-r/seminr/issues/386) (macOS CI failures) | @soumyaray | 📋 Open ([PR #384](https://github.com/sem-in-r/seminr/pull/384)) | Waiting on upstream pak fix ([r-lib/pak#840](https://github.com/r-lib/pak/issues/840)); added workflow_dispatch + setup-pandoc@v2 |
 
 ### Quick Wins (< 1 hour each)
 
@@ -46,7 +48,7 @@ Note: The bug fixes below (PRs #379, #383, etc.) were merged to `develop` but di
 | ~~[**#377**](https://github.com/sem-in-r/seminr/issues/377)~~ | ~~VIF output structure inconsistent~~ | ✅ Closed | Fixed in PR #379; merged to develop |
 | ~~[**#240**](https://github.com/sem-in-r/seminr/issues/240)~~ | ~~summary() fails with factor column~~ | ✅ Closed | Fixed in v2.3.1 (PR #285) |
 | ~~[**#298**](https://github.com/sem-in-r/seminr/issues/298)~~ | ~~predict_pls() rownames error~~ | ✅ Closed | Fixed in PR #368 |
-| [**#226**](https://github.com/sem-in-r/seminr/issues/226) | Lambda symbol not rendered | 🔍 PR under review | Fix on branch `ray/fix-plot-symbol` |
+| [**#226**](https://github.com/sem-in-r/seminr/issues/226) | Lambda symbol not rendered | ✅ Fixed in develop | Fixed in [PR #389](https://github.com/sem-in-r/seminr/pull/389); close on next release |
 
 ---
 
@@ -57,11 +59,18 @@ Note: The bug fixes below (PRs #379, #383, etc.) were merged to `develop` but di
 | Issue | Title | Status | Notes | Cluster |
 | --- | --- | --- | --- | --- |
 | [**#369**](https://github.com/sem-in-r/seminr/issues/369) | summary() regression in v2.3.7 | ✅ Fixed in develop | Fix in [#383](https://github.com/sem-in-r/seminr/pull/383); close on next release | summary |
+| [**#373**](https://github.com/sem-in-r/seminr/issues/373) | HOC summary undefined columns | ✅ Fixed in develop | Fix in [#383](https://github.com/sem-in-r/seminr/pull/383); close on next release | summary + hoc |
 | ~~[**#353**](https://github.com/sem-in-r/seminr/issues/353)~~ | ~~summary() subscript out of bounds~~ | ✅ Closed | Model misspecification per maintainer | summary |
 | [**#347**](https://github.com/sem-in-r/seminr/issues/347) | predict_pls subscript error | 📋 Open | Check if fixed by PR #368 | predict |
 | [**#341**](https://github.com/sem-in-r/seminr/issues/341) | HTMT Inf error in bootstrap | 📋 Open | Small sample sizes | bootstrap |
 | [**#327**](https://github.com/sem-in-r/seminr/issues/327) | interaction_term() quadratic error | 📋 Open | Single IV edge case | — |
 | [**#299**](https://github.com/sem-in-r/seminr/issues/299) | PLSc + HOC bootstrap length error | 📋 Open | Known pattern | hoc + bootstrap |
+
+### CI/Infrastructure
+
+| Issue | Title | Status | Notes |
+| --- | --- | --- | --- |
+| [**#386**](https://github.com/sem-in-r/seminr/issues/386) | macOS CI pak installation failures | 📋 Open | Upstream CRAN metadata sync issue; [PR #384](https://github.com/sem-in-r/seminr/pull/384) adds workflow_dispatch + setup-pandoc@v2; waiting on [r-lib/pak#840](https://github.com/r-lib/pak/issues/840) |
 
 ### Moderate Priority Bugs
 
@@ -141,6 +150,12 @@ Low priority explorations — not actively being addressed.
 ---
 
 ## 🗑️ Candidates for Closing
+
+### Superseded PRs
+
+| PR | Title | Decision Needed |
+| --- | --- | --- |
+| [**#374**](https://github.com/sem-in-r/seminr/pull/374) | Fixed summary error (missing data + HOC) | Close - superseded by [#383](https://github.com/sem-in-r/seminr/pull/383) (targets stale `version_2_4_0` branch) |
 
 ### Stale PRs (>2 years)
 
