@@ -21,5 +21,6 @@
 ^CLAUDE\.local\.md$
 ^CLAUDE\.*\.md$
 ^\.claude$
+^CRAN-SUBMISSION$
 ^\.sw*$
 ^\.markdownlint\.json$
