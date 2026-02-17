@@ -26,6 +26,11 @@ test_that("bootstrapped models work", {
   testthat::expect_error(dot_graph(mobi_boot), NA)
   testthat::expect_error(plot(mobi_boot), NA)
 
+  # context("SEMinR dot_graph displays the specified confidence level.\n")
+  testthat::expect_match(dot_graph(mobi_boot, alpha = 0.2), "80% CI", fixed = TRUE)
+  testthat::expect_match(dot_graph(mobi_boot, alpha = 0.01), "99% CI", fixed = TRUE)
+  testthat::expect_match(dot_graph(mobi_boot, alpha = 0.025), "97.5% CI", fixed = TRUE)
+
   plot <- plot(mobi_boot)
   #vdiffr::expect_doppelganger(title = "Bootstrapped plotting", fig = plot, writer = write_test)
 
