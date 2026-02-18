@@ -20,7 +20,7 @@ release_type: patch
 - [x] 14. Update cran-comments.md
 - [x] 15. Final check
 - [x] 16. Commit release changes
-- [ ] 17. Submit to CRAN (update GitHub issue)
+- [x] 17. Submit to CRAN (update GitHub issue)
 
 ## Post-Accept
 
@@ -45,3 +45,4 @@ release_type: patch
 - Win-builder R-devel: submitted 2026-02-18 — **passed** (0 errors, 0 warnings, 0 notes; only WARNING was version match which is expected pre-bump). Results at <https://win-builder.r-project.org/xc41MlR6xrC3/>
 - macOS builder: submitted 2026-02-18 — **passed** (0 errors, 0 warnings, 0 notes; macOS 14.4, R-devel, M1). Results at <https://mac.R-project.org/macbuilder/results/1771381799-81ffc16ea0293d81/>
 - Revdep check: 1 reverse dependency (`seminrExtras 0.9.0`) — **0 new problems**, 0 failures. Existing error in CRAN version (not caused by our changes).
+- CRAN submission: maintainer ran `devtools::submit_cran()`; `CRAN-SUBMISSION` file committed and pulled. Awaiting CRAN response.
