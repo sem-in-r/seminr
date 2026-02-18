@@ -19,7 +19,7 @@ release_type: patch
 - [x] 13. Bump version
 - [x] 14. Update cran-comments.md
 - [x] 15. Final check
-- [ ] 16. Commit release changes
+- [x] 16. Commit release changes
 - [ ] 17. Submit to CRAN (update GitHub issue)
 
 ## Post-Accept
