@@ -1,3 +1,12 @@
+## Resubmission
+
+This is a resubmission. In this version I have:
+
+* Reduced test timings by consolidating shared test setups and skipping
+  computationally intensive tests on CRAN (LOOCV cross-validation,
+  bootstrap numerical precision, and bootstrap plot tests).
+  All tests continue to be vetted on local and CI environments.
+
 ## R CMD check results
 
 0 errors | 0 warnings | 0 notes

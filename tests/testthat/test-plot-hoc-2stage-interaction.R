@@ -47,6 +47,7 @@ test_that("higher order composits are plotted", {
 
 
 test_that("two higher order composits are plotted", {
+  skip_on_cran()
   set.seed(123)
   mobi <- mobi
 

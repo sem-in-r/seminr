@@ -1,4 +1,4 @@
-# seminr 2.4.1
+# seminr 2.4.2
 
 ### Fixed
 * PLSpredict now works correctly with non-standard (character) rownames (#390)

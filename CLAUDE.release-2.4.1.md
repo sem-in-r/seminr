@@ -24,16 +24,16 @@ release_type: patch
 
 ## Resubmission (CRAN requested changes)
 
-- [ ] R1. Reduce test timings (CRAN: 493s → need significant reduction)
+- [x] R1. Reduce test timings (CRAN: 493s → need significant reduction)
   - [x] R1a. Consolidate test-summary.R: shared base PLS model, nboot 500→200 for reporting tests
   - [x] R1b. Consolidate test-plspredict.R: eliminate duplicate two_stage model estimation
   - [x] R1c. Regenerate fixtures for nboot=200 changes
-  - [ ] R1d. Add skip_on_cran() for heavy tests (Strategy A — pending discussion)
-- [ ] R2. Bump patch version
-- [ ] R3. Run local R CMD check
-- [ ] R4. Update cran-comments.md (add resubmission note)
-- [ ] R5. Final check
-- [ ] R6. Commit resubmission changes
+  - [x] R1d. Add skip_on_cran() for heavy tests (Tier 1+2 + plot bootstraps)
+- [x] R2. Bump patch version (2.4.1 → 2.4.2)
+- [x] R3. Run local R CMD check (0 errors, 0 warnings, 0 notes; 128s with all tests)
+- [x] R4. Update cran-comments.md (add resubmission note)
+- [x] R5. Final check (same as R3 — cran-comments.md is in .Rbuildignore)
+- [x] R6. Commit resubmission changes
 - [ ] R7. Resubmit to CRAN
 
 ## Post-Accept
@@ -75,3 +75,9 @@ release_type: patch
   - test-summary.R: 6.4s → 4.6s (shared base model + nboot 500→200 for reporting tests; kept nboot=500 for statistical t/p-value tests)
   - test-plspredict.R: 91.5s → 89.6s (eliminated duplicate two_stage estimation)
   - Full analysis showed cross-file consolidation is limited: all 6 bootstraps in test-bootstrap.R are genuinely distinct (different weights, construct types, inner_weights, structural models). See CLAUDE.test-consolidation-plan.md for details.
+- **skip_on_cran() applied (Tier 1+2 + plot bootstraps)**:
+  - test-plspredict.R: LOOCV section (344-fold predict_pls ×2) wrapped in skip_on_cran test_that; non-LOOCV tests (two_stage, error handling, rowname regression) still run on CRAN
+  - test-bootstrap.R: entire file skipped (file-level skip_on_cran); bootstrap mechanism still tested via test-summary.R
+  - 5 plot files with bootstrap: test-plot-bootstrapped.R, test-plot-hoc-2stage-interaction.R (2nd test only), test-plot-interaction.R, test-plot-htmt.R, test-plot-themes.R (2nd test only)
+  - Estimated CRAN time: ~91s (down from 486s)
+  - All 254 tests still pass locally; 7 skips confirmed in CRAN simulation

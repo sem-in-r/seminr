@@ -1,3 +1,7 @@
+# Bootstrap numerical precision tests — skipped on CRAN (6 bootstrap runs are too slow)
+# Bootstrap mechanism is still tested via test-summary.R
+skip_on_cran()
+
 # context("SEMinR correctly bootstraps simple models\n")
 
 # Test cases

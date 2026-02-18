@@ -11,6 +11,7 @@ test_that("Basic themes are created without error", {
 
 
 test_that("Modify theme edge multipliers", {
+  skip_on_cran()
 
   set.seed(123)
   mobi <- mobi

@@ -32,58 +32,51 @@ corp_rep_mm_mod <- constructs(
 corp_rep_sm_mod <- relationships(
   paths(from = c("QUAL", "PERF", "CSOR", "QUAL*PERF"), to = "COMP")
 )
-# Estimate the model ----
-corp_rep_pls_model_ext <- estimate_pls(
-  data = corp_rep_data,
-  measurement_model = corp_rep_mm_ext,
-  structural_model  = corp_rep_sm_ext,
-  missing = mean_replacement,
-  missing_value = "-99")
 
-# Generate the model predictions
-predict_corp_rep_ext <- predict_pls(
-  model = corp_rep_pls_model_ext,
-  technique = predict_DA,
-  noFolds = 344,
-  reps = NULL)
-
-predict_corp_rep_ext_EA <- predict_pls(
-  model = corp_rep_pls_model_ext,
-  technique = predict_EA,
-  noFolds = 344,
-  reps = NULL)
-
-# Summarize the prediction results
-sum_predict_corp_rep_ext <- summary(predict_corp_rep_ext)
-sum_predict_corp_rep_ext_EA <- summary(predict_corp_rep_ext_EA)
-
-DA_predictions <- rbind(sum_predict_corp_rep_ext$PLS_in_sample,
-                        sum_predict_corp_rep_ext$PLS_out_of_sample,
-                        sum_predict_corp_rep_ext$LM_in_sample,
-                        sum_predict_corp_rep_ext$LM_out_of_sample)
-EA_predictions <- rbind(sum_predict_corp_rep_ext_EA$PLS_in_sample,
-                        sum_predict_corp_rep_ext_EA$PLS_out_of_sample,
-                        sum_predict_corp_rep_ext_EA$LM_in_sample,
-                        sum_predict_corp_rep_ext_EA$LM_out_of_sample)
-rownames(DA_predictions) <- rownames(EA_predictions) <- 1:8
-
-# Fixtures were generated with this code
-# write.csv(rbind(sum_predict_corp_rep_ext$PLS_in_sample,
-#                 sum_predict_corp_rep_ext$PLS_out_of_sample,
-#                 sum_predict_corp_rep_ext$LM_in_sample,
-#                 sum_predict_corp_rep_ext$LM_out_of_sample), file = "tests/fixtures/predict_pls_DA.csv")
-# write.csv(rbind(sum_predict_corp_rep_ext_EA$PLS_in_sample,
-#                 sum_predict_corp_rep_ext_EA$PLS_out_of_sample,
-#                 sum_predict_corp_rep_ext_EA$LM_in_sample,
-#                 sum_predict_corp_rep_ext_EA$LM_out_of_sample), file = "tests/fixtures/predict_pls_EA.csv")
-
-# Load controls
-DA_control <- as.matrix(read.csv(file = paste(test_folder,"predict_pls_DA.csv", sep = ""), row.names = NULL))
-EA_control <- as.matrix(read.csv(file = paste(test_folder,"predict_pls_EA.csv", sep = ""), row.names = NULL))
-rownames(DA_control) <- rownames(EA_control) <- 1:8
-
-# Testing
+# LOOCV prediction tests — skipped on CRAN (344-fold cross-validation is too slow)
 test_that("Seminr performs the DA prediction correctly for PLS and LM in and out sample", {
+  skip_on_cran()
+
+  # Estimate the model ----
+  corp_rep_pls_model_ext <- estimate_pls(
+    data = corp_rep_data,
+    measurement_model = corp_rep_mm_ext,
+    structural_model  = corp_rep_sm_ext,
+    missing = mean_replacement,
+    missing_value = "-99")
+
+  # Generate the model predictions
+  predict_corp_rep_ext <- predict_pls(
+    model = corp_rep_pls_model_ext,
+    technique = predict_DA,
+    noFolds = 344,
+    reps = NULL)
+
+  predict_corp_rep_ext_EA <- predict_pls(
+    model = corp_rep_pls_model_ext,
+    technique = predict_EA,
+    noFolds = 344,
+    reps = NULL)
+
+  # Summarize the prediction results
+  sum_predict_corp_rep_ext <- summary(predict_corp_rep_ext)
+  sum_predict_corp_rep_ext_EA <- summary(predict_corp_rep_ext_EA)
+
+  DA_predictions <- rbind(sum_predict_corp_rep_ext$PLS_in_sample,
+                          sum_predict_corp_rep_ext$PLS_out_of_sample,
+                          sum_predict_corp_rep_ext$LM_in_sample,
+                          sum_predict_corp_rep_ext$LM_out_of_sample)
+  EA_predictions <- rbind(sum_predict_corp_rep_ext_EA$PLS_in_sample,
+                          sum_predict_corp_rep_ext_EA$PLS_out_of_sample,
+                          sum_predict_corp_rep_ext_EA$LM_in_sample,
+                          sum_predict_corp_rep_ext_EA$LM_out_of_sample)
+  rownames(DA_predictions) <- rownames(EA_predictions) <- 1:8
+
+  # Load controls
+  DA_control <- as.matrix(read.csv(file = paste(test_folder,"predict_pls_DA.csv", sep = ""), row.names = NULL))
+  EA_control <- as.matrix(read.csv(file = paste(test_folder,"predict_pls_EA.csv", sep = ""), row.names = NULL))
+  rownames(DA_control) <- rownames(EA_control) <- 1:8
+
   expect_equal(DA_control, DA_predictions, tolerance = 0.00001)
   expect_equal(EA_control, EA_predictions, tolerance = 0.00001)
 })
