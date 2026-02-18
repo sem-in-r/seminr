@@ -25,3 +25,4 @@
 ^\.sw*$
 ^\.markdownlint\.json$
 ^\.git$
+^revdep$
