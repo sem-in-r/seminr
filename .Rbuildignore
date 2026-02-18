@@ -19,8 +19,9 @@
 ^doc$
 ^CLAUDE\.md$
 ^CLAUDE\.local\.md$
-^CLAUDE\.*\.md$
+^CLAUDE\..*\.md$
 ^\.claude$
 ^CRAN-SUBMISSION$
 ^\.sw*$
 ^\.markdownlint\.json$
+^\.git$

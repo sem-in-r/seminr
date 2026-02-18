@@ -22,13 +22,14 @@ Imports:
     parallel,
     lavaan,
     glue,
-    knitr,
-    testthat,
-    rmarkdown,
     DiagrammeR (>= 1.0.6),
     DiagrammeRsvg (>= 0.1),
-    webp,
     stats
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat,
+    webp
 License: GPL-3
 Depends: R (>= 4.1.0)
 LazyData: TRUE
