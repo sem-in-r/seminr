@@ -22,6 +22,20 @@ release_type: patch
 - [x] 16. Commit release changes
 - [x] 17. Submit to CRAN (update GitHub issue)
 
+## Resubmission (CRAN requested changes)
+
+- [ ] R1. Reduce test timings (CRAN: 493s → need significant reduction)
+  - [x] R1a. Consolidate test-summary.R: shared base PLS model, nboot 500→200 for reporting tests
+  - [x] R1b. Consolidate test-plspredict.R: eliminate duplicate two_stage model estimation
+  - [x] R1c. Regenerate fixtures for nboot=200 changes
+  - [ ] R1d. Add skip_on_cran() for heavy tests (Strategy A — pending discussion)
+- [ ] R2. Bump patch version
+- [ ] R3. Run local R CMD check
+- [ ] R4. Update cran-comments.md (add resubmission note)
+- [ ] R5. Final check
+- [ ] R6. Commit resubmission changes
+- [ ] R7. Resubmit to CRAN
+
 ## Post-Accept
 
 - [ ] 18. Confirm acceptance
@@ -45,4 +59,19 @@ release_type: patch
 - Win-builder R-devel: submitted 2026-02-18 — **passed** (0 errors, 0 warnings, 0 notes; only WARNING was version match which is expected pre-bump). Results at <https://win-builder.r-project.org/xc41MlR6xrC3/>
 - macOS builder: submitted 2026-02-18 — **passed** (0 errors, 0 warnings, 0 notes; macOS 14.4, R-devel, M1). Results at <https://mac.R-project.org/macbuilder/results/1771381799-81ffc16ea0293d81/>
 - Revdep check: 1 reverse dependency (`seminrExtras 0.9.0`) — **0 new problems**, 0 failures. Existing error in CRAN version (not caused by our changes).
-- CRAN submission: maintainer ran `devtools::submit_cran()`; `CRAN-SUBMISSION` file committed and pulled. Awaiting CRAN response.
+- CRAN submission: maintainer ran `devtools::submit_cran()`; `CRAN-SUBMISSION` file committed and pulled.
+- **CRAN feedback (2026-02-18)**: Tests take 493s. Requested: reduce timings using small toy data, fewer iterations, or conditionally skip slow tests via environment variable.
+- **Strategy**: (C) Consolidate tests with shared setups first, then (A) skip_on_cran() for remaining slow tests if needed.
+- **Baseline timing (local, 2026-02-18)**:
+  - Total: 131s local (493s on CRAN — ~3.8x slower hardware)
+  - Top offenders:
+    - test-plspredict.R: 91.5s (70% of total!) — LOOCV with 344 folds
+    - test-bootstrap.R: 10.7s — 6 bootstrap_model() calls × 200 resamples
+    - test-summary.R: 6.4s — 3 bootstrap_model() calls × 500 resamples
+    - test-plot-hoc-2stage-interaction.R: 4.7s — bootstrap + HOC estimation
+    - test-plot-interaction.R: 2.9s
+    - Everything else: <2s each
+- **After consolidation (Strategy C)**: 127.6s local (~3.5s saved)
+  - test-summary.R: 6.4s → 4.6s (shared base model + nboot 500→200 for reporting tests; kept nboot=500 for statistical t/p-value tests)
+  - test-plspredict.R: 91.5s → 89.6s (eliminated duplicate two_stage estimation)
+  - Full analysis showed cross-file consolidation is limited: all 6 bootstraps in test-bootstrap.R are genuinely distinct (different weights, construct types, inner_weights, structural models). See CLAUDE.test-consolidation-plan.md for details.

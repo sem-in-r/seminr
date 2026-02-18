@@ -110,69 +110,45 @@ test_that("Seminr estimates the construct scores correctly", {
 })
 
 context("predict.seminr_model throws an error for orthogonal and product indicators moderated models\n")
-corp_rep_mm_mod <- constructs(
+corp_rep_mm_orth <- constructs(
   composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
   composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
   composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
   composite("COMP", multi_items("comp_", 1:3)),
-  interaction_term("QUAL", "PERF", method = orthogonal )
+  interaction_term("QUAL", "PERF", method = orthogonal)
 )
-corp_rep_mm_mod2 <- constructs(
+corp_rep_mm_prod <- constructs(
   composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
   composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
   composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
   composite("COMP", multi_items("comp_", 1:3)),
-  interaction_term("QUAL", "PERF", method = product_indicator )
-)
-# Create structural model ----
-corp_rep_sm_mod <- relationships(
-  paths(from = c("QUAL", "PERF", "CSOR", "QUAL*PERF"), to = "COMP")
+  interaction_term("QUAL", "PERF", method = product_indicator)
 )
 
 # Estimate the model ----
-corp_rep_pls_model_mod <- estimate_pls(
+corp_rep_pls_model_orth <- estimate_pls(
   data = corp_rep_data,
-  measurement_model = corp_rep_mm_mod,
+  measurement_model = corp_rep_mm_orth,
   structural_model  = corp_rep_sm_mod,
   missing = mean_replacement,
   missing_value = "-99")
-corp_rep_pls_model_mod2 <- estimate_pls(
+corp_rep_pls_model_prod <- estimate_pls(
   data = corp_rep_data,
-  measurement_model = corp_rep_mm_mod2,
+  measurement_model = corp_rep_mm_prod,
   structural_model  = corp_rep_sm_mod,
   missing = mean_replacement,
   missing_value = "-99")
 
 test_that("Seminr errors for orthogonal", {
-  expect_error(predict(object = corp_rep_pls_model_mod, testData = corp_rep_data2, technique = predict_EA))
+  expect_error(predict(object = corp_rep_pls_model_orth, testData = corp_rep_data2, technique = predict_EA))
 })
 test_that("Seminr errors for product indicators", {
-  expect_error(predict(object = corp_rep_pls_model_mod2, testData = corp_rep_data2, technique = predict_EA))
+  expect_error(predict(object = corp_rep_pls_model_prod, testData = corp_rep_data2, technique = predict_EA))
 })
 
 context("predict_pls yields correct predictions for LM and PLS for moderated models.\n")
-corp_rep_mm_mod <- constructs(
-  composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
-  composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
-  composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
-  composite("COMP", multi_items("comp_", 1:3)),
-  interaction_term("QUAL", "PERF", method = two_stage )
-)
 
-# Create structural model ----
-corp_rep_sm_mod <- relationships(
-  paths(from = c("QUAL", "PERF", "CSOR", "QUAL*PERF"), to = "COMP")
-)
-
-# Estimate the model ----
-corp_rep_pls_model_mod <- estimate_pls(
-  data = corp_rep_data,
-  measurement_model = corp_rep_mm_mod,
-  structural_model  = corp_rep_sm_mod,
-  missing = mean_replacement,
-  missing_value = "-99")
-
-
+# Reuse two_stage model from above (corp_rep_pls_model_mod, same mm/sm)
 nick <- predict(object = corp_rep_pls_model_mod,
                 testData = corp_rep_data,
                 technique = predict_DA)

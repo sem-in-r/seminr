@@ -1,7 +1,8 @@
 context("SEMinR correctly returns the summary object for class seminr_model\n")
 
-set.seed(1)
-# seminr syntax for creating measurement model
+# --- Shared setup: 4-composite mode_A model (used by summary and boot_summary contexts) ---
+mobi <- mobi
+
 mobi_mm <- constructs(
   composite("Image",        multi_items("IMAG", 1:5),weights = mode_A),
   composite("Expectation",  multi_items("CUEX", 1:3),weights = mode_A),
@@ -14,9 +15,7 @@ mobi_sm <- relationships(
         from = c("Image", "Expectation", "Value"))
 )
 
-# Load data, assemble model, and estimate using semPLS
-mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_weighting)
+seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm, inner_weights = path_weighting)
 summary_object <- summary(seminr_model)
 
 # Load outputs
@@ -60,23 +59,8 @@ test_that("Seminr estimates the reliability correctly", {
 
 context("SEMinR correctly returns the summary object for class boot_seminr_model\n")
 
-# seminr syntax for creating measurement model
-mobi_mm <- constructs(
-  composite("Image",        multi_items("IMAG", 1:5),weights = mode_A),
-  composite("Expectation",  multi_items("CUEX", 1:3),weights = mode_A),
-  composite("Value",        multi_items("PERV", 1:2),weights = mode_A),
-  composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A)
-)
-
-mobi_sm <- relationships(
-  paths(to = "Satisfaction",
-        from = c("Image", "Expectation", "Value"))
-)
-
-# Load data, assemble model, and estimate using estimate_pls
-mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_weighting)
-boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2, seed = 123)
+# Reuse seminr_model from shared setup above (same mm, sm, inner_weights)
+boot_seminr_model <- bootstrap_model(seminr_model, nboot = 200, cores = 2, seed = 123)
 summary_object <- summary(boot_seminr_model)
 
 # Load outputs
@@ -101,16 +85,15 @@ loadings_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_loa
 weights_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_weights", sep = ""), row.names = 1))
 htmt_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_htmt.csv", sep = ""), row.names = 1))
 
-mobi_sm <- relationships(
+mobi_sm_indirect <- relationships(
   paths(to = "Satisfaction",from = c("Image", "Expectation")),
   paths(from = "Satisfaction", to = "Value")
 )
 
-mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm,inner_weights = path_weighting)
-boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2, seed = 123)
-summary_object <- summary(boot_seminr_model)
-total_indirect <- summary_object$bootstrapped_total_indirect_paths
+seminr_model_indirect <- estimate_pls(mobi, mobi_mm, mobi_sm_indirect, inner_weights = path_weighting)
+boot_seminr_model_indirect <- bootstrap_model(seminr_model_indirect, nboot = 200, cores = 2, seed = 123)
+summary_object_indirect <- summary(boot_seminr_model_indirect)
+total_indirect <- summary_object_indirect$bootstrapped_total_indirect_paths
 # write.csv(summary_object$bootstrapped_total_indirect_paths , file = "tests/fixtures/V_3_6_0/boot_report_total_indirect_paths.csv")
 total_indirect_control <- as.matrix(read.csv(file = paste(test_folder,"boot_report_total_indirect_paths.csv", sep = ""), row.names = 1))
 
@@ -138,25 +121,24 @@ test_that("Seminr summarizes the bootstrapped total indirect paths correctly", {
 
 context("evaluate_measurement_model() correctly evaluates FACTORS for class seminr_model\n")
 
-# seminr syntax for creating measurement model
-mobi_mm <- constructs(
+# Mixed measurement model: 2 reflective + 2 composite (different from shared setup above)
+mobi_mm_mixed <- constructs(
   reflective("Image",        multi_items("IMAG", 1:5)),
   reflective("Expectation",  multi_items("CUEX", 1:3)),
   composite("Value",        multi_items("PERV", 1:2),weights = mode_A),
   composite("Satisfaction", multi_items("CUSA", 1:3),weights = mode_A)
 )
 
-mobi_sm <- relationships(
+mobi_sm_eval <- relationships(
   paths(to = "Satisfaction",
         from = c("Image", "Expectation", "Value"))
 )
 
-# Load data, assemble model, and estimate using semPLS
-mobi <- mobi
-seminr_model <- estimate_pls(mobi, mobi_mm,  mobi_sm,inner_weights = path_weighting)
-boot_seminr_model <- bootstrap_model(seminr_model, nboot = 500,cores = 2, seed = 123)
-utils::capture.output(summary_object <- evaluate_measurement_model(seminr_model))
-utils::capture.output(boot_summary_object <- boot_evaluate_measurement_model(boot_seminr_model))
+seminr_model_mixed <- estimate_pls(mobi, mobi_mm_mixed, mobi_sm_eval, inner_weights = path_weighting)
+# Keep nboot=500: bootstrap t-values and p-values need stable SDs
+boot_seminr_model_mixed <- bootstrap_model(seminr_model_mixed, nboot = 500, cores = 2, seed = 123)
+utils::capture.output(summary_object <- evaluate_measurement_model(seminr_model_mixed))
+utils::capture.output(boot_summary_object <- boot_evaluate_measurement_model(boot_seminr_model_mixed))
 
 # Load outputs
 factor_reliability <- summary_object$factor_reliability
