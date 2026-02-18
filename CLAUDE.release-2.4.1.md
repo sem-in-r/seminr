@@ -12,13 +12,13 @@ release_type: patch
 - [x] 6. Rebuild README
 - [x] 7. Run local R CMD check
 - [x] 8. Submit win-devel check
-- [ ] 9. Verify win-devel results
+- [x] 9. Verify win-devel results
 - [x] 10. Submit mac check
 - [x] 11. Verify mac check results
 - [x] 12. Reverse dependency check
-- [ ] 13. Bump version
-- [ ] 14. Update cran-comments.md ⚠️ blocked on step 9 (win-devel results)
-- [ ] 15. Final check
+- [x] 13. Bump version
+- [x] 14. Update cran-comments.md
+- [x] 15. Final check
 - [ ] 16. Commit release changes
 - [ ] 17. Submit to CRAN (update GitHub issue)
 
@@ -42,6 +42,6 @@ release_type: patch
 ## Resolved Questions
 
 - **`testthat` in Imports** (resolved): Moved `check_test_plot` and `str_standardise` from `R/plot_test_utils.R` to `tests/testthat/helper-plotutils.R`, deleted the source file, removed the export from NAMESPACE, and moved `testthat` from Imports to Suggests. All 254 tests pass.
-- Win-builder R-devel: submitted 2026-02-18, results to nicholasdanks@hotmail.com
+- Win-builder R-devel: submitted 2026-02-18 — **passed** (0 errors, 0 warnings, 0 notes; only WARNING was version match which is expected pre-bump). Results at <https://win-builder.r-project.org/xc41MlR6xrC3/>
 - macOS builder: submitted 2026-02-18 — **passed** (0 errors, 0 warnings, 0 notes; macOS 14.4, R-devel, M1). Results at <https://mac.R-project.org/macbuilder/results/1771381799-81ffc16ea0293d81/>
 - Revdep check: 1 reverse dependency (`seminrExtras 0.9.0`) — **0 new problems**, 0 failures. Existing error in CRAN version (not caused by our changes).
