@@ -33,9 +33,9 @@ R packages should **never** use `pkg::func()` to call their own internal functio
 ### Step 1: Write tests — DONE
 
 Created `tests/testthat/test-parallel-setup.R` with:
-- **Unit test**: Reproduces issue #318 by force-restricting worker `.lib.loc` to `tempdir()` (no R packages), then running `seminr::estimate_pls` via `parSapply` — confirms the exact error. Note: on macOS, `.libPaths()` always includes `.Library` which contains seminr, so we override `.lib.loc` directly to simulate the Windows environment where user libraries don't propagate.
-- **Unit test**: Proves the fix — propagating `.libPaths()` + `library(seminr)` on the restricted worker resolves the issue.
 - **Integration test**: `bootstrap_model(cores=1, nboot=10)` completes successfully.
+
+Two diagnostic unit tests (reproducing the bug with restricted `.lib.loc`, and proving the fix mechanism in isolation) were initially written to confirm the root cause and validate the approach, then removed — they tested synthetic scenarios rather than actual production code paths, so they provided no regression protection.
 
 ### Step 2: Fix `R/estimate_bootstrap.R` — DONE
 
@@ -77,6 +77,6 @@ These could be cleaned up in a separate pass if desired.
 
 1. **`devtools::load_all()` scenario**: If users load seminr via `devtools::load_all()` instead of installing, workers still can't find seminr. This is an existing limitation (documented in CLAUDE.md) and not something this fix addresses.
 
-2. **No Windows CI environment**: The reported issue is primarily on Windows. We simulate it on macOS by overriding `.lib.loc`. The fix is defensive and safe on all platforms.
+2. **No Windows CI environment**: The reported issue is primarily on Windows. The fix is defensive and safe on all platforms.
 
 3. **Startup overhead**: Adding `library(seminr)` on workers adds negligible startup time compared to bootstrap computation.
