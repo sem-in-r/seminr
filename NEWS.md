@@ -1,3 +1,5 @@
+# seminr (development version)
+
 # seminr 2.4.2
 
 ### Fixed
