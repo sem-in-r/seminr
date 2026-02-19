@@ -107,11 +107,17 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
                                                "stopCriterion",
                                                "missing"), envir=environment())
 
-      # Calculate the expected nrow of the bootmatrix
-      length <- 3*nrow(seminr_model$path_coef)^2 + 2*nrow(seminr_model$outer_loadings)*ncol(seminr_model$outer_loadings)
+      # Compute actual dimensions for error-recovery NA vector
+      HTMT_matrix <- HTMT(seminr_model)
+      total_matrix <- total_effects(seminr_model$path_coef)
+      boot_vec_len <- length(seminr_model$path_coef) +
+                      length(seminr_model$outer_loadings) +
+                      length(seminr_model$outer_weights) +
+                      length(HTMT_matrix) +
+                      length(total_matrix)
 
       # Function to get PLS estimate results
-      getEstimateResults <- function(i, d = d, length) {
+      getEstimateResults <- function(i, d = d, boot_vec_len) {
         set.seed(seed + i)
         # plsc-bootstrap
         tryCatch({
@@ -131,18 +137,18 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
           error = function(cond) {
             message("Bootstrapping encountered an ERROR: ")
             message(cond)
-            return(rep(NA, length))
+            return(rep(NA, boot_vec_len))
           },
           warning = function(cond) {
             message("Bootstrapping encountered an ERROR: ")
             message(cond)
-            return(rep(NA, length))
+            return(rep(NA, boot_vec_len))
           }
         )
       }
 
       # Bootstrap the estimates
-      utils::capture.output(bootmatrix <- parallel::parSapply(cl, 1:nboot, getEstimateResults, d, length))
+      utils::capture.output(bootmatrix <- parallel::parSapply(cl, 1:nboot, getEstimateResults, d, boot_vec_len))
 
       # Clean the NAs and report the NAs
       bootmatrix <- bootmatrix[,!is.na(bootmatrix[1,])]
@@ -250,9 +256,6 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       # Assign column names to weights matrix
       colnames(weights_descriptives) <- col_names2
 
-      # Collect HTMT matrix
-      HTMT_matrix <- HTMT(seminr_model)
-
         # Identify start and end points for HTMT data
         start <- end+1
         end <- start+(ncol(HTMT_matrix)*nrow(HTMT_matrix))-1
@@ -279,7 +282,6 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       colnames(HTMT_descriptives) <- col_names3
 
       # Subset total paths matrix (take care to not be stranded with a single column/row vector)
-      total_matrix <- total_effects(seminr_model$path_coef)
       start <- end+1
       end <- start+(path_cols*path_rows)-1
 
