@@ -34,12 +34,12 @@ release_type: patch
 - [x] R4. Update cran-comments.md (add resubmission note)
 - [x] R5. Final check (same as R3 — cran-comments.md is in .Rbuildignore)
 - [x] R6. Commit resubmission changes
-- [ ] R7. Resubmit to CRAN
+- [x] R7. Resubmit to CRAN
 
 ## Post-Accept
 
-- [ ] 18. Confirm acceptance
-- [ ] 19. Create GitHub release
+- [x] 18. Confirm acceptance
+- [x] 19. Create GitHub release
 - [ ] 20. Bump to dev version
 - [ ] 21. Push all changes
 - [ ] 22. Clean up (close GitHub issue)
