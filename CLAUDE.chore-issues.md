@@ -1,40 +1,51 @@
 # SEMinR Development Queue
 
 **Repository**: [sem-in-r/seminr](https://github.com/sem-in-r/seminr)
-**Updated**: 2026-02-17
+**Updated**: 2026-02-19
 **Issue closing policy**: Fixed in develop, close on release
 **Document conventions**: ~~Strikethrough~~ = closed on GitHub; ✅ Fixed in develop = fix merged but issue still open (pending release)
 
 ## Summary
 
-| v2.4.0 Released | Merged to develop (unreleased) | Experimental | Ready to Work | Needs Investigation | Backlog |
-| --------------- | ------------------------------ | ------------ | ------------- | ------------------- | ------- |
-| 2026-02-04      | 6 PRs                          | 2 PRs        | 8 issues      | 5 issues            | 20+     |
+| v2.4.2 Released | PRs to Review | Experimental | Ready to Work | Needs Investigation | Backlog |
+| --------------- | ------------- | ------------ | ------------- | ------------------- | ------- |
+| 2026-02-19      | 1 (community) | 2 PRs        | 4 issues      | 5 issues            | 20+     |
 
 ---
 
 ## 🔥 Immediate Actions
 
-### PRs Ready to Merge
+### PRs Ready to Review
 
-None currently.
+| PR | Author | Status | Notes |
+| --- | --- | --- | --- |
+| [**#394**](https://github.com/sem-in-r/seminr/pull/394) | @Marwolaeth | 📋 Open | Enable custom confidence levels for plotting bootstrapped models; community contribution |
 
-### v2.4.0 Released (2026-02-04)
+### v2.4.2 Released (2026-02-19)
 
-Released to master via [PR #385](https://github.com/sem-in-r/seminr/pull/385).
+Released to CRAN via v2.4.1 ([PR #392](https://github.com/sem-in-r/seminr/pull/392)) then v2.4.2 (test consolidation for CRAN timing). Tagged [v2.4.2](https://github.com/sem-in-r/seminr/releases/tag/v2.4.2). Previous v2.4.0 released 2026-02-04 via [PR #385](https://github.com/sem-in-r/seminr/pull/385).
 
-Note: The bug fixes below (PRs #379, #383, etc.) were merged to `develop` but did **not** make it into v2.4.0.
+develop is now at v2.4.2.9000, in sync with master.
 
-### Merged to develop (not yet released)
+**Fixes included in v2.4.2:**
 
-| PR | Fixes | Author | Merged | Notes |
-| --- | --- | --- | --- | --- |
-| [**#379**](https://github.com/sem-in-r/seminr/pull/379) | [#377](https://github.com/sem-in-r/seminr/issues/377) (VIF output) | @soumyaray | 2026-02-01 | Fix vif_items named list structure |
-| [**#383**](https://github.com/sem-in-r/seminr/pull/383) | [#369](https://github.com/sem-in-r/seminr/issues/369), [#373](https://github.com/sem-in-r/seminr/issues/373) (HOC summary) | @soumyaray | 2026-02-03 | Fix + linting for HOC summary; test added in [#381](https://github.com/sem-in-r/seminr/pull/381). Supersedes [#374](https://github.com/sem-in-r/seminr/pull/374) (now closed) |
-| [**#388**](https://github.com/sem-in-r/seminr/pull/388) | PLSpredict parallel testing | @soumyaray | 2026-02-04 | Fix parallel worker behavior on local macOS |
-| [**#380**](https://github.com/sem-in-r/seminr/pull/380) | CI workflow | @soumyaray | 2026-02-01 | Fix GitHub Actions for Ubuntu 24.04 |
-| [**#389**](https://github.com/sem-in-r/seminr/pull/389) | [#226](https://github.com/sem-in-r/seminr/issues/226) (Plot symbols) | @soumyaray | 2026-02-07 | Fix BMP Greek letters for λ, β, γ in plot exports |
-| [**#390**](https://github.com/sem-in-r/seminr/pull/390) | [#347](https://github.com/sem-in-r/seminr/issues/347) (predict_pls rownames) | @soumyaray | 2026-02-17 | Regression test confirming fix from PR #368 |
+| PR | Fixes | Author | Notes |
+| --- | --- | --- | --- |
+| [**#379**](https://github.com/sem-in-r/seminr/pull/379) | [#377](https://github.com/sem-in-r/seminr/issues/377) (VIF output) | @soumyaray | Fix vif_items named list structure |
+| [**#383**](https://github.com/sem-in-r/seminr/pull/383) | [#369](https://github.com/sem-in-r/seminr/issues/369), [#373](https://github.com/sem-in-r/seminr/issues/373) (HOC summary) | @soumyaray | Fix + linting for HOC summary |
+| [**#388**](https://github.com/sem-in-r/seminr/pull/388) | PLSpredict parallel testing | @soumyaray | Fix parallel worker behavior on local macOS |
+| [**#380**](https://github.com/sem-in-r/seminr/pull/380) | CI workflow | @soumyaray | Fix GitHub Actions for Ubuntu 24.04 |
+| [**#389**](https://github.com/sem-in-r/seminr/pull/389) | [#226](https://github.com/sem-in-r/seminr/issues/226) (Plot symbols) | @soumyaray | Fix BMP Greek letters for λ, β, γ in plot exports; capital R² |
+| [**#390**](https://github.com/sem-in-r/seminr/pull/390) | [#347](https://github.com/sem-in-r/seminr/issues/347) (predict_pls rownames) | @soumyaray | Regression test confirming fix from PR #368 |
+
+**Issues closed with this release:**
+
+| Issue | Title | Closed |
+| --- | --- | --- |
+| ~~[**#226**](https://github.com/sem-in-r/seminr/issues/226)~~ | ~~Lambda symbol not rendered~~ | ✅ Fixed in PR #389 |
+| ~~[**#369**](https://github.com/sem-in-r/seminr/issues/369)~~ | ~~summary() regression in v2.3.7~~ | ✅ Fixed in PR #383 |
+| ~~[**#373**](https://github.com/sem-in-r/seminr/issues/373)~~ | ~~HOC summary undefined columns~~ | ✅ Fixed in PR #383 |
+| ~~[**#347**](https://github.com/sem-in-r/seminr/issues/347)~~ | ~~predict_pls subscript error~~ | ✅ Fixed in PR #368 |
 
 ### PRs In Progress
 
@@ -42,14 +53,22 @@ Note: The bug fixes below (PRs #379, #383, etc.) were merged to `develop` but di
 | --- | --- | --- | --- | --- |
 | `ray/chore-actions-macos-pak` | [#386](https://github.com/sem-in-r/seminr/issues/386) (macOS CI failures) | @soumyaray | 📋 Open ([PR #384](https://github.com/sem-in-r/seminr/pull/384)) | Waiting on upstream pak fix ([r-lib/pak#840](https://github.com/r-lib/pak/issues/840)); added workflow_dispatch + setup-pandoc@v2 |
 
+### Recent Community Activity
+
+| PR | Author | Status | Notes |
+| --- | --- | --- | --- |
+| [**#394**](https://github.com/sem-in-r/seminr/pull/394) | @Marwolaeth | 📋 Open | Custom confidence levels for plotting bootstrapped models; review requested |
+| [**#391**](https://github.com/sem-in-r/seminr/pull/391) | @Marwolaeth | ❌ Closed | Fix column selection in report_missing; closed without merge |
+| [**#393**](https://github.com/sem-in-r/seminr/pull/393) | @Marwolaeth | ❌ Closed | Superseded by [#394](https://github.com/sem-in-r/seminr/pull/394) |
+
 ### Quick Wins (< 1 hour each)
 
 | Issue | Title | Status | Action |
 | --- | --- | --- | --- |
-| ~~[**#377**](https://github.com/sem-in-r/seminr/issues/377)~~ | ~~VIF output structure inconsistent~~ | ✅ Closed | Fixed in PR #379; merged to develop |
+| ~~[**#377**](https://github.com/sem-in-r/seminr/issues/377)~~ | ~~VIF output structure inconsistent~~ | ✅ Closed | Fixed in PR #379; released in v2.4.2 |
 | ~~[**#240**](https://github.com/sem-in-r/seminr/issues/240)~~ | ~~summary() fails with factor column~~ | ✅ Closed | Fixed in v2.3.1 (PR #285) |
 | ~~[**#298**](https://github.com/sem-in-r/seminr/issues/298)~~ | ~~predict_pls() rownames error~~ | ✅ Closed | Fixed in PR #368 |
-| [**#226**](https://github.com/sem-in-r/seminr/issues/226) | Lambda symbol not rendered | ✅ Fixed in develop | Fixed in [PR #389](https://github.com/sem-in-r/seminr/pull/389); close on next release |
+| ~~[**#226**](https://github.com/sem-in-r/seminr/issues/226)~~ | ~~Lambda symbol not rendered~~ | ✅ Closed | Fixed in [PR #389](https://github.com/sem-in-r/seminr/pull/389); released in v2.4.2 |
 
 ---
 
@@ -59,10 +78,10 @@ Note: The bug fixes below (PRs #379, #383, etc.) were merged to `develop` but di
 
 | Issue | Title | Status | Notes | Cluster |
 | --- | --- | --- | --- | --- |
-| [**#369**](https://github.com/sem-in-r/seminr/issues/369) | summary() regression in v2.3.7 | ✅ Fixed in develop | Fix in [#383](https://github.com/sem-in-r/seminr/pull/383); close on next release | summary |
-| [**#373**](https://github.com/sem-in-r/seminr/issues/373) | HOC summary undefined columns | ✅ Fixed in develop | Fix in [#383](https://github.com/sem-in-r/seminr/pull/383); close on next release | summary + hoc |
+| ~~[**#369**](https://github.com/sem-in-r/seminr/issues/369)~~ | ~~summary() regression in v2.3.7~~ | ✅ Closed | Fix in [#383](https://github.com/sem-in-r/seminr/pull/383); released in v2.4.2 | summary |
+| ~~[**#373**](https://github.com/sem-in-r/seminr/issues/373)~~ | ~~HOC summary undefined columns~~ | ✅ Closed | Fix in [#383](https://github.com/sem-in-r/seminr/pull/383); released in v2.4.2 | summary + hoc |
 | ~~[**#353**](https://github.com/sem-in-r/seminr/issues/353)~~ | ~~summary() subscript out of bounds~~ | ✅ Closed | Model misspecification per maintainer | summary |
-| [**#347**](https://github.com/sem-in-r/seminr/issues/347) | predict_pls subscript error | ✅ Fixed in develop | Fixed by [PR #368](https://github.com/sem-in-r/seminr/pull/368); regression test in [PR #390](https://github.com/sem-in-r/seminr/pull/390); close on next release | predict |
+| ~~[**#347**](https://github.com/sem-in-r/seminr/issues/347)~~ | ~~predict_pls subscript error~~ | ✅ Closed | Fixed by [PR #368](https://github.com/sem-in-r/seminr/pull/368); released in v2.4.2 | predict |
 | [**#341**](https://github.com/sem-in-r/seminr/issues/341) | HTMT Inf error in bootstrap | 📋 Open | Small sample sizes | bootstrap |
 | [**#327**](https://github.com/sem-in-r/seminr/issues/327) | interaction_term() quadratic error | 📋 Open | Single IV edge case | — |
 | [**#299**](https://github.com/sem-in-r/seminr/issues/299) | PLSc + HOC bootstrap length error | 📋 Open | Known pattern | hoc + bootstrap |
@@ -183,7 +202,7 @@ Understanding these patterns helps prioritize fixes that address multiple issues
 
 ### HOC/Higher-Order Construct Issues
 
-- **Issues**: [#373](https://github.com/sem-in-r/seminr/issues/373), [#369](https://github.com/sem-in-r/seminr/issues/369), [#353](https://github.com/sem-in-r/seminr/issues/353), [#299](https://github.com/sem-in-r/seminr/issues/299), [#222](https://github.com/sem-in-r/seminr/issues/222), [#213](https://github.com/sem-in-r/seminr/issues/213), [#205](https://github.com/sem-in-r/seminr/issues/205)
+- **Issues**: ~~[#373](https://github.com/sem-in-r/seminr/issues/373)~~ (✅ v2.4.2), ~~[#369](https://github.com/sem-in-r/seminr/issues/369)~~ (✅ v2.4.2), ~~[#353](https://github.com/sem-in-r/seminr/issues/353)~~ (closed), [#299](https://github.com/sem-in-r/seminr/issues/299), [#222](https://github.com/sem-in-r/seminr/issues/222), [#213](https://github.com/sem-in-r/seminr/issues/213), [#205](https://github.com/sem-in-r/seminr/issues/205)
 - **Pattern**: HOC + bootstrap or HOC + summary failures
 - **Recommendation**: Review all HOC-related code paths together
 
@@ -201,12 +220,12 @@ Understanding these patterns helps prioritize fixes that address multiple issues
 
 ### Prediction Issues
 
-- **Issues**: ~~[#347](https://github.com/sem-in-r/seminr/issues/347)~~ (✅ fixed), [#222](https://github.com/sem-in-r/seminr/issues/222)
+- **Issues**: ~~[#347](https://github.com/sem-in-r/seminr/issues/347)~~ (✅ v2.4.2), [#222](https://github.com/sem-in-r/seminr/issues/222)
 - **Pattern**: predict_pls() fragile with non-standard data
 - **Recommendation**: Add input validation
 
 ### Summary Function Issues
 
-- **Issues**: [#373](https://github.com/sem-in-r/seminr/issues/373), [#369](https://github.com/sem-in-r/seminr/issues/369), [#353](https://github.com/sem-in-r/seminr/issues/353), [#341](https://github.com/sem-in-r/seminr/issues/341)
+- **Issues**: ~~[#373](https://github.com/sem-in-r/seminr/issues/373)~~ (✅ v2.4.2), ~~[#369](https://github.com/sem-in-r/seminr/issues/369)~~ (✅ v2.4.2), ~~[#353](https://github.com/sem-in-r/seminr/issues/353)~~ (closed), [#341](https://github.com/sem-in-r/seminr/issues/341)
 - **Pattern**: summary() breaks on edge cases
-- **Recommendation**: Fix together - likely shared root causes
+- **Recommendation**: #341 (HTMT Inf) remains open; others fixed
