@@ -1,8 +1,8 @@
 Package: seminr
 Type: Package
 Title: Building and Estimating Structural Equation Models
-Version: 2.4.0
-Date: 2026-01-26
+Version: 2.4.2.9000
+Date: 2026-02-18
 Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("aut", "ths")),
              person("Nicholas Patrick", "Danks", email = "nicholasdanks@hotmail.com", role = c("aut","cre")),
              person("André", "Calero Valdez", role = "aut", email = "andrecalerovaldez@gmail.com"),
@@ -22,13 +22,14 @@ Imports:
     parallel,
     lavaan,
     glue,
-    knitr,
-    testthat,
-    rmarkdown,
     DiagrammeR (>= 1.0.6),
     DiagrammeRsvg (>= 0.1),
-    webp,
     stats
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat,
+    webp
 License: GPL-3
 Depends: R (>= 4.1.0)
 LazyData: TRUE

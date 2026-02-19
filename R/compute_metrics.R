@@ -64,7 +64,7 @@ return_AIC_BIC <- function(i, seminr_model) {
   construct_score <- seminr_model$construct_scores[,i]
   construct_AIC <- AIC_func(rsq,pk,N,construct_score)
   construct_BIC <- BIC_func(rsq,pk,N,construct_score)
-  return(c(construct_AIC, construct_BIC))
+  c(construct_AIC, construct_BIC)
 }
 
 calculate_itcriteria <- function(seminr_model) {
@@ -89,7 +89,7 @@ compute_construct_rhoA <- function(weights, mmMatrix, construct, obsData) {
   diag(AAnondiag) <- 0
 
   # Calculate rhoA
-  return((t(w) %*% w)^2 * ((t(w) %*% (S) %*% w)/(t(w) %*% AAnondiag %*% w)))
+  (t(w) %*% w)^2 * ((t(w) %*% (S) %*% w)/(t(w) %*% AAnondiag %*% w))
 }
 
 #' Function to calculate Akaike weights for IT Criteria
@@ -102,7 +102,7 @@ compute_itcriteria_weights <- function(vector_of_itcriteria) {
   delta_itcriteria <- vector_of_itcriteria - min(vector_of_itcriteria)
   rel_likelihoods <- exp(-0.5 * delta_itcriteria)
   sum_likelihoods <- sum(rel_likelihoods, na.rm = TRUE)
-  return(rel_likelihoods / sum_likelihoods)
+  rel_likelihoods / sum_likelihoods
 }
 
 #' Function to report how missing data was handled and how much was missing.
@@ -113,30 +113,39 @@ compute_itcriteria_weights <- function(vector_of_itcriteria) {
 report_missing <- function(seminr_model) {
   missing_report <- list()
   # if method is na.omit
-    if (identical(seminr_model$settings$missing, na.omit)) {
-      missing_report$method = "na.omit"
-      missing_report$n_removed = nrow(seminr_model$rawdata) - nrow(seminr_model$data)
-    # if method is mean_replacement (currently only other method)
-  } else {
-    missing_report$method = "mean_replacement"
+  if (identical(seminr_model$settings$missing, na.omit)) {
+    missing_report$method <- "na.omit"
+    missing_report$n_removed <- nrow(seminr_model$rawdata) - nrow(seminr_model$data)
+  } else { # if method is mean_replacement (currently only other method)
+    missing_report$method <- "mean_replacement"
   }
-   # make summary
-  missing_summary = data.frame(
+
+  # make summary
+  missing_summary <- data.frame(
     variable = character(),
     missing_count = integer(),
     missing_proportion = numeric()
   )
-  no_int_mmvars <- seminr_model$mmVariables[!grepl("\\*", seminr_model$mmVariables)]
+
+  # extract variables for analysis based on whether there is a higher-order model
+  if (is.null(seminr_model$first_stage_model)) {
+    no_int_mmvars <- seminr_model$mmVariables[!grepl("\\*", seminr_model$mmVariables)]
+  } else {
+    no_int_mmvars <- seminr_model$first_stage_model$mmVariables[!grepl("\\*", seminr_model$first_stage_model$mmVariables)]
+  }
+
+  # only subset raw data for available variables
+  any_no_int_mmvars <- no_int_mmvars[no_int_mmvars %in% names(seminr_model$rawdata)]
+
   # subset raw data for missing analysis
-  data_subset <- seminr_model$rawdata[, no_int_mmvars]
-  for (i in 1:ncol(data_subset)) {
+  data_subset <- seminr_model$rawdata[, any_no_int_mmvars]
+  for (i in seq_len(ncol(data_subset))) {
     missing_summary <- rbind(missing_summary, data.frame(
       variable = names(data_subset)[i],
       missing_count = sum(is.na(data_subset[, i])),
       missing_proportion = mean(is.na(data_subset[, i]))
     ))
   }
-  missing_report$summary = missing_summary
-  return(missing_report)
+  missing_report$summary <- missing_summary
+  missing_report
 }
-

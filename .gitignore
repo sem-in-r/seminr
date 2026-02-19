@@ -12,3 +12,12 @@ doc
 /check/
 /doc/
 /Meta/
+
+# R CMD check/build artifacts
+*.Rcheck/
+*.tar.gz
+revdep/
+
+# sideways tool for git worktrees (https://github.com/soumyaray/sideways)
+.swcopy
+.swsymlink

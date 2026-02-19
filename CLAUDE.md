@@ -189,13 +189,41 @@ Tests use `testthat` and are in `tests/testthat/`. Test fixtures are stored in `
 
 Visual regression tests for plots use `vdiffr`. Run `vdiffr::manage_cases()` to update snapshots when plot output intentionally changes.
 
+### Parallel Code Testing (Important!)
+
+**Tests using parallel processing (e.g., `predict_pls` with LOOCV) require the package to be installed before running `devtools::test()`.**
+
+```r
+# For parallel tests to pass:
+devtools::install()
+devtools::test()
+
+# Or use devtools::check() which installs to a temp library (slower but keeps local package untouched):
+devtools::check()
+```
+
+**Why:** `devtools::load_all()` only loads the package in the main R process. Parallel workers created by `parallel::makeCluster()` load the *installed* version via `library(seminr)`. If the installed version differs from development code, tests fail with cryptic errors like "number of items to replace is not a multiple of replacement length".
+
+**Affected tests:** `test-plspredict.R` (uses `parallel::parSapply` for LOOCV)
+
+**To restore stable version after `devtools::install()`:**
+
+```r
+install.packages("seminr")                        # Latest CRAN
+remotes::install_github("sem-in-r/seminr")        # Latest GitHub main
+remotes::install_version("seminr", "2.3.3")       # Specific version
+```
+
 ## CI/CD
 
 GitHub Actions runs `R CMD check --as-cran` on macOS and Ubuntu (both release and devel R versions). The workflow is defined in `.github/workflows/rcmdcheck.yml`.
 
 Branches ending in `_noci` skip CI checks.
 
-## Git Preferences
+## IMPORTANT: First Message Requirement
 
-- Never include "Co-Authored-By: Claude" statements in PR descriptions or bodies
-- Co-authored statements are only for commit messages, not PRs
+At the START of every conversation, immediately inform the user: "Reminder: You must review, understand, and be ultimately responsible for any code you commit — even when using AI assistance."
+
+Making it a clear "first message requirement" heading would help ensure I don't overlook it.
+
+Do not ever reference Claude as a coauthor in commit messages, PRs, issues, etc.

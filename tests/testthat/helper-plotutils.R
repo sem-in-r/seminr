@@ -46,3 +46,37 @@ if (requireNamespace("vdiffr", quietly = TRUE)) {
   # Otherwise, assign a dummy function
   expect_doppelganger <- function(...) skip("vdiffr is not installed.")
 }
+
+
+# --- Plot regression testing (moved from R/plot_test_utils.R) ---
+
+str_standardise <- function(s, sep = "-") {
+  stopifnot(length(s) == 1 && is.character(s))
+  s <- gsub("[^a-z0-9]", sep, tolower(s))
+  s <- gsub(paste0(sep, sep, "+"), sep, s)
+  s <- gsub(paste0("^", sep, "|", sep, "$"), "", s)
+  s
+}
+
+# Compare a plot against a saved reference PNG via MD5 checksum.
+# If no reference exists, creates one and returns FALSE.
+check_test_plot <- function(plot, title, plot_dir = "regression_plots", refresh = FALSE) {
+  path <- testthat::test_path("..", plot_dir)
+  if (!dir.exists(path)) {
+    dir.create(path)
+  }
+  testthat::skip_on_ci()
+
+  filename <- paste0(str_standardise(title), ".png")
+  full_name <- file.path(path, filename)
+
+  if (file.exists(full_name)) {
+    test_name <- file.path(tempdir(), filename)
+    save_plot(test_name, plot = plot)
+    return(tools::md5sum(test_name) == tools::md5sum(full_name))
+  } else {
+    save_plot(full_name, plot = plot)
+    message(paste("New reference plot created for:", title))
+    return(FALSE)
+  }
+}

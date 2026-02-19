@@ -1,5 +1,6 @@
 context("SEMinR dot_graph does not fail for a bootstrapped models.\n")
 test_that("bootstrapped models work", {
+  skip_on_cran()
 
   set.seed(123)
   mobi <- mobi

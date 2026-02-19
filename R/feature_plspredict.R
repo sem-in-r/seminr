@@ -524,6 +524,9 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
         folds <- cut(seq(1,nrow(ordered_data)),breaks=noFolds,labels=FALSE)
 
         # Create cluster
+        # NOTE: Workers load the INSTALLED package via library(seminr), not devtools::load_all().
+        # If tests fail with "number of items to replace is not a multiple of replacement length",
+        # run devtools::install() first to sync the installed version with development code.
         suppressWarnings(ifelse(is.null(cores), cl <- parallel::makeCluster(parallel::detectCores()), cl <- parallel::makeCluster(cores)))
 
         # Export variables and functions to cluster

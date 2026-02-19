@@ -1,5 +1,6 @@
 context("SEMinR plotting interaction terms")
 test_that("interaction terms work", {
+  skip_on_cran()
   set.seed(123)
   mobi <- mobi
 

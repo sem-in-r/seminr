@@ -1,5 +1,6 @@
 context("Plotting HTMT Graphs")
 test_that("Basic HTMT Plots work", {
+  skip_on_cran()
   set.seed(123)
   mobi <- mobi
 
