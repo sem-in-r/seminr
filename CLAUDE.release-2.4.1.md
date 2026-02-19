@@ -41,8 +41,7 @@ release_type: patch
 - [x] 18. Confirm acceptance
 - [x] 19. Create GitHub release
 - [x] 20. Bump to dev version
-- [ ] 21. Push all changes
-- [ ] 22. Clean up (close GitHub issue)
+- [x] 21. Clean up (close GitHub issue)
 
 ## Notes
 
