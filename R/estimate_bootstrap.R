@@ -84,14 +84,14 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       missing <- seminr_model$settings$missing
 
 
-      # Initialize the cluster
-      suppressWarnings(ifelse(is.null(cores), cl <- parallel::makeCluster(parallel::detectCores(), setup_strategy = "sequential"), cl <- parallel::makeCluster(cores, setup_strategy = "sequential")))
+      # Initialize the cluster with seminr loaded on workers (issue #318)
+      cl <- setup_parallel_cluster(cores)
 
       # Function to generate random samples with replacement
       getRandomIndex <- function(d) {return(sample.int(nrow(d), replace = TRUE))}
 
       # Check for and create random seed if NULL
-      if (is.null(seed)) {seed <- sample.int(100000, size = 1)}
+      if (is.null(seed)) { seed <- sample.int(100000, size = 1) }
 
       # Export variables and functions to cluster
       parallel::clusterExport(cl=cl, varlist=c("measurement_model",
@@ -115,7 +115,7 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         set.seed(seed + i)
         # plsc-bootstrap
         tryCatch({
-          boot_model <- seminr::estimate_pls(data = d[getRandomIndex(d),],
+          boot_model <- estimate_pls(data = d[getRandomIndex(d),],
                                              measurement_model,
                                              structural_model,
                                              inner_weights = inner_weights,
