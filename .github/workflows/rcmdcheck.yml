@@ -22,7 +22,8 @@ jobs:
         config:
           # - {os: windows-latest, r: 'release'}
           - {os: macOS-latest, r: 'release'}
-          - {os: macOS-latest, r: 'devel'}
+          # macOS devel removed: PPM lacks devel binaries, source builds fail on missing system libs (libintl.h etc.)
+          # R-devel regressions are caught by ubuntu-latest (devel) instead
           - {os: ubuntu-latest, r: 'release', rspm: "https://packagemanager.rstudio.com/cran/__linux__/noble/latest"}
           - {os: ubuntu-latest, r: 'devel', rspm: "https://packagemanager.rstudio.com/cran/__linux__/noble/latest"}
 

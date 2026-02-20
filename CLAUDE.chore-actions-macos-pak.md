@@ -74,6 +74,8 @@ PPM serves macOS binaries (x86 and arm64) with its own metadata, independent of 
 
 **Status:** Tried (run 22223705978, 2026-02-20). **Solves the original CRAN metadata issue.** macOS (release) passed. macOS (devel) failed with a *different* error: `data.table` source build failed due to missing `libintl.h` (gettext header). PPM doesn't have devel binaries for `data.table`, so pak fell back to source compilation which requires system headers not present on the runner. This is unrelated to the CRAN metadata sync problem — it's a missing system dependency for source builds on R-devel.
 
+**Resolution:** Removed macOS devel from the CI matrix. PPM lacks devel binaries, and source builds will keep failing on ad hoc missing system libraries. R-devel regressions are still caught by Ubuntu devel. Final CI matrix: macOS release, Ubuntu release, Ubuntu devel.
+
 ### Option 2: Fall back to `install.packages()` for macOS
 The old `remotes::install_deps()` approach (still commented out in workflow) uses `install.packages()` under the hood. Unlike pak, `install.packages()` falls back to source compilation when a binary isn't found, making it resilient to metadata mismatches. Remotes caused errors on Ubuntu, but we could conditionally use remotes for macOS only while keeping pak for Ubuntu.
 
