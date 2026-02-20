@@ -38,11 +38,21 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
 
+      # Use PPM instead of CRAN for macOS to avoid CRAN metadata sync issues
+      - name: Configure PPM as package repository (macOS)
+        if: runner.os == 'macOS'
+        shell: Rscript {0}
+        run: |
+          rprofile <- file.path(Sys.getenv("HOME"), ".Rprofile")
+          write("\noptions(repos = c(CRAN = 'https://packagemanager.posit.co/cran/latest'))",
+                file = rprofile, append = TRUE)
+          source(rprofile)
+          message("CRAN repo: ", getOption("repos")["CRAN"])
+
       # pandoc to check markdown files
       - uses: r-lib/actions/setup-pandoc@v2
 
       # Modern dependency management - handles system deps, caching, and R packages
-      # Note: macOS may fail intermittently due to CRAN metadata sync issues (see #386)
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck

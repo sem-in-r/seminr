@@ -57,12 +57,31 @@ These were tried but didn't help and have been removed:
 - `pak-version: devel` - didn't fix the issue
 - `extra-packages: any::psych` - didn't fix the issue
 
-## Recommended Action
+## Upstream Status (checked 2026-02-20)
 
-**Wait for upstream fix.** This is a CRAN infrastructure issue being actively addressed:
-- Monitor [r-lib/pak#840](https://github.com/r-lib/pak/issues/840) for pak-level workaround
-- The issue typically resolves within hours/days when CRAN metadata syncs
-- Re-run failed CI jobs when this happens
+All three upstream issues remain **open with no fix merged**:
+- [r-lib/pak#840](https://github.com/r-lib/pak/issues/840) - Still open. Gaborcsardi says the fix needs to happen at the resolution phase, making it complex. No PR created.
+- [r-lib/actions#1040](https://github.com/r-lib/actions/issues/1040) - Still open. As of 2026-02-11, Gaborcsardi is monitoring with a gist but taking a "wait and see" approach.
+- [r-lib/actions#1041](https://github.com/r-lib/actions/issues/1041) - Still open. Specific instances self-resolved but no code fix applied.
+
+The pak maintainer considers this a CRAN-side bug that is "probably not going to be fixed" upstream. The issue can affect either macOS release or devel — it depends on which R version's binary repo has a package update with lagging metadata at that moment.
+
+## Workaround Options (trying one at a time)
+
+### Option 1: Use Posit Package Manager (PPM) for macOS — TRY FIRST
+PPM serves macOS binaries (x86 and arm64) with its own metadata, independent of CRAN's mirrors. We already use PPM for Ubuntu via the `rspm` matrix setting. The `setup-r` action's `use-public-rspm` input only covers Linux/Windows, but we can manually set the CRAN repo to `https://packagemanager.posit.co/cran/latest` for macOS using the `cran` input of `setup-r` or by setting `options(repos = ...)`.
+
+**Status:** Not yet tried
+
+### Option 2: Fall back to `install.packages()` for macOS
+The old `remotes::install_deps()` approach (still commented out in workflow) uses `install.packages()` under the hood. Unlike pak, `install.packages()` falls back to source compilation when a binary isn't found, making it resilient to metadata mismatches. Remotes caused errors on Ubuntu, but we could conditionally use remotes for macOS only while keeping pak for Ubuntu.
+
+**Status:** Not yet tried
+
+### Option 3: Accept intermittent failures (status quo)
+Continue with pak + CRAN and re-run failed jobs when they hit the metadata window. The issue is intermittent and self-resolving within hours.
+
+**Status:** Current fallback
 
 ## Historical Context
 
