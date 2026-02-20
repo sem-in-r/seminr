@@ -10,7 +10,7 @@ substitute_dimensions_for_HOC <- function(construct, sm, mm) {
     sm <- rbind(sm,
                 relationships(paths(from = antecedents,
                                     to = dimensions)))
-    sm <- sm[-which(sm[, "target"] == construct[1]), ]
+    sm <- sm[-which(sm[, "target"] == construct[1]), , drop=FALSE]
   }
 
   # identify outcomes
@@ -19,7 +19,7 @@ substitute_dimensions_for_HOC <- function(construct, sm, mm) {
     sm <- rbind(sm,
                 relationships(paths(from = dimensions,
                                     to = outcomes)))
-    sm <- sm[-which(sm[, "source"] == construct[1]), ]
+    sm <- sm[-which(sm[, "source"] == construct[1]), , drop=FALSE]
   }
   return(list(sm = sm,
               dimensions = dimensions))
@@ -49,7 +49,7 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs, maxIt, stopC
     }
   }
   # Remove interactions from the sm
-  sm <- sm[sm[, "source"] %in% unique(new_mm[, "construct"]),]
+  sm <- sm[sm[, "source"] %in% unique(new_mm[, "construct"]), , drop=FALSE]
 
 
   # Identify all the dimensions
@@ -64,7 +64,7 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs, maxIt, stopC
                             stopCriterion = stopCriterion)
 
   # Add the construct scores to data
-  data <- cbind(data, new_model$construct_scores[, dimensions])
+  data <- cbind(data, new_model$construct_scores[, dimensions, drop=FALSE])
 
   # # Update the mm to include the type of the new data and item
   # mm[mm[,"type"] == "HOCA", "type"] <- "A"

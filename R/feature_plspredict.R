@@ -112,7 +112,7 @@ two_stage_predict <- function(pls_model, testData, technique) {
   first_stage_mm <- pls_model$measurement_model[!(unique(pls_model$mmMatrix[,1]) %in% interactions)]
 
   # recreate the first stage structural model
-  first_stage_sm <- pls_model$structural_model[ !(pls_model$structural_model[,"source"] %in% interactions),]
+  first_stage_sm <- pls_model$structural_model[ !(pls_model$structural_model[,"source"] %in% interactions), , drop=FALSE]
   first_stage_model <- estimate_pls(data = train_data,
                                     measurement_model = first_stage_mm,
                                     structural_model = first_stage_sm) |> suppressMessages()

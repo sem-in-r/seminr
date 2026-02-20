@@ -54,6 +54,49 @@ interaction_term <- function(iv, moderator, method=product_indicator, weights = 
   return(intxn)
 }
 
+#' Quadratic term function
+#'
+#' \code{quadratic_term} is a convenience wrapper around \code{interaction_term}
+#' for creating a quadratic effect of a single construct (i.e., X squared).
+#' It is equivalent to calling \code{interaction_term(iv = construct, moderator = construct, ...)}.
+#'
+#' The resulting construct in the structural model is named \code{"X*X"} where
+#' \code{X} is the construct name. Reference it accordingly in \code{paths()}.
+#'
+#' @param iv The construct to square.
+#' @param method The method to generate the quadratic term with a default of
+#'   \code{two_stage}.
+#' @param weights The weighting mode for quadratic items in a PLS model (only)
+#'   with default of \code{mode_A}.
+#'
+#' @return An un-evaluated function (promise) for generating a quadratic term,
+#'   identical to what \code{interaction_term(iv, iv, method, weights)} returns.
+#'
+#' @usage
+#' quadratic_term(iv, method, weights)
+#'
+#' @examples
+#' data(mobi)
+#'
+#' mobi_mm <- constructs(
+#'   composite("Image",        multi_items("IMAG", 1:5)),
+#'   composite("Satisfaction", multi_items("CUSA", 1:3)),
+#'   quadratic_term(iv = "Image", method = two_stage)
+#' )
+#'
+#' mobi_sm <- relationships(
+#'   paths(to = "Satisfaction",
+#'         from = c("Image", "Image*Image"))
+#' )
+#'
+#' mobi_pls <- estimate_pls(mobi, mobi_mm, mobi_sm)
+#' summary(mobi_pls)
+#'
+#' @export
+quadratic_term <- function(iv, method = two_stage, weights = mode_A) {
+  interaction_term(iv = iv, moderator = iv, method = method, weights = weights)
+}
+
 #' \code{orthogonal} creates interaction measurement items by using the
 #' orthogonalized approach wherein
 #'
@@ -256,7 +299,7 @@ two_stage <- function(iv, moderator, weights) {
   two_stage_interaction <- function(data, mmMatrix, structural_model, ints, estimate_first_stage, ...) {
     interaction_name <- paste(iv, moderator, sep = "*")
     # remove interactions from structural model
-    structural_model <- structural_model[ !grepl("\\*", structural_model[,"source"]), ]
+    structural_model <- structural_model[ !grepl("\\*", structural_model[,"source"]), , drop=FALSE]
     measurement_mode_scheme <- sapply(unique(c(structural_model[,1],structural_model[,2])), get_measure_mode, mmMatrix, USE.NAMES = TRUE)
     first_stage <- estimate_first_stage(
       data = data, smMatrix = structural_model, mmMatrix = mmMatrix,
