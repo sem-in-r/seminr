@@ -68,11 +68,12 @@ Windows CI (`windows-latest`, R release) has been commented out of the GitHub Ac
 - [x] Add `http-user-agent: 'release'` for Ubuntu devel config
 - [x] Update `CLAUDE.md` CI/CD section to reflect Windows inclusion
 
-### Phase 2: Verify
+### Phase 2: Verify -- DONE
 
-- [ ] Push branch and trigger CI
-- [ ] Confirm all 4 jobs pass (macOS-latest release, windows-latest release, ubuntu-latest release, ubuntu-latest devel)
-- [ ] Review Windows job logs for any warnings or notes
+- [x] Push branch and trigger CI
+- [x] Confirm all 4 jobs pass (macOS-latest release, windows-latest release, ubuntu-latest release, ubuntu-latest devel)
+- [x] Review Windows job logs for any warnings or notes
+- PR #397 created; all 4 matrix jobs green
 
 ## Proposed Workflow (target state)
 
