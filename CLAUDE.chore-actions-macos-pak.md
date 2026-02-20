@@ -69,9 +69,10 @@ The pak maintainer considers this a CRAN-side bug that is "probably not going to
 ## Workaround Options (trying one at a time)
 
 ### Option 1: Use Posit Package Manager (PPM) for macOS — TRY FIRST
+
 PPM serves macOS binaries (x86 and arm64) with its own metadata, independent of CRAN's mirrors. We already use PPM for Ubuntu via the `rspm` matrix setting. The `setup-r` action's `use-public-rspm` input only covers Linux/Windows, but we can manually set the CRAN repo to `https://packagemanager.posit.co/cran/latest` for macOS using the `cran` input of `setup-r` or by setting `options(repos = ...)`.
 
-**Status:** Not yet tried
+**Status:** Tried (run 22223705978, 2026-02-20). **Solves the original CRAN metadata issue.** macOS (release) passed. macOS (devel) failed with a *different* error: `data.table` source build failed due to missing `libintl.h` (gettext header). PPM doesn't have devel binaries for `data.table`, so pak fell back to source compilation which requires system headers not present on the runner. This is unrelated to the CRAN metadata sync problem — it's a missing system dependency for source builds on R-devel.
 
 ### Option 2: Fall back to `install.packages()` for macOS
 The old `remotes::install_deps()` approach (still commented out in workflow) uses `install.packages()` under the hood. Unlike pak, `install.packages()` falls back to source compilation when a binary isn't found, making it resilient to metadata mismatches. Remotes caused errors on Ubuntu, but we could conditionally use remotes for macOS only while keeping pak for Ubuntu.
