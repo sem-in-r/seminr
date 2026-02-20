@@ -94,7 +94,7 @@ When the structural model has only one non-interaction path (e.g., `X -> Y`), fi
 ### Phase 4: Verify
 
 - [x] **4a.** `devtools::test()` — all 272 tests pass (0 failures)
-- [ ] **4b.** Run `devtools::check()` for full CRAN-style validation
+- [x] **4b.** `devtools::check()` — 0 errors, 0 warnings, 0 notes (R 4.5.1, macOS aarch64)
 
 ### Phase 5: Cleanup
 
