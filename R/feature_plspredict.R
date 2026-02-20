@@ -33,14 +33,19 @@ one_stage_predict <- function(pls_model, testData, technique) {
   fulldata <- pls_model$data[,no_int_mmvars]
   fulldata[rownames(testData),no_int_mmvars] <- testData[,no_int_mmvars]
 
-  suppressMessages(fullmodel <- seminr::estimate_pls(data =fulldata,
-                                                     measurement_model = pls_model$measurement_model,
-                                                     structural_model = pls_model$structural_model,
-                                                     inner_weights = pls_model$inner_weights,
-                                                     missing = pls_model$settings$missing,
-                                                     missing_value = pls_model$settings$missing_value,
-                                                     maxIt = pls_model$settings$maxIt,
-                                                     stopCriterion = pls_model$settings$stopCriterion))
+  suppressMessages(
+    fullmodel <- estimate_pls(
+      data = fulldata,
+      measurement_model = pls_model$measurement_model,
+      structural_model = pls_model$structural_model,
+      inner_weights = pls_model$inner_weights,
+      missing = pls_model$settings$missing,
+      missing_value = pls_model$settings$missing_value,
+      maxIt = pls_model$settings$maxIt,
+      stopCriterion = pls_model$settings$stopCriterion
+    )
+  )
+
   actual_star <- fullmodel$construct_scores
 
   #Extract Measurements needed for Predictions
@@ -84,7 +89,7 @@ two_stage_predict <- function(pls_model, testData, technique) {
   no_int_mmvars <- pls_model$mmVariables[!grepl("\\*", pls_model$mmVariables)]
   fulldata <- pls_model$data[,no_int_mmvars]
   fulldata[rownames(testData),no_int_mmvars] <- testData[,no_int_mmvars]
-  suppressMessages(fullmodel <- seminr::estimate_pls(data =fulldata,
+  suppressMessages(fullmodel <- estimate_pls(data =fulldata,
                                                      measurement_model = pls_model$measurement_model,
                                                      structural_model = pls_model$structural_model,
                                                      inner_weights = pls_model$inner_weights,
@@ -456,14 +461,18 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
   PLS_predicted_insample_item <- matrix(0,nrow = nrow(ordered_data),ncol = length(no_int_mmvars),dimnames = list(rownames(ordered_data),no_int_mmvars))
   PLS_predicted_insample_item_residuals <- matrix(0,nrow = nrow(ordered_data),ncol = length(no_int_mmvars),dimnames = list(rownames(ordered_data),no_int_mmvars))
   #PLS prediction on testset model
-  suppressMessages(train_model <- estimate_pls(data = trainingData,
-                                               measurement_model = model$measurement_model,
-                                               structural_model = model$smMatrix,
-                                               inner_weights = model$inner_weights,
-                                               missing = model$settings$missing,
-                                               missing_value = model$settings$missing_value,
-                                               maxIt = model$settings$maxIt,
-                                               stopCriterion = model$settings$stopCriterion))
+  suppressMessages(
+    train_model <- estimate_pls(
+      data = trainingData,
+      measurement_model = model$measurement_model,
+      structural_model = model$smMatrix,
+      inner_weights = model$inner_weights,
+      missing = model$settings$missing,
+      missing_value = model$settings$missing_value,
+      maxIt = model$settings$maxIt,
+      stopCriterion = model$settings$stopCriterion
+    )
+  )
   test_predictions <- stats::predict(object = train_model,
                                      testData = testingData,
                                      technique = technique)
@@ -523,24 +532,27 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
         #Create noFolds equally sized folds
         folds <- cut(seq(1,nrow(ordered_data)),breaks=noFolds,labels=FALSE)
 
-        # Create cluster
+        # Create cluster with seminr loaded on workers (issue #318)
         # NOTE: Workers load the INSTALLED package via library(seminr), not devtools::load_all().
         # If tests fail with "number of items to replace is not a multiple of replacement length",
         # run devtools::install() first to sync the installed version with development code.
-        suppressWarnings(ifelse(is.null(cores), cl <- parallel::makeCluster(parallel::detectCores()), cl <- parallel::makeCluster(cores)))
+        cl <- setup_parallel_cluster(cores)
 
         # Export variables and functions to cluster
         parallel::clusterExport(cl=cl, varlist=c("generate_lm_predictions",
                                                  "predict_lm_matrices",
                                                  "standardize_data",
                                                  "unstandardize_data"), envir=environment())
-        #parallel::clusterEvalQ(cl=cl,expr = "library(PLSpredict)")
 
-                # Execute the bootstrap
-        utils::capture.output(matrices <- parallel::parSapply(cl,1:noFolds,in_and_out_sample_predictions,folds = folds,
-                                                              ordered_data = ordered_data,
-                                                              model = model,
-                                                              technique = technique))
+        # Execute the bootstrap
+        utils::capture.output(
+          matrices <- parallel::parSapply(
+            cl, 1:noFolds, in_and_out_sample_predictions, folds = folds,
+            ordered_data = ordered_data,
+            model = model,
+            technique = technique
+          )
+        )
         # Stop cluster
         parallel::stopCluster(cl)
       } else {
