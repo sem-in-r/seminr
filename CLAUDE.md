@@ -216,7 +216,7 @@ remotes::install_version("seminr", "2.3.3")       # Specific version
 
 ## CI/CD
 
-GitHub Actions runs `R CMD check --as-cran` on macOS and Ubuntu (both release and devel R versions). The workflow is defined in `.github/workflows/rcmdcheck.yml`.
+GitHub Actions runs `R CMD check --as-cran` on macOS, Windows, and Ubuntu (release R) plus Ubuntu (devel R). The workflow is defined in `.github/workflows/rcmdcheck.yml`.
 
 Branches ending in `_noci` skip CI checks.
 
