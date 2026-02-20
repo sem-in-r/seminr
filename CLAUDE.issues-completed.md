@@ -28,6 +28,18 @@ Released to master via [PR #385](https://github.com/sem-in-r/seminr/pull/385).
 
 ---
 
+## Merged to Develop (pending next release)
+
+PRs merged to develop after v2.4.2 — issues remain open per closing policy (close on release).
+
+| PR | Fixes | Author | Merged | Notes |
+| --- | --- | --- | --- | --- |
+| [**#395**](https://github.com/sem-in-r/seminr/pull/395) | [#318](https://github.com/sem-in-r/seminr/issues/318) (parallel "no package seminr") | @soumyaray | 2026-02-20 | Propagate `.libPaths()` to workers, shared `setup_parallel_cluster()` helper, remove `seminr::` self-refs |
+| [**#396**](https://github.com/sem-in-r/seminr/pull/396) | [#299](https://github.com/sem-in-r/seminr/issues/299) + [#205](https://github.com/sem-in-r/seminr/issues/205) (PLSc + HOC bootstrap) | @soumyaray | 2026-02-20 | Fix `boot_vec_len` miscalculation in error-recovery; rename shadowed `length` variable |
+| [**#384**](https://github.com/sem-in-r/seminr/pull/384) | [#386](https://github.com/sem-in-r/seminr/issues/386) (macOS CI failures) | @soumyaray | 2026-02-20 | Switch to PPM repo for macOS; remove macOS-devel from CI matrix; add workflow_dispatch + setup-pandoc@v2 |
+
+---
+
 ## Closed Issues by Problem Area
 
 ### HOC / Summary
