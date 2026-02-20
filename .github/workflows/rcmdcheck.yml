@@ -6,6 +6,7 @@ on:
     branches:
       - '**'
       - '!*_noci'
+  workflow_dispatch:
 
 name: R-CMD-check
 
@@ -21,7 +22,8 @@ jobs:
         config:
           # - {os: windows-latest, r: 'release'}
           - {os: macOS-latest, r: 'release'}
-          - {os: macOS-latest, r: 'devel'}
+          # macOS devel removed: PPM lacks devel binaries, source builds fail on missing system libs (libintl.h etc.)
+          # R-devel regressions are caught by ubuntu-latest (devel) instead
           - {os: ubuntu-latest, r: 'release', rspm: "https://packagemanager.rstudio.com/cran/__linux__/noble/latest"}
           - {os: ubuntu-latest, r: 'devel', rspm: "https://packagemanager.rstudio.com/cran/__linux__/noble/latest"}
 
@@ -37,8 +39,19 @@ jobs:
         with:
           r-version: ${{ matrix.config.r }}
 
+      # Use PPM instead of CRAN for macOS to avoid CRAN metadata sync issues
+      - name: Configure PPM as package repository (macOS)
+        if: runner.os == 'macOS'
+        shell: Rscript {0}
+        run: |
+          rprofile <- file.path(Sys.getenv("HOME"), ".Rprofile")
+          write("\noptions(repos = c(CRAN = 'https://packagemanager.posit.co/cran/latest'))",
+                file = rprofile, append = TRUE)
+          source(rprofile)
+          message("CRAN repo: ", getOption("repos")["CRAN"])
+
       # pandoc to check markdown files
-      - uses: r-lib/actions/setup-pandoc@v1
+      - uses: r-lib/actions/setup-pandoc@v2
 
       # Modern dependency management - handles system deps, caching, and R packages
       - uses: r-lib/actions/setup-r-dependencies@v2
