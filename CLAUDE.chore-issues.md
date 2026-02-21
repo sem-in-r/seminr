@@ -9,7 +9,7 @@
 
 | Current Version | PRs to Review | Merged (pending release) | Experimental | Ready to Work | Needs Investigation | Backlog |
 | --------------- | ------------- | ------------------------ | ------------ | ------------- | ------------------- | ------- |
-| v2.4.2          | 1 (community) | 5 PRs                   | 2 PRs        | 5 moderate | 4 issues + 1 close candidate | 20+     |
+| v2.4.2          | 1 (community) | 5 PRs                   | 2 PRs        | 5 moderate | 4 issues | 20+     |
 
 ---
 
@@ -63,7 +63,6 @@
 | [**#256**](https://github.com/sem-in-r/seminr/issues/256) | Bootstrapping issue | 📋 Open | Tagged `doing` since 2022; check if still relevant |
 | [**#339**](https://github.com/sem-in-r/seminr/issues/339) | Near-zero-variance binary | 📋 Open | Left open for discoverability; consider documenting as known limitation |
 | [**#291**](https://github.com/sem-in-r/seminr/issues/291) | Dissimilar p-values in MGA | 📋 Open | Methodology clarification; tagged `documentation` |
-| [**#329**](https://github.com/sem-in-r/seminr/issues/329) | Bootstrap error | 📋 Open | Resolved by reporter — haven package interference, not a seminr bug; **candidate for closing** |
 
 ---
 
@@ -117,17 +116,12 @@ Low priority explorations — not actively being addressed.
 
 | PR | Title | Decision Needed |
 | --- | --- | --- |
-| [**#313**](https://github.com/sem-in-r/seminr/pull/313) | Issue templates update | Close or complete |
-| [**#220**](https://github.com/sem-in-r/seminr/pull/220) | Bootstrap significance | Close - superseded by [#358](https://github.com/sem-in-r/seminr/pull/358) |
 | [**#217**](https://github.com/sem-in-r/seminr/pull/217) | Package paper | Evaluate: still want paper? |
 
 ### Stale Issues
 
 | Issue | Title | Reason |
 | --- | --- | --- |
-| [**#329**](https://github.com/sem-in-r/seminr/issues/329) | Bootstrap error | Resolved by reporter — haven package issue, not seminr |
-| [**#150**](https://github.com/sem-in-r/seminr/issues/150) | Repeated indicators HOC | Already tagged wontfix |
-| [**#223**](https://github.com/sem-in-r/seminr/issues/223) | semPlot not installing | External dependency |
 | [**#209**](https://github.com/sem-in-r/seminr/issues/209) | MKL CRAN test | Old CI issue |
 | [**#222**](https://github.com/sem-in-r/seminr/issues/222) | pls_predict HOC error | Likely covered by other HOC fixes |
 
@@ -149,7 +143,7 @@ Understanding these patterns helps prioritize fixes that address multiple issues
 - **Open**: [#350](https://github.com/sem-in-r/seminr/issues/350), [#341](https://github.com/sem-in-r/seminr/issues/341), [#339](https://github.com/sem-in-r/seminr/issues/339), [#256](https://github.com/sem-in-r/seminr/issues/256), [#250](https://github.com/sem-in-r/seminr/issues/250), [#163](https://github.com/sem-in-r/seminr/issues/163)
 - **Fixed in develop**: [#318](https://github.com/sem-in-r/seminr/issues/318) — [PR #395](https://github.com/sem-in-r/seminr/pull/395) merged; [#299](https://github.com/sem-in-r/seminr/issues/299)+[#205](https://github.com/sem-in-r/seminr/issues/205) — [PR #396](https://github.com/sem-in-r/seminr/pull/396) merged
 - **CI**: [PR #397](https://github.com/sem-in-r/seminr/pull/397) adds Windows CI — bootstrap parallel tests now verified on all 3 platforms
-- **Likely closeable**: #329 (haven interference, not seminr)
+- **Recently closed**: #329 (haven interference, not seminr — closed 2026-02-21)
 - **Pattern**: Many edge cases and environment-specific issues
 - **Recommendation**: Two highest-impact bootstrap bugs (#318, #299+#205) now merged; close issues on next release; remaining open items are lower priority
 

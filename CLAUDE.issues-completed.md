@@ -104,6 +104,17 @@ Issues related to plot rendering and symbol display.
 | — | PLSpredict parallel testing on macOS | PR #388 | v2.4.2 |
 | [**#386**](https://github.com/sem-in-r/seminr/issues/386) | macOS CI failures (pak/CRAN sync) | PR #384 | pending (develop) |
 | — | Add Windows CI, modernize workflow | PR #397 | pending (develop) |
+| — | Issue templates (bug report + feature request) | PR #399 + PR #400 | merged to master 2026-02-21 |
+
+---
+
+## Closed Issues (not bugs — resolved without code fix)
+
+| Issue | Title | Reason | Closed |
+| --- | --- | --- | --- |
+| [**#329**](https://github.com/sem-in-r/seminr/issues/329) | Bootstrap error | Resolved by reporter — haven package interference, not seminr | 2026-02-21 |
+| [**#150**](https://github.com/sem-in-r/seminr/issues/150) | Repeated indicators HOC | Closed as wontfix | 2026-02-21 |
+| [**#223**](https://github.com/sem-in-r/seminr/issues/223) | semPlot not installing | External dependency, not seminr | 2026-02-21 |
 
 ---
 
@@ -115,6 +126,13 @@ Issues related to plot rendering and symbol display.
 | --- | --- | --- |
 | [**#374**](https://github.com/sem-in-r/seminr/pull/374) | Fixed summary error (missing data + HOC) | PR #383 |
 | [**#393**](https://github.com/sem-in-r/seminr/pull/393) | Custom confidence levels for plotting | PR #394 |
+
+### Stale PRs (closed without merge)
+
+| PR | Title | Reason | Closed |
+| --- | --- | --- | --- |
+| [**#313**](https://github.com/sem-in-r/seminr/pull/313) | Issue templates update | Superseded by PR #399 + #400 | 2026-02-21 |
+| [**#220**](https://github.com/sem-in-r/seminr/pull/220) | Bootstrap significance | Superseded by PR #358 (Wald test) | 2026-02-21 |
 
 ### Community PRs (closed without merge)
 
