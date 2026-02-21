@@ -1,0 +1,13 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Usage Question
+    url: https://github.com/sem-in-r/seminr/discussions
+    about: |
+      For "how do I..." questions, please use GitHub Discussions
+      instead of filing an issue. The community and maintainers
+      can help you there.
+  - name: Book / Course Support
+    url: https://github.com/sem-in-r/seminr/discussions
+    about: |
+      Questions about the Hair et al. PLS-SEM book examples
+      should go to Discussions.
