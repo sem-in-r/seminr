@@ -2,7 +2,7 @@
 
 **Issue:** #313 — Update issue templates
 **Branch:** `ray/chore(github)-issue-template`
-**Status:** In progress
+**Status:** Complete (pending manual verification after push)
 
 ## Issue Summary
 
@@ -39,7 +39,7 @@ These are GitHub YAML configuration files, not R code — no testthat tests appl
 - [x] Create `feature_request.yml` with fields: problem statement (required), proposed solution, alternatives considered, area dropdown (required)
 - [x] Create `config.yml` to disable blank issues and add contact links redirecting usage/book questions to GitHub Discussions
 - [x] Validate YAML syntax of all files
-- [ ] Commit changes
+- [x] Commit changes
 
 ## Design Decisions
 
