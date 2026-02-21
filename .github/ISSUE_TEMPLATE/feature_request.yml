@@ -1,0 +1,47 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+labels: ["new feature"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the use case or limitation you're experiencing.
+      placeholder: >
+        e.g., I need to report p-values for specific indirect effects in
+        mediation analysis, but specific_effect_significance() only returns
+        t-statistics and confidence intervals.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How would you like this to work? Show example code or output if possible.
+      render: r
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any workarounds or other tools you've tried?
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which area does this affect?
+      options:
+        - Estimation (PLS, CBSEM, CFA)
+        - Bootstrap / inference
+        - Model summary / reporting
+        - Plotting / visualization
+        - Prediction (PLSpredict)
+        - Higher-order constructs
+        - Interaction / moderation
+        - Mediation
+        - Multi-group analysis (MGA)
+        - Data handling
+        - Other
+    validations:
+      required: true
