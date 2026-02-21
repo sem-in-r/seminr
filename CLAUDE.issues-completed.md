@@ -37,6 +37,8 @@ PRs merged to develop after v2.4.2 — issues remain open per closing policy (cl
 | [**#395**](https://github.com/sem-in-r/seminr/pull/395) | [#318](https://github.com/sem-in-r/seminr/issues/318) (parallel "no package seminr") | @soumyaray | 2026-02-20 | Propagate `.libPaths()` to workers, shared `setup_parallel_cluster()` helper, remove `seminr::` self-refs |
 | [**#396**](https://github.com/sem-in-r/seminr/pull/396) | [#299](https://github.com/sem-in-r/seminr/issues/299) + [#205](https://github.com/sem-in-r/seminr/issues/205) (PLSc + HOC bootstrap) | @soumyaray | 2026-02-20 | Fix `boot_vec_len` miscalculation in error-recovery; rename shadowed `length` variable |
 | [**#384**](https://github.com/sem-in-r/seminr/pull/384) | [#386](https://github.com/sem-in-r/seminr/issues/386) (macOS CI failures) | @soumyaray | 2026-02-20 | Switch to PPM repo for macOS; remove macOS-devel from CI matrix; add workflow_dispatch + setup-pandoc@v2 |
+| [**#397**](https://github.com/sem-in-r/seminr/pull/397) | — (CI modernization) | @soumyaray | 2026-02-21 | Add Windows CI, modernize to standard r-lib/actions `check-r-package@v2`, use public RSPM for all platforms |
+| [**#398**](https://github.com/sem-in-r/seminr/pull/398) | [#327](https://github.com/sem-in-r/seminr/issues/327) (quadratic interaction error) | @soumyaray | 2026-02-21 | `drop=FALSE` fixes for matrix subset coercion; add `quadratic_term()` convenience function |
 
 ---
 
@@ -86,12 +88,22 @@ Issues related to plot rendering and symbol display.
 
 **Related PRs:** [#389](https://github.com/sem-in-r/seminr/pull/389) (BMP Greek letters + capital R²)
 
+### Interaction Terms
+
+| Issue | Title | Fixed By | Release |
+| --- | --- | --- | --- |
+| [**#327**](https://github.com/sem-in-r/seminr/issues/327) | interaction_term() quadratic error | PR #398 | pending (develop) |
+
+**Related PRs:** [#398](https://github.com/sem-in-r/seminr/pull/398) (`drop=FALSE` fixes + `quadratic_term()` convenience function)
+
 ### CI / Infrastructure
 
 | Issue | Title | Fixed By | Release |
 | --- | --- | --- | --- |
 | — | GitHub Actions Ubuntu 24.04 | PR #380 | v2.4.2 |
 | — | PLSpredict parallel testing on macOS | PR #388 | v2.4.2 |
+| [**#386**](https://github.com/sem-in-r/seminr/issues/386) | macOS CI failures (pak/CRAN sync) | PR #384 | pending (develop) |
+| — | Add Windows CI, modernize workflow | PR #397 | pending (develop) |
 
 ---
 

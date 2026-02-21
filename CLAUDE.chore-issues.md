@@ -9,7 +9,7 @@
 
 | Current Version | PRs to Review | Merged (pending release) | Experimental | Ready to Work | Needs Investigation | Backlog |
 | --------------- | ------------- | ------------------------ | ------------ | ------------- | ------------------- | ------- |
-| v2.4.2          | 1 (community) | 3 PRs                   | 2 PRs        | 1 high + 5 moderate | 4 issues + 1 close candidate | 20+     |
+| v2.4.2          | 1 (community) | 5 PRs                   | 2 PRs        | 5 moderate | 4 issues + 1 close candidate | 20+     |
 
 ---
 
@@ -28,16 +28,12 @@
 | [**#395**](https://github.com/sem-in-r/seminr/pull/395) | [#318](https://github.com/sem-in-r/seminr/issues/318) (parallel "no package seminr") | @soumyaray | ✅ 2026-02-20 | Propagate `.libPaths()` to workers, shared `setup_parallel_cluster()` helper, remove `seminr::` self-refs |
 | [**#396**](https://github.com/sem-in-r/seminr/pull/396) | [#299](https://github.com/sem-in-r/seminr/issues/299) + [#205](https://github.com/sem-in-r/seminr/issues/205) (PLSc + HOC bootstrap) | @soumyaray | ✅ 2026-02-20 | Fix `boot_vec_len` miscalculation in error-recovery; rename shadowed `length` variable |
 | [**#384**](https://github.com/sem-in-r/seminr/pull/384) | [#386](https://github.com/sem-in-r/seminr/issues/386) (macOS CI failures) | @soumyaray | ✅ 2026-02-20 | Switch to PPM repo for macOS; remove macOS-devel from matrix; add workflow_dispatch + setup-pandoc@v2 |
+| [**#397**](https://github.com/sem-in-r/seminr/pull/397) | — (CI modernization) | @soumyaray | ✅ 2026-02-21 | Add Windows CI, modernize to standard r-lib/actions `check-r-package@v2`, use public RSPM for all platforms |
+| [**#398**](https://github.com/sem-in-r/seminr/pull/398) | [#327](https://github.com/sem-in-r/seminr/issues/327) (quadratic interaction error) | @soumyaray | ✅ 2026-02-21 | `drop=FALSE` fixes for matrix subset coercion; add `quadratic_term()` convenience function |
 
 ---
 
 ## 📋 Ready to Work On
-
-### High Priority Bugs
-
-| Issue | Title | Status | Notes | Cluster |
-| --- | --- | --- | --- | --- |
-| [**#327**](https://github.com/sem-in-r/seminr/issues/327) | interaction_term() quadratic error | 📋 Open | Single IV edge case | — |
 
 ### Moderate Priority Bugs
 
@@ -152,6 +148,7 @@ Understanding these patterns helps prioritize fixes that address multiple issues
 
 - **Open**: [#350](https://github.com/sem-in-r/seminr/issues/350), [#341](https://github.com/sem-in-r/seminr/issues/341), [#339](https://github.com/sem-in-r/seminr/issues/339), [#256](https://github.com/sem-in-r/seminr/issues/256), [#250](https://github.com/sem-in-r/seminr/issues/250), [#163](https://github.com/sem-in-r/seminr/issues/163)
 - **Fixed in develop**: [#318](https://github.com/sem-in-r/seminr/issues/318) — [PR #395](https://github.com/sem-in-r/seminr/pull/395) merged; [#299](https://github.com/sem-in-r/seminr/issues/299)+[#205](https://github.com/sem-in-r/seminr/issues/205) — [PR #396](https://github.com/sem-in-r/seminr/pull/396) merged
+- **CI**: [PR #397](https://github.com/sem-in-r/seminr/pull/397) adds Windows CI — bootstrap parallel tests now verified on all 3 platforms
 - **Likely closeable**: #329 (haven interference, not seminr)
 - **Pattern**: Many edge cases and environment-specific issues
 - **Recommendation**: Two highest-impact bootstrap bugs (#318, #299+#205) now merged; close issues on next release; remaining open items are lower priority
