@@ -47,18 +47,6 @@ fSquared <- function(seminr_model, iv, dv) {
   with_sm <- seminr_model$smMatrix
   without_sm <- remove_path(with_sm, iv, dv)
 
-  # Calculate fSquared using LM of constructs instead of re-estiating the model (this is probably incorrect, but might serve for interaction models)
-  # dvs <- unique(seminr_model$smMatrix[, "target"])
-  # path_matrix <- seminr_model$path_coef
-  # for (dv in dvs) {
-  #   ivs <- names(path_matrix[(path_matrix[,dv] != 0),dv])
-  #   sub("\\*", "x", ivs)
-  #   frmla <- stats::as.formula(paste(dv,paste(sub("\\*", "x", ivs), collapse ="+"), sep = " ~ "))
-  #   data <- as.data.frame(seminr_model$construct_scores)
-  #   colnames(data) <- sub("\\*", "x",colnames(data))
-  #   lm <- stats::lm(formula = frmla, data = data)
-  #   summary(lm)
-  #   }
   suppressMessages(
     without_pls <- estimate_pls(data = seminr_model$rawdata,
                                 measurement_model = seminr_model$measurement_model,

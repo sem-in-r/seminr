@@ -858,7 +858,7 @@ extract_sm_nodes <- function(model, theme, structure_only = FALSE) {
   for (construct in model$constructs) {
     c_type <- construct_type(model, construct)
 
-    if (startsWith(c_type, "HOC") && !structure_only) {
+    if (!structure_only && is_HOC(model$mmMatrix, construct)) {
 
       result <- construct_items(model$mmMatrix, construct)
       sm_nodes <- c(sm_nodes, result)
@@ -1154,10 +1154,9 @@ is_only_endogenous <- function(model, index) {
   # As lower order constructs are not part of the structural model,
   # we cannot extract their coding directly.
   # Check if this construct appears as a measurement (dimension) of a HOC.
-  item_name <- mm_coding[index, 1]
+  item_name <- mm_coding[index, "name"]
   parent_construct <- construct_of_item(model$mmMatrix, item_name)
-  parent_mode <- if (!is.na(parent_construct)) construct_mode(model$mmMatrix, parent_construct) else ""
-  is_higher_order_measurement <- startsWith(parent_mode, "HOC")
+  is_higher_order_measurement <- if (!is.na(parent_construct)) is_HOC(model$mmMatrix, parent_construct) else FALSE
 
   if(any(is_higher_order_measurement)) {
     # cannot be sink
@@ -1209,9 +1208,9 @@ dot_subcomponent_mm <- function(index, model, theme) {
   node_style <- get_mm_node_style(theme)
 
   # test-flags for component types
-  is_reflective <- mm_coding[index, 2] == "C"
-  is_interaction <- mm_coding[index, 2] == "interaction"
-  # is_higher_order <- startsWith(mm_coding[index, 2], "HOC") # maybe we need this later?
+  is_reflective <- mm_coding[index, "type"] == "C"
+  is_interaction <- mm_coding[index, "type"] == "interaction"
+  # is_higher_order <- startsWith(mm_coding[index, "type"], "HOC") # maybe we need this later?
 
   # debug:
   # print(mm_coding[index, ])
@@ -1227,7 +1226,7 @@ dot_subcomponent_mm <- function(index, model, theme) {
   #  edge_style <- get_mm_edge_style(theme, forward = TRUE)
   #}
 
-  c_type <- construct_type(model, mm_coding[index, 1])
+  c_type <- construct_type(model, mm_coding[index, "name"])
   flip <- is_only_endogenous(model, index)
   edge_style <- get_mm_edge_style(theme, c_type, flip)
 
@@ -1294,7 +1293,7 @@ get_mm_node_style <- function(theme) {
 #' @param theme the theme to use
 extract_mm_nodes <- function(index, model, theme) {
   mm_coding <- extract_mm_coding(model)
-  construct <- mm_coding[index, 1]
+  construct <- mm_coding[index, "name"]
   items <- construct_items(model$mmMatrix, construct)
 
   shape <- get_mm_node_shape(model, construct, theme)
@@ -1464,7 +1463,7 @@ use_construct_weights <- function(theme, construct_type) {
 extract_mm_edges <- function(index, model, theme, weights = 1000) {
 
   mm_coding <- extract_mm_coding(model)
-  construct <- mm_coding[index, 1]
+  construct <- mm_coding[index, "name"]
   items <- construct_items(model$mmMatrix, construct)
 
   edges <- ""

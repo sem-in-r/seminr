@@ -96,8 +96,8 @@ SEMinR uses a three-stage pipeline: **Specify → Estimate → Evaluate/Plot**
 | `report_*.R`   | Output formatting and summaries                                    |
 | `plot_*.R`     | Visualization via DiagrammeR                                       |
 | `feature_*.R`  | Advanced features (PLSc, higher-order constructs, PLSpredict)      |
-| `inspect_*.R`  | Accessor/mutator functions for internal matrices (mmMatrix, smMatrix) |
-| `library*.R`   | Internal utilities and model-level accessors                       |
+| `helpers-*.R`  | Accessor/mutator functions for internal matrices and model-level helpers |
+| `library*.R`   | Internal utilities (weighting, effects, statistics)                |
 | `theme*.R`     | Plot theming system                                                |
 
 ### S3 Object Classes
@@ -123,9 +123,9 @@ Two internal character matrices underpin every estimation, evaluation, and plott
 
 | File | Scope |
 | --- | --- |
-| `inspect_smMatrix.R` | smMatrix accessors, selectors, predicates, mutators; `construct_names` S3 generic + all methods |
-| `inspect_mmMatrix.R` | mmMatrix accessors, selectors, converters; `construct_items` S3 generic + all methods; measurement model list helpers |
-| `library.R` | Model-level accessors (`construct_type`, `constructs_in_model`, `construct_scores`) and selectors (`all_factors`, `all_composites`) |
+| `helpers-smMatrix.R` | smMatrix accessors, selectors, predicates, mutators; `construct_names` S3 generic + all methods |
+| `helpers-mmMatrix.R` | mmMatrix accessors, selectors, converters; `construct_items` S3 generic + all methods; measurement model list helpers |
+| `helpers-model.R` | Model-level accessors (`construct_type`, `constructs_in_model`, `construct_scores`) and selectors (`all_factors`, `all_composites`); S3 methods dispatching on `seminr_model` |
 
 **Key S3 generics:**
 

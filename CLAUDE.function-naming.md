@@ -2,7 +2,7 @@
 
 ## Current Helper Functions
 
-### smMatrix helpers (`inspect_smMatrix.R`)
+### smMatrix helpers (`helpers-smMatrix.R`)
 
 | Function | Type | Signature | Returns | Convention |
 | --- | --- | --- | --- | --- |
@@ -14,7 +14,7 @@
 | `interactions_of` | accessor | `(outcome, smMatrix)` | interaction antecedents of a target | qualifier_prep |
 | `all_interactions` | selector | `(smMatrix)` | all interaction terms | all_ |
 
-### mmMatrix helpers (`inspect_mmMatrix.R`)
+### mmMatrix helpers (`helpers-mmMatrix.R`)
 
 | Function | Type | Signature | Returns | Convention |
 | --- | --- | --- | --- | --- |
@@ -22,7 +22,7 @@
 | `all_reflective` | selector | `(mmMatrix, constructs)` | reflective construct names | all_ | **Note:** `constructs` parameter is unused dead code — remove during refactoring |
 | `mm2matrix` | converter | `(measurement_model)` | mmMatrix from measurement model list | abbreviation_noun |
 
-### Measurement model list helpers (`inspect_mmMatrix.R`)
+### Measurement model list helpers (`helpers-mmMatrix.R`)
 
 These operate on the pre-matrix measurement model list, not mmMatrix:
 
@@ -38,7 +38,7 @@ These operate on the pre-matrix measurement model list, not mmMatrix:
 | `loc_constructs` | selector | `(measurement_model)` | constructs (excluding HOC) | abbreviation_noun |
 | `mm_interactions` | selector | `(measurement_model)` | interaction closures only | abbreviation_noun |
 
-### mmMatrix helpers (`library.R`)
+### mmMatrix helpers (`helpers-mmMatrix.R`)
 
 | Function | Type | Signature | Returns | Convention |
 | --- | --- | --- | --- | --- |
@@ -49,7 +49,7 @@ These operate on the pre-matrix measurement model list, not mmMatrix:
 | `items_of_construct` | accessor | `(construct, model)` | item names (duplicate of `construct_indicators`) | noun_preposition |
 | `constructs_in_model` | accessor | `(model)` | list: names, types, scores | noun_preposition |
 
-### Model-level helpers (`library.R`)
+### Model-level helpers (`helpers-model.R`)
 
 | Function | Type | Signature | Returns | Convention |
 | --- | --- | --- | --- | --- |

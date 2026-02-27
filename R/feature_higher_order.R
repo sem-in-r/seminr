@@ -1,13 +1,12 @@
 # Items in mmMatrix that are not raw data columns — constructs used as HOC measurements
 all_HOC_measures <- function(mmMatrix, data) {
-  setdiff(mmMatrix[, "measurement"], names(data))
+  setdiff(all_items(mmMatrix), names(data))
 }
 
 # Takes a HOC name and replaces that constructs relationships with the dimensions of the HOC
 expand_HOC_to_LOCs <- function(construct, sm, mm) {
   # Identify dimensions of HOCs
   dimensions <- construct_items(construct)
-  #dimensions <- mm[mm[, "type"] == "HOCA" | mm[, "type"] == "HOCB", ][mm[mm[, "type"] == "HOCB" | mm[, "type"] == "HOCA", ][, "construct"] == construct, "measurement"]
   # identify antecedent relationships to HOC
   antecedents <- construct_antecedents(sm, construct[1])
   # change antecedent relationship to first order constructs in structural model
@@ -57,9 +56,6 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs, maxIt, stopC
   sm <- keep_paths_from(sm, all_constructs(new_mm))
 
 
-  # Identify all the dimensions
-  # dimensions <- orig_mm[which(orig_mm[, "construct"] == HOCs), "measurement"]
-
   # Run first stage
   new_model <- estimate_pls(data = data,
                             measurement_model = mm[!(substr(names(mm), nchar(names(mm))-10, nchar(names(mm))) == "interaction") & !(names(mm) == "higher_order_composite")],
@@ -70,11 +66,6 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs, maxIt, stopC
 
   # Add the construct scores to data
   data <- cbind(data, new_model$construct_scores[, dimensions, drop=FALSE])
-
-  # # Update the mm to include the type of the new data and item
-  # mm[mm[,"type"] == "HOCA", "type"] <- "A"
-  # mm[mm[,"type"] == "HOCB", "type"] <- "B"
-
 
   # pass the updated mm, sm and data back to estimate_model()
   return(list(data = data,
@@ -161,7 +152,7 @@ combine_first_order_second_order_loadings_cbsem <- function(mmMatrix, rawdata, l
   # constructs used to measure HOCs
   hoc_measure_constructs <- all_HOC_measures(mmMatrix, rawdata)
 
-  HOCs <- mmMatrix[mmMatrix[, "measurement"] %in% hoc_measure_constructs, , drop = FALSE]
+  HOCs <- mmMatrix_for_items(mmMatrix, hoc_measure_constructs)
   HOC_names <- all_constructs(HOCs)
 
   HOC_measures <- lapply(stats::setNames(HOC_names, HOC_names),

@@ -56,15 +56,14 @@ rho_A <- function(seminr_model, constructs) {
   rho <- matrix(, nrow = length(constructs), ncol = 1, dimnames = list(constructs, c("rhoA")))
 
   for (i in rownames(rho))  {
-    mode <- construct_mode(mmMatrix, i)
     #If the measurement model is Formative assign rhoA = 1
-    if(mode %in% c("B", "HOCB")){
+    if(is_mode_B(mmMatrix, i)){
       rho[i, 1] <- 1
     }
     #If the measurement model is Reflective Calculate RhoA
-    if(mode %in% c("C", "A", "HOCA", "UNIT")) {
+    if(!is_mode_B(mmMatrix, i)) {
       #if the construct is a single item rhoA = 1
-      if(length(construct_items(mmMatrix, i)) == 1 | is_interaction(i)) {
+      if(is_single_item(mmMatrix, i) | is_interaction(i)) {
         rho[i, 1] <- 1
       } else {
         # Calculate rhoA
@@ -108,14 +107,12 @@ rhoC_AVE.pls_model <- function(x, constructs = NULL) {
   for(i in constructs){
     loadings <- pls_model$outer_loadings[, i]
     ind <- which(loadings != 0)
-    if(construct_mode(pls_model$mmMatrix, i) %in% c("A", "B", "HOCA", "HOCB", "C", "UNIT")) {
-      if(length(ind) == 1) {
-        dgr[i, 1:2] <- 1
-      } else {
-        lambdas <- loadings[ind]
-        dgr[i, 1] <- compute_rhoC(lambdas)
-        dgr[i, 2] <- compute_AVE(lambdas)
-      }
+    if(length(ind) == 1) {
+      dgr[i, 1:2] <- 1
+    } else {
+      lambdas <- loadings[ind]
+      dgr[i, 1] <- compute_rhoC(lambdas)
+      dgr[i, 2] <- compute_AVE(lambdas)
     }
   }
   return(dgr)
@@ -134,14 +131,12 @@ rhoC_AVE.boot_seminr_model <- function(x, constructs = NULL) {
   for(i in constructs){
     loadings <- pls_model$outer_loadings[, i]
     ind <- which(loadings != 0)
-    if(construct_mode(pls_model$mmMatrix, i) %in% c("A", "B", "HOCA", "HOCB", "C", "UNIT")) {
-      if(length(ind) == 1) {
-        dgr[i, 1:2] <- 1
-      } else {
-        lambdas <- loadings[ind]
-        dgr[i, 1] <- compute_rhoC(lambdas)
-        dgr[i, 2] <- compute_AVE(lambdas)
-      }
+    if(length(ind) == 1) {
+      dgr[i, 1:2] <- 1
+    } else {
+      lambdas <- loadings[ind]
+      dgr[i, 1] <- compute_rhoC(lambdas)
+      dgr[i, 2] <- compute_AVE(lambdas)
     }
   }
   return(dgr)
@@ -160,14 +155,12 @@ rhoC_AVE.boot_seminr_model <- function(x, constructs = NULL) {
   for(i in constructs){
     loadings <- pls_model$outer_loadings[, i]
     ind <- which(loadings != 0)
-    if(construct_mode(pls_model$mmMatrix, i) %in% c("A", "B", "HOCA", "HOCB", "C", "UNIT")) {
-      if(length(ind) == 1) {
-        dgr[i, 1:2] <- 1
-      } else {
-        lambdas <- loadings[ind]
-        dgr[i, 1] <- compute_rhoC(lambdas)
-        dgr[i, 2] <- compute_AVE(lambdas)
-      }
+    if(length(ind) == 1) {
+      dgr[i, 1:2] <- 1
+    } else {
+      lambdas <- loadings[ind]
+      dgr[i, 1] <- compute_rhoC(lambdas)
+      dgr[i, 2] <- compute_AVE(lambdas)
     }
   }
   return(dgr)

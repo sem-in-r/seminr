@@ -14,7 +14,7 @@ unlavaanify_name <- function(name) {
 lavaan_construct <- function(construct, mmMatrix) {
   lav_name <- lavaanify_name(construct)
 
-  if (construct_mode(mmMatrix, construct) != "C")
+  if (!is_reflective(mmMatrix, construct))
     stop(paste(lav_name, "must be a reflective construct for a CBSEM model"))
 
   items <- lavaanify_name(construct_items(mmMatrix, construct))
@@ -23,7 +23,7 @@ lavaan_construct <- function(construct, mmMatrix) {
 
   extras <- NULL
   # constrain error for single item constructs
-  if (length(items) == 1) {
+  if (is_single_item(mmMatrix, construct)) {
     extras <- append(extras, paste(items, "~~", paste("0*", items, sep="")))
   }
 

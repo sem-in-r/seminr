@@ -1,4 +1,7 @@
-# Purpose: inspect a structural model/matrix
+# Purpose: smMatrix accessors, selectors, predicates, mutators;
+#          construct_names S3 generic + all methods
+
+# -- S3 generic + methods ------------------------------------
 
 # S3 generic: get construct names from various model objects
 construct_names <- function(x, ...) {
@@ -6,24 +9,13 @@ construct_names <- function(x, ...) {
 }
 
 # Structural model matrix (smMatrix)
+#' @export
 construct_names.structural_model <- function(x, ...) {
   unique(c(x[, "source"], x[, "target"]))
 }
 
-# Any estimated model (pls_model, cbsem_model, boot_seminr_model, etc.)
-construct_names.seminr_model <- function(x, ...) {
-  if (is.null(x$hoc)) {
-    intersect(construct_names(x$smMatrix), all_constructs(x$mmMatrix))
-  } else {
-    sm_constructs <- union(
-      construct_names(x$smMatrix),
-      construct_names(x$first_stage_model$smMatrix)
-    )
-    intersect(sm_constructs, all_constructs(x$mmMatrix))
-  }
-}
-
 # Measurement model list
+#' @export
 construct_names.measurement_model <- function(x, ...) {
   constructs_only <- all_non_interactions(x)
   lapply(constructs_only, FUN=construct_name) -> .
@@ -31,6 +23,7 @@ construct_names.measurement_model <- function(x, ...) {
 }
 
 # List fallback (measurement_model after append() loses class)
+#' @export
 construct_names.list <- function(x, ...) {
   constructs_only <- all_non_interactions(x)
   lapply(constructs_only, FUN=construct_name) -> .
@@ -38,11 +31,13 @@ construct_names.list <- function(x, ...) {
 }
 
 # mmMatrix: unique construct names
+#' @export
 construct_names.mmMatrix <- function(x, ...) {
   all_constructs(x)
 }
 
 # Default fallback for unclassed matrices (smMatrix or mmMatrix after class stripping)
+#' @export
 construct_names.default <- function(x, ...) {
   if ("construct" %in% colnames(x)) {
     unique(x[, "construct"])
@@ -50,6 +45,8 @@ construct_names.default <- function(x, ...) {
     unique(c(x[, "source"], x[, "target"]))
   }
 }
+
+# -- Selectors -----------------------------------------------
 
 # Get all endogenous construct names in a structural model
 all_endogenous <- function(smMatrix) {
@@ -70,6 +67,13 @@ only_endogenous <- function(smMatrix) {
   setdiff(all_endogenous(smMatrix), all_exogenous(smMatrix))
 }
 
+# Identify if interactions occur in the sm model
+all_interactions <- function(smMatrix) {
+  construct_names(smMatrix)[grep("\\*",construct_names(smMatrix))]
+}
+
+# -- Accessors -----------------------------------------------
+
 # Get antecedent construct names for a given target construct
 construct_antecedents <- function(smMatrix, outcome) {
   smMatrix[smMatrix[, "target"] == outcome, "source"]
@@ -86,10 +90,7 @@ construct_interactions <- function(smMatrix, outcome) {
   ants[grep("\\*", ants)]
 }
 
-# Identify if interactions occur in the sm model
-all_interactions <- function(smMatrix) {
-  construct_names(smMatrix)[grep("\\*",construct_names(smMatrix))]
-}
+# -- Predicates ----------------------------------------------
 
 # Test if a construct name is an interaction term (contains "*")
 is_interaction <- function(construct_name) {
@@ -147,7 +148,26 @@ has_paths_to <- function(smMatrix, target) {
   any(smMatrix[, "target"] == target)
 }
 
-# --- smMatrix computed accessors ---
+# -- Row-level accessors ------------------------------------
+
+# Get all source values from smMatrix (one per row, not unique)
+path_sources <- function(smMatrix) {
+  smMatrix[, "source"]
+}
+
+# Get all target values from smMatrix (one per row, not unique)
+path_targets <- function(smMatrix) {
+  smMatrix[, "target"]
+}
+
+# -- Decorators ----------------------------------------------
+
+# Format smMatrix paths as "source -> target" labels
+to_path_labels <- function(smMatrix) {
+  paste(path_sources(smMatrix), "->", path_targets(smMatrix))
+}
+
+# -- Computed ------------------------------------------------
 
 # Function to subset a smMatrix by construct — return targets for a given source
 subset_by_construct <- function(x, smMatrix) {
@@ -196,7 +216,7 @@ construct_order <- function(smMatrix) {
 
 }
 
-# --- smMatrix mutators ---
+# -- Mutators ------------------------------------------------
 
 # Remove all paths targeting a given construct (or constructs)
 remove_paths_to <- function(smMatrix, target) {

@@ -1,10 +1,9 @@
-.claude/
+.claude/*
 CLAUDE.local.md
 .Rproj.user/
 .Rhistory
 .RData
 .Rproj.user
-_*
 .DS*
 .R*
 Meta

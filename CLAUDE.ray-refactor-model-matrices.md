@@ -476,12 +476,10 @@ Test suite: 294 PASS, 0 FAIL
 
 ---
 
-## Future Considerations (Second-Wave Refactoring)
+## Second Wave Refactoring
 
-After the current immediate refactoring is complete, consider a second-wave pass where call sites that use accessors like `construct_mode()` are examined for whether they really need the raw mode value or would be better served by predicates (e.g., `is_reflective()`, `is_formative()`). Many call sites pattern-match on mode strings (`"C"`, `"B"`, etc.) and could be replaced with more expressive predicate calls. This is out of scope for the current refactoring but worth tracking.
-
-Additionally, patterns like `if (length(construct_items(mmMatrix, i)) == 1)` could be replaced with a dedicated predicate such as `is_single_item_construct(mmMatrix, i)` — or even accept a model object instead of mmMatrix. This would further improve expressiveness and decouple callers from knowing about item counts.
+Moved to `CLAUDE.refactor-matrices-secondwave.md`.
 
 ---
 
-Last updated: 2026-02-28 (All phases complete)
+Last updated: 2026-02-28 (All phases complete; second-wave items in separate document)
