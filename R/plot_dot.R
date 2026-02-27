@@ -743,30 +743,6 @@ format_edge_label <- function(template, variable, value) {
   glue::glue(template)
 }
 
-#' Returns the type of a construct from a model
-#' @param model the model to get the type from
-#' @param construct the character string name of the construct
-#' @return Returns a character string
-construct_type <- function(model, construct) {
-  #if (!(construct %in% model$constructs)) {
-  #  stop(paste("Construct", construct, "does not exist")) # scaled interactions ?
-  #}
-  if (is_interaction(construct)) {
-    return("interaction")
-  }
-  for (i in 1:length(model$measurement_model)) {
-    cst <- model$measurement_model[[i]]
-    # warning interaction are functions do not access their indexes
-    if (!inherits(cst, "function")) {
-      if (cst[[1]] == construct) {
-        c_type <- cst[[3]]
-      }
-    }
-  }
-
-  return(c_type)
-}
-
 #' extract bootstrapped statistics from an edge using a row_index
 #'
 #' @param ltbl a table of bootstrapped values (weights, loadings, path coefficients)
@@ -1038,7 +1014,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     if (theme$sm.edge.label.all_betas) {
         letter <- beta
     } else {
-      if ( !(sm[i,1] %in% colnames(model$rSquared))) {
+      if ( !(sm[i, "source"] %in% colnames(model$rSquared))) {
         letter <- gamma # when it is determined only by exogenous variables use gamma
       } else {
         letter <- beta
@@ -1050,7 +1026,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       # format bootstrapped ---
       # create a summary for summary stats
       smry <- summary(model)
-      row_index <- paste0(sm[i, 1], "  ->  ", sm[i,2])
+      row_index <- paste0(sm[i, "source"], "  ->  ", sm[i, "target"])
       ltbl <- smry$bootstrapped_paths
 
 
@@ -1096,7 +1072,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       pvalue <- ""
       civalue <- ""
       stars <- ""
-      coef <- round(model$path_coef[sm[i, 1], sm[i,2]], theme$plot.rounding)
+      coef <- round(model$path_coef[sm[i, "source"], sm[i, "target"]], theme$plot.rounding)
       edge_width <- paste0(", penwidth = ", (abs(coef * theme$sm.edge.width_multiplier) + theme$sm.edge.width_offset))
       edge_style <- get_value_dependent_sm_edge_style(coef, theme)
     }
@@ -1115,7 +1091,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     # add the weight
     edge_weight <- paste0("weight = ", weights)
     sm_edges <- c(sm_edges,
-                  paste0("\"", sm[i, 1], "\" -> {\"", sm[i, 2], "\"}","[", edge_weight, edge_label, edge_width, edge_style, "]"))
+                  paste0("\"", sm[i, "source"], "\" -> {\"", sm[i, "target"], "\"}","[", edge_weight, edge_label, edge_width, edge_style, "]"))
   }
   sm_edges <- paste0(sm_edges, collapse = "\n")
   return(sm_edges)

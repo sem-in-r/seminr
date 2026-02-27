@@ -8,12 +8,12 @@ construct_items <- function(x, ...) {
 
 # mmMatrix: items for a specific construct (container-first)
 construct_items.mmMatrix <- function(x, construct_name, ...) {
-  x[x[,1] == construct_name, 2]
+  x[x[, "construct"] == construct_name, "measurement"]
 }
 
 # Plain matrix fallback (mmMatrix after rbind loses "mmMatrix" class)
 construct_items.matrix <- function(x, construct_name, ...) {
-  x[x[,1] == construct_name, 2]
+  x[x[, "construct"] == construct_name, "measurement"]
 }
 
 # Construct vector: items from a construct specification
@@ -53,6 +53,23 @@ construct_name <- function(construct) {
   construct[1]
 }
 
+# Get measurement mode of a construct (first item)
+construct_mode <- function(mmMatrix, construct) {
+  as.matrix(mmMatrix[mmMatrix[,"construct"]==construct,"type"])[1]
+}
+
+# Get measurement mode of a construct as a function
+construct_mode_fn <- function(mmMatrix, construct) {
+  mode <- construct_mode(mmMatrix, construct)
+  if(mode %in% c("A", "C", "HOCA")) {
+    return(mode_A)
+  } else if(mode %in% c("B", "HOCB")) {
+    return(mode_B)
+  } else if(mode == "UNIT") {
+    return(unit_weights)
+  }
+}
+
 # Get all unique construct names from mmMatrix
 all_constructs <- function(mmMatrix) {
   unique(mmMatrix[, "construct"])
@@ -66,6 +83,12 @@ all_constructs_of_mode <- function(mmMatrix, mode) {
 # Reverse lookup: find the construct containing a given item
 construct_of_item <- function(mmMatrix, item) {
   unname(mmMatrix[mmMatrix[, "measurement"] == item, "construct"][1])
+}
+
+# Check if all indicator names in a measurement model exist in the data columns
+are_indicators_in_data <- function(measurement_model,
+                                        data) {
+  return(all(construct_items(measurement_model) %in% colnames(data)))
 }
 
 # Get all reflective constructs from mmMatrix that are included in the STRUCTURAL MODEL
@@ -191,9 +214,20 @@ as.reflective.interaction <- function(x, ...) {
 }
 #' @export
 as.reflective.matrix <- function(x, ...) {
-  # TODO: give interaction mmMatrix column names so we can do: from[, "type"]
-  x[, 3] <- "C"
+  if (is.null(colnames(x))) {
+    colnames(x) <- c("construct", "measurement", "type")
+  }
+  x[, "type"] <- "C"
   x
+}
+
+# Append rows to mmMatrix, preserving "mmMatrix" class
+append_mm_rows <- function(mmMatrix, new_rows) {
+  result <- rbind(mmMatrix, new_rows)
+  if (!("mmMatrix" %in% class(result)) && "mmMatrix" %in% class(mmMatrix)) {
+    class(result) <- class(mmMatrix)
+  }
+  result
 }
 
 # Convert measurement model into mmMatrix

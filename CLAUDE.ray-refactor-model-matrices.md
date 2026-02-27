@@ -30,9 +30,9 @@ Replace all direct matrix access of `mmMatrix` and `smMatrix` with accessor/muta
 - [x] Research completed: cataloged all direct access patterns
 - [x] Phase 1: smMatrix read-side encapsulation
 - [x] Phase 2: mmMatrix read-side encapsulation (2A ✓, 2B ✓, 2C ✓, 2D ✓)
-- [ ] Phase 3: Write-side encapsulation
-- [ ] Phase 4: Cleanup, file consolidation, and verification
-- [ ] Phase 5: Update CLAUDE.md to document accessor helpers for internal matrices
+- [x] Phase 3: Write-side encapsulation
+- [x] Phase 4: Cleanup, file consolidation, and verification (4.1 ✓, 4.2 ✓, 4.3 ✓, 4.4 ✓, 4.5 ✓, 4.6 ✓)
+- [x] Phase 5: Update CLAUDE.md to document accessor helpers for internal matrices
 
 ## Key Decisions
 
@@ -60,64 +60,55 @@ Replace all direct matrix access of `mmMatrix` and `smMatrix` with accessor/muta
 
 ## Target File Organization
 
-After all renames (Phase 2C) and consolidation (Phase 4), matrix helper functions should live in these files. This section is the single reference for "where does this function belong?"
+After all renames and consolidation, matrix helper functions live in these files. This section is the single reference for "where does this function belong?"
 
-### `inspect_smMatrix.R` — smMatrix accessors, selectors, predicates
+### `inspect_smMatrix.R` — smMatrix accessors, selectors, predicates, mutators
 
 All functions that take smMatrix as their primary argument.
 
-**Already here:**
-- Accessors: `construct_names` (S3 generic + smMatrix method), `construct_antecedents`, `construct_targets`, `construct_interactions`
+- S3 generic + methods: `construct_names` (generic, `.structural_model`, `.seminr_model`, `.measurement_model`, `.mmMatrix`, `.list`, `.default`)
+- Accessors: `construct_antecedents`, `construct_targets`, `construct_interactions`
+- Computed: `construct_order`, `construct_antecedents_all`, `have_antecedents_in`
 - Selectors: `all_endogenous`, `all_exogenous`, `only_exogenous`, `only_endogenous`, `all_interactions`
-- Predicates: `is_interaction`, `has_interactions`
-
-**Move here from `evaluate_model.R`:**
-- `has_direct_effects`, `are_construct_names_valid`
-
-**Move here from `feature_plspredict.R`:**
-- `construct_order`, `depends_on` (→ `construct_antecedents_all`), `antecedents_in_list` (→ `have_antecedents_in`)
+- Predicates: `is_interaction`, `has_interactions`, `has_paths_to`, `has_direct_effects`, `are_construct_names_valid`
+- Mutators: `remove_paths_to`, `remove_paths_from`, `keep_paths_from`, `remove_path`
 - Internal helpers: `subset_by_construct`, `construct_antecedent_in_list`
 
 ### `inspect_mmMatrix.R` — mmMatrix accessors, selectors, converters; measurement model list helpers
 
 All functions that take mmMatrix or a measurement model list as their primary argument.
 
-**Already here:**
 - S3 generic + methods: `construct_items` (generic, `.mmMatrix`, `.matrix`, `.construct`, `.seminr_model`, `.measurement_model`, `.list`)
-- mmMatrix accessors: `all_constructs`, `all_constructs_of_mode`, `construct_of_item`
+- mmMatrix accessors: `construct_mode`, `construct_mode_fn`, `all_constructs`, `all_constructs_of_mode`, `construct_of_item`
 - mmMatrix selectors: `all_reflective`
+- mmMatrix predicate: `are_indicators_in_data`
 - Measurement model list accessors: `construct_name`
 - Measurement model list selectors: `all_LOC_items`, `all_non_interactions`, `all_LOCs`, `all_interaction_fns`
-- Computed: `number_of_items` (→ `item_count`)
-- Converter: `mm2matrix`
+- Computed: `item_count`
+- Mutator: `append_mm_rows`
+- Converters: `mm2matrix`, `as.reflective` (generic + methods)
 
-**Move here from `library.R`:**
-- `measure_mode` (→ `construct_mode`), `get_measure_mode` (→ `construct_mode_fn`)
+### `library.R` — Model-level accessors and selectors
 
-**Move here from `evaluate_model.R`:**
-- `all_indicator_names_are_in_data` (→ `are_indicators_in_data`)
+Functions that take a model object (`pls_model`, `cbsem_model`, etc.) as their primary argument.
 
-### Model-level accessors and selectors — `library.R` or new `inspect_model.R` (TBD)
+- Accessors: `construct_type`, `constructs_in_model`, `construct_scores`
+- Selectors: `all_factors`, `all_composites`
 
-Functions that take a model object (`pls_model`, `cbsem_model`, etc.) as their primary argument. Whether these stay in `library.R` or move to a new `inspect_model.R` is an open question — decide during Phase 4.
+### `plot_dot.R` — Plot-specific model helpers
 
-**Currently in `library.R`:**
-- Accessors: `constructs_in_model`, `construct_scores`, `items_of_construct` (→ S3 `construct_items` method on model)
-- Selectors: `get_factors` (→ `all_factors`), `get_composites` (→ `all_composites`)
-- S3 `construct_names` method for model objects (generic lives in `inspect_smMatrix.R`)
-
-**Move here from `plot_dot.R`:**
-- `get_construct_type` (→ `construct_type`), `is_sink` (→ `is_only_endogenous`)
+- Predicate: `is_only_endogenous` (tightly coupled to `extract_mm_coding`, stays here)
 
 ### `feature_higher_order.R` — HOC-specific helpers (stay per Key Decision #10)
 
-- Selector: `HOCs_in_model` (→ `all_HOCs`)
-- Mutators: `substitute_dimensions_for_HOC` (→ `expand_HOC_to_LOCs`), `remove_HOC_in_measurement_model` (→ `remove_HOC`)
+- Selector: `all_HOCs`
+- Accessor: `all_HOC_measures` (mmMatrix items not in data — HOC construct measures)
+- Mutators: `expand_HOC_to_LOCs`, `remove_HOC` (currently dead code, retained for intended use)
 
-### Delete (Phase 4.2)
+### Deleted (Phase 4.2)
 
-- `items_per_mode` (`library.R`) — never called
-- `mmMatrix_per_construct` (`library.R`) — leaks row structure
+- `items_per_mode` — never called
+- `mmMatrix_per_construct` — leaked row structure
 
 ## Scope
 
@@ -236,40 +227,62 @@ All renames listed in `CLAUDE.function-naming.md` § "Proposed Renames". Key gro
 
 ~15 write sites: matrix creation (`mm2matrix`, `matrix()`), row appending (`rbind`), indirect writes (mmMatrix as index into other matrices), local copies. Also includes remaining smMatrix row-filtering patterns deferred from Phase 1.
 
-- [ ] 3.1 Audit all write sites and design builder/mutator API
-  - Includes smMatrix row-filtering patterns:
-    - `feature_higher_order.R:13,22` — `sm[-which(sm[, "target"|"source"] == x), , drop=FALSE]`
-    - `feature_higher_order.R:52` — `sm[sm[, "source"] %in% ..., , drop=FALSE]`
-    - `feature_plspredict.R:115` — `structural_model[!(structural_model[,"source"] %in% interactions), , drop=FALSE]`
-    - `evaluate_effects.R:48` — `subset(with_sm, !(source == iv & target == dv))`
-    - `evaluate_effects.R:73` — `any(without_sm[,"target"] == dv)`
-- [ ] 3.2 Implement write-side functions
-- [ ] 3.3 Replace write-site call sites
-- [ ] 3.4 Rename mutators: `substitute_dimensions_for_HOC` → `expand_HOC_to_LOCs`, `remove_HOC_in_measurement_model` → `remove_HOC`
-  - See `CLAUDE.function-naming.md` § "Mutators"
-- [ ] 3.5 Run full test suite, confirm all tests still pass
+- [x] 3.1 Audit all write sites and design builder/mutator API
+  - Cataloged 22 remaining patterns across 8 files (9 Phase 3, 6 Phase 4.1, 2 Phase 4.2, 2 Phase 3/4.1, 3 acceptable)
+  - Designed mutator API: smMatrix mutators (`remove_paths_to`, `remove_paths_from`, `keep_paths_from`, `remove_path`), predicate (`has_paths_to`), mmMatrix mutator (`append_mm_rows`), HOC helper (`all_HOC_measures`)
+- [x] 3.2 Implement write-side functions
+  - Added 4 smMatrix mutators + 1 predicate to `inspect_smMatrix.R`
+  - Added `append_mm_rows` to `inspect_mmMatrix.R` (preserves "mmMatrix" class after rbind)
+  - Added `all_HOC_measures` to `feature_higher_order.R` (HOC identification helper)
+- [x] 3.3 Replace write-site call sites
+  - `feature_higher_order.R:18` — `sm[-which(sm[, "target"] == ...)]` → `remove_paths_to(sm, construct[1])`
+  - `feature_higher_order.R:27` — `sm[-which(sm[, "source"] == ...)]` → `remove_paths_from(sm, construct[1])`
+  - `feature_higher_order.R:57` — `sm[sm[, "source"] %in% ...]` → `keep_paths_from(sm, all_constructs(new_mm))`
+  - `feature_higher_order.R:162` — `setdiff(mmMatrix[,"measurement"], names(rawdata))` → `all_HOC_measures(mmMatrix, rawdata)`
+  - `feature_higher_order.R:164` — `mmMatrix[which(...)]` → safe `%in%` filter with `drop=FALSE`
+  - `feature_higher_order.R:34` — `remove_HOC_in_measurement_model`: fixed `!mm[,"construct"] == x` → `mm[,"construct"] != x` + added `drop=FALSE`
+  - `feature_plspredict.R:115` — `sm[!(sm[,"source"] %in% interactions), ...]` → `remove_paths_from(sm, interactions)`
+  - `specify_interactions.R:302` — `sm[!is_interaction(sm[,"source"]), ...]` → `remove_paths_from(sm, all_interactions(sm))`
+  - `specify_interactions.R:358` — `rbind(mmMatrix, intxns_mm)` → `append_mm_rows(mmMatrix, intxns_mm)`
+  - `specify_interactions.R:384` — `rbind(mmMatrix, as.reflective(...))` → `append_mm_rows(mmMatrix, as.reflective(...))`
+  - `evaluate_effects.R:48` — `subset(with_sm, !(source == iv & target == dv))` → `remove_path(with_sm, iv, dv)`
+  - `evaluate_effects.R:73` — `any(without_sm[,"target"] == dv)` → `has_paths_to(without_sm, dv)`
+  - **Left as-is:** `estimate_cbsem.R:125` — `structural_model[, "source"] <- sapply(...)` — uses named column access, one-off CBSEM-specific
+- [x] 3.4 Rename mutators: `substitute_dimensions_for_HOC` → `expand_HOC_to_LOCs`, `remove_HOC_in_measurement_model` → `remove_HOC`
+  - `expand_HOC_to_LOCs`: 1 definition + 1 call site in `feature_higher_order.R`
+  - `remove_HOC`: 1 definition, 0 call sites (dead code, retained for intended use)
+- [x] 3.5 Run full test suite, confirm all tests still pass (294 PASS, 0 FAIL)
 
 ### Phase 4: Cleanup and Verification
 
-- [ ] 4.1 Eliminate numeric column indices inside accessor functions (use named only)
-- [ ] 4.2 Delete dead code: `items_per_mode` (never called), `mmMatrix_per_construct` (leaks row structure)
-  - See `CLAUDE.function-naming.md` § "Dead code"
-- [ ] 4.3 Consolidate any remaining duplicate accessors
-- [ ] 4.4 Consolidate helper functions into target files per § "Target File Organization"
-  - Move smMatrix predicates from `evaluate_model.R` → `inspect_smMatrix.R`
-  - Move smMatrix helpers from `feature_plspredict.R` → `inspect_smMatrix.R`
-  - Move mmMatrix accessors from `library.R` (`construct_mode`, `construct_mode_fn`) → `inspect_mmMatrix.R`
-  - Move mmMatrix predicate from `evaluate_model.R` (`are_indicators_in_data`) → `inspect_mmMatrix.R`
-  - Move model-level helpers from `plot_dot.R` (`construct_type`, `is_only_endogenous`) → `library.R` or `inspect_model.R`
-  - Decide: create `inspect_model.R` for model-level accessors/selectors, or keep in `library.R`
-- [ ] 4.5 Final full test suite run
-- [ ] 4.6 Verify no remaining direct matrix access patterns (grep audit)
+- [x] 4.1 Eliminate numeric column indices inside accessor functions (use named only)
+  - `inspect_smMatrix.R`: Replaced `x[,1]`/`x[,2]` with `x[, "source"]`/`x[, "target"]` in `construct_names.structural_model`, `only_exogenous`, `construct_antecedents`, `construct_targets`
+  - `inspect_mmMatrix.R`: Replaced `x[,1]`/`x[,2]` with `x[, "construct"]`/`x[, "measurement"]` in `construct_items.mmMatrix`, `construct_items.matrix`
+  - Added `construct_names.mmMatrix` S3 method (delegates to `all_constructs()`) + made `.default` handle both matrix shapes
+  - `as.reflective.matrix()`: Added defensive `colnames()` assignment as temporary fix
+  - **Note:** `as.reflective.matrix()` shouldn't have to add column names — they should be assigned at matrix creation time (in `measure_interaction` / `two_stage` / `orthogonal` closures) and preserved throughout. Defer proper fix to future work.
+- [x] 4.2 Delete dead code: `items_per_mode` (never called), `mmMatrix_per_construct` (leaks row structure)
+  - Both removed from `library.R`; confirmed `remove_HOC` still dead but retained for intended future use
+- [x] 4.3 Consolidate any remaining duplicate accessors
+  - No remaining duplicates found after Phase 2D S3 unification
+- [x] 4.4 Consolidate helper functions into target files per § "Target File Organization"
+  - Moved `has_direct_effects` from `evaluate_model.R` → `inspect_smMatrix.R`
+  - Moved `are_construct_names_valid` from `evaluate_model.R` → `inspect_smMatrix.R`
+  - Moved `construct_order`, `depends_on` (→ `construct_antecedents_all`), `antecedents_in_list` (→ `have_antecedents_in`), `subset_by_construct`, `construct_antecedent_in_list` from `feature_plspredict.R` → `inspect_smMatrix.R`
+  - Moved `construct_mode`, `construct_mode_fn` from `library.R` → `inspect_mmMatrix.R`
+  - Moved `are_indicators_in_data` from `evaluate_model.R` → `inspect_mmMatrix.R`
+  - Moved `construct_type` from `plot_dot.R` → `library.R` (near `constructs_in_model` which calls it)
+  - `is_only_endogenous` stays in `plot_dot.R` — only used within that file, tightly coupled to `extract_mm_coding`
+  - Did NOT create `inspect_model.R` — model-level accessors kept in `library.R` alongside existing model utilities
+- [x] 4.5 Final full test suite run (294 PASS, 0 FAIL)
+- [x] 4.6 Verify no remaining direct matrix access patterns (grep audit)
 
 ### Phase 5: Documentation
 
-- [ ] 5.1 Update CLAUDE.md to document that internal matrices (`mmMatrix`, `smMatrix`) must be accessed via accessor helpers, not raw subsetting
-  - List accessor locations: `inspect_mmMatrix.R`, `inspect_smMatrix.R`, `library.R` (until Phase 2C migration)
-  - Reference `CLAUDE.function-naming.md` for the full accessor catalog
+- [x] 5.1 Update CLAUDE.md to document that internal matrices (`mmMatrix`, `smMatrix`) must be accessed via accessor helpers, not raw subsetting
+  - Added "Internal Matrices: mmMatrix and smMatrix" section to Architecture
+  - Updated module organization table to include `inspect_*.R` files
+  - Documented accessor locations, S3 generics, naming conventions, and reference to full catalog
 
 ## Completed
 
@@ -382,12 +395,93 @@ All renames listed in `CLAUDE.function-naming.md` § "Proposed Renames". Key gro
 - `S3method(construct_items, construct)`, `S3method(construct_items, list)`, `S3method(construct_items, matrix)`, `S3method(construct_items, measurement_model)`, `S3method(construct_items, mmMatrix)`, `S3method(construct_items, seminr_model)`
 - `S3method(construct_names, default)`, `S3method(construct_names, list)`, `S3method(construct_names, measurement_model)`, `S3method(construct_names, seminr_model)`, `S3method(construct_names, structural_model)`
 
+### Phase 3: Write-side encapsulation (2026-02-28)
+
+**Files modified:** `inspect_smMatrix.R`, `inspect_mmMatrix.R`, `feature_higher_order.R`, `feature_plspredict.R`, `specify_interactions.R`, `evaluate_effects.R`
+
+**New functions created:**
+
+- `inspect_smMatrix.R`: 4 mutators (`remove_paths_to`, `remove_paths_from`, `keep_paths_from`, `remove_path`) + 1 predicate (`has_paths_to`)
+- `inspect_mmMatrix.R`: 1 mutator (`append_mm_rows` — rbind wrapper preserving "mmMatrix" class)
+- `feature_higher_order.R`: 1 accessor (`all_HOC_measures` — HOC identification helper)
+
+**Call site replacements:**
+
+- `feature_higher_order.R`: 3 smMatrix row-filter patterns → `remove_paths_to`, `remove_paths_from`, `keep_paths_from`; 2 HOC identification patterns → `all_HOC_measures` + safe filter with `drop=FALSE`; fixed `remove_HOC` implementation (`!==` → `!=`, added `drop=FALSE`)
+- `feature_plspredict.R`: 1 interaction-source filter → `remove_paths_from`
+- `specify_interactions.R`: 1 interaction-source filter → `remove_paths_from`; 2 rbind patterns → `append_mm_rows`
+- `evaluate_effects.R`: 1 `subset()` → `remove_path`; 1 `any(target == dv)` → `has_paths_to`
+
+**Renames (2 mutators):**
+
+- `substitute_dimensions_for_HOC` → `expand_HOC_to_LOCs` (1 definition + 1 call site)
+- `remove_HOC_in_measurement_model` → `remove_HOC` (definition only, 0 call sites — dead code)
+
+**Left as-is:**
+
+- `estimate_cbsem.R:125` — `structural_model[, "source"] <- sapply(...)` — uses named column access, one-off CBSEM lavaan name conversion
+- `feature_higher_order.R:164` — one remaining `mmMatrix[condition, , drop=FALSE]` filter inside HOC-specific function using `all_HOC_measures` result
+
+### Phase 4: Cleanup and verification (2026-02-28, partial — 4.5-4.6 pending)
+
+**Files modified:** `inspect_smMatrix.R`, `inspect_mmMatrix.R`, `library.R`, `evaluate_model.R`, `feature_plspredict.R`, `plot_dot.R`, `NAMESPACE`
+
+**4.1 — Numeric column indices eliminated:**
+- `inspect_smMatrix.R`: `x[,1]`/`x[,2]` → `x[, "source"]`/`x[, "target"]` in 4 functions
+- `inspect_mmMatrix.R`: `x[,1]`/`x[,2]` → `x[, "construct"]`/`x[, "measurement"]` in 2 functions
+- Added `construct_names.mmMatrix` S3 method + column-aware `.default` fallback (exposed by `estimate_cfa` passing mmMatrix as `measurement_model`)
+- `as.reflective.matrix()`: temporary defensive `colnames()` assignment (proper fix: assign names at matrix creation time)
+
+**4.2 — Dead code deleted:**
+- `items_per_mode` and `mmMatrix_per_construct` removed from `library.R`
+
+**4.3 — No remaining duplicate accessors** (resolved by Phase 2D S3 unification)
+
+**4.4 — File consolidation:**
+
+Moves into `inspect_smMatrix.R`:
+- `has_direct_effects` (from `evaluate_model.R`)
+- `are_construct_names_valid` (from `evaluate_model.R`)
+- `construct_order` (from `feature_plspredict.R`)
+- `depends_on` → `construct_antecedents_all` (from `feature_plspredict.R`, renamed)
+- `antecedents_in_list` → `have_antecedents_in` (from `feature_plspredict.R`, renamed)
+- `subset_by_construct` (from `feature_plspredict.R`, internal helper)
+- `construct_antecedent_in_list` (from `feature_plspredict.R`, internal helper)
+
+Moves into `inspect_mmMatrix.R`:
+- `construct_mode` (from `library.R`)
+- `construct_mode_fn` (from `library.R`)
+- `are_indicators_in_data` (from `evaluate_model.R`)
+
+Moves into `library.R`:
+- `construct_type` (from `plot_dot.R`)
+
+Stayed in place:
+- `is_only_endogenous` — stays in `plot_dot.R` (only used there, coupled to `extract_mm_coding`)
+
+Decision: No `inspect_model.R` created — model-level accessors kept in `library.R`.
+
+**4.5 — Final test suite:** 294 PASS, 0 FAIL (run after 4.4 consolidation)
+
+**4.6 — Grep audit for remaining direct matrix access:**
+
+Fixed: 4 numeric-index patterns in `plot_dot.R:extract_sm_edges()` — `sm[i, 1]`/`sm[i, 2]` → `sm[i, "source"]`/`sm[i, "target"]`
+
+Audit confirmed no remaining direct matrix access outside the encapsulation layer, with three documented exceptions (all use named columns):
+- `estimate_cbsem.R:125` — one-off CBSEM lavaan name mutation
+- `estimate_pls_mga.R:67` — MGA data.frame conversion
+- `feature_higher_order.R:164` — HOC filter inside HOC-specific function
+
+Test suite: 294 PASS, 0 FAIL
+
 ---
 
 ## Future Considerations (Second-Wave Refactoring)
 
 After the current immediate refactoring is complete, consider a second-wave pass where call sites that use accessors like `construct_mode()` are examined for whether they really need the raw mode value or would be better served by predicates (e.g., `is_reflective()`, `is_formative()`). Many call sites pattern-match on mode strings (`"C"`, `"B"`, etc.) and could be replaced with more expressive predicate calls. This is out of scope for the current refactoring but worth tracking.
 
+Additionally, patterns like `if (length(construct_items(mmMatrix, i)) == 1)` could be replaced with a dedicated predicate such as `is_single_item_construct(mmMatrix, i)` — or even accept a model object instead of mmMatrix. This would further improve expressiveness and decouple callers from knowing about item counts.
+
 ---
 
-Last updated: 2026-02-28
+Last updated: 2026-02-28 (All phases complete)

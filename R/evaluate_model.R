@@ -58,54 +58,6 @@ metrics_insample <- function(obsData, construct_scores, smMatrix, dependant, con
 #   paths(from = c("CUSA"),         to = c("CUSL"))
 # )
 
-### interaction includes all direct effects
-### no "*"s or "."s in the data
-# smMatrix <- structural_model
-has_direct_effects <- function(smMatrix) {
-  log_vec <- c(FALSE)
-  if (has_interactions(smMatrix)) {
-    # first identify all the interaction terms
-    ints <- all_interactions(smMatrix)
-    for(con in ints) {
-      outcomes <- construct_targets(smMatrix, con)
-      for (outs in outcomes) {
-        ants <- construct_antecedents(smMatrix, outs)
-        end_lv_one <- regexpr("\\*", con)[1]
-        lv_one <- substring(con,0,end_lv_one-1)
-        lv_two <- substring(con,end_lv_one+1,nchar(con))
-        output <- !all(c(lv_one, lv_two) %in% ants)
-        log_vec <- c(log_vec, output)
-      }
-    }
-  }
-  return(any(log_vec))
-}
-
-### item names consistent throughout and with data
-are_indicators_in_data <- function(measurement_model,
-                                        data) {
-  return(all(construct_items(measurement_model) %in% colnames(data)))
-}
-
-### latent names constant throughout
-### SM constructs occur in the mm
-### constructs do not share name with items
-are_construct_names_valid <- function(measurement_model,
-                                  structural_model) {
-  # remove interactions from the list (not created yet)
-  sm_constructs <- construct_names(structural_model)
-  sm_constructs <- sm_constructs[!is_interaction(sm_constructs)]
-  mm_constructs <- construct_names(measurement_model)
-
-  # construct names in sm DO occur in mm and are spelled correct
-  construct_named_correcty <- all(sm_constructs %in% mm_constructs)
-
-  # construct names do not occur in the indicator names
-  construct_item_named_same <- any(sm_constructs %in% mm_constructs)
-
-  return(!construct_named_correcty | !construct_item_named_same)
-}
-
 # Feature to automate model specification quality ----
 assess_model_specification <- function(measurement_model,
                                    structural_model,

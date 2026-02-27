@@ -220,12 +220,17 @@ Transform one representation into another. No renames — only one converter exi
 
 ### Mutators (defer renames to Phase 3)
 
-Named as `verb_noun` (e.g., `remove_HOC`). Return modified structures. Renames deferred until write-side encapsulation.
+Named as `verb_noun` (e.g., `remove_HOC`). Return modified structures. **Renames completed in Phase 3.**
 
-| Current name | Proposed name | Object(s) | What it does |
-| --- | --- | --- | --- |
-| `substitute_dimensions_for_HOC` | `expand_HOC_to_LOCs` | construct, sm, mm | replaces HOC with dimensions in sm |
-| `remove_HOC_in_measurement_model` | `remove_HOC` | construct, mm | removes HOC rows from mm |
+| Current name | New name | Object(s) | What it does | Status |
+| --- | --- | --- | --- | --- |
+| `substitute_dimensions_for_HOC` | `expand_HOC_to_LOCs` | construct, sm, mm | replaces HOC with dimensions in sm | ✓ Done |
+| `remove_HOC_in_measurement_model` | `remove_HOC` | construct, mm | removes HOC rows from mm | ✓ Done |
+| (new) | `remove_paths_to` | smMatrix, target | removes all paths targeting a construct | ✓ Done |
+| (new) | `remove_paths_from` | smMatrix, source | removes all paths from source construct(s) | ✓ Done |
+| (new) | `keep_paths_from` | smMatrix, sources | keeps only paths from given sources | ✓ Done |
+| (new) | `remove_path` | smMatrix, source, target | removes a specific source→target path | ✓ Done |
+| (new) | `append_mm_rows` | mmMatrix, new_rows | rbind wrapper preserving mmMatrix class | ✓ Done |
 
 ### Dead code (delete after refactoring call sites)
 

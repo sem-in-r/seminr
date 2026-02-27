@@ -299,7 +299,7 @@ two_stage <- function(iv, moderator, weights) {
   two_stage_interaction <- function(data, mmMatrix, structural_model, ints, estimate_first_stage, ...) {
     interaction_name <- paste(iv, moderator, sep = "*")
     # remove interactions from structural model
-    structural_model <- structural_model[ !is_interaction(structural_model[,"source"]), , drop=FALSE]
+    structural_model <- remove_paths_from(structural_model, all_interactions(structural_model))
     measurement_mode_scheme <- sapply(construct_names(structural_model), function(c) construct_mode_fn(mmMatrix, c), USE.NAMES = TRUE)
     first_stage <- estimate_first_stage(
       data = data, smMatrix = structural_model, mmMatrix = mmMatrix,
@@ -355,7 +355,7 @@ process_interactions <- function(measurement_model, data, structural_model, inne
     intxns_mm <- do.call("rbind", lapply(intxns_list, function(intxn) { intxn$mm }))
     data <- cbind(data, interaction_data)
 
-    mmMatrix <- rbind(mmMatrix, intxns_mm)
+    mmMatrix <- append_mm_rows(mmMatrix, intxns_mm)
   }
   return(list(data = data,
               mmMatrix = mmMatrix,
@@ -381,7 +381,7 @@ process_cbsem_interactions <- function(measurement_model, data, structural_model
     data <- cbind(data, interaction_data)
 
     # mmMatrix <- rbind(mmMatrix, intxns_mm)
-    mmMatrix <- rbind(mmMatrix, as.reflective(intxns_mm))
+    mmMatrix <- append_mm_rows(mmMatrix, as.reflective(intxns_mm))
   }
   return(list(data = data,
               mmMatrix = mmMatrix,

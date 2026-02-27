@@ -1,42 +1,3 @@
-# function to get measurement mode of a construct (first item)
-construct_mode <- function(mmMatrix, construct) {
-  as.matrix(mmMatrix[mmMatrix[,"construct"]==construct,"type"])[1]
-}
-
-# function to get measurement mode of a construct (first item) as a function
-construct_mode_fn <- function(mmMatrix, construct) {
-  mode <- construct_mode(mmMatrix, construct)
-  if(mode %in% c("A", "C", "HOCA")) {
-    return(mode_A)
-  } else if(mode %in% c("B", "HOCB")) {
-    return(mode_B)
-  } else if(mode == "UNIT") {
-    return(unit_weights)
-  }
-}
-
-# Used in warnings - warning_only_causal_construct()
-# function to get all the items of a given measurement mode for a given construct
-items_per_mode <- function(construct, mode,mmMatrix) {
-  constructmatrix <- mmMatrix[mmMatrix[,"construct"]==construct,c("measurement","type")]
-  # If single item construct
-  if (class(constructmatrix)[1] != "matrix") {
-    constructmatrix = t(as.matrix(constructmatrix))
-  }
-  return(constructmatrix[constructmatrix[,"type"] == mode,"measurement"])
-}
-
-# Used in warnings - warning_only_causal_construct() and warning_single_item_formative()
-# function to subset and return the mmMatrix for a construct
-mmMatrix_per_construct <- function(construct, mmMatrix) {
-  constructmatrix <- mmMatrix[mmMatrix[,"construct"]==construct,c("construct","measurement","type")]
-  # If single item construct
-  if (class(constructmatrix)[1] != "matrix") {
-    constructmatrix = t(as.matrix(constructmatrix))
-  }
-  return(constructmatrix)
-}
-
 #' Inner weighting scheme functions to estimate inner paths matrix
 #'
 #' \code{path_factorial} and \code{path_weighting} specify the inner weighting scheme to be used in the estimation of the
@@ -280,6 +241,24 @@ all_factors <- function(seminr_model) {
 
 all_composites <- function(seminr_model) {
   setdiff(seminr_model$constructs, all_factors(seminr_model))
+}
+
+# Get user-facing measurement type string for a construct in a model
+construct_type <- function(model, construct) {
+  if (is_interaction(construct)) {
+    return("interaction")
+  }
+  for (i in 1:length(model$measurement_model)) {
+    cst <- model$measurement_model[[i]]
+    # warning interaction are functions do not access their indexes
+    if (!inherits(cst, "function")) {
+      if (cst[[1]] == construct) {
+        c_type <- cst[[3]]
+      }
+    }
+  }
+
+  return(c_type)
 }
 
 # PURPOSE: functions to extract elements of estimated seminr models (seminr_model)

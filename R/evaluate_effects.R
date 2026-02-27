@@ -45,7 +45,7 @@ fSquared <- function(seminr_model, iv, dv) {
     return((rsq - 0) / (1 - rsq))
   }
   with_sm <- seminr_model$smMatrix
-  without_sm <- subset(with_sm, !((with_sm[, "source"] == iv) & (with_sm[, "target"] == dv)))
+  without_sm <- remove_path(with_sm, iv, dv)
 
   # Calculate fSquared using LM of constructs instead of re-estiating the model (this is probably incorrect, but might serve for interaction models)
   # dvs <- unique(seminr_model$smMatrix[, "target"])
@@ -70,7 +70,7 @@ fSquared <- function(seminr_model, iv, dv) {
                                 stopCriterion = seminr_model$settings$stopCriterion)
   )
   with_r2 <- seminr_model$rSquared["Rsq", dv]
-  ifelse(any(without_sm[,"target"] == dv),
+  ifelse(has_paths_to(without_sm, dv),
          without_r2 <- without_pls$rSquared["Rsq", dv],
          without_r2 <- 0)
 

@@ -96,7 +96,8 @@ SEMinR uses a three-stage pipeline: **Specify → Estimate → Evaluate/Plot**
 | `report_*.R`   | Output formatting and summaries                                    |
 | `plot_*.R`     | Visualization via DiagrammeR                                       |
 | `feature_*.R`  | Advanced features (PLSc, higher-order constructs, PLSpredict)      |
-| `library*.R`   | Internal utilities                                                 |
+| `inspect_*.R`  | Accessor/mutator functions for internal matrices (mmMatrix, smMatrix) |
+| `library*.R`   | Internal utilities and model-level accessors                       |
 | `theme*.R`     | Plot theming system                                                |
 
 ### S3 Object Classes
@@ -108,6 +109,41 @@ SEMinR uses a three-stage pipeline: **Specify → Estimate → Evaluate/Plot**
 - `predict_pls_model` - Prediction object
 
 All model classes implement `print()`, `summary()`, and `plot()` methods.
+
+### Internal Matrices: mmMatrix and smMatrix
+
+Two internal character matrices underpin every estimation, evaluation, and plotting function:
+
+- **`mmMatrix`** (measurement model matrix) — columns: `"construct"`, `"measurement"`, `"type"`. Maps constructs to their indicator items and estimation mode.
+- **`smMatrix`** (structural model matrix) — columns: `"source"`, `"target"`. Defines directed paths between constructs.
+
+**Rule: Always use accessor functions, never raw `matrix[row, col]` subsetting.** Raw subsetting was the source of numerous bugs (missing `drop=FALSE`, column-index mismatches). Accessor functions encapsulate column-order assumptions and are the only sanctioned way to read or modify these matrices.
+
+**Accessor locations:**
+
+| File | Scope |
+| --- | --- |
+| `inspect_smMatrix.R` | smMatrix accessors, selectors, predicates, mutators; `construct_names` S3 generic + all methods |
+| `inspect_mmMatrix.R` | mmMatrix accessors, selectors, converters; `construct_items` S3 generic + all methods; measurement model list helpers |
+| `library.R` | Model-level accessors (`construct_type`, `constructs_in_model`, `construct_scores`) and selectors (`all_factors`, `all_composites`) |
+
+**Key S3 generics:**
+
+- `construct_items(x, ...)` — dispatches on mmMatrix, matrix, construct vector, model, and measurement_model list
+- `construct_names(x, ...)` — dispatches on structural_model, seminr_model, measurement_model list, mmMatrix, and unclassed matrices
+
+**Naming conventions at a glance:**
+
+| Category | Pattern | Example |
+| --- | --- | --- |
+| Accessor | `object_qualifier` | `construct_mode(mmMatrix, name)` |
+| Selector | `all_` / `only_` | `all_endogenous(smMatrix)` |
+| Predicate | `is_` / `has_` / `are_` | `is_interaction(name)` |
+| Mutator | `verb_noun` | `remove_paths_to(smMatrix, target)` |
+
+All accessors use container-first argument order (mmMatrix/smMatrix/model as first argument).
+
+See `CLAUDE.function-naming.md` for the full accessor catalog and naming conventions.
 
 ### Measurement Model Types
 

@@ -112,7 +112,7 @@ two_stage_predict <- function(pls_model, testData, technique) {
   first_stage_mm <- pls_model$measurement_model[!(all_constructs(pls_model$mmMatrix) %in% interactions)]
 
   # recreate the first stage structural model
-  first_stage_sm <- pls_model$structural_model[ !(pls_model$structural_model[,"source"] %in% interactions), , drop=FALSE]
+  first_stage_sm <- remove_paths_from(pls_model$structural_model, interactions)
   first_stage_model <- estimate_pls(data = train_data,
                                     measurement_model = first_stage_mm,
                                     structural_model = first_stage_sm) |> suppressMessages()
@@ -376,53 +376,6 @@ item_metrics <- function(pls_prediction_kfold) {
               LM_item_prediction_metrics_OOS = LM_item_prediction_metrics_OOS))
 }
 
-# Check these lib functions ----
-# function to subset a smMatrix by construct(x)
-subset_by_construct <- function(x, smMatrix) {
-  construct_targets(smMatrix, x)
-}
-
-# Function to check whether a named construct's antecedents occur in a list
-construct_antecedent_in_list <- function(x,list, smMatrix) {
-  all(construct_antecedents(smMatrix, x) %in% list)
-}
-
-# Function to iterate over a vector of constructs and return the antecedents each construct depends on
-depends_on <- function(constructs_vector, smMatrix) {
-  return(unique(unlist(sapply(constructs_vector, subset_by_construct, smMatrix = smMatrix), use.names = FALSE)))
-}
-
-# Function to iterate over a vector of constructs and check whether their antecedents occur in a list
-antecedents_in_list <- function(constructs_vector, list,smMatrix) {
-  as.logical(sapply(constructs_vector, construct_antecedent_in_list, list = list, smMatrix = smMatrix))
-}
-
-# Function to organize order of endogenous constructs from most exogenous forwards
-construct_order <- function(smMatrix) {
-
-  # get purely endogenous and purely exogenous
-  only_endo <- only_endogenous(smMatrix)
-  only_exo <- only_exogenous(smMatrix)
-
-  # get construct names
-  all_constructs <- construct_names(smMatrix)
-
-  # get all exogenous constructs
-  all_exogenous_constructs <- setdiff(all_constructs, only_endo)
-
-  # initialize construct order with first purely exogenous construct
-  construct_order <- only_exo
-
-  # Iterate over constructs to generate construct_order
-  while (!setequal(all_exogenous_constructs,construct_order)) {
-    construct_order <- c(construct_order,setdiff(depends_on(construct_order,smMatrix)[antecedents_in_list(depends_on(construct_order,smMatrix), construct_order, smMatrix)], construct_order))
-  }
-
-  # return the order of endogenous constructs to be predicted
-  final_list <- setdiff(construct_order,only_exo)
-  return(c(final_list,only_endo))
-
-}
 
 # Function to standardize a matrix by sd vector and mean vector
 standardize_data <- function(data_matrix,means_vector,sd_vector) {
