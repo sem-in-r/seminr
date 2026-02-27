@@ -1,7 +1,7 @@
 warning_single_item_formative <- function(mmMatrix) {
   constructs <- all_constructs(mmMatrix)
   for(construct in constructs) {
-    if(length(construct_indicators(construct, mmMatrix)) == 1 && measure_mode(construct, mmMatrix) == "B") {
+    if(length(construct_items(mmMatrix, construct)) == 1 && construct_mode(mmMatrix, construct) == "B") {
       stop("You cannot define a single item construct as mode B")
     }
   }
@@ -11,7 +11,7 @@ warning_missing_data <- function(data, mmMatrix) {
   non_hoc_constructs <- setdiff(all_constructs(mmMatrix),
     c(all_constructs_of_mode(mmMatrix, "HOCA"), all_constructs_of_mode(mmMatrix, "HOCB")))
   mm_items <- unlist(sapply(non_hoc_constructs,
-    function(c) construct_indicators(c, mmMatrix), USE.NAMES = FALSE))
+    function(c) construct_items(mmMatrix, c), USE.NAMES = FALSE))
   mm_items <- mm_items[!is_interaction(mm_items)]
   data <- data[, mm_items]
   N <- nrow(data)

@@ -14,10 +14,10 @@ unlavaanify_name <- function(name) {
 lavaan_construct <- function(construct, mmMatrix) {
   lav_name <- lavaanify_name(construct)
 
-  if (measure_mode(construct, mmMatrix) != "C")
+  if (construct_mode(mmMatrix, construct) != "C")
     stop(paste(lav_name, "must be a reflective construct for a CBSEM model"))
 
-  items <- lavaanify_name(construct_indicators(construct, mmMatrix))
+  items <- lavaanify_name(construct_items(mmMatrix, construct))
   items_syntax <- paste(items, collapse=' + ')
   measurement <- paste(lav_name, "=~", items_syntax)
 

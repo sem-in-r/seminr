@@ -747,7 +747,7 @@ format_edge_label <- function(template, variable, value) {
 #' @param model the model to get the type from
 #' @param construct the character string name of the construct
 #' @return Returns a character string
-get_construct_type <- function(model, construct) {
+construct_type <- function(model, construct) {
   #if (!(construct %in% model$constructs)) {
   #  stop(paste("Construct", construct, "does not exist")) # scaled interactions ?
   #}
@@ -759,12 +759,12 @@ get_construct_type <- function(model, construct) {
     # warning interaction are functions do not access their indexes
     if (!inherits(cst, "function")) {
       if (cst[[1]] == construct) {
-        construct_type <- cst[[3]]
+        c_type <- cst[[3]]
       }
     }
   }
 
-  return(construct_type)
+  return(c_type)
 }
 
 #' extract bootstrapped statistics from an edge using a row_index
@@ -880,11 +880,11 @@ extract_sm_nodes <- function(model, theme, structure_only = FALSE) {
 
   # Add additional SM nodes for submodel
   for (construct in model$constructs) {
-    construct_type <- get_construct_type(model, construct)
+    c_type <- construct_type(model, construct)
 
-    if (startsWith(construct_type, "HOC") && !structure_only) {
+    if (startsWith(c_type, "HOC") && !structure_only) {
 
-      result <- construct_indicators(construct, model$mmMatrix)
+      result <- construct_items(model$mmMatrix, construct)
       sm_nodes <- c(sm_nodes, result)
     }
   }
@@ -971,9 +971,9 @@ get_sm_node_style <- function(theme) {
 #'
 #' @return Returns a string that determines the shape of a node
 get_sm_node_shape <- function(model, construct, theme) {
-  construct_type <- get_construct_type(model, construct)
+  c_type <- construct_type(model, construct)
 
-  result <- switch(construct_type,
+  result <- switch(c_type,
                    "interaction" = ", shape = ellipse",
                    "C" = paste0(", shape = ", theme$construct.reflective.shape),
                    "B" = paste0(", shape = ", theme$construct.compositeB.shape),
@@ -1170,7 +1170,7 @@ get_value_dependent_sm_edge_style <- function(value, theme){
 #'
 #' @return whether the construct is endogenous or not
 #' @export
-is_sink <- function(model, index) {
+is_only_endogenous <- function(model, index) {
   # get the mm_coding
   mm_coding <- extract_mm_coding(model)
 
@@ -1180,7 +1180,7 @@ is_sink <- function(model, index) {
   # Check if this construct appears as a measurement (dimension) of a HOC.
   item_name <- mm_coding[index, 1]
   parent_construct <- construct_of_item(model$mmMatrix, item_name)
-  parent_mode <- if (!is.na(parent_construct)) measure_mode(parent_construct, model$mmMatrix) else ""
+  parent_mode <- if (!is.na(parent_construct)) construct_mode(model$mmMatrix, parent_construct) else ""
   is_higher_order_measurement <- startsWith(parent_mode, "HOC")
 
   if(any(is_higher_order_measurement)) {
@@ -1251,9 +1251,9 @@ dot_subcomponent_mm <- function(index, model, theme) {
   #  edge_style <- get_mm_edge_style(theme, forward = TRUE)
   #}
 
-  construct_type <- get_construct_type(model, mm_coding[index, 1])
-  flip <- is_sink(model, index)
-  edge_style <- get_mm_edge_style(theme, construct_type, flip)
+  c_type <- construct_type(model, mm_coding[index, 1])
+  flip <- is_only_endogenous(model, index)
+  edge_style <- get_mm_edge_style(theme, c_type, flip)
 
   nodes <- extract_mm_nodes(index, model, theme)
   edges <- extract_mm_edges(index, model, theme)
@@ -1319,7 +1319,7 @@ get_mm_node_style <- function(theme) {
 extract_mm_nodes <- function(index, model, theme) {
   mm_coding <- extract_mm_coding(model)
   construct <- mm_coding[index, 1]
-  items <- construct_indicators(construct, model$mmMatrix)
+  items <- construct_items(model$mmMatrix, construct)
 
   shape <- get_mm_node_shape(model, construct, theme)
   nodes <- paste0(
@@ -1339,9 +1339,9 @@ extract_mm_nodes <- function(index, model, theme) {
 #'
 #' @return Returns a string that determines the shape of a node
 get_mm_node_shape <- function(model, construct, theme) {
-  construct_type <- get_construct_type(model, construct)
+  c_type <- construct_type(model, construct)
 
-  result <- switch(construct_type,
+  result <- switch(c_type,
                    "interaction" = ", shape = ellipse",
                    "C" = paste0(", shape = ", theme$manifest.reflective.shape),
                    "B" = paste0(", shape = ", theme$manifest.compositeB.shape),
@@ -1429,7 +1429,7 @@ get_mm_edge_style <- function(theme, construct_type, flip = FALSE){
 extract_mm_edge_value <- function(model, theme, indicator, construct){
 
   use_weights <- use_construct_weights(theme,
-                                       get_construct_type(model, construct))
+                                       construct_type(model, construct))
 # TODO: Redundancy in the next few lines can it be permanently deleted?
   # if ("boot_seminr_model" %in% class(model)) {
   #   boot_construct <- paste0(construct, " Boot Mean")
@@ -1489,7 +1489,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
 
   mm_coding <- extract_mm_coding(model)
   construct <- mm_coding[index, 1]
-  items <- construct_indicators(construct, model$mmMatrix)
+  items <- construct_items(model$mmMatrix, construct)
 
   edges <- ""
 
@@ -1510,7 +1510,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     construct_variable <- construct
 
     use_weights <- use_construct_weights(theme,
-                                                  get_construct_type(model, construct_variable))
+                                                  construct_type(model, construct_variable))
 
 
     # If interaction variable, we skip
@@ -1533,7 +1533,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
       ltbl <- smry$bootstrapped_loadings
 
       use_weights <- use_construct_weights(theme,
-                                           get_construct_type(model, construct_variable))
+                                           construct_type(model, construct_variable))
       if (use_weights) {
         ltbl <- smry$bootstrapped_weights
       }
@@ -1580,7 +1580,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     edge_style <-
       get_value_dependent_mm_edge_style(loading, theme)
 
-    if(is_sink(model,index)) {
+    if(is_only_endogenous(model,index)) {
       source_node <- construct_variable
       target_node <- manifest_variable
     } else {

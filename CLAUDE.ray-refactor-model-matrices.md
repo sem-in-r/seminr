@@ -29,9 +29,10 @@ Replace all direct matrix access of `mmMatrix` and `smMatrix` with accessor/muta
 - [x] Plan created
 - [x] Research completed: cataloged all direct access patterns
 - [x] Phase 1: smMatrix read-side encapsulation
-- [ ] Phase 2: mmMatrix read-side encapsulation
+- [x] Phase 2: mmMatrix read-side encapsulation (2A ✓, 2B ✓, 2C ✓, 2D ✓)
 - [ ] Phase 3: Write-side encapsulation
-- [ ] Phase 4: Cleanup and verification
+- [ ] Phase 4: Cleanup, file consolidation, and verification
+- [ ] Phase 5: Update CLAUDE.md to document accessor helpers for internal matrices
 
 ## Key Decisions
 
@@ -56,6 +57,67 @@ Replace all direct matrix access of `mmMatrix` and `smMatrix` with accessor/muta
 10. **Helper file placement deferred.** Five smMatrix helpers remain in `feature_plspredict.R` (`subset_by_construct`, `construct_antecedent_in_list`, `depends_on`, `antecedents_in_list`, `construct_order`) and predicates in `evaluate_model.R`. Moving them to `inspect_smMatrix.R` is desirable but deferred — functions may move later as the structure stabilizes.
 
 11. **Interaction predicates.** `grepl("\\*", ...)` patterns appear ~13 times across R/ files for interaction detection. Two new predicates cover these: `has_interactions(smMatrix, outcome = NULL)` (existence test on smMatrix) and `is_interaction(construct_name)` (single-name test). Added to Phase 2 since most sites co-occur with mmMatrix access patterns.
+
+## Target File Organization
+
+After all renames (Phase 2C) and consolidation (Phase 4), matrix helper functions should live in these files. This section is the single reference for "where does this function belong?"
+
+### `inspect_smMatrix.R` — smMatrix accessors, selectors, predicates
+
+All functions that take smMatrix as their primary argument.
+
+**Already here:**
+- Accessors: `construct_names` (S3 generic + smMatrix method), `construct_antecedents`, `construct_targets`, `construct_interactions`
+- Selectors: `all_endogenous`, `all_exogenous`, `only_exogenous`, `only_endogenous`, `all_interactions`
+- Predicates: `is_interaction`, `has_interactions`
+
+**Move here from `evaluate_model.R`:**
+- `has_direct_effects`, `are_construct_names_valid`
+
+**Move here from `feature_plspredict.R`:**
+- `construct_order`, `depends_on` (→ `construct_antecedents_all`), `antecedents_in_list` (→ `have_antecedents_in`)
+- Internal helpers: `subset_by_construct`, `construct_antecedent_in_list`
+
+### `inspect_mmMatrix.R` — mmMatrix accessors, selectors, converters; measurement model list helpers
+
+All functions that take mmMatrix or a measurement model list as their primary argument.
+
+**Already here:**
+- S3 generic + methods: `construct_items` (generic, `.mmMatrix`, `.matrix`, `.construct`, `.seminr_model`, `.measurement_model`, `.list`)
+- mmMatrix accessors: `all_constructs`, `all_constructs_of_mode`, `construct_of_item`
+- mmMatrix selectors: `all_reflective`
+- Measurement model list accessors: `construct_name`
+- Measurement model list selectors: `all_LOC_items`, `all_non_interactions`, `all_LOCs`, `all_interaction_fns`
+- Computed: `number_of_items` (→ `item_count`)
+- Converter: `mm2matrix`
+
+**Move here from `library.R`:**
+- `measure_mode` (→ `construct_mode`), `get_measure_mode` (→ `construct_mode_fn`)
+
+**Move here from `evaluate_model.R`:**
+- `all_indicator_names_are_in_data` (→ `are_indicators_in_data`)
+
+### Model-level accessors and selectors — `library.R` or new `inspect_model.R` (TBD)
+
+Functions that take a model object (`pls_model`, `cbsem_model`, etc.) as their primary argument. Whether these stay in `library.R` or move to a new `inspect_model.R` is an open question — decide during Phase 4.
+
+**Currently in `library.R`:**
+- Accessors: `constructs_in_model`, `construct_scores`, `items_of_construct` (→ S3 `construct_items` method on model)
+- Selectors: `get_factors` (→ `all_factors`), `get_composites` (→ `all_composites`)
+- S3 `construct_names` method for model objects (generic lives in `inspect_smMatrix.R`)
+
+**Move here from `plot_dot.R`:**
+- `get_construct_type` (→ `construct_type`), `is_sink` (→ `is_only_endogenous`)
+
+### `feature_higher_order.R` — HOC-specific helpers (stay per Key Decision #10)
+
+- Selector: `HOCs_in_model` (→ `all_HOCs`)
+- Mutators: `substitute_dimensions_for_HOC` (→ `expand_HOC_to_LOCs`), `remove_HOC_in_measurement_model` (→ `remove_HOC`)
+
+### Delete (Phase 4.2)
+
+- `items_per_mode` (`library.R`) — never called
+- `mmMatrix_per_construct` (`library.R`) — leaks row structure
 
 ## Scope
 
@@ -112,31 +174,63 @@ mmMatrix has ~100+ direct access points across ~28 R source files and ~34 test f
 
 #### 2B. Replace raw access with accessors
 
-- [ ] 2.2 Replace `construct_indicators()` pattern (~30 sites)
-  - **Note:** `construct_matrix` in `lavaan_syntax.R` is a local variable holding a pre-filtered mmMatrix subset for one construct. The same mmMatrix accessors (`construct_items`, etc.) apply to these subsets since they share the same column structure. Ensure these sites are covered.
-- [ ] 2.3 Replace `construct_type()` pattern (~10 sites)
-- [ ] 2.4 Replace `all_constructs()` pattern (~6 sites)
-- [ ] 2.5 Replace remaining read patterns (type filtering, SM membership filter, HOC-specific, etc.)
-- [ ] 2.5a Replace `grepl("\\*", ...)` interaction detection patterns with `is_interaction()` / `has_interactions()` (~13 sites across R/)
-- [ ] 2.5b Run full test suite, confirm replacements introduce no regressions
+- [x] 2.2 Replace `construct_indicators()` pattern
+  - `specify_interactions.R`: 4 raw patterns → `construct_indicators()`
+  - `library.R` (`unit_weights`): numeric index `mmMatrix[,1]` → `construct_indicators()`
+  - `feature_higher_order.R`: raw filter on HOC subset → `construct_indicators(name, HOCs)`
+  - `lavaan_syntax.R`: refactored `lavaan_construct()` to take construct name + mmMatrix, replaced column accesses with `measure_mode()` and `construct_indicators()`
+  - `feature_higher_order.R`: `matrix(construct, ...)[,2]` → `construct_items(construct)` for construct vector
+- [x] 2.3 Replace `construct_type()` / `measure_mode()` patterns
+  - All call sites already use `measure_mode()` or `get_construct_type()` — no remaining raw `[,"type"]` patterns outside accessor definitions
+  - `lavaan_syntax.R`: `construct_matrix[, "type"]` eliminated by `lavaan_construct()` refactor
+- [x] 2.4 Replace `all_constructs()` pattern
+  - `feature_higher_order.R:52`: `unique(new_mm[, "construct"])` → `all_constructs(new_mm)`
+  - `feature_higher_order.R:160`: `unique(HOCs[,"construct"])` → `all_constructs(HOCs)`
+  - Remaining `all_constructs()` call sites already use the accessor
+- [x] 2.5 Replace remaining read patterns
+  - `estimate_simplePLS.R`: row filter → `intersect(all_constructs, sm_constructs)` + `construct_indicators()` (preserves mmMatrix declaration order)
+  - `evaluate_warnings.R`: complex filter → `all_constructs_of_mode()` exclusion + `construct_indicators()` + `is_interaction()` filter
+  - `plot_dot.R` (`is_sink`): reverse item→type lookup → `construct_of_item()` + `measure_mode()`
+  - `plot_dot.R` (`extract_mm_edges`): row iteration over subset → `construct_indicators()` item loop
+  - `plot_dot.R` (`dot_graph.measurement_model`): `unique(c(model[,1], model[,2]))` → `construct_names(model)` (smMatrix)
+  - `estimate_pls.R`, `specify_interactions.R`: smMatrix `unique(c(sm[,1], sm[,2]))` → `construct_names()`
+  - **Remaining deferred:** `feature_higher_order.R:157,159` — HOC identification patterns (`setdiff(mmMatrix[,"measurement"], ...)` and row filter) require dedicated HOC accessors → Phase 3/4
+- [x] 2.5a Replace `grepl("\\*", ...)` interaction detection patterns
+  - All active patterns already use `is_interaction()` (added in Phase 2A)
+  - Only remaining `grepl("\\*", ...)` is inside `is_interaction()` definition itself
+  - One commented-out pattern in `evaluate_measurement_model.R:5` — inactive
+- [x] 2.5b Run full test suite, confirm replacements introduce no regressions (294 PASS, 0 FAIL)
 
 #### 2C. Rename per conventions
 
 All renames listed in `CLAUDE.function-naming.md` § "Proposed Renames". Key groups:
 
-- [ ] 2.6 mmMatrix helpers: `construct_indicators` → `construct_items`, `measure_mode` → `construct_mode`, `get_measure_mode` → `construct_mode_fn`, `get_construct_type` → `construct_type`, `all_indicator_names_are_in_data` → `are_indicators_in_data`, `is_sink` → `is_only_endogenous`
-  - **Reorder arguments to container-first**: `construct_items(mmMatrix, name)`, `construct_mode(mmMatrix, name)`, `construct_mode_fn(mmMatrix, name)`, `construct_type(model, name)` (already container-first for model), etc.
-- [ ] 2.7 Model-level selectors: `get_factors` → `all_factors`, `get_composites` → `all_composites`, `HOCs_in_model` → `all_HOCs`
-- [ ] 2.8 Measurement model list helpers: `all_construct_names` → `construct_names` (S3), `all_items` → `construct_items` (S3), `all_loc_non_int_items` → `all_LOC_items`, `mm_constructs` → `all_non_interactions`, `loc_constructs` → `all_LOCs`, `mm_interactions` → `all_interaction_fns`, `number_of_items` → `item_count`
-- [ ] 2.8a Run full test suite, confirm renames introduce no regressions
+- [x] 2.6 mmMatrix helpers (partial): `measure_mode` → `construct_mode`, `get_measure_mode` → `construct_mode_fn`, `get_construct_type` → `construct_type`, `all_indicator_names_are_in_data` → `are_indicators_in_data`, `is_sink` → `is_only_endogenous`
+  - **Reorder arguments to container-first**: `construct_mode(mmMatrix, construct)`, `construct_mode_fn(mmMatrix, construct)`, `construct_type(model, construct)` (already container-first)
+  - Fixed sapply calls with anonymous function wrappers for container-first reordering
+  - Renamed local variables `construct_type` → `c_type` in `plot_dot.R` to avoid shadowing accessor
+  - Fixed redundant double-`sapply` in `all_factors()` — now computes modes once
+  - **Deferred to 2D:** `construct_indicators` → `construct_items` (requires S3 generic for name collision resolution)
+- [x] 2.7 Model-level selectors: `get_factors` → `all_factors`, `get_composites` → `all_composites`, `HOCs_in_model` → `all_HOCs`
+- [x] 2.8 Measurement model list helpers (partial): `all_loc_non_int_items` → `all_LOC_items`, `mm_constructs` → `all_non_interactions`, `loc_constructs` → `all_LOCs`, `mm_interactions` → `all_interaction_fns`, `number_of_items` → `item_count`
+  - **Deferred to 2D:** `all_construct_names` → `construct_names` (S3), `all_items` → `construct_items` (S3) — requires S3 generic creation to resolve name collisions
+- [x] 2.8a Run full test suite, confirm renames introduce no regressions (294 PASS, 0 FAIL)
 
 #### 2D. S3 generics and optimizations
 
-- [ ] 2.9 Create S3 generics for `construct_items` and `construct_names`
+- [x] 2.9 Create S3 generics for `construct_items` and `construct_names`
   - See `CLAUDE.function-naming.md` § "Accessor S3 dispatch" for dispatch table
-- [ ] 2.10 Precompute mappings in `simplePLS()` before PLS loop (~5 lines, eliminates ~14 per-iteration lookups)
-- [ ] 2.11 Fix `get_measure_mode()` redundancy (6 identical lookups → extract type once)
-- [ ] 2.12 Run full test suite, confirm all tests still pass
+  - Includes deferred renames from 2C that require S3 dispatch to resolve name collisions:
+    - `construct_indicators` → `construct_items` (mmMatrix method) + container-first arg reorder
+    - `all_construct_names` → `construct_names` (measurement_model method)
+    - `all_items` → `construct_items` (measurement_model method)
+    - `items_of_construct` → `construct_items` (model method)
+  - Added `.matrix` fallback for `construct_items` (rbind strips mmMatrix class)
+  - Added `.list` fallbacks for both generics (append strips measurement_model class)
+- [x] 2.10 Precompute mappings in `simplePLS()` before PLS loop (~5 lines, eliminates ~14 per-iteration lookups)
+  - Built `construct_item_map` once before the loop; replaced 2 in-loop `construct_items()` calls with map lookups
+- [x] 2.11 ~~Fix `get_measure_mode()` redundancy (6 identical lookups → extract type once)~~ — resolved: `all_factors()` double-`sapply` eliminated in 2C
+- [x] 2.12 Run full test suite, confirm all tests still pass (294 PASS, 0 FAIL)
 
 ### Phase 3: Write-Side Encapsulation
 
@@ -161,8 +255,21 @@ All renames listed in `CLAUDE.function-naming.md` § "Proposed Renames". Key gro
 - [ ] 4.2 Delete dead code: `items_per_mode` (never called), `mmMatrix_per_construct` (leaks row structure)
   - See `CLAUDE.function-naming.md` § "Dead code"
 - [ ] 4.3 Consolidate any remaining duplicate accessors
-- [ ] 4.4 Final full test suite run
-- [ ] 4.5 Verify no remaining direct matrix access patterns (grep audit)
+- [ ] 4.4 Consolidate helper functions into target files per § "Target File Organization"
+  - Move smMatrix predicates from `evaluate_model.R` → `inspect_smMatrix.R`
+  - Move smMatrix helpers from `feature_plspredict.R` → `inspect_smMatrix.R`
+  - Move mmMatrix accessors from `library.R` (`construct_mode`, `construct_mode_fn`) → `inspect_mmMatrix.R`
+  - Move mmMatrix predicate from `evaluate_model.R` (`are_indicators_in_data`) → `inspect_mmMatrix.R`
+  - Move model-level helpers from `plot_dot.R` (`construct_type`, `is_only_endogenous`) → `library.R` or `inspect_model.R`
+  - Decide: create `inspect_model.R` for model-level accessors/selectors, or keep in `library.R`
+- [ ] 4.5 Final full test suite run
+- [ ] 4.6 Verify no remaining direct matrix access patterns (grep audit)
+
+### Phase 5: Documentation
+
+- [ ] 5.1 Update CLAUDE.md to document that internal matrices (`mmMatrix`, `smMatrix`) must be accessed via accessor helpers, not raw subsetting
+  - List accessor locations: `inspect_mmMatrix.R`, `inspect_smMatrix.R`, `library.R` (until Phase 2C migration)
+  - Reference `CLAUDE.function-naming.md` for the full accessor catalog
 
 ## Completed
 
@@ -187,6 +294,99 @@ All renames listed in `CLAUDE.function-naming.md` § "Proposed Renames". Key gro
 - Predicate in `evaluate_effects.R:73` (`any(without_sm[,"target"] == dv)`) → Phase 3
 - MGA data.frame conversion in `estimate_pls_mga.R:67` — safe named access, left as-is
 - Numeric indices inside helper definitions (`inspect_smMatrix.R`) → Phase 4
+
+### Phase 2B: mmMatrix read-side raw access replacement (2026-02-27)
+
+**Files modified:** `specify_interactions.R`, `library.R`, `feature_higher_order.R`, `lavaan_syntax.R`, `estimate_simplePLS.R`, `evaluate_warnings.R`, `plot_dot.R`, `estimate_pls.R`
+
+**Changes:**
+- Replaced ~20 raw mmMatrix/smMatrix column-access patterns with accessor function calls
+- `specify_interactions.R`: 4 raw `measurement_model[, "construct"]`/`[, "measurement"]` → `construct_indicators()`
+- `library.R` (`unit_weights`): `sum(mmMatrix[,1] == i)` → `length(construct_indicators(i, mmMatrix))`
+- `feature_higher_order.R`: `unique(HOCs[,"construct"])` → `all_constructs()`, `HOCs[..., "measurement"]` → `construct_indicators()`, `unique(new_mm[, "construct"])` → `all_constructs()`, `matrix(construct, ...)[,2]` → `construct_items()`
+- `lavaan_syntax.R`: Refactored `lavaan_construct()` to take construct name + mmMatrix instead of pre-filtered subset; eliminated `mm_sub_matrix` intermediary; replaced column accesses with `measure_mode()` and `construct_indicators()`
+- `estimate_simplePLS.R`: Row filter `mmMatrix[mmMatrix[,"construct"] %in% sm_constructs, "measurement"]` → `intersect(all_constructs(mmMatrix), sm_constructs)` + `construct_indicators()` (preserves mmMatrix declaration order via `intersect`)
+- `evaluate_warnings.R`: Complex non-HOC/non-interaction filter → `all_constructs_of_mode()` exclusion + `construct_indicators()` + `is_interaction()` filter
+- `plot_dot.R` (`is_sink`): Raw reverse lookup `mmMatrix[, "measurement"] == x` / `mmMatrix[idx, "type"]` → `construct_of_item()` + `measure_mode()`
+- `plot_dot.R` (`extract_mm_edges`): Row iteration `for (i in 1:nrow(mm_matrix_subset))` → `for (manifest_variable in construct_indicators(construct, mmMatrix))`
+- `plot_dot.R`, `estimate_pls.R`, `specify_interactions.R`: `unique(c(sm[,1], sm[,2]))` → `construct_names()`
+
+**Remaining raw mmMatrix access (deferred):**
+- Inside accessor function definitions (`inspect_mmMatrix.R`, `library.R:construct_mode`) → Phase 4.1
+- Dead code (`items_per_mode`, `mmMatrix_per_construct` in `library.R`) → Phase 4.2
+- Write-side pattern (`feature_higher_order.R:29` row removal) → Phase 3
+- HOC identification patterns (`feature_higher_order.R:157,159` — `setdiff(mmMatrix[,"measurement"], ...)` and row filter) → Phase 3/4
+- `inspect_mmMatrix.R:179` (`as.reflective.matrix` write) → Phase 3
+- Commented-out patterns in `evaluate_warnings.R`, `evaluate_validity.R`, `feature_higher_order.R` — inactive code
+
+### Phase 2C: Rename per conventions (2026-02-27)
+
+**Files modified:** `inspect_mmMatrix.R`, `library.R`, `evaluate_measurement_model.R`, `evaluate_model.R`, `evaluate_reliability.R`, `evaluate_warnings.R`, `feature_higher_order.R`, `estimate_pls.R`, `estimate_cbsem.R`, `lavaan_syntax.R`, `plot_dot.R`, `report_descriptives.R`, `specify_interactions.R`, `NAMESPACE`
+
+**Changes (13 renames across 14 files):**
+- `measure_mode` → `construct_mode` (container-first: `(mmMatrix, construct)`) — 9 call sites
+- `get_measure_mode` → `construct_mode_fn` (container-first: `(mmMatrix, construct)`) — 3 call sites
+- `get_construct_type` → `construct_type` — 9 call sites; internal `construct_type` local var → `c_type`
+- `get_factors` → `all_factors` — 3 call sites; fixed redundant double-`sapply` (was computing modes twice)
+- `get_composites` → `all_composites` — 3 call sites
+- `HOCs_in_model` → `all_HOCs` — 4 call sites
+- `all_indicator_names_are_in_data` → `are_indicators_in_data` — 2 call sites
+- `is_sink` → `is_only_endogenous` — 3 call sites
+- `number_of_items` → `item_count` — 2 call sites (internal to inspect_mmMatrix.R)
+- `mm_constructs` → `all_non_interactions` — 4 call sites (internal to inspect_mmMatrix.R)
+- `loc_constructs` → `all_LOCs` — 2 call sites (internal to inspect_mmMatrix.R)
+- `mm_interactions` → `all_interaction_fns` — 3 call sites
+- `all_loc_non_int_items` → `all_LOC_items` — 4 call sites
+
+**sapply container-first pattern:** Where renamed functions had argument reordering and were previously passed directly to `sapply(X, FUN, ...)`, call sites now use anonymous function wrappers: `sapply(X, function(c) construct_mode(mmMatrix, c))`.
+
+**Deferred to Phase 2D (require S3 generic creation):**
+- `construct_indicators` → `construct_items` (collides with existing `construct_items` on construct vectors)
+- `all_construct_names` → `construct_names` (collides with existing `construct_names` on smMatrix)
+- `all_items` → `construct_items` (same collision)
+- `items_of_construct` → `construct_items` (same collision)
+
+### Phase 2D: S3 generics and optimizations (2026-02-28)
+
+**Files modified:** `inspect_smMatrix.R`, `inspect_mmMatrix.R`, `library.R`, `estimate_simplePLS.R`, `estimate_cbsem.R`, `evaluate_measurement_model.R`, `evaluate_model.R`, `evaluate_validity.R`, `evaluate_warnings.R`, `evaluate_reliability.R`, `feature_consistent.R`, `feature_higher_order.R`, `feature_plspredict.R`, `compute_metrics.R`, `lavaan_syntax.R`, `specify_interactions.R`, `plot_dot.R`, `report_lavaan.R`, `NAMESPACE`
+
+**Changes:**
+
+**S3 generic `construct_names` (inspect_smMatrix.R):**
+- Converted manual `inherits()` dispatch to `UseMethod()` S3 generic
+- Methods: `.structural_model` (smMatrix), `.seminr_model` (estimated models), `.measurement_model` (measurement model list), `.list` (fallback for lists losing class after `append()`), `.default` (unclassed matrices)
+- Removed `all_construct_names()` from `inspect_mmMatrix.R` — replaced by `.measurement_model` method
+- Replaced 4 `all_construct_names()` call sites: `estimate_cbsem.R` (2), `evaluate_model.R` (1), `report_lavaan.R` (1)
+
+**S3 generic `construct_items` (inspect_mmMatrix.R):**
+- Created `UseMethod()` S3 generic with 7 methods:
+  - `.mmMatrix` — replaces `construct_indicators()` (container-first: `(mmMatrix, construct_name)`)
+  - `.matrix` — fallback for matrices losing "mmMatrix" class after `rbind()`
+  - `.construct` — items from a construct vector (was old `construct_items()`)
+  - `.seminr_model` — replaces `items_of_construct()` from `library.R`
+  - `.measurement_model` — replaces `all_items()` (all item names across all constructs)
+  - `.list` — fallback for measurement model lists losing class after `append()`
+- Removed: `construct_indicators()`, old `construct_items()`, `all_items()` from `inspect_mmMatrix.R`; `items_of_construct()` from `library.R`
+- Replaced ~50 call sites across 18 files
+
+**Key class-stripping discoveries:**
+- `rbind()` strips "mmMatrix" class from matrices → `.matrix` fallback handles this
+- `append()` strips "measurement_model" class from lists → `.list` fallback handles this
+- Also fixed `as.reflective.measurement_model` to preserve class on returned list
+
+**simplePLS precomputation (estimate_simplePLS.R):**
+- Built `construct_item_map` once before the PLS loop
+- Replaced 2 in-loop `construct_items()` calls with direct map lookups
+
+**NAMESPACE registrations added:**
+- `S3method(construct_items, construct)`, `S3method(construct_items, list)`, `S3method(construct_items, matrix)`, `S3method(construct_items, measurement_model)`, `S3method(construct_items, mmMatrix)`, `S3method(construct_items, seminr_model)`
+- `S3method(construct_names, default)`, `S3method(construct_names, list)`, `S3method(construct_names, measurement_model)`, `S3method(construct_names, seminr_model)`, `S3method(construct_names, structural_model)`
+
+---
+
+## Future Considerations (Second-Wave Refactoring)
+
+After the current immediate refactoring is complete, consider a second-wave pass where call sites that use accessors like `construct_mode()` are examined for whether they really need the raw mode value or would be better served by predicates (e.g., `is_reflective()`, `is_formative()`). Many call sites pattern-match on mode strings (`"C"`, `"B"`, etc.) and could be replaced with more expressive predicate calls. This is out of scope for the current refactoring but worth tracking.
 
 ---
 

@@ -1,14 +1,50 @@
 # PURPOSE: inspect and extract information from measurement models
 # and mmMatrix.
 
-# Construct (mmMatrix row) level functions
-# Return indicators of a construct from mmMatrix
-construct_indicators <- function(construct_name, mmMatrix) {
-  mmMatrix[mmMatrix[,1] == construct_name, 2]
+# S3 generic: get item names from various model objects
+construct_items <- function(x, ...) {
+  UseMethod("construct_items")
+}
+
+# mmMatrix: items for a specific construct (container-first)
+construct_items.mmMatrix <- function(x, construct_name, ...) {
+  x[x[,1] == construct_name, 2]
+}
+
+# Plain matrix fallback (mmMatrix after rbind loses "mmMatrix" class)
+construct_items.matrix <- function(x, construct_name, ...) {
+  x[x[,1] == construct_name, 2]
+}
+
+# Construct vector: items from a construct specification
+construct_items.construct <- function(x, ...) {
+  item_indices <- seq(from=2, to=item_count(x)*3 - 1, by=3)
+  x[item_indices]
+}
+
+# Estimated model: items for a construct (via mmMatrix)
+construct_items.seminr_model <- function(x, construct_name, ...) {
+  construct_items(x$mmMatrix, construct_name)
+}
+
+# Measurement model list: all item names across all constructs
+construct_items.measurement_model <- function(x, ...) {
+  constructs_only <- all_non_interactions(x)
+  sapply(constructs_only, FUN=construct_items) -> .
+  unlist(., use.names = FALSE) -> .
+  unique(.)
+}
+
+# List fallback (measurement_model after append() loses class)
+construct_items.list <- function(x, ...) {
+  constructs_only <- all_non_interactions(x)
+  sapply(constructs_only, FUN=construct_items) -> .
+  unlist(., use.names = FALSE) -> .
+  unique(.)
 }
 
 # get number of items from a construct in a measurement model
-number_of_items <- function(construct) {
+item_count <- function(construct) {
   length(construct) / 3
 }
 
@@ -37,30 +73,9 @@ all_reflective <- function(mmMatrix, constructs) {
   unique(mmMatrix[mmMatrix[, "type"]=="C", "construct"])
 }
 
-# Get names of all constructs in a measurement model
-all_construct_names <- function(measurement_model) {
-  constructs_only <- mm_constructs(measurement_model)
-  lapply(constructs_only, FUN=construct_name) -> .
-  unlist(., use.names = FALSE)
-}
-
-# Get names of all items of a construct in a measurement model
-construct_items <- function(construct) {
-  item_indices <- seq(from=2, to=number_of_items(construct)*3 - 1, by=3)
-  construct[item_indices]
-}
-
-# Get names of all items from measurement model
-all_items <- function(measurement_model) {
-  constructs_only <- mm_constructs(measurement_model)
-  sapply(constructs_only, FUN=construct_items) -> .
-  unlist(., use.names = FALSE) -> .
-  unique(.)
-}
-
-all_loc_non_int_items <- function(measurement_model) {
-  loc_constructs_only <- loc_constructs(measurement_model)
-  constructs_only <- mm_constructs(loc_constructs_only)
+all_LOC_items <- function(measurement_model) {
+  all_LOCs_only <- all_LOCs(measurement_model)
+  constructs_only <- all_non_interactions(all_LOCs_only)
   sapply(constructs_only, FUN=construct_items) -> .
   unlist(., use.names = FALSE) -> .
   unique(.)
@@ -120,7 +135,8 @@ as.reflective <- function (x, ...) {
 #' @export
 as.reflective.measurement_model <- function(x, ...) {
   reflectives <- lapply(x, FUN=as.reflective)
-  # Filter(Negate(is.null), reflectives)
+  class(reflectives) <- class(x)
+  reflectives
 }
 
 #' Converts a contruct of a measurement model into a reflective factor.
@@ -198,15 +214,15 @@ mm2matrix <- function(measurement_model) {
   mmMatrix
 }
 
-mm_constructs <- function(measurement_model) {
+all_non_interactions <- function(measurement_model) {
   Filter(function(e) {!("interaction" %in% class(e))}, measurement_model)
 }
 
-loc_constructs <- function(measurement_model) {
+all_LOCs <- function(measurement_model) {
   Filter(function(e) {!("higher_order_composite" %in% class(e))}, measurement_model)
 }
 
 # Extract only interaction closures from measurement model
-mm_interactions <- function(measurement_model) {
+all_interaction_fns <- function(measurement_model) {
    Filter(function(e) {"interaction" %in% class(e)}, measurement_model)
 }

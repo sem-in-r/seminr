@@ -19,7 +19,7 @@ item_vifs <- function(seminr_model, model_constructs) {
   # }
 
   item_vifs <- sapply(model_constructs$construct_names, independent_vifs,
-                      items_of_construct, seminr_model,
+                      function(construct, model) construct_items(model, construct), seminr_model,
                       data = seminr_model$data,
                       simplify = FALSE)
   class(item_vifs) <- append(class(item_vifs), "list_output")
@@ -55,8 +55,8 @@ HTMT <- function(seminr_model) {
                  dimnames = list(constructs,constructs))
   for (constructi in constructs[1:(length(constructs)-1)]) {
     for (constructj in constructs[(which(constructs == constructi)+1):length(constructs)]) {
-      manifesti <- construct_indicators(constructi, seminr_model$mmMatrix)
-      manifestj <- construct_indicators(constructj, seminr_model$mmMatrix)
+      manifesti <- construct_items(seminr_model$mmMatrix, constructi)
+      manifestj <- construct_items(seminr_model$mmMatrix, constructj)
       item_correlation_matrix <- abs(stats::cor(seminr_model$data[, manifesti],seminr_model$data[, manifestj]))
       HTHM <- mean(item_correlation_matrix)
       if(length(manifesti)>1 ) {

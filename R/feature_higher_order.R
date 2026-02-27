@@ -79,7 +79,7 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs, maxIt, stopC
 }
 
 # Returns all Higher Order Constructs (HOCs) from provided model specifications
-HOCs_in_model <- function(measurement_model, structural_model = NULL) {
+all_HOCs <- function(measurement_model, structural_model = NULL) {
   # Extract HOCs from measurement model
   HOCs <- measurement_model[grepl("higher_order_", names(measurement_model))]
   if (is.null(structural_model)) return(HOCs)
@@ -118,7 +118,7 @@ combine_first_order_second_order_matrices <- function(model1, model2, mmMatrix) 
                            ncol=length(appended_constructs),
                            dimnames = list(appended_mmVariables,appended_constructs))
   for (i in 1:length(appended_constructs))  {
-    weights_matrix[construct_indicators(appended_constructs[i], mmMatrix), appended_constructs[i]] =1
+    weights_matrix[construct_items(mmMatrix, appended_constructs[i]), appended_constructs[i]] =1
   }
 
   # Calculate new loadings matrix
@@ -160,7 +160,7 @@ combine_first_order_second_order_loadings_cbsem <- function(mmMatrix, rawdata, l
   HOC_names <- all_constructs(HOCs)
 
   HOC_measures <- lapply(stats::setNames(HOC_names, HOC_names),
-                         function(name) { construct_indicators(name, HOCs) })
+                         function(name) { construct_items(HOCs, name) })
 
   loadings <- lavaan_std$lambda
   class(loadings) <- "matrix"

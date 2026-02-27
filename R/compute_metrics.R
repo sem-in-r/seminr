@@ -77,7 +77,7 @@ calculate_itcriteria <- function(seminr_model) {
 # Computes Henseler's rhoA
 compute_construct_rhoA <- function(weights, mmMatrix, construct, obsData) {
   # get the weights for the construct
-  items <- construct_indicators(construct, mmMatrix)
+  items <- construct_items(mmMatrix, construct)
   w <- as.matrix(weights[items, construct])
 
   # Get empirical covariance matrix of lv indicators (S)

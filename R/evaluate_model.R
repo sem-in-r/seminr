@@ -82,9 +82,9 @@ has_direct_effects <- function(smMatrix) {
 }
 
 ### item names consistent throughout and with data
-all_indicator_names_are_in_data <- function(measurement_model,
+are_indicators_in_data <- function(measurement_model,
                                         data) {
-  return(all(all_items(measurement_model) %in% colnames(data)))
+  return(all(construct_items(measurement_model) %in% colnames(data)))
 }
 
 ### latent names constant throughout
@@ -95,7 +95,7 @@ are_construct_names_valid <- function(measurement_model,
   # remove interactions from the list (not created yet)
   sm_constructs <- construct_names(structural_model)
   sm_constructs <- sm_constructs[!is_interaction(sm_constructs)]
-  mm_constructs <- all_construct_names(measurement_model)
+  mm_constructs <- construct_names(measurement_model)
 
   # construct names in sm DO occur in mm and are spelled correct
   construct_named_correcty <- all(sm_constructs %in% mm_constructs)
@@ -122,7 +122,7 @@ assess_model_specification <- function(measurement_model,
       Please note that plot(measurement_model) or plot(structural_model) help in visualizing the problem.
       Model cannot be estimated.")
   }
-  if(!all_indicator_names_are_in_data(measurement_model,
+  if(!are_indicators_in_data(measurement_model,
                                   data)) {
     stop("There is a mismatch in the names of your indicators and data.
     Please confirm that:

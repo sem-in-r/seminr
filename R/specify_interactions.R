@@ -145,8 +145,8 @@ quadratic_term <- function(iv, method = two_stage, weights = mode_A) {
 orthogonal <- function(iv, moderator, weights) {
   ortho_construct <- function(data, measurement_model, structural_model, ints, ...) {
     interaction_name <- paste(iv, moderator, sep = "*")
-    iv1_items <- construct_indicators(iv, measurement_model)
-    iv2_items <- construct_indicators(moderator, measurement_model)
+    iv1_items <- construct_items(measurement_model, iv)
+    iv2_items <- construct_items(measurement_model, moderator)
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
@@ -224,8 +224,8 @@ orthogonal <- function(iv, moderator, weights) {
 product_indicator <- function(iv, moderator, weights) {
   scaled_interaction <- function(data, measurement_model, structural_model, ints, ...) {
     interaction_name <- paste(iv, moderator, sep = "*")
-    iv1_items <- construct_indicators(iv, measurement_model)
-    iv2_items <- construct_indicators(moderator, measurement_model)
+    iv1_items <- construct_items(measurement_model, iv)
+    iv2_items <- construct_items(measurement_model, moderator)
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
@@ -300,7 +300,7 @@ two_stage <- function(iv, moderator, weights) {
     interaction_name <- paste(iv, moderator, sep = "*")
     # remove interactions from structural model
     structural_model <- structural_model[ !is_interaction(structural_model[,"source"]), , drop=FALSE]
-    measurement_mode_scheme <- sapply(construct_names(structural_model), get_measure_mode, mmMatrix, USE.NAMES = TRUE)
+    measurement_mode_scheme <- sapply(construct_names(structural_model), function(c) construct_mode_fn(mmMatrix, c), USE.NAMES = TRUE)
     first_stage <- estimate_first_stage(
       data = data, smMatrix = structural_model, mmMatrix = mmMatrix,
       measurement_mode_scheme = measurement_mode_scheme, ...)
@@ -339,7 +339,7 @@ first_stage_cbsem <- function(data, smMatrix, mmMatrix, measurement_mode_scheme,
 }
 
 process_interactions <- function(measurement_model, data, structural_model, inner_weights) {
-  ints <- mm_interactions(measurement_model)
+  ints <- all_interaction_fns(measurement_model)
   mmMatrix <- mm2matrix(measurement_model)
 
   if(length(ints)>0) {
@@ -363,7 +363,7 @@ process_interactions <- function(measurement_model, data, structural_model, inne
 }
 
 process_cbsem_interactions <- function(measurement_model, data, structural_model, ...) {
-  ints <- mm_interactions(measurement_model)
+  ints <- all_interaction_fns(measurement_model)
   mmMatrix <- mm2matrix(measurement_model)
 
   if(length(ints) > 0) {

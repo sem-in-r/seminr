@@ -1,27 +1,45 @@
 # Purpose: inspect a structural model/matrix
 
-# Get construct names from a structural model matrix or estimated model
-# Checks structural_model first (smMatrix inherits from both structural_model
-# and seminr_model), then seminr_model for any estimated model subclass
+# S3 generic: get construct names from various model objects
 construct_names <- function(x, ...) {
-  if (inherits(x, "structural_model")) {
-    # Structural model matrix: return all unique construct names
-    unique(c(x[,1], x[,2]))
-  } else if (inherits(x, "seminr_model")) {
-    # Any estimated model (pls_model, cbsem_model, boot_seminr_model, etc.)
-    if (is.null(x$hoc)) {
-      intersect(construct_names(x$smMatrix), all_constructs(x$mmMatrix))
-    } else {
-      sm_constructs <- union(
-        construct_names(x$smMatrix),
-        construct_names(x$first_stage_model$smMatrix)
-      )
-      intersect(sm_constructs, all_constructs(x$mmMatrix))
-    }
+  UseMethod("construct_names")
+}
+
+# Structural model matrix (smMatrix)
+construct_names.structural_model <- function(x, ...) {
+  unique(c(x[,1], x[,2]))
+}
+
+# Any estimated model (pls_model, cbsem_model, boot_seminr_model, etc.)
+construct_names.seminr_model <- function(x, ...) {
+  if (is.null(x$hoc)) {
+    intersect(construct_names(x$smMatrix), all_constructs(x$mmMatrix))
   } else {
-    # Default fallback for unclassed matrices
-    unique(c(x[,1], x[,2]))
+    sm_constructs <- union(
+      construct_names(x$smMatrix),
+      construct_names(x$first_stage_model$smMatrix)
+    )
+    intersect(sm_constructs, all_constructs(x$mmMatrix))
   }
+}
+
+# Measurement model list
+construct_names.measurement_model <- function(x, ...) {
+  constructs_only <- all_non_interactions(x)
+  lapply(constructs_only, FUN=construct_name) -> .
+  unlist(., use.names = FALSE)
+}
+
+# List fallback (measurement_model after append() loses class)
+construct_names.list <- function(x, ...) {
+  constructs_only <- all_non_interactions(x)
+  lapply(constructs_only, FUN=construct_name) -> .
+  unlist(., use.names = FALSE)
+}
+
+# Default fallback for unclassed matrices
+construct_names.default <- function(x, ...) {
+  unique(c(x[,1], x[,2]))
 }
 
 # Get all endogenous construct names in a structural model

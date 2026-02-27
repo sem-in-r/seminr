@@ -87,7 +87,7 @@ PLSc <- function(seminr_model) {
 
   # function to adjust the loadings of a common-factor
   adjust_loadings <- function(i) {
-    items <- construct_indicators(i, mmMatrix)
+    items <- construct_items(mmMatrix, i)
     w <- as.matrix(seminr_model$outer_weights[items, i])
     loadings[items, i] <- w %*% (sqrt(rho[i, ]) / t(w) %*% w )
     loadings[, i]

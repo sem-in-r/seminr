@@ -1,11 +1,11 @@
 # function to get measurement mode of a construct (first item)
-measure_mode <- function(construct,mmMatrix) {
+construct_mode <- function(mmMatrix, construct) {
   as.matrix(mmMatrix[mmMatrix[,"construct"]==construct,"type"])[1]
 }
 
 # function to get measurement mode of a construct (first item) as a function
-get_measure_mode <- function(construct,mmMatrix) {
-  mode <- measure_mode(construct, mmMatrix)
+construct_mode_fn <- function(mmMatrix, construct) {
+  mode <- construct_mode(mmMatrix, construct)
   if(mode %in% c("A", "C", "HOCA")) {
     return(mode_A)
   } else if(mode %in% c("B", "HOCB")) {
@@ -112,7 +112,7 @@ adjust_interaction <- function(constructs, mmMatrix, outer_loadings, construct_s
     adjustment <- 0
     denom <- 0
     if(is_interaction(construct)) {
-      list <- construct_indicators(construct, mmMatrix)
+      list <- construct_items(mmMatrix, construct)
 
       for (item in list){
         adjustment <- adjustment + stats::sd(obsData[,item])*abs(as.numeric(outer_loadings[item,construct]))
@@ -169,7 +169,7 @@ standardize_outer_weights <- function(normData, mmVariables, outer_weights) {
 #'
 #' @export
 mode_A  <- function(mmMatrix, i, normData, construct_scores) {
-    return(stats::cov(normData[, construct_indicators(i, mmMatrix)], construct_scores[,i]))
+    return(stats::cov(normData[, construct_items(mmMatrix, i)], construct_scores[,i]))
 }
 #' @export
 correlation_weights <- mode_A
@@ -194,7 +194,7 @@ correlation_weights <- mode_A
 #'
 #' @export
 mode_plsc <- function(mmMatrix, j, normData, construct_scores) {
-  return(stats::cov(normData[, construct_indicators(j, mmMatrix)], construct_scores[,j]))
+  return(stats::cov(normData[, construct_items(mmMatrix, j)], construct_scores[,j]))
 }
 
 #' Outer weighting scheme functions to estimate construct weighting.
@@ -218,7 +218,7 @@ mode_plsc <- function(mmMatrix, j, normData, construct_scores) {
 #'
 #' @export
 mode_B <- function(mmMatrix, i,normData, construct_scores) {
-    items <- construct_indicators(i, mmMatrix)
+    items <- construct_items(mmMatrix, i)
     return(solve(stats::cor(normData[, items])) %*%
     stats::cor(normData[, items],
                construct_scores[,i]))
@@ -273,20 +273,16 @@ error_cov_matrix <- function(seminr_model) {
   return(error_cov)
 }
 
-get_factors <- function(seminr_model) {
-  names(sapply(seminr_model$constructs,measure_mode,seminr_model$mmMatrix)[sapply(seminr_model$constructs,measure_mode,seminr_model$mmMatrix) %in% "C"])
+all_factors <- function(seminr_model) {
+  modes <- sapply(seminr_model$constructs, function(c) construct_mode(seminr_model$mmMatrix, c))
+  names(modes[modes %in% "C"])
 }
 
-get_composites <- function(seminr_model) {
-  setdiff(seminr_model$constructs, get_factors(seminr_model))
+all_composites <- function(seminr_model) {
+  setdiff(seminr_model$constructs, all_factors(seminr_model))
 }
 
 # PURPOSE: functions to extract elements of estimated seminr models (seminr_model)
-
-# Gets item names for a given construct in a model
-items_of_construct <- function(construct, model) {
-  construct_indicators(construct, model$mmMatrix)
-}
 
 # update measurement model with interaction constructs
 measure_interaction <- function(name, data, weights) {
@@ -384,7 +380,7 @@ constructs_in_model <- function(model) {
     )
     names <- intersect(sm_constructs, all_constructs(model$mmMatrix))
   }
-  types <- sapply(names, function(n) get_construct_type(model, n), USE.NAMES = FALSE)
+  types <- sapply(names, function(n) construct_type(model, n), USE.NAMES = FALSE)
   scores <- construct_scores(model)
   list(construct_names = names,
        construct_types = types,
@@ -410,6 +406,6 @@ constructs_in_model <- function(model) {
 #'
 #' @export
 unit_weights <- function(mmMatrix, i,normData, construct_scores) {
-  return(matrix(1, nrow = length(construct_indicators(i, mmMatrix)), ncol = 1))
+  return(matrix(1, nrow = length(construct_items(mmMatrix, i)), ncol = 1))
 }
 
