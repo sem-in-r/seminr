@@ -1,14 +1,18 @@
 warning_single_item_formative <- function(mmMatrix) {
-  constructs <- unique(mmMatrix[, 1])
+  constructs <- all_constructs(mmMatrix)
   for(construct in constructs) {
-    if(nrow(mmMatrix_per_construct(construct, mmMatrix)) == 1 && mmMatrix_per_construct(construct, mmMatrix)[,3] == "B") {
+    if(length(construct_indicators(construct, mmMatrix)) == 1 && measure_mode(construct, mmMatrix) == "B") {
       stop("You cannot define a single item construct as mode B")
     }
   }
 }
 
 warning_missing_data <- function(data, mmMatrix) {
-  mm_items <- mmMatrix[which(!grepl("\\*", mmMatrix[,2]) & !(mmMatrix[,"type"] == "HOCA" | mmMatrix[, "type"] == "HOCB")),2]
+  non_hoc_constructs <- setdiff(all_constructs(mmMatrix),
+    c(all_constructs_of_mode(mmMatrix, "HOCA"), all_constructs_of_mode(mmMatrix, "HOCB")))
+  mm_items <- unlist(sapply(non_hoc_constructs,
+    function(c) construct_indicators(c, mmMatrix), USE.NAMES = FALSE))
+  mm_items <- mm_items[!is_interaction(mm_items)]
   data <- data[, mm_items]
   N <- nrow(data)
   missing_values <- which(stats::complete.cases(data)==FALSE)
@@ -40,7 +44,7 @@ warning_missing_data <- function(data, mmMatrix) {
 
 # Warning for a dot used in columns of data prior to generating interactions
 warning_periods_in_col_names <- function(data) {
-  if(TRUE %in% grepl("\\*", colnames(data))) {
+  if(TRUE %in% is_interaction(colnames(data))) {
     stop("The names of columns in the data may not contain stars(*)")
   }
 }

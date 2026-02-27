@@ -7,7 +7,7 @@ metrics_insample <- function(obsData, construct_scores, smMatrix, dependant, con
 
   for (i in 1:length(dependant))  {
     #Indentify the independant variables
-    independant <- smMatrix[smMatrix[, "target"]==dependant[i], "source"]
+    independant <- construct_antecedents(smMatrix, dependant[i])
 
     #Calculate insample for endogenous
     r_sq <- 1 - 1/solve(construct_score_cors[c(independant, dependant[i]), c(independant, dependant[i])])
@@ -61,15 +61,15 @@ metrics_insample <- function(obsData, construct_scores, smMatrix, dependant, con
 ### interaction includes all direct effects
 ### no "*"s or "."s in the data
 # smMatrix <- structural_model
-direct_effects_are_specified <- function(smMatrix) {
+has_direct_effects <- function(smMatrix) {
   log_vec <- c(FALSE)
-  if (any(grepl("\\*", smMatrix))) {
+  if (has_interactions(smMatrix)) {
     # first identify all the interaction terms
-    ints <- construct_names(smMatrix)[grepl("\\*", construct_names(smMatrix))]
+    ints <- all_interactions(smMatrix)
     for(con in ints) {
-      outcomes <- smMatrix[smMatrix[,"source"] == con,"target"]
+      outcomes <- construct_targets(smMatrix, con)
       for (outs in outcomes) {
-        ants <- smMatrix[smMatrix[,"target"] == outs,"source"]
+        ants <- construct_antecedents(smMatrix, outs)
         end_lv_one <- regexpr("\\*", con)[1]
         lv_one <- substring(con,0,end_lv_one-1)
         lv_two <- substring(con,end_lv_one+1,nchar(con))
@@ -90,11 +90,11 @@ all_indicator_names_are_in_data <- function(measurement_model,
 ### latent names constant throughout
 ### SM constructs occur in the mm
 ### constructs do not share name with items
-construct_names_are_valid <- function(measurement_model,
+are_construct_names_valid <- function(measurement_model,
                                   structural_model) {
   # remove interactions from the list (not created yet)
   sm_constructs <- construct_names(structural_model)
-  sm_constructs <- sm_constructs[!grepl("\\*", sm_constructs)]
+  sm_constructs <- sm_constructs[!is_interaction(sm_constructs)]
   mm_constructs <- all_construct_names(measurement_model)
 
   # construct names in sm DO occur in mm and are spelled correct
@@ -112,7 +112,7 @@ assess_model_specification <- function(measurement_model,
                                    data){
 
   # Check the model specification
-  if (construct_names_are_valid(measurement_model,
+  if (are_construct_names_valid(measurement_model,
                                 structural_model)) {
     stop("There is a mismatch in the names of your constructs.
     Please confirm that:
@@ -132,7 +132,7 @@ assess_model_specification <- function(measurement_model,
       Please note that plot(measurement_model) or plot(structural_model) help in visualizing the problem.
       Model cannot be estimated.")
   }
-  if(direct_effects_are_specified(structural_model)) {
+  if(has_direct_effects(structural_model)) {
     stop("It appears that you have not specified both IV and MV as direct effects in the structural model.
    Please confirm that:
       (1) the construct names in the measurement model are correcly spelled and specified;

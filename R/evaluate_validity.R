@@ -30,13 +30,13 @@ item_vifs <- function(seminr_model, model_constructs) {
 antecedent_vifs <- function(smMatrix, cor_matrix) {
   endogenous_names <- all_endogenous(smMatrix)
   ret <- sapply(endogenous_names, function(outcome) {
-    antecedents <- antecedents_of(outcome, smMatrix)
+    antecedents <- construct_antecedents(smMatrix, outcome)
     if (length(antecedents) == 1) {
-      structure(NA, names=antecedents)
+      structure(NA, names = antecedents)
     } else {
       cor_vifs(cor_matrix, antecedents)
     }
-  }, simplify=FALSE, USE.NAMES=TRUE)
+  }, simplify = FALSE, USE.NAMES = TRUE)
   class(ret) <- append(class(ret), "list_output")
   ret
 }
@@ -46,17 +46,17 @@ antecedent_vifs <- function(smMatrix, cor_matrix) {
 # https://doi.org/10.1007/s11747-014-0403-8
 HTMT <- function(seminr_model) {
   if (is.null(seminr_model$hoc)) {
-    constructs <- intersect(construct_names(seminr_model$smMatrix),unique(seminr_model$mmMatrix[,1 ]))
+    constructs <- intersect(construct_names(seminr_model$smMatrix), all_constructs(seminr_model$mmMatrix))
   } else {
-    constructs <- intersect(unique(c(seminr_model$smMatrix[,1],seminr_model$smMatrix[,2], seminr_model$first_stage_model$smMatrix[,1],seminr_model$first_stage_model$smMatrix[,2])),unique(seminr_model$mmMatrix[,1 ]))
+    constructs <- intersect(unique(c(construct_names(seminr_model$smMatrix), construct_names(seminr_model$first_stage_model$smMatrix))), all_constructs(seminr_model$mmMatrix))
   }
 
   HTMT <- matrix(, nrow=length(constructs), ncol=length(constructs),
                  dimnames = list(constructs,constructs))
   for (constructi in constructs[1:(length(constructs)-1)]) {
     for (constructj in constructs[(which(constructs == constructi)+1):length(constructs)]) {
-      manifesti <- seminr_model$mmMatrix[seminr_model$mmMatrix[, 1] == constructi, "measurement"]
-      manifestj <- seminr_model$mmMatrix[seminr_model$mmMatrix[, 1] == constructj, "measurement"]
+      manifesti <- construct_indicators(constructi, seminr_model$mmMatrix)
+      manifestj <- construct_indicators(constructj, seminr_model$mmMatrix)
       item_correlation_matrix <- abs(stats::cor(seminr_model$data[, manifesti],seminr_model$data[, manifestj]))
       HTHM <- mean(item_correlation_matrix)
       if(length(manifesti)>1 ) {

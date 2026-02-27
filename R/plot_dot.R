@@ -345,7 +345,8 @@ dot_graph.measurement_model <-
                 mmMatrix = mm,
                 smMatrix = matrix(rep(unique(mmodel$construct),2),
                                   ncol = 2,
-                                  nrow = length(unique(mmodel$construct))),
+                                  nrow = length(unique(mmodel$construct)),
+                                  dimnames = list(NULL, c("source", "target"))),
                 outer_weights = matrix(c(1), # add only 1s
                                        ncol = length(unique(mmodel$construct) ),
                                        dimnames = list(unique(mmodel$measurement),
@@ -424,7 +425,7 @@ dot_graph.structural_model <-
 
     # THIS IS AN ARTIFICAL MODEL THAT LETS ME REUSE THE OLD PLOTTING FUNCTION,
     # THIS is unnecessary complex(?).
-    sm_constructs <- unique( c(model[,1], model[,2]) )
+    sm_constructs <- construct_names(model)
     mm_list <- list()
     for (i in sm_constructs) {
       mm_list[[i]] <- reflective(i, paste0(i,"_dummy"))
@@ -750,7 +751,7 @@ get_construct_type <- function(model, construct) {
   #if (!(construct %in% model$constructs)) {
   #  stop(paste("Construct", construct, "does not exist")) # scaled interactions ?
   #}
-  if (grepl("\\*", construct)) {
+  if (is_interaction(construct)) {
     return("interaction")
   }
   for (i in 1:length(model$measurement_model)) {
@@ -883,9 +884,7 @@ extract_sm_nodes <- function(model, theme, structure_only = FALSE) {
 
     if (startsWith(construct_type, "HOC") && !structure_only) {
 
-      # row_index <- grepl(construct, model$mmMatrix[,1])
-      row_index <- model$mmMatrix[,1] == construct
-      result <- model$mmMatrix[row_index, 2]
+      result <- construct_indicators(construct, model$mmMatrix)
       sm_nodes <- c(sm_nodes, result)
     }
   }
@@ -1176,16 +1175,13 @@ is_sink <- function(model, index) {
   mm_coding <- extract_mm_coding(model)
 
 
-  # Code explanation
-  # as the lower order constructs are not part of the structural model,
-  # we cannot extract their coding directly
-
-  # where does the indexed construct appear as a measurement?
-  idx <- model$mmMatrix[,2] == mm_coding[index, 1]
-  #get that construct's type
-  index_type <- model$mmMatrix[idx,3]
-  # is it a HOC?
-  is_higher_order_measurement <- startsWith(index_type, "HOC")
+  # As lower order constructs are not part of the structural model,
+  # we cannot extract their coding directly.
+  # Check if this construct appears as a measurement (dimension) of a HOC.
+  item_name <- mm_coding[index, 1]
+  parent_construct <- construct_of_item(model$mmMatrix, item_name)
+  parent_mode <- if (!is.na(parent_construct)) measure_mode(parent_construct, model$mmMatrix) else ""
+  is_higher_order_measurement <- startsWith(parent_mode, "HOC")
 
   if(any(is_higher_order_measurement)) {
     # cannot be sink
@@ -1193,7 +1189,7 @@ is_sink <- function(model, index) {
   }
 
   # otherwise test if it never appears in source
-  issink <- !any(mm_coding[index, ] %in% model$smMatrix[,1])
+  issink <- !any(mm_coding[index, ] %in% all_exogenous(model$smMatrix))
 
   return(issink)
 }
@@ -1210,9 +1206,9 @@ dot_component_mm <- function(model, theme) {
 
   # we use mmMatrix because model$constructs does not contain HOCs
   if (is.null(model$hoc)) {
-    mm_count <- length(intersect(construct_names(model$smMatrix),unique(model$mmMatrix[,1 ])))
+    mm_count <- length(intersect(construct_names(model$smMatrix), all_constructs(model$mmMatrix)))
   } else {
-    mm_count <- length(intersect(unique(c(model$smMatrix, model$first_stage_model$smMatrix)),unique(model$mmMatrix[,1 ])))
+    mm_count <- length(intersect(unique(c(construct_names(model$smMatrix), construct_names(model$first_stage_model$smMatrix))), all_constructs(model$mmMatrix)))
   }
 
 
@@ -1322,12 +1318,12 @@ get_mm_node_style <- function(theme) {
 #' @param theme the theme to use
 extract_mm_nodes <- function(index, model, theme) {
   mm_coding <- extract_mm_coding(model)
-  mm_matrix <- model$mmMatrix
-  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ,drop = FALSE] # Should now always be a matrix
+  construct <- mm_coding[index, 1]
+  items <- construct_indicators(construct, model$mmMatrix)
 
-  shape <- get_mm_node_shape(model, mm_matrix_subset[1,1], theme)
+  shape <- get_mm_node_shape(model, construct, theme)
   nodes <- paste0(
-      paste0("\"",mm_matrix_subset[, 2],"\" [label = \"", mm_matrix_subset[, 2], "\"", shape, "]"),
+      paste0("\"", items, "\" [label = \"", items, "\"", shape, "]"),
     collapse = "\n")
 
   return(nodes)
@@ -1492,11 +1488,8 @@ use_construct_weights <- function(theme, construct_type) {
 extract_mm_edges <- function(index, model, theme, weights = 1000) {
 
   mm_coding <- extract_mm_coding(model)
-  mm_matrix <- model$mmMatrix
-
-  # get row_index of all matching mm_matrix rows
-  matching_rows <- mm_matrix[, 1] == mm_coding[index, 1]
-  mm_matrix_subset <- mm_matrix[matching_rows, ,drop = FALSE]
+  construct <- mm_coding[index, 1]
+  items <- construct_indicators(construct, model$mmMatrix)
 
   edges <- ""
 
@@ -1508,21 +1501,20 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     lambda <- "lambda"
   }
 
-  for (i in 1:nrow(mm_matrix_subset)) {
+  for (manifest_variable in items) {
     if (theme$plot.randomizedweights) {
       # Does this help with determinism in the layout?
       weights <- weights + stats::runif(1)
     }
 
-    manifest_variable <- mm_matrix_subset[i, 2]
-    construct_variable = mm_matrix_subset[i, 1]
+    construct_variable <- construct
 
     use_weights <- use_construct_weights(theme,
                                                   get_construct_type(model, construct_variable))
 
 
     # If interaction variable, we skip
-    if (grepl("\\*", manifest_variable)) {
+    if (is_interaction(manifest_variable)) {
       next
     }
 
@@ -1589,12 +1581,12 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
       get_value_dependent_mm_edge_style(loading, theme)
 
     if(is_sink(model,index)) {
-      source_node <- mm_matrix_subset[i, 1]
-      target_node <- mm_matrix_subset[i, 2]
+      source_node <- construct_variable
+      target_node <- manifest_variable
     } else {
       # TODO flip edges
-      source_node <- mm_matrix_subset[i, 2]
-      target_node <- mm_matrix_subset[i, 1]
+      source_node <- manifest_variable
+      target_node <- construct_variable
     }
 
     # append edge

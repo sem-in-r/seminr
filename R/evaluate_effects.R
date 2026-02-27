@@ -81,8 +81,8 @@ model_fsquares <- function(seminr_model) {
   path_matrix <- seminr_model$path_coef
   fsquared_matrix <- path_matrix
   for (dv in all_endogenous(seminr_model$smMatrix)) {
-    ifelse(length(interactions_of(dv, seminr_model$smMatrix) ) > 0,
-      int_components <- unique(unlist(strsplit(interactions_of(dv, seminr_model$smMatrix), "\\*"))),
+    ifelse(length(construct_interactions(seminr_model$smMatrix, dv) ) > 0,
+      int_components <- unique(unlist(strsplit(construct_interactions(seminr_model$smMatrix, dv), "\\*"))),
       int_components <- NA)
     for (iv in setdiff(all_exogenous(seminr_model$smMatrix), int_components)) {
       fsquared_matrix[iv, dv] <- fSquared(seminr_model = seminr_model,

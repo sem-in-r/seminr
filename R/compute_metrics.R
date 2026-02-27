@@ -57,7 +57,7 @@ AIC_func <- function(rsq, pk, N, construct_score){
 }
 
 return_AIC_BIC <- function(i, seminr_model) {
-  antecedents <- antecedents_of(outcome = i, smMatrix = seminr_model$smMatrix)
+  antecedents <- construct_antecedents(smMatrix = seminr_model$smMatrix, outcome = i)
   pk <- length(antecedents)
   rsq <- cor_rsq(stats::cor(seminr_model$construct_scores), dv_name = i, iv_names = antecedents)
   N <- nrow(seminr_model$construct_scores)
@@ -77,10 +77,11 @@ calculate_itcriteria <- function(seminr_model) {
 # Computes Henseler's rhoA
 compute_construct_rhoA <- function(weights, mmMatrix, construct, obsData) {
   # get the weights for the construct
-  w <- as.matrix(weights[mmMatrix[mmMatrix[, "construct"]==construct, "measurement"], construct])
+  items <- construct_indicators(construct, mmMatrix)
+  w <- as.matrix(weights[items, construct])
 
   # Get empirical covariance matrix of lv indicators (S)
-  indicators <- scale(obsData[,mmMatrix[mmMatrix[,"construct"]==construct, "measurement"]], TRUE, TRUE)
+  indicators <- scale(obsData[, items], TRUE, TRUE)
   S <- stats::cov(indicators, indicators)
   diag(S) <- 0
 
@@ -129,9 +130,9 @@ report_missing <- function(seminr_model) {
 
   # extract variables for analysis based on whether there is a higher-order model
   if (is.null(seminr_model$first_stage_model)) {
-    no_int_mmvars <- seminr_model$mmVariables[!grepl("\\*", seminr_model$mmVariables)]
+    no_int_mmvars <- seminr_model$mmVariables[!is_interaction(seminr_model$mmVariables)]
   } else {
-    no_int_mmvars <- seminr_model$first_stage_model$mmVariables[!grepl("\\*", seminr_model$first_stage_model$mmVariables)]
+    no_int_mmvars <- seminr_model$first_stage_model$mmVariables[!is_interaction(seminr_model$first_stage_model$mmVariables)]
   }
 
   # only subset raw data for available variables

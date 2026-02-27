@@ -159,7 +159,7 @@ estimate_pls <- function(data,
   warnings(mmMatrix, data, structural_model)
 
   # Make a named list of construct measurement_mode functions
-  measurement_mode_scheme <- sapply(unique(c(structural_model[,1], structural_model[,2])), get_measure_mode, mmMatrix, USE.NAMES = TRUE)
+  measurement_mode_scheme <- sapply(construct_names(structural_model), get_measure_mode, mmMatrix, USE.NAMES = TRUE)
 
   # Run the model in simplePLS
   seminr_model = seminr::simplePLS(obsData = data,

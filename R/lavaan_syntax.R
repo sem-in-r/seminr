@@ -11,23 +11,15 @@ unlavaanify_name <- function(name) {
 }
 
 # Create lavaan syntax for a single construct's measurement
-lavaan_construct <- function(construct_matrix) {
-  # TODO: refactor all construct_matrix (mmMatrix subset) inspections to functions
-  construct_name <- {
-    construct_matrix[, "construct"] -> .
-    unique(.) -> .
-    lavaanify_name(.)
-  }
+lavaan_construct <- function(construct, mmMatrix) {
+  lav_name <- lavaanify_name(construct)
 
-  if (!all(construct_matrix[, "type"] == "C"))
-    stop(paste(construct_name, "must be a reflective construct for a CBSEM model"))
+  if (measure_mode(construct, mmMatrix) != "C")
+    stop(paste(lav_name, "must be a reflective construct for a CBSEM model"))
 
-  items <- {
-    construct_matrix[, "measurement"] -> .
-    lavaanify_name(.)
-  }
+  items <- lavaanify_name(construct_indicators(construct, mmMatrix))
   items_syntax <- paste(items, collapse=' + ')
-  measurement <- paste(construct_name, "=~", items_syntax)
+  measurement <- paste(lav_name, "=~", items_syntax)
 
   extras <- NULL
   # constrain error for single item constructs
@@ -42,7 +34,7 @@ lavaan_construct <- function(construct_matrix) {
 lavaan_regression <- function(outcome, smMatrix) {
   lav_outcome <- lavaanify_name(outcome)
   lav_antecedents <- {
-    antecedents_of(outcome, smMatrix) -> .
+    construct_antecedents(smMatrix, outcome) -> .
     sapply(., FUN=lavaanify_name, USE.NAMES = FALSE)
   }
   paste(lav_outcome, "~", paste(lav_antecedents, collapse=" + "))
@@ -64,10 +56,9 @@ lavaan_item_associations <- function(item_associations) {
 
 # Create Lavaan syntax for entire measurement model
 lavaan_mm_syntax <- function(mmMatrix) {
-  constructs <- unique(mmMatrix[, "construct"])
+  constructs <- all_constructs(mmMatrix)
   measurements <- lapply(constructs, FUN = function(construct) {
-    mm_sub_matrix <- mmMatrix[mmMatrix[, "construct"] == construct, , drop=FALSE]
-    lavaan_construct(mm_sub_matrix)
+    lavaan_construct(construct, mmMatrix)
   })
   # measurements <- lapply(constructs, FUN = lavaan_construct)
   paste("# Latent Variable Definitions",

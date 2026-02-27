@@ -58,7 +58,7 @@ PLSc <- function(seminr_model) {
   # Calculate rho_A for adjustments and adjust the correlation matrix
   rho <- rho_A(seminr_model,constructs_in_model(seminr_model)$construct_names)
   ### Coerce interactions to rhoA of 1
-  rho[grepl("\\*", rownames(rho)), ] <- 1
+  rho[is_interaction(rownames(rho)), ] <- 1
   adjustment <- sqrt(rho %*% t(rho))
   diag(adjustment) <- 1
   adj_construct_score_cors <- stats::cor(seminr_model$construct_scores) / adjustment
@@ -67,7 +67,7 @@ PLSc <- function(seminr_model) {
   for (i in all_endogenous(smMatrix)) {
 
     #Indentify the exogenous variables
-    exogenous <- smMatrix[smMatrix[, "target"]==i, "source"]
+    exogenous <- construct_antecedents(smMatrix, i)
 
     #Solve the system of equations
     results <- solve(adj_construct_score_cors[exogenous, exogenous],
@@ -87,8 +87,9 @@ PLSc <- function(seminr_model) {
 
   # function to adjust the loadings of a common-factor
   adjust_loadings <- function(i) {
-    w <- as.matrix(seminr_model$outer_weights[mmMatrix[mmMatrix[, "construct"]==i, "measurement"], i])
-    loadings[mmMatrix[mmMatrix[,"construct"]==i,"measurement"], i] <- w %*% (sqrt(rho[i, ]) / t(w) %*% w )
+    items <- construct_indicators(i, mmMatrix)
+    w <- as.matrix(seminr_model$outer_weights[items, i])
+    loadings[items, i] <- w %*% (sqrt(rho[i, ]) / t(w) %*% w )
     loadings[, i]
   }
 
@@ -106,13 +107,14 @@ PLSc <- function(seminr_model) {
 
 # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
 model_consistent <- function(seminr_model) {
-  if(!is.null(seminr_model$interactions) && ("C" %in% seminr_model$mmMatrix[, "type"])) {
+  has_reflective <- length(all_constructs_of_mode(seminr_model$mmMatrix, "C")) > 0
+  if(!is.null(seminr_model$interactions) && has_reflective) {
     message(
       "Models with interactions can be estimated as PLS consistent, but are subject to some bias as per Becker et al. (2018)\n",
       "'Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment'")
     seminr_model <- PLSc(seminr_model)
   }
-  if(is.null(seminr_model$interactions) && ("C" %in% seminr_model$mmMatrix[, "type"])) {
+  if(is.null(seminr_model$interactions) && has_reflective) {
     seminr_model <- PLSc(seminr_model)
   }
   return(seminr_model)

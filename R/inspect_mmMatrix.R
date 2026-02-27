@@ -17,6 +17,21 @@ construct_name <- function(construct) {
   construct[1]
 }
 
+# Get all unique construct names from mmMatrix
+all_constructs <- function(mmMatrix) {
+  unique(mmMatrix[, "construct"])
+}
+
+# Get all constructs matching a given estimation mode from mmMatrix
+all_constructs_of_mode <- function(mmMatrix, mode) {
+  unique(mmMatrix[mmMatrix[, "type"] == mode, "construct"])
+}
+
+# Reverse lookup: find the construct containing a given item
+construct_of_item <- function(mmMatrix, item) {
+  unname(mmMatrix[mmMatrix[, "measurement"] == item, "construct"][1])
+}
+
 # Get all reflective constructs from mmMatrix that are included in the STRUCTURAL MODEL
 all_reflective <- function(mmMatrix, constructs) {
   unique(mmMatrix[mmMatrix[, "type"]=="C", "construct"])

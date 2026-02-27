@@ -207,6 +207,8 @@ Prefixed with `is_` (single object), `has_` (feature presence), or `are_all_` (u
 | `construct_names_are_valid` | `are_construct_names_valid` | measurement_model, structural_model | checks construct names are valid |
 | `is_sink` | `is_only_endogenous` | model, index | checks if construct is purely endogenous (never a source) |
 | `antecedents_in_list` | `have_antecedents_in` | constructs_vector, list, smMatrix | per-construct check: are antecedents in list? |
+| (new) | `is_interaction` | construct_name | checks if a construct name contains `*` (is an interaction term) |
+| (new) | `has_interactions` | smMatrix, outcome (optional) | checks if smMatrix (or a specific DV's antecedents) includes interaction terms |
 
 ### Converters (keep as-is)
 

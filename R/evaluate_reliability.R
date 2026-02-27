@@ -56,14 +56,15 @@ rho_A <- function(seminr_model, constructs) {
   rho <- matrix(, nrow = length(constructs), ncol = 1, dimnames = list(constructs, c("rhoA")))
 
   for (i in rownames(rho))  {
+    mode <- measure_mode(i, mmMatrix)
     #If the measurement model is Formative assign rhoA = 1
-    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1] %in% c("B", "HOCB")){ #| mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="A"){
+    if(mode %in% c("B", "HOCB")){
       rho[i, 1] <- 1
     }
     #If the measurement model is Reflective Calculate RhoA
-    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1] %in% c("C", "A", "HOCA", "UNIT")) {#| mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="A"|){
+    if(mode %in% c("C", "A", "HOCA", "UNIT")) {
       #if the construct is a single item rhoA = 1
-      if(nrow(mmMatrix_per_construct(i, mmMatrix)) == 1 | grepl("\\*", i)) {
+      if(length(construct_indicators(i, mmMatrix)) == 1 | is_interaction(i)) {
         rho[i, 1] <- 1
       } else {
         # Calculate rhoA
@@ -231,7 +232,7 @@ cron_alpha <- function(cov_mat) {
 cronbachs_alpha <- function(seminr_model, constructs) {
   alpha_vec <- c()
   for (i in constructs) {
-    items <- seminr_model$mmMatrix[seminr_model$mmMatrix[,"construct"] == i,"measurement"]
+    items <- construct_indicators(i, seminr_model$mmMatrix)
     if (length(items) > 1) {
       cov_mat <- stats::cor(seminr_model$data, seminr_model$data)[items, items]
       alpha_vec[[i]] <- cron_alpha(cov_mat)

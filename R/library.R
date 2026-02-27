@@ -5,19 +5,14 @@ measure_mode <- function(construct,mmMatrix) {
 
 # function to get measurement mode of a construct (first item) as a function
 get_measure_mode <- function(construct,mmMatrix) {
-  if((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "A")
-     |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "C")
-     |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "HOCA")) {
+  mode <- measure_mode(construct, mmMatrix)
+  if(mode %in% c("A", "C", "HOCA")) {
     return(mode_A)
-  } else if((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "B")
-            |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "HOCB")) {
+  } else if(mode %in% c("B", "HOCB")) {
     return(mode_B)
-  } else if((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "UNIT") ) {
+  } else if(mode == "UNIT") {
     return(unit_weights)
   }
-  # ifelse((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "A")
-  #        |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "C")
-  #        |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "HOCA"), return(mode_A), return(mode_B))
 }
 
 # Used in warnings - warning_only_causal_construct()
@@ -96,7 +91,7 @@ path_weighting <- function(smMatrix, construct_scores, dependant, paths_matrix) 
   #Iterate and regress the incoming paths
   for (i in 1:length(dependant))  {
     #Indentify the independant variables
-    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
+    independant <- construct_antecedents(smMatrix, dependant[i])
 
     #Solve the system of equations
     inner_paths[independant,dependant[i]] = solve(t(construct_scores[,independant]) %*% construct_scores[,independant], t(construct_scores[,independant]) %*% construct_scores[,dependant[i]])
@@ -116,8 +111,8 @@ adjust_interaction <- function(constructs, mmMatrix, outer_loadings, construct_s
   for(construct in constructs) {
     adjustment <- 0
     denom <- 0
-    if(grepl("\\*", construct)) {
-      list <- mmMatrix[mmMatrix[,"construct"]==construct,"measurement"]
+    if(is_interaction(construct)) {
+      list <- construct_indicators(construct, mmMatrix)
 
       for (item in list){
         adjustment <- adjustment + stats::sd(obsData[,item])*abs(as.numeric(outer_loadings[item,construct]))
@@ -137,7 +132,7 @@ estimate_path_coef <- function(smMatrix, construct_scores,dependant, paths_matri
   #Iterate and regress the incoming paths
   for (i in 1:length(dependant))  {
     #Indentify the independant variables
-    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
+    independant <- construct_antecedents(smMatrix, dependant[i])
 
     #Solve the system of equations
     paths_matrix[independant,dependant[i]] = solve(t(construct_scores[,independant]) %*% construct_scores[,independant], t(construct_scores[,independant]) %*% construct_scores[,dependant[i]])
@@ -174,7 +169,7 @@ standardize_outer_weights <- function(normData, mmVariables, outer_weights) {
 #'
 #' @export
 mode_A  <- function(mmMatrix, i, normData, construct_scores) {
-    return(stats::cov(normData[,mmMatrix[mmMatrix[,"construct"]==i,"measurement"]],construct_scores[,i]))
+    return(stats::cov(normData[, construct_indicators(i, mmMatrix)], construct_scores[,i]))
 }
 #' @export
 correlation_weights <- mode_A
@@ -199,7 +194,7 @@ correlation_weights <- mode_A
 #'
 #' @export
 mode_plsc <- function(mmMatrix, j, normData, construct_scores) {
-  return(stats::cov(normData[,mmMatrix[mmMatrix[,"construct"]==j,"measurement"]],construct_scores[,j]))
+  return(stats::cov(normData[, construct_indicators(j, mmMatrix)], construct_scores[,j]))
 }
 
 #' Outer weighting scheme functions to estimate construct weighting.
@@ -223,19 +218,17 @@ mode_plsc <- function(mmMatrix, j, normData, construct_scores) {
 #'
 #' @export
 mode_B <- function(mmMatrix, i,normData, construct_scores) {
-    return(solve(stats::cor(normData[,mmMatrix[mmMatrix[,"construct"]==i,"measurement"]])) %*%
-    stats::cor(normData[,mmMatrix[mmMatrix[,"construct"]==i,"measurement"]],
+    items <- construct_indicators(i, mmMatrix)
+    return(solve(stats::cor(normData[, items])) %*%
+    stats::cor(normData[, items],
                construct_scores[,i]))
 }
 #' @export
 regression_weights <- mode_B
 
 return_only_composite_scores <- function(object){
-  mm_composites <- unique(c(object$mmMatrix[which(object$mmMatrix[,3]=="A"),1],
-                          object$mmMatrix[which(object$mmMatrix[,3]=="B"),1],
-                          object$mmMatrix[which(object$mmMatrix[,3]=="HOCB"),1],
-                          object$mmMatrix[which(object$mmMatrix[,3]=="HOCA"),1],
-                          object$mmMatrix[which(object$mmMatrix[,3]=="UNIT"),1]))
+  composite_modes <- c("A", "B", "HOCA", "HOCB", "UNIT")
+  mm_composites <- unique(unlist(lapply(composite_modes, function(mode) all_constructs_of_mode(object$mmMatrix, mode))))
   used_composites <- intersect(mm_composites, object$constructs)
   if (length(used_composites) == 0) {
       return(NULL)
@@ -292,7 +285,7 @@ get_composites <- function(seminr_model) {
 
 # Gets item names for a given construct in a model
 items_of_construct <- function(construct, model) {
-  model$mmMatrix[model$mmMatrix[,1] == construct, 2]
+  construct_indicators(construct, model$mmMatrix)
 }
 
 # update measurement model with interaction constructs
@@ -364,27 +357,38 @@ convert_to_table_output <- function(matrix) {
   return(matrix)
 }
 
-constructs_in_model <- function(model) {
-  construct_names <- c()
-  construct_types <- c()
+# Get construct scores from an estimated model (handles HOC first-stage merging)
+construct_scores <- function(model) {
   if (is.null(model$hoc)) {
-    for (construct in intersect(construct_names(model$smMatrix),unique(model$mmMatrix[,1 ]))) {
-      construct_names <- c(construct_names, construct)
-      construct_types <- c(construct_types, get_construct_type(model, construct))
-    }
-    construct_scores <- model$construct_scores
+    model$construct_scores
   } else {
-    constructs_in_hoc_model <- intersect(unique(c(model$smMatrix[,1],model$smMatrix[,2], model$first_stage_model$smMatrix)),unique(model$mmMatrix[,1 ]))
-    for (construct in constructs_in_hoc_model) {
-      construct_names <- c(construct_names, construct)
-      construct_types <- c(construct_types, get_construct_type(model, construct))
-
-    }
-    construct_scores <- cbind(model$construct_scores, model$first_stage_model$construct_scores[,setdiff(unique(model$first_stage_model$smMatrix),unique(model$smMatrix))])
+    first_stage_only <- setdiff(
+      unique(model$first_stage_model$smMatrix),
+      unique(model$smMatrix)
+    )
+    cbind(model$construct_scores,
+          model$first_stage_model$construct_scores[, first_stage_only])
   }
-  return(list(construct_names = construct_names,
-              construct_types = construct_types,
-              construct_scores = construct_scores))
+}
+
+# Bundle of construct names, types, and scores from a model
+# Uses matrix-level accessors directly to work with unclassed model lists
+# (called during estimation before class is assigned)
+constructs_in_model <- function(model) {
+  if (is.null(model$hoc)) {
+    names <- intersect(construct_names(model$smMatrix), all_constructs(model$mmMatrix))
+  } else {
+    sm_constructs <- union(
+      construct_names(model$smMatrix),
+      construct_names(model$first_stage_model$smMatrix)
+    )
+    names <- intersect(sm_constructs, all_constructs(model$mmMatrix))
+  }
+  types <- sapply(names, function(n) get_construct_type(model, n), USE.NAMES = FALSE)
+  scores <- construct_scores(model)
+  list(construct_names = names,
+       construct_types = types,
+       construct_scores = scores)
 }
 
 #' Outer weighting scheme functions to estimate construct weighting.
@@ -406,7 +410,6 @@ constructs_in_model <- function(model) {
 #'
 #' @export
 unit_weights <- function(mmMatrix, i,normData, construct_scores) {
-  # matrix(1,nrow = sum(mmMatrix[,1] == i), ncol = 1)
-  return(matrix(1,nrow = sum(mmMatrix[,1] == i), ncol = 1))
+  return(matrix(1, nrow = length(construct_indicators(i, mmMatrix)), ncol = 1))
 }
 

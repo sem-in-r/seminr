@@ -51,8 +51,8 @@
 #'
 #' @export
 report_paths <- function(seminr_model, digits=3) {
-  endogenous <- unique(seminr_model$smMatrix[,"target"])
-  exogenous <- unique(seminr_model$smMatrix[,"source"])
+  endogenous <- all_endogenous(seminr_model$smMatrix)
+  exogenous <- all_exogenous(seminr_model$smMatrix)
   construct <- seminr_model$constructs
 
   # create matrix of relevant path coefficients and NAs otherewise

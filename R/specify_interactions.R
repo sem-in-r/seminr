@@ -145,8 +145,8 @@ quadratic_term <- function(iv, method = two_stage, weights = mode_A) {
 orthogonal <- function(iv, moderator, weights) {
   ortho_construct <- function(data, measurement_model, structural_model, ints, ...) {
     interaction_name <- paste(iv, moderator, sep = "*")
-    iv1_items <- measurement_model[measurement_model[, "construct"] == iv, "measurement"]
-    iv2_items <- measurement_model[measurement_model[, "construct"] == moderator, "measurement"]
+    iv1_items <- construct_indicators(iv, measurement_model)
+    iv2_items <- construct_indicators(moderator, measurement_model)
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
@@ -224,8 +224,8 @@ orthogonal <- function(iv, moderator, weights) {
 product_indicator <- function(iv, moderator, weights) {
   scaled_interaction <- function(data, measurement_model, structural_model, ints, ...) {
     interaction_name <- paste(iv, moderator, sep = "*")
-    iv1_items <- measurement_model[measurement_model[, "construct"] == iv, "measurement"]
-    iv2_items <- measurement_model[measurement_model[, "construct"] == moderator, "measurement"]
+    iv1_items <- construct_indicators(iv, measurement_model)
+    iv2_items <- construct_indicators(moderator, measurement_model)
 
     iv1_data <- as.data.frame(scale(data[iv1_items]))
     iv2_data <- as.data.frame(scale(data[iv2_items]))
@@ -299,8 +299,8 @@ two_stage <- function(iv, moderator, weights) {
   two_stage_interaction <- function(data, mmMatrix, structural_model, ints, estimate_first_stage, ...) {
     interaction_name <- paste(iv, moderator, sep = "*")
     # remove interactions from structural model
-    structural_model <- structural_model[ !grepl("\\*", structural_model[,"source"]), , drop=FALSE]
-    measurement_mode_scheme <- sapply(unique(c(structural_model[,1],structural_model[,2])), get_measure_mode, mmMatrix, USE.NAMES = TRUE)
+    structural_model <- structural_model[ !is_interaction(structural_model[,"source"]), , drop=FALSE]
+    measurement_mode_scheme <- sapply(construct_names(structural_model), get_measure_mode, mmMatrix, USE.NAMES = TRUE)
     first_stage <- estimate_first_stage(
       data = data, smMatrix = structural_model, mmMatrix = mmMatrix,
       measurement_mode_scheme = measurement_mode_scheme, ...)
