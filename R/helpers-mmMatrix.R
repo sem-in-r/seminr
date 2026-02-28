@@ -1,8 +1,22 @@
 # Purpose: mmMatrix accessors, selectors, converters, mutators;
 #          construct_items S3 generic + all methods;
 #          measurement model list helpers
+#
+# Naming conventions used in this file:
+#   Category     | Pattern            | Example
+#   S3 generic   | noun(x, ...)       | construct_items(x, ...)
+#   Accessor     | object_qualifier   | construct_mode(mm, name)
+#   Predicate    | is_/has_/are_      | is_reflective(mm, name)
+#   Selector     | all_/only_         | all_constructs(mm), all_HOC(mm)
+#   Converter    | as./mm2            | as.reflective(x), mm2matrix(mm_list)
+#   Mutator      | verb_noun          | append_mm_rows(mm, rows)
+#
+# All functions use container-first argument order: mmMatrix (or model)
+# as the first argument.
+#
+# See also: helpers-smMatrix.R, helpers-model.R
 
-# -- S3 generic + methods ------------------------------------
+# -- S3 generic + methods (noun(x, ...): dispatch on class) ---
 
 # S3 generic: get item names from various model objects
 construct_items <- function(x, ...) {
@@ -56,7 +70,7 @@ construct_name <- function(construct) {
   construct[1]
 }
 
-# -- Accessors -----------------------------------------------
+# -- Accessors (object_qualifier: return single value) ---------
 
 # Get measurement mode of a construct (first item)
 construct_mode <- function(mmMatrix, construct) {
@@ -79,7 +93,7 @@ construct_of_item <- function(mmMatrix, item) {
   unname(mmMatrix[mmMatrix[, "measurement"] == item, "construct"][1])
 }
 
-# -- Predicates ----------------------------------------------
+# -- Predicates (is_/has_/are_: return logical) ----------------
 
 # Base predicates: test construct estimation mode
 is_reflective <- function(mmMatrix, construct) {
@@ -124,7 +138,7 @@ is_single_item <- function(mmMatrix, construct) {
   length(construct_items(mmMatrix, construct)) == 1
 }
 
-# -- Selectors -----------------------------------------------
+# -- Selectors (all_/only_: return vectors) --------------------
 
 # Get all unique construct names from mmMatrix
 all_constructs <- function(mmMatrix) {
@@ -188,7 +202,7 @@ all_interaction_fns <- function(measurement_model) {
    Filter(function(e) {"interaction" %in% class(e)}, measurement_model)
 }
 
-# -- Converters ----------------------------------------------
+# -- Converters (as./mm2: transform representations) -----------
 
 #' Converts all contructs of a measurement model, or just a single construct
 #'  into reflective factors.
@@ -323,7 +337,7 @@ mm2matrix <- function(measurement_model) {
   mmMatrix
 }
 
-# -- Mutators ------------------------------------------------
+# -- Mutators (verb_noun: return modified copy) ----------------
 
 # Append rows to mmMatrix, preserving "mmMatrix" class
 append_mm_rows <- function(mmMatrix, new_rows) {

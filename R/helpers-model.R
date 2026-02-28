@@ -1,7 +1,18 @@
 # Purpose: Model-level accessors and selectors;
 #          S3 methods dispatching on seminr_model
+#
+# Naming conventions used in this file:
+#   Category    | Pattern            | Example
+#   S3 method   | generic.class      | construct_names.seminr_model(x)
+#   Accessor    | object_qualifier   | construct_type(model, name)
+#   Selector    | all_noun           | all_factors(model), all_composites(model)
+#
+# All functions use container-first argument order: model as the
+# first argument.
+#
+# See also: helpers-mmMatrix.R, helpers-smMatrix.R
 
-# -- S3 methods (model dispatch) -----------------------------
+# -- S3 methods (generic.seminr_model: model dispatch) --------
 
 # Any estimated model (pls_model, cbsem_model, boot_seminr_model, etc.)
 #' @export
@@ -23,7 +34,7 @@ construct_items.seminr_model <- function(x, construct_name, ...) {
   construct_items(x$mmMatrix, construct_name)
 }
 
-# -- Accessors -----------------------------------------------
+# -- Accessors (object_qualifier: return single value) ---------
 
 # Get user-facing measurement type string for a construct in a model
 construct_type <- function(model, construct) {
@@ -88,7 +99,7 @@ return_only_composite_scores <- function(object){
   }
 }
 
-# -- Selectors -----------------------------------------------
+# -- Selectors (all_noun: return vectors) ----------------------
 
 all_factors <- function(seminr_model) {
   intersect(seminr_model$constructs, all_reflective(seminr_model$mmMatrix))

@@ -1,7 +1,23 @@
 # Purpose: smMatrix accessors, selectors, predicates, mutators;
 #          construct_names S3 generic + all methods
+#
+# Naming conventions used in this file:
+#   Category        | Pattern            | Example
+#   S3 generic      | noun(x, ...)       | construct_names(x, ...)
+#   Selector        | all_/only_         | all_endogenous(sm), only_exogenous(sm)
+#   Accessor        | construct_qual     | construct_antecedents(sm, outcome)
+#   Predicate       | is_/has_/are_      | is_interaction(name), has_paths_to(sm, t)
+#   Row-level       | path_noun          | path_sources(sm), path_targets(sm)
+#   Decorator       | to_format          | to_path_labels(sm)
+#   Computed        | construct_qual     | construct_order(sm)
+#   Mutator         | verb_noun          | remove_paths_to(sm, target)
+#
+# All functions use container-first argument order: smMatrix as the
+# first argument (except is_interaction which takes a construct name).
+#
+# See also: helpers-mmMatrix.R, helpers-model.R
 
-# -- S3 generic + methods ------------------------------------
+# -- S3 generic + methods (noun(x, ...): dispatch on class) ---
 
 # S3 generic: get construct names from various model objects
 construct_names <- function(x, ...) {
@@ -46,7 +62,7 @@ construct_names.default <- function(x, ...) {
   }
 }
 
-# -- Selectors -----------------------------------------------
+# -- Selectors (all_/only_: return vectors) --------------------
 
 # Get all endogenous construct names in a structural model
 all_endogenous <- function(smMatrix) {
@@ -72,7 +88,7 @@ all_interactions <- function(smMatrix) {
   construct_names(smMatrix)[grep("\\*",construct_names(smMatrix))]
 }
 
-# -- Accessors -----------------------------------------------
+# -- Accessors (construct_qual: return per-construct value) ----
 
 # Get antecedent construct names for a given target construct
 construct_antecedents <- function(smMatrix, outcome) {
@@ -90,7 +106,7 @@ construct_interactions <- function(smMatrix, outcome) {
   ants[grep("\\*", ants)]
 }
 
-# -- Predicates ----------------------------------------------
+# -- Predicates (is_/has_/are_: return logical) ----------------
 
 # Test if a construct name is an interaction term (contains "*")
 is_interaction <- function(construct_name) {
@@ -148,7 +164,7 @@ has_paths_to <- function(smMatrix, target) {
   any(smMatrix[, "target"] == target)
 }
 
-# -- Row-level accessors ------------------------------------
+# -- Row-level accessors (path_noun: one value per row) --------
 
 # Get all source values from smMatrix (one per row, not unique)
 path_sources <- function(smMatrix) {
@@ -160,14 +176,14 @@ path_targets <- function(smMatrix) {
   smMatrix[, "target"]
 }
 
-# -- Decorators ----------------------------------------------
+# -- Decorators (to_format: formatted output) -----------------
 
 # Format smMatrix paths as "source -> target" labels
 to_path_labels <- function(smMatrix) {
   paste(path_sources(smMatrix), "->", path_targets(smMatrix))
 }
 
-# -- Computed ------------------------------------------------
+# -- Computed (derived from multiple accessors) ----------------
 
 # Function to subset a smMatrix by construct — return targets for a given source
 subset_by_construct <- function(x, smMatrix) {
@@ -216,7 +232,7 @@ construct_order <- function(smMatrix) {
 
 }
 
-# -- Mutators ------------------------------------------------
+# -- Mutators (verb_noun: return modified copy) ----------------
 
 # Remove all paths targeting a given construct (or constructs)
 remove_paths_to <- function(smMatrix, target) {

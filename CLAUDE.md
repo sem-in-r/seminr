@@ -117,33 +117,17 @@ Two internal character matrices underpin every estimation, evaluation, and plott
 - **`mmMatrix`** (measurement model matrix) — columns: `"construct"`, `"measurement"`, `"type"`. Maps constructs to their indicator items and estimation mode.
 - **`smMatrix`** (structural model matrix) — columns: `"source"`, `"target"`. Defines directed paths between constructs.
 
-**Rule: Always use accessor functions, never raw `matrix[row, col]` subsetting.** Raw subsetting was the source of numerous bugs (missing `drop=FALSE`, column-index mismatches). Accessor functions encapsulate column-order assumptions and are the only sanctioned way to read or modify these matrices.
+**Rule: Always use helper functions, never raw `matrix[row, col]` subsetting.** Direct member access on model objects (e.g., `model$mmMatrix`, `model$construct_scores`) is permitted.
 
-**Accessor locations:**
+**Helper files** (each contains a comment block at the top documenting its naming conventions):
 
 | File | Scope |
 | --- | --- |
-| `helpers-smMatrix.R` | smMatrix accessors, selectors, predicates, mutators; `construct_names` S3 generic + all methods |
-| `helpers-mmMatrix.R` | mmMatrix accessors, selectors, converters; `construct_items` S3 generic + all methods; measurement model list helpers |
-| `helpers-model.R` | Model-level accessors (`construct_type`, `constructs_in_model`, `construct_scores`) and selectors (`all_factors`, `all_composites`); S3 methods dispatching on `seminr_model` |
+| `helpers-mmMatrix.R` | mmMatrix accessors, predicates, selectors, converters, mutators |
+| `helpers-smMatrix.R` | smMatrix accessors, selectors, predicates, row-level accessors, decorators, mutators |
+| `helpers-model.R` | Model-level accessors and selectors; S3 methods dispatching on `seminr_model` |
 
-**Key S3 generics:**
-
-- `construct_items(x, ...)` — dispatches on mmMatrix, matrix, construct vector, model, and measurement_model list
-- `construct_names(x, ...)` — dispatches on structural_model, seminr_model, measurement_model list, mmMatrix, and unclassed matrices
-
-**Naming conventions at a glance:**
-
-| Category | Pattern | Example |
-| --- | --- | --- |
-| Accessor | `object_qualifier` | `construct_mode(mmMatrix, name)` |
-| Selector | `all_` / `only_` | `all_endogenous(smMatrix)` |
-| Predicate | `is_` / `has_` / `are_` | `is_interaction(name)` |
-| Mutator | `verb_noun` | `remove_paths_to(smMatrix, target)` |
-
-All accessors use container-first argument order (mmMatrix/smMatrix/model as first argument).
-
-See `CLAUDE.function-naming.md` for the full accessor catalog and naming conventions.
+Helpers are organized into categories: accessors, selectors, predicates, mutators, converters, decorators. Naming conventions are documented in comments at the top of each helper file.
 
 ### Measurement Model Types
 
