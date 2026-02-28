@@ -143,30 +143,6 @@ rhoC_AVE.boot_seminr_model <- function(x, constructs = NULL) {
 }
 
 #' @export
-rhoC_AVE.boot_seminr_model <- function(x, constructs = NULL) {
-  pls_model <- x
-  if (is.null(constructs)) {
-    constructs <- pls_model$constructs
-  }
-
-  dgr <- matrix(NA, nrow=length(constructs), ncol=2)
-  rownames(dgr) <- constructs
-  colnames(dgr) <- c("rhoC", "AVE")
-  for(i in constructs){
-    loadings <- pls_model$outer_loadings[, i]
-    ind <- which(loadings != 0)
-    if(length(ind) == 1) {
-      dgr[i, 1:2] <- 1
-    } else {
-      lambdas <- loadings[ind]
-      dgr[i, 1] <- compute_rhoC(lambdas)
-      dgr[i, 2] <- compute_AVE(lambdas)
-    }
-  }
-  return(dgr)
-}
-
-#' @export
 rhoC_AVE.cbsem_model <- function(x, constructs = NULL) {
   # Assumes factor loadings are in model: lavaan::inspect(fit,what="std")$lambda
   cbsem_model <- x
