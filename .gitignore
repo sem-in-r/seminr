@@ -1,10 +1,9 @@
-.claude/
+.claude/*
 CLAUDE.local.md
 .Rproj.user/
 .Rhistory
 .RData
 .Rproj.user
-_*
 .DS*
 .R*
 Meta
@@ -17,6 +16,9 @@ doc
 *.Rcheck/
 *.tar.gz
 revdep/
+
+# Benchmark result files
+bench/*.rds
 
 # sideways tool for git worktrees (https://github.com/soumyaray/sideways)
 .swcopy

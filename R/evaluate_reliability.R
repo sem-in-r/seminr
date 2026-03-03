@@ -57,13 +57,13 @@ rho_A <- function(seminr_model, constructs) {
 
   for (i in rownames(rho))  {
     #If the measurement model is Formative assign rhoA = 1
-    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1] %in% c("B", "HOCB")){ #| mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="A"){
+    if(is_mode_B(mmMatrix, i)){
       rho[i, 1] <- 1
     }
     #If the measurement model is Reflective Calculate RhoA
-    if(mmMatrix[mmMatrix[, "construct"]==i, "type"][1] %in% c("C", "A", "HOCA", "UNIT")) {#| mmMatrix[mmMatrix[, "construct"]==i, "type"][1]=="A"|){
+    if(!is_mode_B(mmMatrix, i)) {
       #if the construct is a single item rhoA = 1
-      if(nrow(mmMatrix_per_construct(i, mmMatrix)) == 1 | grepl("\\*", i)) {
+      if(is_single_item(mmMatrix, i) | is_interaction(i)) {
         rho[i, 1] <- 1
       } else {
         # Calculate rhoA
@@ -107,14 +107,12 @@ rhoC_AVE.pls_model <- function(x, constructs = NULL) {
   for(i in constructs){
     loadings <- pls_model$outer_loadings[, i]
     ind <- which(loadings != 0)
-    if(measure_mode(i, pls_model$mmMatrix) %in% c("A", "B", "HOCA", "HOCB", "C", "UNIT")) {
-      if(length(ind) == 1) {
-        dgr[i, 1:2] <- 1
-      } else {
-        lambdas <- loadings[ind]
-        dgr[i, 1] <- compute_rhoC(lambdas)
-        dgr[i, 2] <- compute_AVE(lambdas)
-      }
+    if(length(ind) == 1) {
+      dgr[i, 1:2] <- 1
+    } else {
+      lambdas <- loadings[ind]
+      dgr[i, 1] <- compute_rhoC(lambdas)
+      dgr[i, 2] <- compute_AVE(lambdas)
     }
   }
   return(dgr)
@@ -133,40 +131,12 @@ rhoC_AVE.boot_seminr_model <- function(x, constructs = NULL) {
   for(i in constructs){
     loadings <- pls_model$outer_loadings[, i]
     ind <- which(loadings != 0)
-    if(measure_mode(i, pls_model$mmMatrix) %in% c("A", "B", "HOCA", "HOCB", "C", "UNIT")) {
-      if(length(ind) == 1) {
-        dgr[i, 1:2] <- 1
-      } else {
-        lambdas <- loadings[ind]
-        dgr[i, 1] <- compute_rhoC(lambdas)
-        dgr[i, 2] <- compute_AVE(lambdas)
-      }
-    }
-  }
-  return(dgr)
-}
-
-#' @export
-rhoC_AVE.boot_seminr_model <- function(x, constructs = NULL) {
-  pls_model <- x
-  if (is.null(constructs)) {
-    constructs <- pls_model$constructs
-  }
-
-  dgr <- matrix(NA, nrow=length(constructs), ncol=2)
-  rownames(dgr) <- constructs
-  colnames(dgr) <- c("rhoC", "AVE")
-  for(i in constructs){
-    loadings <- pls_model$outer_loadings[, i]
-    ind <- which(loadings != 0)
-    if(measure_mode(i, pls_model$mmMatrix) %in% c("A", "B", "HOCA", "HOCB", "C", "UNIT")) {
-      if(length(ind) == 1) {
-        dgr[i, 1:2] <- 1
-      } else {
-        lambdas <- loadings[ind]
-        dgr[i, 1] <- compute_rhoC(lambdas)
-        dgr[i, 2] <- compute_AVE(lambdas)
-      }
+    if(length(ind) == 1) {
+      dgr[i, 1:2] <- 1
+    } else {
+      lambdas <- loadings[ind]
+      dgr[i, 1] <- compute_rhoC(lambdas)
+      dgr[i, 2] <- compute_AVE(lambdas)
     }
   }
   return(dgr)
@@ -231,7 +201,7 @@ cron_alpha <- function(cov_mat) {
 cronbachs_alpha <- function(seminr_model, constructs) {
   alpha_vec <- c()
   for (i in constructs) {
-    items <- seminr_model$mmMatrix[seminr_model$mmMatrix[,"construct"] == i,"measurement"]
+    items <- construct_items(seminr_model$mmMatrix, i)
     if (length(items) > 1) {
       cov_mat <- stats::cor(seminr_model$data, seminr_model$data)[items, items]
       alpha_vec[[i]] <- cron_alpha(cov_mat)

@@ -28,13 +28,13 @@
 #'
 #' @export
 boot_paths_df <- function(pls_boot) {
-  path_names <- apply(pls_boot$smMatrix, 1, \(path) {
-    paste(path['source'], '->', path['target'])
-  })
+  path_names <- to_path_labels(pls_boot$smMatrix)
 
-  boot_paths <- apply(pls_boot$smMatrix, 1, \(path) {
-    pls_boot$boot_paths[path['source'], path['target'], 1:pls_boot$boots]
-  })
+  boot_paths <- mapply(
+    \(s, t) pls_boot$boot_paths[s, t, 1:pls_boot$boots],
+    path_sources(pls_boot$smMatrix),
+    path_targets(pls_boot$smMatrix)
+  )
 
   colnames(boot_paths) <- path_names
   boot_paths

@@ -39,7 +39,7 @@ cross_loadings <- function(seminr_model, model_constructs) {
   if (is.null(seminr_model$hoc)) {
     all_mm_vars <- seminr_model$mmVariables
   } else {
-    all_mm_vars <- all_items(seminr_model$measurement_model)
+    all_mm_vars <- construct_items(seminr_model$measurement_model)
   }
   ret <- stats::cor(seminr_model$data[, all_mm_vars], model_constructs$construct_scores)
   convert_to_table_output(ret)
@@ -50,10 +50,10 @@ evaluate_measurement_model <- function(object, na.print=".", digits=3, ...) {
   stopifnot(inherits(object, "seminr_model"))
 
   # Collect construct types
-  factors <- get_factors(object)
-  composites <- get_composites(object)
-  factor_items <- unlist(sapply(factors, items_of_construct, object))
-  composite_items <- unlist(sapply(composites, items_of_construct, object))
+  factors <- all_factors(object)
+  composites <- all_composites(object)
+  factor_items <- unlist(sapply(factors, function(c) construct_items(object, c)))
+  composite_items <- unlist(sapply(composites, function(c) construct_items(object, c)))
 
   # get metrics object
   metrics <- evaluate_model(object)
@@ -135,10 +135,10 @@ boot_evaluate_measurement_model <- function(object, na.print=".", digits=3, ...)
   stopifnot(inherits(object, "boot_seminr_model"))
 
   # Collect construct types
-  factors <- get_factors(object)
-  composites <- get_composites(object)
-  factor_items <- unlist(sapply(factors, items_of_construct, object))
-  composite_items <- unlist(sapply(composites, items_of_construct, object))
+  factors <- all_factors(object)
+  composites <- all_composites(object)
+  factor_items <- unlist(sapply(factors, function(c) construct_items(object, c)))
+  composite_items <- unlist(sapply(composites, function(c) construct_items(object, c)))
 
   # get metrics object
   metrics <- evaluate_model(object)

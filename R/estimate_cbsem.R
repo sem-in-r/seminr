@@ -152,9 +152,9 @@ estimate_cbsem <- function(data, measurement_model=NULL, structural_model=NULL, 
   )
 
   # Extract lavaan results
-  constructs <- all_construct_names(measurement_model) # needed in object for reliability... move up if lavaan_model no longer supported
+  constructs <- construct_names(measurement_model) # needed in object for reliability... move up if lavaan_model no longer supported
   lavaan_std <- lavaan::lavInspect(lavaan_output, what="std")
-  HOFs <- HOCs_in_model(measurement_model, structural_model)
+  HOFs <- all_HOCs(measurement_model, structural_model)
   if (length(HOFs) > 0) {
     loadings <- combine_first_order_second_order_loadings_cbsem(mmMatrix, rawdata, lavaan_std)
   } else {
@@ -255,7 +255,7 @@ estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
     )
     measurement_model <- specified_model$measurement_model
     item_associations <- specified_model$item_associations
-    constructs <- all_construct_names(measurement_model)
+    constructs <- construct_names(measurement_model)
 
     # Create LAVAAN syntax
     mmMatrix <- mm2matrix(measurement_model)
@@ -277,7 +277,7 @@ estimate_cfa <- function(data, measurement_model=NULL, item_associations=NULL,
 
   # Extract Lavaan results
   lavaan_std <- lavaan::lavInspect(lavaan_output, what="std")
-  HOFs <- HOCs_in_model(measurement_model)
+  HOFs <- all_HOCs(measurement_model)
   if (length(HOFs) > 0) {
     loadings <- combine_first_order_second_order_loadings_cbsem(mmMatrix, rawdata, lavaan_std)
   } else {

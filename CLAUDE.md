@@ -96,7 +96,8 @@ SEMinR uses a three-stage pipeline: **Specify → Estimate → Evaluate/Plot**
 | `report_*.R`   | Output formatting and summaries                                    |
 | `plot_*.R`     | Visualization via DiagrammeR                                       |
 | `feature_*.R`  | Advanced features (PLSc, higher-order constructs, PLSpredict)      |
-| `library*.R`   | Internal utilities                                                 |
+| `helpers-*.R`  | Accessor/mutator functions for internal matrices and model-level helpers |
+| `library*.R`   | Internal utilities (weighting, effects, statistics)                |
 | `theme*.R`     | Plot theming system                                                |
 
 ### S3 Object Classes
@@ -108,6 +109,25 @@ SEMinR uses a three-stage pipeline: **Specify → Estimate → Evaluate/Plot**
 - `predict_pls_model` - Prediction object
 
 All model classes implement `print()`, `summary()`, and `plot()` methods.
+
+### Internal Matrices: mmMatrix and smMatrix
+
+Two internal character matrices underpin every estimation, evaluation, and plotting function:
+
+- **`mmMatrix`** (measurement model matrix) — columns: `"construct"`, `"measurement"`, `"type"`. Maps constructs to their indicator items and estimation mode.
+- **`smMatrix`** (structural model matrix) — columns: `"source"`, `"target"`. Defines directed paths between constructs.
+
+**Rule: Always use helper functions, never raw `matrix[row, col]` subsetting.** Direct member access on model objects (e.g., `model$mmMatrix`, `model$construct_scores`) is permitted.
+
+**Helper files** (each contains a comment block at the top documenting its naming conventions):
+
+| File | Scope |
+| --- | --- |
+| `helpers-mmMatrix.R` | mmMatrix accessors, predicates, selectors, converters, mutators |
+| `helpers-smMatrix.R` | smMatrix accessors, selectors, predicates, row-level accessors, decorators, mutators |
+| `helpers-model.R` | Model-level accessors and selectors; S3 methods dispatching on `seminr_model` |
+
+Helpers are organized into categories: accessors, selectors, predicates, mutators, converters, decorators. Naming conventions are documented in comments at the top of each helper file.
 
 ### Measurement Model Types
 

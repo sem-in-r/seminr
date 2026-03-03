@@ -1,32 +1,36 @@
+# Items in mmMatrix that are not raw data columns — constructs used as HOC measurements
+all_HOC_measures <- function(mmMatrix, data) {
+  setdiff(all_items(mmMatrix), names(data))
+}
+
 # Takes a HOC name and replaces that constructs relationships with the dimensions of the HOC
-substitute_dimensions_for_HOC <- function(construct, sm, mm) {
+expand_HOC_to_LOCs <- function(construct, sm, mm) {
   # Identify dimensions of HOCs
-  dimensions <- matrix(construct, ncol = 3, byrow = TRUE)[,2]
-  #dimensions <- mm[mm[, "type"] == "HOCA" | mm[, "type"] == "HOCB", ][mm[mm[, "type"] == "HOCB" | mm[, "type"] == "HOCA", ][, "construct"] == construct, "measurement"]
+  dimensions <- construct_items(construct)
   # identify antecedent relationships to HOC
-  antecedents <- sm[which(sm[, "target"] == construct[1]), "source"]
+  antecedents <- construct_antecedents(sm, construct[1])
   # change antecedent relationship to first order constructs in structural model
   if (!length(antecedents) == 0) {
     sm <- rbind(sm,
                 relationships(paths(from = antecedents,
                                     to = dimensions)))
-    sm <- sm[-which(sm[, "target"] == construct[1]), , drop=FALSE]
+    sm <- remove_paths_to(sm, construct[1])
   }
 
   # identify outcomes
-  outcomes <- sm[which(sm[, "source"] == construct[1]), "target"]
+  outcomes <- construct_targets(sm, construct[1])
   if (!length(outcomes) == 0) {
     sm <- rbind(sm,
                 relationships(paths(from = dimensions,
                                     to = outcomes)))
-    sm <- sm[-which(sm[, "source"] == construct[1]), , drop=FALSE]
+    sm <- remove_paths_from(sm, construct[1])
   }
   return(list(sm = sm,
               dimensions = dimensions))
 }
 
-remove_HOC_in_measurement_model <- function(construct, mm) {
-  mm[!mm[, "construct"] == construct, ]
+remove_HOC <- function(construct, mm) {
+  mm[mm[, "construct"] != construct, , drop = FALSE]
 }
 
 # Function to parse measurement and structural model and create the higher order model with complete information
@@ -43,17 +47,14 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs, maxIt, stopC
   dimensions <- c()
   for (construct in HOCs) {
     if (construct[[1]] %in% unique(as.vector(orig_sm))) {
-      obj <- substitute_dimensions_for_HOC(construct, sm, new_mm)
+      obj <- expand_HOC_to_LOCs(construct, sm, new_mm)
       sm <- obj$sm
       dimensions <- c(dimensions, obj$dimensions)
     }
   }
   # Remove interactions from the sm
-  sm <- sm[sm[, "source"] %in% unique(new_mm[, "construct"]), , drop=FALSE]
+  sm <- keep_paths_from(sm, all_constructs(new_mm))
 
-
-  # Identify all the dimensions
-  # dimensions <- orig_mm[which(orig_mm[, "construct"] == HOCs), "measurement"]
 
   # Run first stage
   new_model <- estimate_pls(data = data,
@@ -66,11 +67,6 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs, maxIt, stopC
   # Add the construct scores to data
   data <- cbind(data, new_model$construct_scores[, dimensions, drop=FALSE])
 
-  # # Update the mm to include the type of the new data and item
-  # mm[mm[,"type"] == "HOCA", "type"] <- "A"
-  # mm[mm[,"type"] == "HOCB", "type"] <- "B"
-
-
   # pass the updated mm, sm and data back to estimate_model()
   return(list(data = data,
               sm = orig_sm,
@@ -79,7 +75,7 @@ prepare_higher_order_model <- function(data, sm , mm, inners, HOCs, maxIt, stopC
 }
 
 # Returns all Higher Order Constructs (HOCs) from provided model specifications
-HOCs_in_model <- function(measurement_model, structural_model = NULL) {
+all_HOCs <- function(measurement_model, structural_model = NULL) {
   # Extract HOCs from measurement model
   HOCs <- measurement_model[grepl("higher_order_", names(measurement_model))]
   if (is.null(structural_model)) return(HOCs)
@@ -118,7 +114,7 @@ combine_first_order_second_order_matrices <- function(model1, model2, mmMatrix) 
                            ncol=length(appended_constructs),
                            dimnames = list(appended_mmVariables,appended_constructs))
   for (i in 1:length(appended_constructs))  {
-    weights_matrix[mmMatrix[mmMatrix[, "construct"]==appended_constructs[i], "measurement"], appended_constructs[i]] =1
+    weights_matrix[construct_items(mmMatrix, appended_constructs[i]), appended_constructs[i]] =1
   }
 
   # Calculate new loadings matrix
@@ -154,13 +150,13 @@ combine_first_order_second_order_matrices <- function(model1, model2, mmMatrix) 
 
 combine_first_order_second_order_loadings_cbsem <- function(mmMatrix, rawdata, lavaan_std) {
   # constructs used to measure HOCs
-  hoc_measure_constructs <- setdiff(mmMatrix[,"measurement"], names(rawdata))
+  hoc_measure_constructs <- all_HOC_measures(mmMatrix, rawdata)
 
-  HOCs <- mmMatrix[which(mmMatrix[,"measurement"] %in% hoc_measure_constructs),]
-  HOC_names <- unique(HOCs[,"construct"])
+  HOCs <- mmMatrix_for_items(mmMatrix, hoc_measure_constructs)
+  HOC_names <- all_constructs(HOCs)
 
   HOC_measures <- lapply(stats::setNames(HOC_names, HOC_names),
-                         function(name) { HOCs[HOCs[, "construct"] == name, "measurement"] })
+                         function(name) { construct_items(HOCs, name) })
 
   loadings <- lavaan_std$lambda
   class(loadings) <- "matrix"

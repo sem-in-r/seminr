@@ -26,3 +26,4 @@
 ^\.markdownlint\.json$
 ^\.git$
 ^revdep$
+^bench$

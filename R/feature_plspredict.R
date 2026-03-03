@@ -1,6 +1,6 @@
 # prediction function for a two-stage estimated seminr model ----
 estimate_actual_star <- function(pls_model, train_data, testData) {
-  no_int_mmvars <- pls_model$mmVariables[!grepl("\\*", pls_model$mmVariables)]
+  no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
   actual_star <- estimate_pls(data = rbind(train_data[,no_int_mmvars], testData[,no_int_mmvars]),
                                        measurement_model = pls_model$measurement_model,
                                        structural_model = pls_model$structural_model)$construct_scores[,all_endogenous(pls_model$smMatrix),drop = F] |> suppressMessages()
@@ -29,7 +29,7 @@ return_mod_scores <- function(OOS_composite_scores,
 one_stage_predict <- function(pls_model, testData, technique) {
 
   # First reappend the testData to the trainData to get fulldata (do not duplicate rows)
-  no_int_mmvars <- pls_model$mmVariables[!grepl("\\*", pls_model$mmVariables)]
+  no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
   fulldata <- pls_model$data[,no_int_mmvars]
   fulldata[rownames(testData),no_int_mmvars] <- testData[,no_int_mmvars]
 
@@ -86,7 +86,7 @@ one_stage_predict <- function(pls_model, testData, technique) {
 
 two_stage_predict <- function(pls_model, testData, technique) {
   # First reappend the testData to the trainData to get fulldata (do not duplicate rows)
-  no_int_mmvars <- pls_model$mmVariables[!grepl("\\*", pls_model$mmVariables)]
+  no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
   fulldata <- pls_model$data[,no_int_mmvars]
   fulldata[rownames(testData),no_int_mmvars] <- testData[,no_int_mmvars]
   suppressMessages(fullmodel <- estimate_pls(data =fulldata,
@@ -100,7 +100,7 @@ two_stage_predict <- function(pls_model, testData, technique) {
   actual_star <- fullmodel$construct_scores
 
   # collect all interactions
-  interactions <- pls_model$constructs[grepl("\\*", pls_model$constructs)]
+  interactions <- pls_model$constructs[is_interaction(pls_model$constructs)]
 
   # parse interactions to get the iv, mv, and indicator name
   int_list <- lapply(interactions,parse_interactions)
@@ -109,10 +109,10 @@ two_stage_predict <- function(pls_model, testData, technique) {
   train_data <- pls_model$rawdata
 
   # recreate the first stage measurement model
-  first_stage_mm <- pls_model$measurement_model[!(unique(pls_model$mmMatrix[,1]) %in% interactions)]
+  first_stage_mm <- pls_model$measurement_model[!(all_constructs(pls_model$mmMatrix) %in% interactions)]
 
   # recreate the first stage structural model
-  first_stage_sm <- pls_model$structural_model[ !(pls_model$structural_model[,"source"] %in% interactions), , drop=FALSE]
+  first_stage_sm <- remove_paths_from(pls_model$structural_model, interactions)
   first_stage_model <- estimate_pls(data = train_data,
                                     measurement_model = first_stage_mm,
                                     structural_model = first_stage_sm) |> suppressMessages()
@@ -290,7 +290,7 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
     return()
   }
   # Get endogenous item names
-  endogenous_items <- c(unlist(sapply(unique(model$smMatrix[,2]), function(x) model$mmMatrix[model$mmMatrix[, "construct"] == x,"measurement"]), use.names = FALSE))
+  endogenous_items <- c(unlist(sapply(all_endogenous(model$smMatrix), function(x) construct_items(model$mmMatrix, x)), use.names = FALSE))
 
   # shuffle data
   order <- sample(nrow(model$data),nrow(model$data), replace = FALSE)
@@ -305,7 +305,7 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
     LM_predicted_outsample_item <- pred_matrices$out_of_sample_lm_item[rownames(model$data),]
     LM_predicted_insample_item <- pred_matrices$in_sample_lm_item[rownames(model$data),]
   } else {
-    no_int_mmvars <- model$mmVariables[!grepl("\\*", model$mmVariables)]
+    no_int_mmvars <- model$mmVariables[!is_interaction(model$mmVariables)]
     pls_pred_oos_array <- array(,dim = c(nrow(ordered_data), length(no_int_mmvars), reps))
     pls_pred_is_array <- array(,dim = c(nrow(ordered_data), length(no_int_mmvars), reps))
     lm_pred_oos_array <- array(,dim = c(nrow(ordered_data), length(endogenous_items), reps))
@@ -376,53 +376,6 @@ item_metrics <- function(pls_prediction_kfold) {
               LM_item_prediction_metrics_OOS = LM_item_prediction_metrics_OOS))
 }
 
-# Check these lib functions ----
-# function to subset a smMatrix by construct(x)
-subset_by_construct <- function(x, smMatrix) {
-  smMatrix[smMatrix[,"source"] == c(x), "target"]
-}
-
-# Function to check whether a named construct's antecedents occur in a list
-construct_antecedent_in_list <- function(x,list, smMatrix) {
-  all(smMatrix[smMatrix[,"target"]==x,"source"] %in% list)
-}
-
-# Function to iterate over a vector of constructs and return the antecedents each construct depends on
-depends_on <- function(constructs_vector, smMatrix) {
-  return(unique(unlist(sapply(constructs_vector, subset_by_construct, smMatrix = smMatrix), use.names = FALSE)))
-}
-
-# Function to iterate over a vector of constructs and check whether their antecedents occur in a list
-antecedents_in_list <- function(constructs_vector, list,smMatrix) {
-  as.logical(sapply(constructs_vector, construct_antecedent_in_list, list = list, smMatrix = smMatrix))
-}
-
-# Function to organize order of endogenous constructs from most exogenous forwards
-construct_order <- function(smMatrix) {
-
-  # get purely endogenous and purely exogenous
-  only_endogenous <- setdiff(unique(smMatrix[,2]), unique(smMatrix[,1]))
-  only_exogenous <- setdiff(unique(smMatrix[,1]), unique(smMatrix[,2]))
-
-  # get construct names
-  construct_names <- unique(c(smMatrix[,1],smMatrix[,2]))
-
-  # get all exogenous constructs
-  all_exogenous_constructs <- setdiff(construct_names, only_endogenous)
-
-  # initialize construct order with first purely exogenous construct
-  construct_order <- only_exogenous
-
-  # Iterate over constructs to generate construct_order
-  while (!setequal(all_exogenous_constructs,construct_order)) {
-    construct_order <- c(construct_order,setdiff(depends_on(construct_order,smMatrix)[antecedents_in_list(depends_on(construct_order,smMatrix), construct_order, smMatrix)], construct_order))
-  }
-
-  # return the order of endogenous constructs to be predicted
-  final_list <- setdiff(construct_order,only_exogenous)
-  return(c(final_list,only_endogenous))
-
-}
 
 # Function to standardize a matrix by sd vector and mean vector
 standardize_data <- function(data_matrix,means_vector,sd_vector) {
@@ -452,7 +405,7 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
   trainIndexes <- which(folds!=x,arr.ind=TRUE)
   testingData <- ordered_data[testIndexes, ]
   trainingData <- ordered_data[-testIndexes, ]
-  no_int_mmvars <- model$mmVariables[!grepl("\\*", model$mmVariables)]
+  no_int_mmvars <- model$mmVariables[!is_interaction(model$mmVariables)]
 
   # Create matrices for return data
   PLS_predicted_outsample_construct <- matrix(0,nrow = nrow(ordered_data),ncol = length(model$constructs),dimnames = list(rownames(ordered_data),model$constructs))
@@ -492,10 +445,10 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
 
   ## Perform prediction on LM models for benchmark
   # Identify endogenous items
-  endogenous_items <- unlist(sapply(unique(model$smMatrix[,2]), function(x) model$mmMatrix[model$mmMatrix[, "construct"] == x,"measurement"]), use.names = FALSE)
+  endogenous_items <- unlist(sapply(all_endogenous(model$smMatrix), function(x) construct_items(model$mmMatrix, x)), use.names = FALSE)
 
   #LM Matrices
-  lm_holder <- sapply(unique(model$smMatrix[,2]), generate_lm_predictions, model = model,
+  lm_holder <- sapply(all_endogenous(model$smMatrix), generate_lm_predictions, model = model,
                       ordered_data = ordered_data[,model$mmVariables],
                       testIndexes = testIndexes,
                       endogenous_items = endogenous_items,
@@ -507,8 +460,9 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
   lmprediction_in_sample_residuals <- matrix(0,nrow=nrow(ordered_data),ncol=length(endogenous_items),byrow =TRUE,dimnames = list(rownames(ordered_data),endogenous_items))
 
   # collect the odd and even numbered matrices from the matrices return object
-  lmprediction_in_sample <- do.call(cbind, lm_holder[((1:(length(unique(model$smMatrix[,2]))*2))[1:(length(unique(model$smMatrix[,2]))*2)%%2==1])])
-  lmprediction_out_sample <- do.call(cbind, lm_holder[((1:(length(unique(model$smMatrix[,2]))*2))[1:(length(unique(model$smMatrix[,2]))*2)%%2==0])])
+  n_endogenous <- length(all_endogenous(model$smMatrix))
+  lmprediction_in_sample <- do.call(cbind, lm_holder[((1:(n_endogenous*2))[1:(n_endogenous*2)%%2==1])])
+  lmprediction_out_sample <- do.call(cbind, lm_holder[((1:(n_endogenous*2))[1:(n_endogenous*2)%%2==0])])
   lmprediction_in_sample_residuals[trainIndexes,] <- as.matrix(ordered_data[trainIndexes,as.vector(endogenous_items)]) - lmprediction_in_sample[trainIndexes,as.vector(endogenous_items)]
 
   return(list(PLS_predicted_insample = PLS_predicted_insample_construct,
@@ -562,7 +516,7 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
       }
 
       # collect the odd and even numbered matrices from the matrices return object
-      no_int_mmvars <- model$mmVariables[!grepl("\\*", model$mmVariables)]
+      no_int_mmvars <- model$mmVariables[!is_interaction(model$mmVariables)]
       in_sample_construct_matrix <- do.call(cbind, matrices[(1:(noFolds*8))[1:(noFolds*8)%%8==1]])
       out_sample_construct_matrix <- do.call(cbind, matrices[(1:(noFolds*8))[1:(noFolds*8)%%8==2]])
       in_sample_item_matrix <- do.call(cbind, matrices[(1:(noFolds*8))[1:(noFolds*8)%%8==3]])
@@ -597,7 +551,7 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
                                                          noFolds = noFolds,
                                                          constructs = no_int_mmvars))
       # Collect endogenous items
-      endogenous_items <- unlist(sapply(unique(model$smMatrix[,2]), function(x) model$mmMatrix[model$mmMatrix[, "construct"] == x,"measurement"]), use.names = FALSE)
+      endogenous_items <- unlist(sapply(all_endogenous(model$smMatrix), function(x) construct_items(model$mmMatrix, x)), use.names = FALSE)
 
       # mean the in-sample lm predictions by row
       average_insample_lm <- sapply(1:length(endogenous_items), mean_rows, matrix = in_sample_lm_matrix,
@@ -665,7 +619,7 @@ predict_lm_matrices <- function(x, depTrainData, indepTrainData,indepTestData, e
 
 generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogenous_items, trainIndexes, technique) {
   # Extract the target and non-target variables for Linear Model
-  dependant_items <- model$mmMatrix[model$mmMatrix[,1] == x,2]
+  dependant_items <- construct_items(model$mmMatrix, x)
 
   # Create matrix return object holders
   in_sample_matrix <- matrix(0,nrow = nrow(ordered_data), ncol = length(dependant_items), dimnames = list(rownames(ordered_data),dependant_items))
@@ -675,12 +629,12 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
   # for predict_DA this would be the indicators of the direct antecedents only
   # for predict_EA this would be the indicators of the earliest antecedents only
   if (identical(technique, predict_DA)) {
-    focal_construct_antecedents <- antecedents_of(x, model$smMatrix)
-    focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_indicators(focal, model$mmMatrix)))
+    focal_construct_antecedents <- construct_antecedents(model$smMatrix, x)
+    focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_items(model$mmMatrix, focal)))
   }
   else {
     focal_construct_antecedents <- only_exogenous(model$smMatrix)
-    focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_indicators(focal, model$mmMatrix)))
+    focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_items(model$mmMatrix, focal)))
   }
   independant_matrix <- ordered_data[ , focal_construct_antecedent_items,drop = F]
   dependant_matrix <- as.matrix(ordered_data[,dependant_items, drop = F])
@@ -726,7 +680,7 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
 #' @export
 predict_EA <- function(smMatrix, path_coef, construct_scores) {
   order <- construct_order(smMatrix)
-  only_exogenous <- setdiff(unique(smMatrix[,1]), unique(smMatrix[,2]))
+  only_exo <- only_exogenous(smMatrix)
   return_matrix <- construct_scores
   return_matrix[,order] <- 0
   for (construct in order) {
@@ -753,9 +707,9 @@ predict_EA <- function(smMatrix, path_coef, construct_scores) {
 #'
 #' @export
 predict_DA <- function(smMatrix, path_coef, construct_scores) {
-  only_exogenous <- setdiff(unique(smMatrix[,1]), unique(smMatrix[,2]))
+  only_exo <- only_exogenous(smMatrix)
   return_matrix <- construct_scores%*%path_coef
-  return_matrix[,only_exogenous] <- construct_scores[,only_exogenous]
+  return_matrix[,only_exo] <- construct_scores[,only_exo]
   return(return_matrix)
 }
 

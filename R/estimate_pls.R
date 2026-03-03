@@ -121,10 +121,10 @@ estimate_pls <- function(data,
   data[data == missing_value] <- NA
   rawdata <- data
   if (!is.null(model)) {
-    data <- data[,all_loc_non_int_items(model$measurement_model)]
+    data <- data[,all_LOC_items(model$measurement_model)]
 
   } else {
-    data <- data[,all_loc_non_int_items(measurement_model)]
+    data <- data[,all_LOC_items(measurement_model)]
   }
   data <- missing(data)
   # data <- stats::na.omit(data)
@@ -135,7 +135,7 @@ estimate_pls <- function(data,
   structural_model <- specified_model$structural_model
 
   # Generate first order model if necessary
-  HOCs <- HOCs_in_model(measurement_model, structural_model)
+  HOCs <- all_HOCs(measurement_model, structural_model)
 
   if ( length(HOCs)>0 ) {
     HOM <- prepare_higher_order_model(data = data,
@@ -159,7 +159,7 @@ estimate_pls <- function(data,
   warnings(mmMatrix, data, structural_model)
 
   # Make a named list of construct measurement_mode functions
-  measurement_mode_scheme <- sapply(unique(c(structural_model[,1], structural_model[,2])), get_measure_mode, mmMatrix, USE.NAMES = TRUE)
+  measurement_mode_scheme <- sapply(construct_names(structural_model), function(c) construct_mode_fn(mmMatrix, c), USE.NAMES = TRUE)
 
   # Run the model in simplePLS
   seminr_model = seminr::simplePLS(obsData = data,
