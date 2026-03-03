@@ -17,6 +17,9 @@ doc
 *.tar.gz
 revdep/
 
+# Benchmark result files
+bench/*.rds
+
 # sideways tool for git worktrees (https://github.com/soumyaray/sideways)
 .swcopy
 .swsymlink
