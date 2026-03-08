@@ -29,7 +29,12 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
-    webp
+    webp,
+    visNetwork,
+    shiny,
+    shinytest2,
+    bslib,
+    DT
 License: GPL-3
 Depends: R (>= 4.1.0)
 LazyData: TRUE

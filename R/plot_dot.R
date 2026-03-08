@@ -19,9 +19,14 @@ globalVariables(c("."))
 #' Depending on the type of model, different parameters can be used.
 #' Please check the \code{\link{dot_graph}} function for additional parameters.
 #'
+#' Use \code{backend = "visnetwork"} for an interactive plot using the
+#' \code{visNetwork} package (requires \code{visNetwork} to be installed).
+#'
 #' @param x The model description
 #' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
+#' @param backend Plotting backend: \code{"diagrammer"} (default, static DOT) or
+#'   \code{"visnetwork"} (interactive HTML widget).
 #' @param ... Please check the \code{\link{dot_graph}} for the additional parameters
 #'
 #' @return Returns the plot.
@@ -29,38 +34,47 @@ globalVariables(c("."))
 plot.seminr_model <- function(x,
                        title = "",
                        theme = NULL,
+                       backend = c("diagrammer", "visnetwork"),
                        ...) {
 
-  query_install("DiagrammeR", "Alternatively use the dot_graph() function to create a dot graph.")
+  backend <- match.arg(backend)
 
   model <- x
-    # lavaan models
-    if (inherits(model, "cfa_model")) {
-      message("Plotting of lavaan models using semPlot.")
-      dot_graph.cfa_model(model, ...)
-      return()
-    }
-    if (inherits(model, "cbsem_model")) {
-      message("Plotting of lavaan models using semPlot.")
-      dot_graph.cbsem_model(model, ...)
-      return()
-    }
 
-    if (inherits(title, "seminr_theme")) {
-      warning(paste0("You have supplied a theme in the title parameter. ",
-                     "Please use named parameters to use a specific theme: ",
-                     "plot(model, theme = thm).")
-      )
-    }
+  # lavaan models (always use semPlot, regardless of backend)
+  if (inherits(model, "cfa_model")) {
+    message("Plotting of lavaan models using semPlot.")
+    dot_graph.cfa_model(model, ...)
+    return()
+  }
+  if (inherits(model, "cbsem_model")) {
+    message("Plotting of lavaan models using semPlot.")
+    dot_graph.cbsem_model(model, ...)
+    return()
+  }
 
-    # actual plotting
-    if(requireNamespace("DiagrammeR", quietly = TRUE)){
-      res <- DiagrammeR::grViz(dot_graph(model, title, theme, ...))
-      set_last_seminr_plot(res)
-      return(res)
-    } else {
-      return(NULL)
-    }
+  if (inherits(title, "seminr_theme")) {
+    warning(paste0("You have supplied a theme in the title parameter. ",
+                   "Please use named parameters to use a specific theme: ",
+                   "plot(model, theme = thm).")
+    )
+  }
+
+  # visNetwork backend
+  if (backend == "visnetwork") {
+    res <- vis_graph(model, title = title, theme = theme, ...)
+    return(res)
+  }
+
+  # DiagrammeR backend (default)
+  query_install("DiagrammeR", "Alternatively use the dot_graph() function to create a dot graph.")
+  if(requireNamespace("DiagrammeR", quietly = TRUE)){
+    res <- DiagrammeR::grViz(dot_graph(model, title, theme, ...))
+    set_last_seminr_plot(res)
+    return(res)
+  } else {
+    return(NULL)
+  }
 
 }
 
