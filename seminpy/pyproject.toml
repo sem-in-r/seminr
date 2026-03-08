@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "seminpy"
+version = "0.1.0.dev0"
+description = "Building and Estimating Structural Equation Models in Python"
+readme = "README.md"
+license = "GPL-3.0-only"
+requires-python = ">=3.10"
+authors = [
+    {name = "Soumya Ray", email = "soumya.ray@gmail.com"},
+    {name = "Nicholas Patrick Danks", email = "nicholasdanks@hotmail.com"},
+]
+dependencies = [
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "scipy>=1.11",
+]
+
+[project.optional-dependencies]
+cbsem = ["semopy>=2.2"]
+plot = ["plotly>=5.18", "matplotlib>=3.8"]
+full = ["semopy>=2.2", "plotly>=5.18", "matplotlib>=3.8"]
+dev = ["pytest>=7.0", "pytest-cov", "ruff", "mypy"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.setuptools.package-data]
+seminpy = ["data/*.csv"]
