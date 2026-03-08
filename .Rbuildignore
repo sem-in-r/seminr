@@ -27,3 +27,5 @@
 ^\.git$
 ^revdep$
 ^bench$
+^seminpy$
+^PLAN-seminpy\.md$
