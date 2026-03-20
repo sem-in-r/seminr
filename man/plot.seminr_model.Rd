@@ -4,7 +4,7 @@
 \alias{plot.seminr_model}
 \title{Plot various SEMinR models}
 \usage{
-\method{plot}{seminr_model}(x, title = "", theme = NULL, ...)
+\method{plot}{seminr_model}(x, title = "", theme = NULL, alpha = 0.05, ...)
 }
 \arguments{
 \item{x}{The model description}
@@ -12,6 +12,8 @@
 \item{title}{An optional title for the plot}
 
 \item{theme}{Theme created with \code{\link{seminr_theme_create}}.}
+
+\item{alpha}{The significance level for the confidence interval. Default is 0.05. Only meaningful for bootstrapped models.}
 
 \item{...}{Please check the \code{\link{dot_graph}} for the additional parameters}
 }

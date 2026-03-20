@@ -22,6 +22,7 @@ globalVariables(c("."))
 #' @param x The model description
 #' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
+#' @param alpha The significance level for the confidence interval. Default is 0.05. Only meaningful for bootstrapped models.
 #' @param ... Please check the \code{\link{dot_graph}} for the additional parameters
 #'
 #' @return Returns the plot.
@@ -29,6 +30,7 @@ globalVariables(c("."))
 plot.seminr_model <- function(x,
                        title = "",
                        theme = NULL,
+                       alpha = 0.05,
                        ...) {
 
   query_install("DiagrammeR", "Alternatively use the dot_graph() function to create a dot graph.")
@@ -55,7 +57,7 @@ plot.seminr_model <- function(x,
 
     # actual plotting
     if(requireNamespace("DiagrammeR", quietly = TRUE)){
-      res <- DiagrammeR::grViz(dot_graph(model, title, theme, ...))
+      res <- DiagrammeR::grViz(dot_graph(model, title, theme, alpha = alpha, ...))
       set_last_seminr_plot(res)
       return(res)
     } else {
@@ -235,7 +237,7 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
 #' DiagrammeR::grViz(res)}
 #'
 #' # generate dot-Notation
-#' res <- dot_graph(mobi_boot, title = "Bootstrapped PLS-Model plot")
+#' res <- dot_graph(mobi_boot, title = "Bootstrapped PLS-Model plot", alpha = 0.01)
 #'
 #' \dontrun{
 #' DiagrammeR::grViz(res)}
@@ -257,9 +259,10 @@ dot_graph <- function(model,
 #' @param theme Unused
 #' @param what The metric to use for edges ("path", "est", "std", "eq", "col")
 #' @param whatLabels The metric to use for edge labels
+#' @param alpha Unused
 #' @param ... Parameters passed to the \link[semPlot]{semPaths} function
 #' @export
-dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
+dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", alpha = NULL, ...){
   query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
   if(requireNamespace("semPlot", quietly = TRUE)){
     return(semPlot::semPaths(model$lavaan_output, what = what, whatLabels = whatLabels,...))
@@ -276,9 +279,10 @@ dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", w
 #' @param theme Unused
 #' @param what The metric to use for edges ("path", "est", "std", "eq", "col")
 #' @param whatLabels The metric to use for edge labels
+#' @param alpha Unused
 #' @param ... Parameters passed to the \link[semPlot]{semPaths} function
 #' @export
-dot_graph.cbsem_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
+dot_graph.cbsem_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", alpha = NULL, ...){
   query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
   if(requireNamespace("semPlot", quietly = TRUE)){
     return(
@@ -300,6 +304,7 @@ dot_graph.default <- function(...){
 #' @param model Model created with \code{seminr}.
 #' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
+#' @param alpha Unused
 #' @param ... Unused
 #'
 # @return The path model as a formatted string in dot language.
@@ -321,7 +326,8 @@ dot_graph.default <- function(...){
 dot_graph.measurement_model <-
   function(model,
            title = "",
-           theme = NULL, ...
+           theme = NULL,
+           alpha = NULL, ...
   ){
 
     unusedParams <- list(...)
@@ -384,6 +390,7 @@ dot_graph.measurement_model <-
 #' @param model Model created with \code{seminr}.
 #' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
+#' @param alpha Unused
 #' @param ... Unused
 #'
 # @return The path model as a formatted string in dot language.
@@ -408,7 +415,8 @@ dot_graph.measurement_model <-
 dot_graph.structural_model <-
   function(model,
            title = "",
-           theme = NULL, ...
+           theme = NULL,
+           alpha = NULL, ...
   ){
 
 
@@ -469,6 +477,7 @@ dot_graph.structural_model <-
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
 #' @param measurement_only Plot only measurement part
 #' @param structure_only Plot only structure part
+#' @param alpha Unused
 #'
 # @return The path model as a formatted string in dot language.
 #' @export
@@ -478,7 +487,8 @@ dot_graph.specified_model <-  function(model,
                                         title = "",
                                         theme = NULL,
                                         measurement_only = FALSE,
-                                        structure_only = FALSE, ...
+                                        structure_only = FALSE,
+                                        alpha = NULL, ...
 ) {
   unusedParams <- list(...)
   if (length(unusedParams))
@@ -544,7 +554,7 @@ dot_graph.specified_model <-  function(model,
   thm$mm.edge.width_multiplier <- 1
   thm$mm.edge.label.show <- FALSE
 
-  dot_graph(a_model, title = title, theme = thm, measurement_only = measurement_only, structure_only, structure_only)
+  dot_graph(a_model, title = title, theme = thm, measurement_only = measurement_only, structure_only = structure_only)
 }
 
 
@@ -556,6 +566,7 @@ dot_graph.specified_model <-  function(model,
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
 #' @param measurement_only Plot only measurement part
 #' @param structure_only Plot only structure part
+#' @param alpha The significance level for the confidence interval. Default is 0.05.
 #'
 # @return The path model as a formatted string in dot language.
 #' @export
@@ -565,10 +576,13 @@ dot_graph.boot_seminr_model <- function(model,
                                 title = "",
                                 theme = NULL,
                                 measurement_only = FALSE,
-                                structure_only = FALSE, ...
+                                structure_only = FALSE,
+                                alpha = 0.05, ...
 ) {
   # the origingal pls method is capable of plotting boot strapped models
-  dot_graph.pls_model(model, title, theme, measurement_only, structure_only, ...)
+  dot_graph.pls_model(
+    model, title, theme, measurement_only, structure_only, alpha = alpha, ...
+  )
 }
 
 
@@ -580,6 +594,7 @@ dot_graph.boot_seminr_model <- function(model,
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
 #' @param measurement_only Plot only measurement part
 #' @param structure_only Plot only structure part
+#' @param alpha The significance level for the confidence interval. Default is 0.05. Only meaningful for bootstrapped models.
 #'
 # @return The path model as a formatted string in dot language.
 #' @export
@@ -588,7 +603,8 @@ dot_graph.pls_model <- function(model,
                                 title = "",
                                 theme = NULL,
                                 measurement_only = FALSE,
-                                structure_only = FALSE, ...
+                                structure_only = FALSE,
+                                alpha = 0.05, ...
 ) {
 
   if (is.null(theme)) {
@@ -623,7 +639,9 @@ dot_graph.pls_model <- function(model,
   if (measurement_only) {
     sm <- dot_component_sm_parts(model = model, theme = thm)
   } else {
-    sm <- dot_component_sm(model = model, theme = thm, structure_only = structure_only)
+    sm <- dot_component_sm(
+      model = model, theme = thm, structure_only = structure_only, alpha = alpha
+    )
   }
   if (structure_only) {
     mm <- ""
@@ -796,10 +814,10 @@ get_sm_element_offset <- function(element) {
 # 1. Structural Model ----------------------
 
 # construct structural model using subgraphs
-dot_component_sm <- function(model, theme, structure_only = FALSE) {
+dot_component_sm <- function(model, theme, structure_only = FALSE, alpha = 0.05) {
   sm_nodes <- extract_sm_nodes(model, theme, structure_only = structure_only)
   sm_node_style <- get_sm_node_style(theme)
-  sm_edges <- extract_sm_edges(model, theme)
+  sm_edges <- extract_sm_edges(model, theme, alpha = alpha)
   sm_edge_style <- get_sm_edge_style(theme)
   glue_dot(paste0("// --------------------\n",
                   "// The structural model\n",
@@ -988,7 +1006,7 @@ format_endo_node_label <- function(theme, name, rstring) {
 # 1.2 SM-Edges ----
 
 # extract structural model edges from a seminr model
-extract_sm_edges <- function(model, theme, weights = 1) {
+extract_sm_edges <- function(model, theme, weights = 1, alpha = 0.05) {
 
   # Get information about model
   nr <- nrow(model$smMatrix)
@@ -1025,7 +1043,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     if ("boot_seminr_model" %in% class(model)) {
       # format bootstrapped ---
       # create a summary for summary stats
-      smry <- summary(model)
+      smry <- summary(model, alpha = alpha)
       row_index <- paste0(sm[i, "source"], "  ->  ", sm[i, "target"])
       ltbl <- smry$bootstrapped_paths
 
@@ -1057,7 +1075,9 @@ extract_sm_edges <- function(model, theme, weights = 1) {
         stars <- ""
 
       if (theme$sm.edge.boot.show_ci) {
-        civalue <- paste0("95% CI [", boot_values[["lower"]], ", ", boot_values[["upper"]], "]")
+        # Confidence Level
+        cl <- (1 - alpha) * 100
+        civalue <- paste0(cl, "% CI [", boot_values[["lower"]], ", ", boot_values[["upper"]], "]")
       } else
         civalue <- ""
 
