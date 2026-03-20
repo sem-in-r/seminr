@@ -21,10 +21,10 @@ Single-file fix with focused test coverage:
 ## Current State
 
 - [x] Plan created
-- [ ] Investigation complete
-- [ ] Tests written
-- [ ] Fix implemented
-- [ ] Verification passed
+- [x] Investigation complete
+- [x] Tests written
+- [x] Fix implemented
+- [x] Verification passed — 305 tests pass, 0 failures
 
 ## Key Findings
 
@@ -58,14 +58,12 @@ Single-file fix with focused test coverage:
 
 > **Test-first**: Write or update tests that fail (red) before writing the implementation to make them pass (green).
 
-- [ ] 1a. Add test to `test-summary-cbsem.R` that checks structural path significance row names follow `IV -> DV` format (e.g., `"Image -> Value"` not `"Value -> Image"`)
-- [ ] 2. Fix line 84 in `R/report_lavaan.R`: change `paste(lhs, "->", rhs)` to `paste(rhs, "->", lhs)`
-- [ ] 3. Run `testthat::test_file("tests/testthat/test-summary-cbsem.R")` — confirm new test passes
-- [ ] 4. Run full test suite `devtools::test()` — confirm no regressions
-
 ## Completed
 
-(none yet)
+- [x] 1a. Add test to `test-summary-cbsem.R` that checks structural path significance row names follow `IV -> DV` format
+- [x] 2. Fix line 84 in `R/report_lavaan.R`: change `paste(lhs, "->", rhs)` to `paste(rhs, "->", lhs)`
+- [x] 3. CBSEM summary tests pass (8/8)
+- [x] 4. Full test suite passes (305 tests, 0 failures)
 
 ---
 

@@ -81,7 +81,7 @@ summarize_cb_structure <- function(object, alpha=0.05) {
     data.frame(est.std, se, z, pvalue, ci.lower, ci.upper)
   )
 
-  rownames(significance) <- with(path_df, paste(lhs, "->", rhs))
+  rownames(significance) <- with(path_df, paste(rhs, "->", lhs))
   colnames(significance) <- c(
     "Std Estimate", "SE", "z-Value", "p-Value",
     paste(alpha_text, "% CI", sep = ""),
