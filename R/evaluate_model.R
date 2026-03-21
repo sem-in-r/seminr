@@ -14,7 +14,8 @@ metrics_insample <- function(obsData, construct_scores, smMatrix, dependant, con
     insample[1, i] <- r_sq[dependant[i], dependant[i]]
     insample[2, i] <- 1 - (1 - insample[1, i])*((nrow(obsData)-1)/(nrow(obsData)-length(independant) - 1))
   }
-  return(insample)
+
+  insample
 }
 
 
@@ -60,22 +61,24 @@ metrics_insample <- function(obsData, construct_scores, smMatrix, dependant, con
 
 # Feature to automate model specification quality ----
 assess_model_specification <- function(measurement_model,
-                                   structural_model,
-                                   data){
+                                       structural_model,
+                                       data) {
 
   # Check the model specification
-  if (are_construct_names_valid(measurement_model,
-                                structural_model)) {
-    stop("There is a mismatch in the names of your constructs.
-    Please confirm that:
-      (1) the construct names in the measurement model are correcly spelled and specified;
-      (2) the construct names in your structural model are correctly spelled and specified;
-      (3) all the construct names in your structural model are specified in the measurement model.
-      Please note that plot(measurement_model) or plot(structural_model) help in visualizing the problem.
-      Model cannot be estimated.")
+  if (are_construct_names_misspelled(measurement_model, structural_model)) {
+    stop("Some construct names in the structural model were not found in the measurement model.\n",
+         "Please confirm that all construct names are correctly spelled and specified.\n",
+         "Note: plot(measurement_model) or plot(structural_model) can help visualize the problem.\n",
+         "Model cannot be estimated.")
   }
-  if(!are_indicators_in_data(measurement_model,
-                                  data)) {
+  if (are_construct_names_colliding(measurement_model, structural_model)) {
+    stop("Some construct names are the same as indicator/item names.\n",
+         "Construct names must not collide with indicator names.\n",
+         "Note: plot(measurement_model) or plot(structural_model) can help visualize the problem.\n",
+         "Model cannot be estimated.")
+  }
+  if (!are_indicators_in_data(measurement_model,
+                              data)) {
     stop("There is a mismatch in the names of your indicators and data.
     Please confirm that:
       (1) the indicator names in the measurement model are correcly spelled and specified;
@@ -84,7 +87,7 @@ assess_model_specification <- function(measurement_model,
       Please note that plot(measurement_model) or plot(structural_model) help in visualizing the problem.
       Model cannot be estimated.")
   }
-  if(has_direct_effects(structural_model)) {
+  if (has_direct_effects(structural_model)) {
     stop("It appears that you have not specified both IV and MV as direct effects in the structural model.
    Please confirm that:
       (1) the construct names in the measurement model are correcly spelled and specified;
@@ -93,5 +96,6 @@ assess_model_specification <- function(measurement_model,
       Please note that plot(measurement_model) or plot(structural_model) help in visualizing the problem.
       Model cannot be estimated.")
   }
-  return()
+
+  return() # nolint: implicit_return_linter
 }
