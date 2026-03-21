@@ -122,21 +122,19 @@ has_interactions <- function(smMatrix, outcome = NULL) {
   }
 }
 
-# Check if construct names in structural model are valid with respect to measurement model
-are_construct_names_valid <- function(measurement_model,
-                                  structural_model) {
-  # remove interactions from the list (not created yet)
+# TRUE if any SM construct names are missing from the MM (spelling check)
+are_construct_names_misspelled <- function(measurement_model, structural_model) {
   sm_constructs <- construct_names(structural_model)
   sm_constructs <- sm_constructs[!is_interaction(sm_constructs)]
   mm_constructs <- construct_names(measurement_model)
+  !all(sm_constructs %in% mm_constructs)
+}
 
-  # construct names in sm DO occur in mm and are spelled correct
-  construct_named_correcty <- all(sm_constructs %in% mm_constructs)
-
-  # construct names do not occur in the indicator names
-  construct_item_named_same <- any(sm_constructs %in% mm_constructs)
-
-  return(!construct_named_correcty | !construct_item_named_same)
+# TRUE if any construct name collides with an indicator/item name
+are_construct_names_colliding <- function(measurement_model, structural_model) {
+  sm_constructs <- construct_names(structural_model)
+  sm_constructs <- sm_constructs[!is_interaction(sm_constructs)]
+  any(sm_constructs %in% construct_items(measurement_model))
 }
 
 # Test if interaction terms are missing their direct effects in smMatrix
@@ -156,7 +154,8 @@ has_direct_effects <- function(smMatrix) {
       }
     }
   }
-  return(any(log_vec))
+
+  any(log_vec)
 }
 
 # Test if any paths in smMatrix target a given construct

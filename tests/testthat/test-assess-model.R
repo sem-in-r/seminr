@@ -18,7 +18,7 @@ mobi_sm <- relationships(
 expect_error(assess_model_specification(mobi_mm,
                                     mobi_sm,
                                     mobi),
-             regexp = "names of your constructs")
+             regexp = "construct names.*structural model.*not found.*measurement model")
 
 ## misspelt construct in sm
 mobi_mm <- constructs(
@@ -35,7 +35,42 @@ mobi_sm <- relationships(
 expect_error(assess_model_specification(mobi_mm,
                                     mobi_sm,
                                     mobi),
-             regexp = "names of your constructs")
+             regexp = "construct names.*structural model.*not found.*measurement model")
+
+## construct name collides with indicator/item name
+mobi_mm <- constructs(
+  composite("IMAG1",        multi_items("IMAG", 1:5), weights = mode_A),
+  composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
+  composite("Value",        multi_items("PERV", 1:2), weights = mode_A),
+  composite("Satisfaction", multi_items("CUSA", 1:3), weights = mode_A)
+)
+
+mobi_sm <- relationships(
+  paths(to = "Satisfaction",
+        from = c("IMAG1", "Expectation", "Value"))
+)
+
+expect_error(assess_model_specification(mobi_mm,
+                                    mobi_sm,
+                                    mobi),
+             regexp = "construct names.*same.*indicator")
+
+## valid model passes validation without error
+mobi_mm <- constructs(
+  composite("Image",        multi_items("IMAG", 1:5), weights = mode_A),
+  composite("Expectation",  multi_items("CUEX", 1:3), weights = mode_A),
+  composite("Value",        multi_items("PERV", 1:2), weights = mode_A),
+  composite("Satisfaction", multi_items("CUSA", 1:3), weights = mode_A)
+)
+
+mobi_sm <- relationships(
+  paths(to = "Satisfaction",
+        from = c("Image", "Expectation", "Value"))
+)
+
+expect_no_error(assess_model_specification(mobi_mm,
+                                       mobi_sm,
+                                       mobi))
 
 ## missing construct in interaction
 mobi_mm <- constructs(

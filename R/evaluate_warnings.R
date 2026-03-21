@@ -24,16 +24,8 @@ warning_missing_data <- function(data, mmMatrix) {
             "Total number of complete cases: ", N-length(missing_values))
   }
 }
-# Warning for a dot used in columns of data prior to generating interactions
-warning_periods_in_col_names <- function(data) {
-  if(TRUE %in% is_interaction(colnames(data))) {
-    stop("The names of columns in the data may not contain stars(*)")
-  }
-}
-
 warnings <- function(mmMatrix,data, smMatrix) {
   warning_single_item_formative(mmMatrix)
   warning_missing_data(data, mmMatrix)
-  #warning_periods_in_col_names(data)
 }
 
