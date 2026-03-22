@@ -46,7 +46,7 @@ construct_items.construct <- function(x, ...) {
 #' @export
 construct_items.measurement_model <- function(x, ...) {
   constructs_only <- all_non_interactions(x)
-  sapply(constructs_only, FUN=construct_items) -> .
+  lapply(constructs_only, FUN=construct_items) -> .
   unlist(., use.names = FALSE) -> .
   unique(.)
 }
@@ -55,7 +55,7 @@ construct_items.measurement_model <- function(x, ...) {
 #' @export
 construct_items.list <- function(x, ...) {
   constructs_only <- all_non_interactions(x)
-  sapply(constructs_only, FUN=construct_items) -> .
+  lapply(constructs_only, FUN=construct_items) -> .
   unlist(., use.names = FALSE) -> .
   unique(.)
 }
@@ -184,7 +184,7 @@ mmMatrix_for_items <- function(mmMatrix, items) {
 all_LOC_items <- function(measurement_model) {
   all_LOCs_only <- all_LOCs(measurement_model)
   constructs_only <- all_non_interactions(all_LOCs_only)
-  sapply(constructs_only, FUN=construct_items) -> .
+  lapply(constructs_only, FUN=construct_items) -> .
   unlist(., use.names = FALSE) -> .
   unique(.)
 }
