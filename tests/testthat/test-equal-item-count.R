@@ -1,7 +1,7 @@
 context("Equal item count constructs (#364)\n")
 
 # Fixture: all four constructs have exactly 4 items each.
-# This triggers sapply's matrix simplification in construct_items and all_LOC_items.
+# Equal item counts ensure construct_items() and all_LOC_items() return a vector, not a matrix.
 mm_equal <- constructs(
   composite("TI",     multi_items("TI_", 2:5)),
   composite("RF",     multi_items("RF_", 1:4)),
