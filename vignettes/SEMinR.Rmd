@@ -628,12 +628,17 @@ The `technique` parameter controls how endogenous construct scores are predicted
 
 ### Parallelization
 
-Cross-validation is parallelized in two cases:
+Cross-validation runs sequentially by default. To enable parallel execution, specify the `cores` parameter:
 
-* **LOOCV** (`noFolds = NULL`): always runs in parallel, with cores auto-detected
-* **k-fold with `cores` specified**: runs in parallel across the specified number of cores
+```{r, eval=FALSE}
+# Parallel LOOCV across 4 cores
+loocv_parallel <- predict_pls(model, noFolds = NULL, cores = 4)
 
-This is particularly useful for high-k folds (e.g., 50 or 100) or interaction models where each fold requires re-estimation of interaction items.
+# Parallel 50-fold CV
+cv_parallel <- predict_pls(model, noFolds = 50, cores = 4)
+```
+
+This is particularly useful for LOOCV or high-k folds where each fold requires re-estimation.
 
 *Note:* Parallel workers load the _installed_ version of seminr. If using development code, run `devtools::install()` before parallel prediction.
 

@@ -315,8 +315,7 @@ nick <- predict(object = corp_rep_pls_model_mod,
 pred_results <- predict_pls(model = corp_rep_pls_model_mod,
             technique = predict_DA,
             noFolds = NULL,
-            reps = NULL,
-            cores = 1
+            reps = NULL
             )
 
 sum_pred_results <- summary(pred_results)
