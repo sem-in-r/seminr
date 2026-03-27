@@ -154,7 +154,17 @@ codegen_interaction <- function(construct_spec) {
   iv <- get("iv", envir = env)
   moderator <- get("moderator", envir = env)
 
-  paste0("  interaction_term(iv = \"", iv, "\", moderator = \"", moderator, "\")")
+  # Detect method from class
+  method_str <- if (inherits(construct_spec, "two_stage_interaction")) {
+    ", method = two_stage"
+  } else if (inherits(construct_spec, "orthogonal_interaction")) {
+    ", method = orthogonal"
+  } else {
+    ""  # product_indicator is the default
+  }
+
+  paste0("  interaction_term(iv = \"", iv, "\", moderator = \"", moderator,
+         "\"", method_str, ")")
 }
 
 # Smart item code generation: detect multi_items patterns
