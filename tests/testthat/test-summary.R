@@ -60,7 +60,7 @@ test_that("Seminr estimates the reliability correctly", {
 context("SEMinR correctly returns the summary object for class boot_seminr_model\n")
 
 # Reuse seminr_model from shared setup above (same mm, sm, inner_weights)
-boot_seminr_model <- bootstrap_model(seminr_model, nboot = 200, cores = 2, seed = 123)
+boot_seminr_model <- bootstrap_model(seminr_model, nboot = 200, cores = 1, seed = 123)
 summary_object <- summary(boot_seminr_model)
 
 # Load outputs
@@ -91,7 +91,7 @@ mobi_sm_indirect <- relationships(
 )
 
 seminr_model_indirect <- estimate_pls(mobi, mobi_mm, mobi_sm_indirect, inner_weights = path_weighting)
-boot_seminr_model_indirect <- bootstrap_model(seminr_model_indirect, nboot = 200, cores = 2, seed = 123)
+boot_seminr_model_indirect <- bootstrap_model(seminr_model_indirect, nboot = 200, cores = 1, seed = 123)
 summary_object_indirect <- summary(boot_seminr_model_indirect)
 total_indirect <- summary_object_indirect$bootstrapped_total_indirect_paths
 # write.csv(summary_object$bootstrapped_total_indirect_paths , file = "tests/fixtures/V_3_6_0/boot_report_total_indirect_paths.csv")
@@ -136,7 +136,7 @@ mobi_sm_eval <- relationships(
 
 seminr_model_mixed <- estimate_pls(mobi, mobi_mm_mixed, mobi_sm_eval, inner_weights = path_weighting)
 # Keep nboot=500: bootstrap t-values and p-values need stable SDs
-boot_seminr_model_mixed <- bootstrap_model(seminr_model_mixed, nboot = 500, cores = 2, seed = 123)
+boot_seminr_model_mixed <- bootstrap_model(seminr_model_mixed, nboot = 500, cores = 1, seed = 123)
 utils::capture.output(summary_object <- evaluate_measurement_model(seminr_model_mixed))
 utils::capture.output(boot_summary_object <- boot_evaluate_measurement_model(boot_seminr_model_mixed))
 
