@@ -753,7 +753,11 @@ extract_bootstrapped_values <- function(ltbl, row_index, model, theme) {
 
   t_value <- ltbl[rownames(ltbl) == row_index, 4]
 
-  pvalue <- stats::pt(abs(t_value), nrow(model$data) - 1, lower.tail = FALSE)
+  # Use the empirical bootstrap p-value (column 7: "Bootstrap P Val") to ensure
+  # consistency between plot stars and summary table. Previously used parametric
+  # pt() which could disagree with the bootstrap p-value in borderline cases.
+  # See: https://github.com/sem-in-r/seminr/issues/412
+  pvalue <- ltbl[rownames(ltbl) == row_index, 7]
 
   list(
     mean = round(ltbl[rownames(ltbl) == row_index, 1], theme$plot.rounding),
