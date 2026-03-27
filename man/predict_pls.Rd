@@ -17,7 +17,14 @@ Default is NULL.}
 
 \item{reps}{The number of times the cross-validation will be repeated. Default is NULL.}
 
-\item{cores}{The number of cores to use for parallel LOOCV processing. If k-fold is used, the process will not be parallelized.}
+\item{cores}{The number of cores to use for parallel processing. If NULL (default), parallelization
+is used only for LOOCV (when \code{noFolds = NULL}), with the number of cores auto-detected.
+Specify an integer to enable parallel k-fold cross-validation — useful for high-k folds
+(e.g., \code{noFolds = 50} or \code{noFolds = 100}) or interaction models where each fold
+requires re-estimation. When \code{cores} is specified, k-fold CV runs in parallel across
+the given number of cores. Set \code{cores = 1} to force single-core parallel execution.
+Note: parallel workers load the \emph{installed} version of seminr via \code{library(seminr)},
+so run \code{devtools::install()} if testing development code.}
 }
 \value{
 A list of the estimated PLS and LM prediction results:

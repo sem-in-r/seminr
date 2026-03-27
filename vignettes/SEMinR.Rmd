@@ -574,9 +574,72 @@ model_summary$descriptives$correlations$constructs
 ```
 
 
+# Prediction and cross-validation (PLSpredict)
+
+SEMinR supports out-of-sample prediction for PLS models, including models with interaction terms. This implements the PLSpredict procedure (Shmueli et al., 2016, 2019).
+
+## Single holdout prediction
+
+Use `predict()` on an estimated model with held-out test data:
+
+```{r, eval=FALSE}
+# Estimate a model with an interaction
+mobi_mm <- constructs(
+  composite("Image",        multi_items("IMAG", 1:5)),
+  composite("Expectation",  multi_items("CUEX", 1:3)),
+  composite("Satisfaction", multi_items("CUSA", 1:3)),
+  interaction_term(iv = "Image", moderator = "Expectation",
+                   method = product_indicator)
+)
+mobi_sm <- relationships(
+  paths(to = "Satisfaction",
+        from = c("Image", "Expectation", "Image*Expectation"))
+)
+model <- estimate_pls(mobi, mobi_mm, mobi_sm)
+
+# Generate predictions on held-out data
+predictions <- predict(model, testData = mobi[1:50, ])
+predictions$predicted_items      # predicted indicator scores
+predictions$item_residuals       # actual - predicted
+```
+
+All three interaction methods are supported for prediction: `two_stage`, `product_indicator`, and `orthogonal`. The prediction function automatically detects which method was used during estimation.
+
+## Cross-validated prediction with `predict_pls()`
+
+For k-fold or leave-one-out cross-validation (LOOCV), use `predict_pls()`:
+
+```{r, eval=FALSE}
+# 10-fold cross-validation
+cv_results <- predict_pls(model, technique = predict_DA, noFolds = 10)
+summary(cv_results)
+
+# LOOCV (automatically parallelized)
+loocv_results <- predict_pls(model, technique = predict_DA, noFolds = NULL)
+
+# Parallel k-fold (useful for high k or interaction models)
+cv_parallel <- predict_pls(model, technique = predict_DA, noFolds = 50, cores = 4)
+```
+
+The `technique` parameter controls how endogenous construct scores are predicted:
+
+* `predict_DA` (Direct Antecedents): predicts each construct from its direct antecedent constructs only
+* `predict_EA` (Earliest Antecedents): propagates predictions through the full structural model from the exogenous constructs
+
+### Parallelization
+
+Cross-validation is parallelized in two cases:
+
+* **LOOCV** (`noFolds = NULL`): always runs in parallel, with cores auto-detected
+* **k-fold with `cores` specified**: runs in parallel across the specified number of cores
+
+This is particularly useful for high-k folds (e.g., 50 or 100) or interaction models where each fold requires re-estimation of interaction items.
+
+*Note:* Parallel workers load the _installed_ version of seminr. If using development code, run `devtools::install()` before parallel prediction.
+
 # Plotting models
 SEMinR can plot all supported models using the dot language and the graphViz.js widget
-from the `DiagrammeR` package. 
+from the `DiagrammeR` package.
 
 ```{r}
 # generate a small model for creating the plot
@@ -643,6 +706,8 @@ Marsh,
 * Ringle, C. M., Wende, S., & Becker, J-M. (2015). SmartPLS 3. Bönningstedt: SmartPLS. Retrieved from https://www.smartpls.com/
 * Rönkkö, M. (2016). R package matrixpls: Matrix-based partial least squares estimation (version 0.7.0). https://CRAN.R-project.org/package=matrixpls
 * Sarstedt, M., Hair, J. F., Ringle, C. M., Thiele, K. O., & Gudergan, S. P. (2016). Estimation issues with PLS and CBSEM: Where the bias lies! Journal of Business Research, 69(10), 3998–4010. https://doi.org/10.1016/j.jbusres.2016.06.007
+* Shmueli, G., Ray, S., Velasquez Estrada, J. M., & Chatla, S. B. (2016). The elephant in the room: Predictive performance of PLS models. Journal of Business Research, 69(10), 4552–4564. https://doi.org/10.1016/j.jbusres.2016.03.049
+* Shmueli, G., Sarstedt, M., Hair, J. F., Cheah, J. H., Ting, H., Vaithilingam, S., & Ringle, C. M. (2019). Predictive model assessment in PLS-SEM: guidelines for using PLSpredict. European Journal of Marketing, 53(11), 2322–2347. https://doi.org/10.1108/EJM-02-2019-0189
 * Ten Berge, J. M., Krijnen, W. P., Wansbeek, T., & Shapiro, A. (1999). Some new results on correlation-preserving factor scores prediction methods. Linear Algebra and its Applications, 289(1-3), 311-318.
 * Tenenhaus, M., Vinzi, V. E., Chatelin, Y. M., & Lauro, C. (2005). PLS path modeling. Computational Statistics and Data Analysis, 48(1), 159–205. https://doi.org/10.1016/j.csda.2004.03.005
 * Wold, H. (1985). In S. Kotz & NL Johnson (Eds.), Encyclopedia of statistical sciences. Partial least squares (Vol. 6, pp. 581591).

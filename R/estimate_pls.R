@@ -195,6 +195,11 @@ estimate_pls <- function(data,
   }
   if(length(processed_measurements$ints)>0) {
     seminr_model$interaction <- TRUE
+    # Store interaction parameters for out-of-sample prediction.
+    # Contains iv_name, moderator_name, and ortho_coefs (orthogonal only) per
+    # interaction construct. Used by predict.seminr_model() dispatch in
+    # feature_plspredict.R. See process_interactions() in specify_interactions.R.
+    seminr_model$interaction_params <- processed_measurements$interaction_params
   }
   class(seminr_model) <- c("pls_model", "seminr_model")
   return(seminr_model)
