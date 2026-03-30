@@ -42,9 +42,19 @@ jobs:
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r-dependencies@v2
+        if: matrix.config.r != 'devel'
         with:
           extra-packages: any::rcmdcheck
           needs: check
+
+      # R-devel: disable cache to prevent stale .so files from causing
+      # ABI mismatch errors (e.g., undefined symbol: PREXPR in rlang)
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        if: matrix.config.r == 'devel'
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+          cache: false
 
       - uses: r-lib/actions/check-r-package@v2
         with:
