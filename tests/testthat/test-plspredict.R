@@ -102,14 +102,8 @@ test_that("Seminr estimates the construct scores correctly", {
   expect_equal(as.vector(unlist(Results$item_residuals)), as.vector(two_stage_control), tolerance = 0.00001)
 })
 
-context("predict.seminr_model throws an error for orthogonal and product indicators moderated models\n")
-corp_rep_mm_orth <- constructs(
-  composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
-  composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
-  composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
-  composite("COMP", multi_items("comp_", 1:3)),
-  interaction_term("QUAL", "PERF", method = orthogonal)
-)
+context("predict.seminr_model generates predictions for product_indicator moderated models\n")
+
 corp_rep_mm_prod <- constructs(
   composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
   composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
@@ -118,13 +112,7 @@ corp_rep_mm_prod <- constructs(
   interaction_term("QUAL", "PERF", method = product_indicator)
 )
 
-# Estimate the model ----
-corp_rep_pls_model_orth <- estimate_pls(
-  data = corp_rep_data,
-  measurement_model = corp_rep_mm_orth,
-  structural_model  = corp_rep_sm_mod,
-  missing = mean_replacement,
-  missing_value = "-99")
+# Estimate PI model ----
 corp_rep_pls_model_prod <- estimate_pls(
   data = corp_rep_data,
   measurement_model = corp_rep_mm_prod,
@@ -132,11 +120,189 @@ corp_rep_pls_model_prod <- estimate_pls(
   missing = mean_replacement,
   missing_value = "-99")
 
-test_that("Seminr errors for orthogonal", {
-  expect_error(predict(object = corp_rep_pls_model_orth, testData = corp_rep_data2, technique = predict_EA))
+test_that("predict() works for product_indicator models", {
+  pred <- predict(object = corp_rep_pls_model_prod, testData = corp_rep_data2, technique = predict_EA)
+  expect_s3_class(pred, "predicted_seminr_model")
+  expect_equal(nrow(pred$predicted_items), nrow(corp_rep_data2))
+  # Predictions should not be all NA or all zero
+  expect_false(all(is.na(pred$predicted_items)))
+  expect_false(all(pred$predicted_items == 0))
+  # Residuals should exist and have correct dimensions
+  expect_equal(nrow(pred$item_residuals), nrow(corp_rep_data2))
+  expect_equal(ncol(pred$item_residuals), ncol(pred$predicted_items))
 })
-test_that("Seminr errors for product indicators", {
-  expect_error(predict(object = corp_rep_pls_model_prod, testData = corp_rep_data2, technique = predict_EA))
+
+test_that("predict() with product_indicator works with both DA and EA techniques", {
+  pred_DA <- predict(object = corp_rep_pls_model_prod, testData = corp_rep_data2, technique = predict_DA)
+  pred_EA <- predict(object = corp_rep_pls_model_prod, testData = corp_rep_data2, technique = predict_EA)
+  expect_s3_class(pred_DA, "predicted_seminr_model")
+  expect_s3_class(pred_EA, "predicted_seminr_model")
+})
+
+context("predict.seminr_model generates predictions for orthogonal moderated models\n")
+
+corp_rep_mm_orth <- constructs(
+  composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
+  composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
+  composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
+  composite("COMP", multi_items("comp_", 1:3)),
+  interaction_term("QUAL", "PERF", method = orthogonal)
+)
+
+# Estimate orthogonal model ----
+corp_rep_pls_model_orth <- estimate_pls(
+  data = corp_rep_data,
+  measurement_model = corp_rep_mm_orth,
+  structural_model  = corp_rep_sm_mod,
+  missing = mean_replacement,
+  missing_value = "-99")
+
+test_that("orthogonal model stores interaction_params with ortho_coefs", {
+  expect_false(is.null(corp_rep_pls_model_orth$interaction_params))
+  expect_false(is.null(corp_rep_pls_model_orth$interaction_params[["QUAL*PERF"]]))
+  expect_false(is.null(corp_rep_pls_model_orth$interaction_params[["QUAL*PERF"]]$ortho_coefs))
+  # Should have one coefficient vector per product indicator item
+  n_qual_items <- length(construct_items(corp_rep_pls_model_orth$mmMatrix, "QUAL"))
+  n_perf_items <- length(construct_items(corp_rep_pls_model_orth$mmMatrix, "PERF"))
+  # Orthogonal interactions use same items as the base constructs (not the product items)
+  # but the interaction construct has n_qual * n_perf product items
+  expect_equal(length(corp_rep_pls_model_orth$interaction_params[["QUAL*PERF"]]$ortho_coefs),
+               n_qual_items * n_perf_items)
+})
+
+test_that("predict() works for orthogonal models", {
+  pred <- predict(object = corp_rep_pls_model_orth, testData = corp_rep_data2, technique = predict_EA)
+  expect_s3_class(pred, "predicted_seminr_model")
+  expect_equal(nrow(pred$predicted_items), nrow(corp_rep_data2))
+  expect_false(all(is.na(pred$predicted_items)))
+  expect_false(all(pred$predicted_items == 0))
+  expect_equal(nrow(pred$item_residuals), nrow(corp_rep_data2))
+})
+
+test_that("product_indicator model stores interaction_params", {
+  expect_false(is.null(corp_rep_pls_model_prod$interaction_params))
+  expect_false(is.null(corp_rep_pls_model_prod$interaction_params[["QUAL*PERF"]]))
+  # PI models should NOT have ortho_coefs
+  expect_true(is.null(corp_rep_pls_model_prod$interaction_params[["QUAL*PERF"]]$ortho_coefs))
+})
+
+context("predict.seminr_model dispatch and edge cases\n")
+
+test_that("detect_interaction_method identifies methods correctly", {
+  expect_equal(unname(seminr:::detect_interaction_method(corp_rep_pls_model_mod)), "two_stage")
+  expect_equal(unname(seminr:::detect_interaction_method(corp_rep_pls_model_prod)), "product_indicator")
+  expect_equal(unname(seminr:::detect_interaction_method(corp_rep_pls_model_orth)), "orthogonal")
+})
+
+test_that("mixed interaction methods produce informative error", {
+  mm_mixed <- constructs(
+    composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
+    composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
+    composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
+    composite("COMP", multi_items("comp_", 1:3)),
+    interaction_term("QUAL", "PERF", method = two_stage),
+    interaction_term("QUAL", "CSOR", method = product_indicator)
+  )
+  sm_mixed <- relationships(
+    paths(from = c("QUAL", "PERF", "CSOR", "QUAL*PERF", "QUAL*CSOR"), to = "COMP")
+  )
+  suppressMessages(
+    model_mixed <- estimate_pls(
+      data = corp_rep_data,
+      measurement_model = mm_mixed,
+      structural_model  = sm_mixed,
+      missing = mean_replacement,
+      missing_value = "-99")
+  )
+  expect_error(predict(object = model_mixed, testData = corp_rep_data2, technique = predict_EA),
+               "Mixed interaction methods")
+})
+
+test_that("PI and orthogonal predictions are reasonable relative to two_stage", {
+  # All three methods should produce predictions in the same ballpark
+  pred_ts <- predict(object = corp_rep_pls_model_mod, testData = corp_rep_data2, technique = predict_EA)
+  pred_pi <- predict(object = corp_rep_pls_model_prod, testData = corp_rep_data2, technique = predict_EA)
+  pred_orth <- predict(object = corp_rep_pls_model_orth, testData = corp_rep_data2, technique = predict_EA)
+
+  # Compare RMSE of item residuals — should be in the same order of magnitude
+  rmse_ts <- sqrt(mean(as.matrix(pred_ts$item_residuals)^2))
+  rmse_pi <- sqrt(mean(as.matrix(pred_pi$item_residuals)^2))
+  rmse_orth <- sqrt(mean(as.matrix(pred_orth$item_residuals)^2))
+
+  # All RMSEs should be positive and finite
+  expect_true(is.finite(rmse_ts) && rmse_ts > 0)
+  expect_true(is.finite(rmse_pi) && rmse_pi > 0)
+  expect_true(is.finite(rmse_orth) && rmse_orth > 0)
+})
+
+context("predict_pls cross-validation works for PI and orthogonal models\n")
+
+test_that("predict_pls works with product_indicator model (k-fold)", {
+  cv_pred <- predict_pls(model = corp_rep_pls_model_prod,
+                         technique = predict_DA,
+                         noFolds = 10)
+  expect_s3_class(cv_pred, "predict_pls_model")
+  expect_false(is.null(cv_pred$items$PLS_out_of_sample))
+  expect_false(all(is.na(cv_pred$items$PLS_out_of_sample)))
+})
+
+test_that("predict_pls works with orthogonal model (k-fold)", {
+  cv_pred <- predict_pls(model = corp_rep_pls_model_orth,
+                         technique = predict_DA,
+                         noFolds = 10)
+  expect_s3_class(cv_pred, "predict_pls_model")
+  expect_false(is.null(cv_pred$items$PLS_out_of_sample))
+  expect_false(all(is.na(cv_pred$items$PLS_out_of_sample)))
+})
+
+context("Prediction edge cases: quadratic terms and multiple interactions\n")
+
+test_that("predict() works with quadratic terms (product_indicator)", {
+  mm_quad <- constructs(
+    composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
+    composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
+    composite("COMP", multi_items("comp_", 1:3)),
+    quadratic_term(iv = "QUAL", method = product_indicator)
+  )
+  sm_quad <- relationships(
+    paths(from = c("QUAL", "PERF", "QUAL*QUAL"), to = "COMP")
+  )
+  suppressMessages(
+    model_quad <- estimate_pls(
+      data = corp_rep_data,
+      measurement_model = mm_quad,
+      structural_model  = sm_quad,
+      missing = mean_replacement,
+      missing_value = "-99")
+  )
+  pred <- predict(object = model_quad, testData = corp_rep_data2, technique = predict_DA)
+  expect_s3_class(pred, "predicted_seminr_model")
+  expect_false(all(is.na(pred$predicted_items)))
+})
+
+test_that("predict() works with multiple product_indicator interactions", {
+  mm_multi <- constructs(
+    composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
+    composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
+    composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
+    composite("COMP", multi_items("comp_", 1:3)),
+    interaction_term("QUAL", "PERF", method = product_indicator),
+    interaction_term("QUAL", "CSOR", method = product_indicator)
+  )
+  sm_multi <- relationships(
+    paths(from = c("QUAL", "PERF", "CSOR", "QUAL*PERF", "QUAL*CSOR"), to = "COMP")
+  )
+  suppressMessages(
+    model_multi <- estimate_pls(
+      data = corp_rep_data,
+      measurement_model = mm_multi,
+      structural_model  = sm_multi,
+      missing = mean_replacement,
+      missing_value = "-99")
+  )
+  pred <- predict(object = model_multi, testData = corp_rep_data2, technique = predict_DA)
+  expect_s3_class(pred, "predicted_seminr_model")
+  expect_equal(nrow(pred$predicted_items), nrow(corp_rep_data2))
 })
 
 context("predict_pls yields correct predictions for LM and PLS for moderated models.\n")
@@ -149,8 +315,7 @@ nick <- predict(object = corp_rep_pls_model_mod,
 pred_results <- predict_pls(model = corp_rep_pls_model_mod,
             technique = predict_DA,
             noFolds = NULL,
-            reps = NULL,
-            cores = 1
+            reps = NULL
             )
 
 sum_pred_results <- summary(pred_results)

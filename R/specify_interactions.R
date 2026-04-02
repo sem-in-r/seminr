@@ -157,14 +157,29 @@ orthogonal <- function(iv, moderator, weights) {
     # Create formula
     frmla <- stats::as.formula(paste("interaction_data[,i]", paste(as.vector(c(iv1_items,iv2_items)), collapse ="+"), sep = " ~ "))
 
-    # iterate and orthogonalize
+    # Iterate and orthogonalize each product item by regressing on main-effect items
+    # and taking residuals. Store regression coefficients for out-of-sample prediction
+    # (orthogonal_predict in feature_plspredict.R needs these to orthogonalize test data).
+    #
+    # NOTE: The formula uses `data = data` (ORIGINAL unscaled training data) as
+    # predictors, while the dependent variable is the product of SCALED items.
+    # At prediction time, the X matrix must also use original (unscaled) items.
+    ortho_coefs <- vector("list", ncol(interaction_data))
     for(i in 1:ncol(interaction_data)) {
-      interaction_data[, i] <- stats::lm(formula = frmla, data = data)$residuals
+      fit <- stats::lm(formula = frmla, data = data)
+      interaction_data[, i] <- fit$residuals
+      ortho_coefs[[i]] <- fit$coefficients
     }
+    names(ortho_coefs) <- colnames(interaction_data)
     intxn_mm <- matrix(measure_interaction(interaction_name, interaction_data, weights), ncol = 3, byrow = TRUE)
+    # Return iv_name, moderator_name, and ortho_coefs for prediction support.
+    # These are collected by process_interactions() and stored on the model object.
     return(list(name = interaction_name,
                 data = interaction_data,
-                mm = intxn_mm))
+                mm = intxn_mm,
+                iv_name = iv,
+                moderator_name = moderator,
+                ortho_coefs = ortho_coefs))
   }
   class(ortho_construct) <- append(class(ortho_construct), c("interaction", "orthogonal_interaction"))
   return(ortho_construct)
@@ -234,9 +249,15 @@ product_indicator <- function(iv, moderator, weights) {
     interaction_data <- do.call("cbind", multiples_list)
     colnames(interaction_data) <- as.vector(sapply(iv1_items, name_items, iv2_items))
     intxn_mm <- matrix(measure_interaction(interaction_name, interaction_data, weights), ncol = 3, byrow = TRUE)
+    # Return iv_name and moderator_name for prediction support.
+    # These are collected by process_interactions() and stored on the model object.
+    # ortho_coefs is NULL for product_indicator (not needed — scaling is recomputed
+    # from rawdata at prediction time via create_pi_items_for_test_data).
     return(list(name = interaction_name,
                 data = interaction_data,
-                mm = intxn_mm))
+                mm = intxn_mm,
+                iv_name = iv,
+                moderator_name = moderator))
   }
   class(scaled_interaction) <- append(class(scaled_interaction), c("interaction", "scaled_interaction"))
   return(scaled_interaction)
@@ -342,6 +363,7 @@ process_interactions <- function(measurement_model, data, structural_model, inne
   ints <- all_interaction_fns(measurement_model)
   mmMatrix <- mm2matrix(measurement_model)
 
+  interaction_params <- list()
   if(length(ints)>0) {
     # update data with new interaction items
     names(ints) <- c()
@@ -351,6 +373,18 @@ process_interactions <- function(measurement_model, data, structural_model, inne
     get_data <- function(intxn) { intxn$data }
     interaction_data <- do.call("cbind", lapply(intxns_list, get_data))
 
+    # Collect interaction parameters needed for out-of-sample prediction.
+    # Each interaction returns iv_name, moderator_name, and (for orthogonal only)
+    # ortho_coefs. These are stored on the model object by estimate_pls() and
+    # used by product_indicator_predict() and orthogonal_predict() in
+    # feature_plspredict.R to recreate interaction items from held-out test data.
+    interaction_params <- lapply(intxns_list, function(intxn) {
+      list(iv_name = intxn$iv_name,
+           moderator_name = intxn$moderator_name,
+           ortho_coefs = intxn$ortho_coefs)
+    })
+    names(interaction_params) <- sapply(intxns_list, function(x) x$name)
+
     # Append data with interaction data
     intxns_mm <- do.call("rbind", lapply(intxns_list, function(intxn) { intxn$mm }))
     data <- cbind(data, interaction_data)
@@ -359,7 +393,8 @@ process_interactions <- function(measurement_model, data, structural_model, inne
   }
   return(list(data = data,
               mmMatrix = mmMatrix,
-              ints = ints))
+              ints = ints,
+              interaction_params = interaction_params))
 }
 
 process_cbsem_interactions <- function(measurement_model, data, structural_model, ...) {

@@ -32,7 +32,7 @@ pls_hoc_plsc <- estimate_pls(data = small_mobi,
                              structural_model = mobi_sm_hoc_plsc)
 
 test_that("bootstrap_model() succeeds with HOC composite + PLSc (#299, #205)", {
-  boot_hoc_plsc <- bootstrap_model(pls_hoc_plsc, nboot = 100, cores = 2, seed = 42)
+  boot_hoc_plsc <- bootstrap_model(pls_hoc_plsc, nboot = 100, cores = 1, seed = 42)
 
   expect_s3_class(boot_hoc_plsc, "boot_seminr_model")
   expect_equal(dim(boot_hoc_plsc$boot_paths)[1:2], dim(pls_hoc_plsc$path_coef))
@@ -41,6 +41,6 @@ test_that("bootstrap_model() succeeds with HOC composite + PLSc (#299, #205)", {
 })
 
 test_that("summary() works on bootstrapped HOC + PLSc model", {
-  boot_hoc_plsc <- bootstrap_model(pls_hoc_plsc, nboot = 100, cores = 2, seed = 42)
+  boot_hoc_plsc <- bootstrap_model(pls_hoc_plsc, nboot = 100, cores = 1, seed = 42)
   expect_no_error(summary(boot_hoc_plsc))
 })

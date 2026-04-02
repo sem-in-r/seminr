@@ -42,7 +42,7 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm, inner_weights = path_factorial)
-bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
+bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 1, seed = 123)
 
 # Load outputs
 bootmatrix <- bootmodel$paths_descriptives
@@ -84,7 +84,7 @@ mobi_sm <- relationships(
 
 # Load data, assemble model, and estimate using semPLS
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm, inner_weights = path_factorial)
-bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
+bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 1, seed = 123)
 
 # Load outputs
 bootmatrix <- bootmodel$paths_descriptives
@@ -124,7 +124,7 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm, inner_weights = path_factorial)
-bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
+bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 1, seed = 123)
 
 # Load outputs
 bootmatrix <- bootmodel$weights_descriptives
@@ -163,7 +163,7 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm, inner_weights = path_weighting)
-bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
+bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 1, seed = 123)
 
 # Load outputs
 bootmatrix <- bootmodel$loadings_descriptives
@@ -227,7 +227,7 @@ mobi_sm <- relationships(
 # Load data, assemble model, and estimate using semPLS
 mobi <- mobi
 seminr_model <- estimate_pls(mobi, mobi_mm, mobi_sm, inner_weights = path_factorial)
-bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 2, seed = 123)
+bootmodel <- bootstrap_model(seminr_model,nboot = 200, cores = 1, seed = 123)
 
 # Load outputs
 paths <- bootmodel$boot_paths
@@ -296,7 +296,7 @@ corp_rep_pls_model_ext <- estimate_pls(
 summary_corp_rep_ext <- summary(corp_rep_pls_model_ext)
 
 # Bootstrap model
-boot_model <- bootstrap_model(corp_rep_pls_model_ext, nboot = 200, cores = 2, seed = 123)
+boot_model <- bootstrap_model(corp_rep_pls_model_ext, nboot = 200, cores = 1, seed = 123)
 
 # Summarize bootstrapped model
 sum_boot_model <- summary(boot_model)

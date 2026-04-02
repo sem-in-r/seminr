@@ -1,4 +1,8 @@
-# prediction function for a two-stage estimated seminr model ----
+# ============================================================================
+# Shared prediction helpers
+# ============================================================================
+
+# Legacy helper used by predict_pls for construct-level actuals ----
 estimate_actual_star <- function(pls_model, train_data, testData) {
   no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
   actual_star <- estimate_pls(data = rbind(train_data[,no_int_mmvars], testData[,no_int_mmvars]),
@@ -11,6 +15,7 @@ estimate_actual_star <- function(pls_model, train_data, testData) {
               actual_is = actual_star_in))
 }
 
+# Parse interaction name "X*Y" into component construct names ----
 parse_interactions <- function(x) {
   ind1 <- regexpr("\\*", x)
   return(list(interaction = x,
@@ -18,21 +23,27 @@ parse_interactions <- function(x) {
               moderator = substr(x, ind1+1,nchar(x)),
               inter_ind = paste(x,"_intxn",sep = "")))
 }
-return_mod_scores <- function(OOS_composite_scores,
-                              testData,
-                              x) {
+
+# Compute two-stage moderator scores from construct score products ----
+return_mod_scores <- function(OOS_composite_scores, testData, x) {
   Moderator_score <- matrix(OOS_composite_scores[, x$antecedent] * OOS_composite_scores[,x$moderator], ncol = 1)
   colnames(Moderator_score) <- x$inter_ind
   return(Moderator_score)
 }
 
-one_stage_predict <- function(pls_model, testData, technique) {
-
-  # First reappend the testData to the trainData to get fulldata (do not duplicate rows)
+# Re-estimate PLS on combined train+test data to get reference construct scores ----
+#
+# Used by all predict functions. Replaces test rows in the training data, then
+# re-estimates the full model (including interactions via process_interactions).
+# Returns the full construct_scores matrix for all observations.
+#
+# @param pls_model  The trained seminr_model
+# @param testData   Held-out test data (data.frame)
+# @return construct_scores matrix from the re-estimated model
+compute_actual_star <- function(pls_model, testData) {
   no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
-  fulldata <- pls_model$data[,no_int_mmvars]
-  fulldata[rownames(testData),no_int_mmvars] <- testData[,no_int_mmvars]
-
+  fulldata <- pls_model$data[, no_int_mmvars]
+  fulldata[rownames(testData), no_int_mmvars] <- testData[, no_int_mmvars]
   suppressMessages(
     fullmodel <- estimate_pls(
       data = fulldata,
@@ -45,167 +56,349 @@ one_stage_predict <- function(pls_model, testData, technique) {
       stopCriterion = pls_model$settings$stopCriterion
     )
   )
-
-  actual_star <- fullmodel$construct_scores
-
-  #Extract Measurements needed for Predictions
-  normData <- testData[,pls_model$mmVariables]
-
-  # Standardize data
-  normData[,pls_model$mmVariables] <- standardize_data(normData[,pls_model$mmVariables],pls_model$meanData[pls_model$mmVariables],pls_model$sdData[pls_model$mmVariables])
-
-  #Convert dataset to matrix
-  normData<-data.matrix(normData)
-
-  #Estimate Factor Scores from Outter Path
-  predicted_construct_scores <- normData%*%pls_model$outer_weights
-
-  #Estimate Factor Scores from Inner Path and complete Matrix
-  predicted_construct_scores <- technique(pls_model$smMatrix, pls_model$path_coef, predicted_construct_scores)
-
-  #Predict Measurements with loadings
-  predictedMeasurements<-predicted_construct_scores%*% t(pls_model$outer_loadings)
-
-  # Unstandardize data
-  predictedMeasurements[,pls_model$mmVariables] <- unstandardize_data(predictedMeasurements[,pls_model$mmVariables],pls_model$meanData[pls_model$mmVariables],pls_model$sdData[pls_model$mmVariables])
-
-  #Calculating the residuals
-  residuals <- testData[,pls_model$mmVariables] - predictedMeasurements[,pls_model$mmVariables]
-
-  #Prepare return pls_model
-  predictResults <- list(testData = testData[,pls_model$mmVariables],
-                         predicted_items = predictedMeasurements[,pls_model$mmVariables],
-                         item_residuals = residuals,
-                         predicted_composite_scores = predicted_construct_scores,
-                         composite_residuals = (actual_star[rownames(testData),] - predicted_construct_scores),
-                         actual_star = actual_star[rownames(testData),])
-
-  class(predictResults) <- "predicted_seminr_model"
-  return(predictResults)
+  fullmodel$construct_scores
 }
 
-two_stage_predict <- function(pls_model, testData, technique) {
-  # First reappend the testData to the trainData to get fulldata (do not duplicate rows)
+# Core prediction pipeline: standardize → W×B×L^T → unstandardize → return ----
+#
+# Shared by all interaction predict functions (two_stage, product_indicator,
+# orthogonal). Takes augmented test data (raw items + interaction items already
+# appended), runs the W × B × L^T prediction chain, computes residuals, and
+# returns a predicted_seminr_model object.
+#
+# @param pls_model    The trained seminr_model
+# @param testData     Original held-out test data (for residual computation)
+# @param augmented_data  Test data with interaction columns appended
+# @param actual_star  Construct scores from compute_actual_star()
+# @param technique    predict_DA or predict_EA
+# @return A predicted_seminr_model object
+predict_from_augmented_data <- function(pls_model, testData, augmented_data,
+                                        actual_star, technique) {
   no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
-  fulldata <- pls_model$data[,no_int_mmvars]
-  fulldata[rownames(testData),no_int_mmvars] <- testData[,no_int_mmvars]
-  suppressMessages(fullmodel <- estimate_pls(data =fulldata,
-                                                     measurement_model = pls_model$measurement_model,
-                                                     structural_model = pls_model$structural_model,
-                                                     inner_weights = pls_model$inner_weights,
-                                                     missing = pls_model$settings$missing,
-                                                     missing_value = pls_model$settings$missing_value,
-                                                     maxIt = pls_model$settings$maxIt,
-                                                     stopCriterion = pls_model$settings$stopCriterion))
-  actual_star <- fullmodel$construct_scores
 
-  # collect all interactions
+  # Standardize all items (raw + interaction) using model's stored params
+  scaled_data <- standardize_data(
+    as.matrix(augmented_data[, pls_model$mmVariables]),
+    pls_model$meanData[pls_model$mmVariables],
+    pls_model$sdData[pls_model$mmVariables]
+  )
+
+  # W × B × L^T prediction chain
+  predicted_construct_scores <- scaled_data %*% pls_model$outer_weights[pls_model$mmVariables, ]
+  predicted_construct_scores <- technique(pls_model$smMatrix, pls_model$path_coef,
+                                          predicted_construct_scores)
+  predictedMeasurements <- predicted_construct_scores %*% t(pls_model$outer_loadings)
+
+  # Unstandardize non-interaction items only
+  predictedMeasurements <- unstandardize_data(
+    predictedMeasurements[, no_int_mmvars],
+    pls_model$meanData[no_int_mmvars],
+    pls_model$sdData[no_int_mmvars]
+  )
+  colnames(predictedMeasurements) <- no_int_mmvars
+
+  residuals <- testData[, no_int_mmvars] - predictedMeasurements[, no_int_mmvars]
+
+  predictResults <- list(
+    testData = testData[, no_int_mmvars],
+    predicted_items = predictedMeasurements[, no_int_mmvars],
+    item_residuals = residuals[, no_int_mmvars],
+    predicted_composite_scores = predicted_construct_scores,
+    composite_residuals = (actual_star[rownames(testData), ] - predicted_construct_scores),
+    actual_star = actual_star[rownames(testData), ]
+  )
+  class(predictResults) <- "predicted_seminr_model"
+  predictResults
+}
+
+# ============================================================================
+# Predict functions for each model type
+# ============================================================================
+
+# Prediction for models without interactions ----
+one_stage_predict <- function(pls_model, testData, technique) {
+  actual_star <- compute_actual_star(pls_model, testData)
+  predict_from_augmented_data(pls_model, testData, testData, actual_star, technique)
+}
+
+# Prediction for two_stage interaction models ----
+#
+# Two-stage prediction uses construct-score products rather than item-level
+# products. It re-estimates a first-stage model (without interactions) to get
+# OOS composite scores, then multiplies IV * Moderator scores to create the
+# interaction indicator.
+two_stage_predict <- function(pls_model, testData, technique) {
+  no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
+  actual_star <- compute_actual_star(pls_model, testData)
+
+  # Collect all interactions and parse their IV/moderator names
   interactions <- pls_model$constructs[is_interaction(pls_model$constructs)]
+  int_list <- lapply(interactions, parse_interactions)
 
-  # parse interactions to get the iv, mv, and indicator name
-  int_list <- lapply(interactions,parse_interactions)
-
-  # identify the training data
-  train_data <- pls_model$rawdata
-
-  # recreate the first stage measurement model
+  # Re-estimate first-stage model (without interactions) on training data
   first_stage_mm <- pls_model$measurement_model[!(all_constructs(pls_model$mmMatrix) %in% interactions)]
-
-  # recreate the first stage structural model
   first_stage_sm <- remove_paths_from(pls_model$structural_model, interactions)
-  first_stage_model <- estimate_pls(data = train_data,
+  first_stage_model <- estimate_pls(data = pls_model$rawdata,
                                     measurement_model = first_stage_mm,
                                     structural_model = first_stage_sm) |> suppressMessages()
 
-  scaled_data <-
-    standardize_data(testData[,no_int_mmvars,drop=F],
-                              first_stage_model$meanData[no_int_mmvars],
-                              first_stage_model$sdData[no_int_mmvars])
+  # Compute OOS composite scores using first-stage weights
+  scaled_data <- standardize_data(testData[, no_int_mmvars, drop = FALSE],
+                                  first_stage_model$meanData[no_int_mmvars],
+                                  first_stage_model$sdData[no_int_mmvars])
+  OOS_composite_scores <- as.matrix(scaled_data) %*%
+    first_stage_model$outer_weights[no_int_mmvars, , drop = FALSE]
 
-  # 1.2. Calculate the composite scores
-  OOS_composite_scores <- as.matrix(scaled_data[,no_int_mmvars,drop=F]) %*% first_stage_model$outer_weights[no_int_mmvars,,drop=F]
+  # Create moderator scores (IV * Moderator construct scores)
+  mod_scores <- lapply(int_list, function(x) {
+    return_mod_scores(OOS_composite_scores, testData, x)
+  })
+  augmented_data <- cbind(testData, do.call("cbind", mod_scores))
 
-  # 1.3. Calculate moderator and add to the rawdata
-  mod_scores <- lapply(int_list, function(x) {return_mod_scores(OOS_composite_scores, testData, x)})
-
-  # return_mod_scores(OOS_composite_scores, testData, int_list)
-  out_data_mod <- cbind(testData, do.call("cbind", mod_scores))
-
-
-  # standardize the data using second stage model
-  scaled_out_data_mod <-
-    standardize_data(out_data_mod[,pls_model$mmVariables],
-                              pls_model$meanData[pls_model$mmVariables],
-                              pls_model$sdData[pls_model$mmVariables])
-
-  # OOS_construct_scores <- scaled_out_data_mod[,pls_model$mmVariables] %*% pls_model$outer_weights[pls_model$mmVariables,]
-  # pred_OOS_construct_scores <-  (OOS_construct_scores[,colnames(pls_model$path_coef)] %*% pls_model$path_coef[colnames(pls_model$path_coef),])[,all_endogenous(pls_model$smMatrix),drop=F]
-  #
-  #
-  #
-  # pred_OOS_indicator_scores <- pred_OOS_construct_scores %*% pls_model$outer_loadings
-  #
-  #
-  #
-  # fit_IS_construct_scores <- (pls_model$construct_scores[,colnames(pls_model$path_coef)] %*% pls_model$path_coef[colnames(pls_model$path_coef),])[,all_endogenous(pls_model$smMatrix),drop=F]
-  # construct_pred_error <- actual_star$actual_oos - pred_OOS_construct_scores
-  # construct_fit_error <- actual_star$actual_is - fit_IS_construct_scores
-  # construct_is_mse <-
-  #   apply(construct_fit_error,
-  #         2,
-  #         function(x) mean(x^2))
-  # construct_oos_mse <-
-  #   apply(construct_pred_error,
-  #         2,
-  #         function(x) mean(x^2))
-
-  #Estimate Factor Scores from Outter Path
-  predicted_construct_scores <- scaled_out_data_mod[,pls_model$mmVariables] %*% pls_model$outer_weights[pls_model$mmVariables,]
-
-  #Estimate Factor Scores from Inner Path and complete Matrix
-  predicted_construct_scores <- technique(pls_model$smMatrix, pls_model$path_coef, predicted_construct_scores)
-
-  #Predict Measurements with loadings
-  predictedMeasurements <- predicted_construct_scores%*% t(pls_model$outer_loadings)
-
-  # Unstandardize data
-  predictedMeasurements <- unstandardize_data(predictedMeasurements[,no_int_mmvars],pls_model$meanData[no_int_mmvars],pls_model$sdData[no_int_mmvars])
-
-  colnames(predictedMeasurements) <- no_int_mmvars
-  #Calculating the residuals
-  residuals <- testData[,no_int_mmvars] - predictedMeasurements[,no_int_mmvars]
-
-  #Prepare return Object
-  predictResults <- list(testData = testData[,no_int_mmvars],
-                         predicted_items = predictedMeasurements[,no_int_mmvars],
-                         item_residuals = residuals[,no_int_mmvars],
-                         predicted_composite_scores = predicted_construct_scores,
-                         composite_residuals = (actual_star[rownames(testData),] - predicted_construct_scores),
-                         actual_star = actual_star[rownames(testData),])
-  class(predictResults) <- "predicted_seminr_model"
-  return(predictResults)
+  predict_from_augmented_data(pls_model, testData, augmented_data, actual_star, technique)
 }
 
 
-# Predict function for SEMinR PLS models
+# Recreate product indicator items for held-out test data ----
+#
+# During estimation, product_indicator() and orthogonal() in specify_interactions.R
+# create interaction items by:
+#   1. Standardizing IV and moderator items using scale() on the training data
+#   2. Computing all pairwise products of the standardized items
+#
+# At prediction time, test data does NOT contain interaction columns. This function
+# recreates them using the TRAINING data's scaling parameters (mean, sd) so that
+# the test-data products are on the same scale as the training-data products.
+#
+# IMPORTANT: We use rawdata (original data without interaction columns) to compute
+# the base-item means/SDs. This is NOT the same as model$meanData, which includes
+# the product items themselves and uses a different standardization (the full-data
+# standardization applied after interaction processing in simplePLS).
+#
+# @param pls_model  An estimated seminr_model (contains rawdata, mmMatrix)
+# @param testData   Held-out test data (data.frame with raw indicator columns)
+# @param interaction_name  Interaction construct name, e.g. "Image*Expectation"
+# @return A data.frame of product indicator columns with names matching estimation
+#         (e.g. "IMAG1*CUEX1", "IMAG1*CUEX2", ...). Same row count as testData.
+create_pi_items_for_test_data <- function(pls_model, testData, interaction_name) {
+  # Parse "X*Y" to extract IV and moderator construct names
+  parsed <- parse_interactions(interaction_name)
+  iv_name <- parsed$antecedent
+  mod_name <- parsed$moderator
+
+  # Look up indicator names for each construct from the measurement model matrix
+  iv_items <- construct_items(pls_model$mmMatrix, iv_name)
+  mod_items <- construct_items(pls_model$mmMatrix, mod_name)
+
+  # Compute training-data scaling parameters from rawdata (base items only).
+  # This mirrors what scale() does inside product_indicator()/orthogonal() at
+  # estimation time (specify_interactions.R lines 237-238 and 151-152).
+  train_iv <- pls_model$rawdata[, iv_items, drop = FALSE]
+  train_mod <- pls_model$rawdata[, mod_items, drop = FALSE]
+  iv_center <- colMeans(train_iv, na.rm = TRUE)
+  iv_scale <- apply(train_iv, 2, stats::sd, na.rm = TRUE)
+  mod_center <- colMeans(train_mod, na.rm = TRUE)
+  mod_scale <- apply(train_mod, 2, stats::sd, na.rm = TRUE)
+
+  # Standardize test data items using training params (NOT test-data params)
+  scaled_iv <- as.data.frame(standardize_data(
+    as.matrix(testData[, iv_items, drop = FALSE]), iv_center, iv_scale))
+  scaled_mod <- as.data.frame(standardize_data(
+    as.matrix(testData[, mod_items, drop = FALSE]), mod_center, mod_scale))
+
+  # Compute all pairwise products of scaled items.
+  # For p IV items and q moderator items, this creates p*q product columns.
+  # Uses mult() and name_items() from library.R — same functions used at estimation.
+  multiples_list <- lapply(scaled_iv, mult, scaled_mod)
+  pi_data <- do.call("cbind", multiples_list)
+  colnames(pi_data) <- as.vector(sapply(iv_items, name_items, mod_items))
+
+  pi_data
+}
+
+# Prediction for product_indicator interaction models ----
+#
+# Recreates item-level product indicators from test data (via
+# create_pi_items_for_test_data), augments the test data, then delegates
+# to predict_from_augmented_data for the shared W×B×L^T pipeline.
+#
+# Supports multiple product_indicator interactions and quadratic terms.
+product_indicator_predict <- function(pls_model, testData, technique) {
+  no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
+  actual_star <- compute_actual_star(pls_model, testData)
+
+  # Recreate product indicator items for each interaction construct,
+  # scaled using training-data params (not test-data params).
+  interactions <- pls_model$constructs[is_interaction(pls_model$constructs)]
+  pi_cols_list <- lapply(interactions, function(int_name) {
+    create_pi_items_for_test_data(pls_model, testData, int_name)
+  })
+  augmented_data <- cbind(testData[, no_int_mmvars, drop = FALSE],
+                          do.call("cbind", pi_cols_list))
+
+  predict_from_augmented_data(pls_model, testData, augmented_data, actual_star, technique)
+}
+
+# Prediction for orthogonal interaction models ----
+#
+# Same as product_indicator_predict, but after creating raw product items,
+# orthogonalizes them using regression coefficients stored during estimation.
+#
+# The orthogonal method (Henseler & Chin, 2010) regresses each product item
+# on the ORIGINAL (unscaled) main-effect items and uses the residuals. At
+# prediction time, we apply the stored coefficients: residual = product - X*beta.
+#
+# IMPORTANT: The X matrix uses ORIGINAL (unscaled) test data items, matching the
+# lm(data = data) call in orthogonal() which uses unscaled training data as
+# predictors while the dependent variable is the product of SCALED items.
+orthogonal_predict <- function(pls_model, testData, technique) {
+  if (is.null(pls_model$interaction_params)) {
+    stop("This model was estimated with an older version of seminr that did not store ",
+         "orthogonalization parameters. Please re-estimate the model with the current version.")
+  }
+
+  no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
+  actual_star <- compute_actual_star(pls_model, testData)
+
+  # Recreate product items, then orthogonalize using stored coefficients
+  interactions <- pls_model$constructs[is_interaction(pls_model$constructs)]
+  ortho_cols_list <- lapply(interactions, function(int_name) {
+    # Create raw (non-orthogonalized) product items from scaled test data
+    products <- create_pi_items_for_test_data(pls_model, testData, int_name)
+
+    # Orthogonalize: subtract predicted values using stored lm() coefficients.
+    # X matrix uses ORIGINAL (unscaled) test items + intercept column.
+    ortho_coefs <- pls_model$interaction_params[[int_name]]$ortho_coefs
+    parsed <- parse_interactions(int_name)
+    iv_items <- construct_items(pls_model$mmMatrix, parsed$antecedent)
+    mod_items <- construct_items(pls_model$mmMatrix, parsed$moderator)
+    X_test <- as.matrix(cbind(1, testData[, c(iv_items, mod_items), drop = FALSE]))
+
+    for (i in 1:ncol(products)) {
+      products[, i] <- products[, i] - X_test %*% ortho_coefs[[i]]
+    }
+    products
+  })
+  augmented_data <- cbind(testData[, no_int_mmvars, drop = FALSE],
+                          do.call("cbind", ortho_cols_list))
+
+  predict_from_augmented_data(pls_model, testData, augmented_data, actual_star, technique)
+}
+
+# Identify which interaction estimation method was used ----
+#
+# Inspects the class attributes of interaction elements in the measurement model
+# to determine which method was used. Each interaction_term() in constructs()
+# carries a class tag set during specification:
+#   - "two_stage_interaction"   → two_stage()    in specify_interactions.R
+#   - "scaled_interaction"      → product_indicator() in specify_interactions.R
+#   - "orthogonal_interaction"  → orthogonal()   in specify_interactions.R
+#
+# @param model  An estimated seminr_model
+# @return A named character vector of methods, one per interaction construct.
+#         Names are the interaction element names from the measurement model list.
+detect_interaction_method <- function(model) {
+  int_elements <- model$measurement_model[grepl("interaction", names(model$measurement_model))]
+  sapply(int_elements, function(el) {
+    cls <- class(el)
+    if ("two_stage_interaction" %in% cls) return("two_stage")
+    if ("scaled_interaction" %in% cls)    return("product_indicator")
+    if ("orthogonal_interaction" %in% cls) return("orthogonal")
+    return("unknown")
+  })
+}
+
+# S3 predict method for SEMinR PLS models ----
+#
+# Dispatches to the appropriate prediction function based on model type:
+#   - No interactions    → one_stage_predict()
+#   - two_stage          → two_stage_predict()
+#   - product_indicator  → product_indicator_predict()
+#   - orthogonal         → orthogonal_predict()
+#
+# HOC (higher-order construct) models are not supported for prediction.
+# Mixed interaction methods (e.g., one two_stage + one product_indicator) are
+# not supported — all interactions in a model must use the same method.
+#
+#' Predict method for SEMinR PLS models
+#'
+#' Generates out-of-sample predictions for a PLS model estimated by \code{estimate_pls()}.
+#' Supports models with and without interaction terms. For interaction models, the
+#' prediction method is automatically detected from the measurement model specification:
+#'
+#' \itemize{
+#'   \item \code{two_stage}: Recreates interaction from construct-score products
+#'   \item \code{product_indicator}: Recreates scaled item-level products from test data
+#'   \item \code{orthogonal}: Recreates scaled products and applies stored orthogonalization
+#'     coefficients from estimation
+#' }
+#'
+#' Higher-order construct (HOC) models are not currently supported for prediction.
+#' Models with mixed interaction methods (e.g., one \code{two_stage} and one
+#' \code{product_indicator}) will produce an error.
+#'
+#' @param object An estimated \code{seminr_model} from \code{estimate_pls()}.
+#' @param testData A data.frame of held-out test data containing all indicator columns.
+#'   Must not include interaction columns (these are recreated internally).
+#' @param technique The prediction technique: \code{predict_DA} (Direct Antecedents,
+#'   default) or \code{predict_EA} (Earliest Antecedents).
+#' @param na.print Character string for printing NA values.
+#' @param digits Number of digits for printing.
+#' @param ... Additional arguments (currently unused).
+#'
+#' @return A \code{predicted_seminr_model} object containing:
+#'   \item{testData}{The test data (non-interaction items only).}
+#'   \item{predicted_items}{Predicted indicator scores.}
+#'   \item{item_residuals}{Residuals (actual - predicted) for each indicator.}
+#'   \item{predicted_composite_scores}{Predicted construct scores.}
+#'   \item{composite_residuals}{Residuals for construct scores.}
+#'   \item{actual_star}{Reference construct scores from re-estimation on combined data.}
+#'
+#' @examples
+#' data(mobi)
+#'
+#' mobi_mm <- constructs(
+#'   composite("Image",        multi_items("IMAG", 1:5)),
+#'   composite("Expectation",  multi_items("CUEX", 1:3)),
+#'   composite("Satisfaction", multi_items("CUSA", 1:3)),
+#'   interaction_term(iv = "Image", moderator = "Expectation",
+#'                    method = product_indicator)
+#' )
+#' mobi_sm <- relationships(
+#'   paths(to = "Satisfaction",
+#'         from = c("Image", "Expectation", "Image*Expectation"))
+#' )
+#' model <- estimate_pls(mobi, mobi_mm, mobi_sm)
+#' predictions <- predict(model, testData = mobi[1:20, ])
+#'
 #' @export
 predict.seminr_model <- function(object, testData, technique = predict_DA, na.print=".", digits=3, ...){
   stopifnot(inherits(object, "seminr_model"))
 
-  # Abort if received a higher-order-model or moderated model
+  # HOC prediction is an unsolved problem in the literature
   if (!is.null(object$hoc)) {
     message("There is no published solution for applying PLSpredict to higher-order-models")
     return()
   }
-  if (!is.null(object$interaction)) {
-    if (all(grepl("two_stage",names(object$measurement_model[grepl("interaction",names(object$measurement_model))])))) {
-      return(two_stage_predict(object, testData, technique) )
-    }
-    stop("Please use two-stage estimation for all interaction terms for generating predictions from moderated models.
-    e.g.: interaction_term(IV, MV, method = two_stage). Two stage yields the leasst biased estimate and best predictive performance
-         as per Danks & Ray (2023)")
+
+  # No interactions: standard single-stage prediction
+  if (is.null(object$interaction)) {
+    return(one_stage_predict(object, testData, technique))
   }
-return(one_stage_predict(object, testData, technique))
+
+  # Dispatch based on interaction method
+  methods <- unique(detect_interaction_method(object))
+  if (length(methods) > 1) {
+    stop("Mixed interaction methods (", paste(methods, collapse = ", "),
+         ") are not supported for prediction. Use a single method for all interactions.")
+  }
+
+  switch(methods,
+    "two_stage"         = two_stage_predict(object, testData, technique),
+    "product_indicator" = product_indicator_predict(object, testData, technique),
+    "orthogonal"        = orthogonal_predict(object, testData, technique),
+    stop("Unknown interaction method: ", methods)
+  )
 }
 
 #' Predict_pls performs either k-fold or LOOCV on a SEMinR PLS model and generates predictions
@@ -226,7 +419,11 @@ return(one_stage_predict(object, testData, technique))
 #'
 #' @param reps The number of times the cross-validation will be repeated. Default is NULL.
 #'
-#' @param cores The number of cores to use for parallel LOOCV processing. If k-fold is used, the process will not be parallelized.
+#' @param cores The number of cores to use for parallel processing. If NULL (default),
+#' cross-validation runs sequentially. Specify an integer to enable parallel execution —
+#' useful for LOOCV or high-k folds (e.g., \code{noFolds = 50}) where each fold requires
+#' re-estimation. Note: parallel workers load the \emph{installed} version of seminr via
+#' \code{library(seminr)}, so run \code{devtools::install()} if testing development code.
 #'
 #' @return A list of the estimated PLS and LM prediction results:
 #'  \item{PLS_out_of_sample}{A matrix of the out-of-sample indicator predictions generated by the SEMinR model.}
@@ -475,30 +672,38 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
               LM_predicted_insample_item_residuals = lmprediction_in_sample_residuals))
 }
 
-# Function to collect and parse prediction matrices
-prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
+# Collect and parse prediction matrices across k folds ----
+#
+# Parallelization strategy:
+#   - cores specified: parallel (useful for LOOCV or high-k like 50, 100)
+#   - cores = NULL (default): always sequential
+#
+# NOTE: Parallel workers load the INSTALLED package via library(seminr), not
+# devtools::load_all(). If tests fail with "number of items to replace is not
+# a multiple of replacement length" or "could not find function", run
+# devtools::install() first to sync the installed version with development code.
+prediction_matrices <- function(noFolds, ordered_data, model, technique, cores) {
   out <- tryCatch(
     {
-      # If noFolds is NULL, perform parallel LOOCV
-      if (is.null(noFolds)) {
-        # Automatically perform LOOCV if number of folds not specified
-        noFolds = nrow(ordered_data)
-        #Create noFolds equally sized folds
-        folds <- cut(seq(1,nrow(ordered_data)),breaks=noFolds,labels=FALSE)
+      # LOOCV: set noFolds to number of observations
+      is_loocv <- is.null(noFolds)
+      if (is_loocv) {
+        noFolds <- nrow(ordered_data)
+      }
+      folds <- cut(seq(1, nrow(ordered_data)), breaks = noFolds, labels = FALSE)
 
-        # Create cluster with seminr loaded on workers (issue #318)
-        # NOTE: Workers load the INSTALLED package via library(seminr), not devtools::load_all().
-        # If tests fail with "number of items to replace is not a multiple of replacement length",
-        # run devtools::install() first to sync the installed version with development code.
+      # Use parallel execution only when explicitly requested via cores parameter
+      use_parallel <- !is.null(cores)
+
+      if (use_parallel) {
         cl <- setup_parallel_cluster(cores)
 
-        # Export variables and functions to cluster
-        parallel::clusterExport(cl=cl, varlist=c("generate_lm_predictions",
-                                                 "predict_lm_matrices",
-                                                 "standardize_data",
-                                                 "unstandardize_data"), envir=environment())
+        # Export helper functions defined in this file to the worker environments
+        parallel::clusterExport(cl = cl, varlist = c("generate_lm_predictions",
+                                                     "predict_lm_matrices",
+                                                     "standardize_data",
+                                                     "unstandardize_data"), envir = environment())
 
-        # Execute the bootstrap
         utils::capture.output(
           matrices <- parallel::parSapply(
             cl, 1:noFolds, in_and_out_sample_predictions, folds = folds,
@@ -507,12 +712,11 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
             technique = technique
           )
         )
-        # Stop cluster
         parallel::stopCluster(cl)
       } else {
-        #Create noFolds equally sized folds
-        folds <- cut(seq(1,nrow(ordered_data)),breaks=noFolds,labels=FALSE)
-        matrices <- sapply(1:noFolds, in_and_out_sample_predictions, folds = folds,ordered_data = ordered_data, model = model, technique = technique)
+        matrices <- sapply(1:noFolds, in_and_out_sample_predictions,
+                           folds = folds, ordered_data = ordered_data,
+                           model = model, technique = technique)
       }
 
       # collect the odd and even numbered matrices from the matrices return object
@@ -582,15 +786,15 @@ prediction_matrices <- function(noFolds, ordered_data, model,technique, cores) {
                   lm_in_sample_item_residuals = average_insample_lm_item_residuals))
     },
     error=function(cond) {
-      message("Parallel encountered this ERROR: ")
+      message("Cross-validation encountered this ERROR: ")
       message(cond)
-      parallel::stopCluster(cl)
+      if (exists("cl")) parallel::stopCluster(cl)
       return(NULL)
     },
     warning=function(cond) {
-      message("Parallel encountered this WARNING:")
+      message("Cross-validation encountered this WARNING:")
       message(cond)
-      parallel::stopCluster(cl)
+      if (exists("cl")) parallel::stopCluster(cl)
       return(NULL)
     },
     finally={
