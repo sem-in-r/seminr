@@ -19,7 +19,18 @@
 
 # -- S3 generic + methods (noun(x, ...): dispatch on class) ---
 
-# S3 generic: get construct names from various model objects
+#' Get construct names from a model or model component
+#'
+#' S3 generic that returns the construct names found in a model, measurement
+#' model, structural model, or related object. Methods dispatch on the class
+#' of `x`.
+#'
+#' @param x A `seminr_model`, `measurement_model`, `structural_model`,
+#'   `mmMatrix`, or related object.
+#' @param ... Additional arguments passed to methods.
+#'
+#' @return A character vector of construct names.
+#' @export
 construct_names <- function(x, ...) {
   UseMethod("construct_names")
 }

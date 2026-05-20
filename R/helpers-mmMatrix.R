@@ -18,7 +18,20 @@
 
 # -- S3 generic + methods (noun(x, ...): dispatch on class) ---
 
-# S3 generic: get item names from various model objects
+#' Get indicator item names for a construct
+#'
+#' S3 generic that returns the indicator (measurement) item names for a
+#' construct from any object that carries measurement-model information.
+#' Methods dispatch on the class of `x`: `seminr_model`, `measurement_model`,
+#' `mmMatrix`, `matrix`, `construct`, or `list`.
+#'
+#' @param x A `seminr_model`, `measurement_model`, `mmMatrix`, plain matrix,
+#'   single `construct`, or list of constructs.
+#' @param ... Additional arguments passed to methods. Matrix-like methods
+#'   typically take a `construct_name` argument.
+#'
+#' @return A character vector of indicator item names.
+#' @export
 construct_items <- function(x, ...) {
   UseMethod("construct_items")
 }
@@ -65,14 +78,32 @@ item_count <- function(construct) {
   length(construct) / 3
 }
 
-# Get name of construct from a measurement model
+#' Get the name of a single construct specification
+#'
+#' Returns the construct's name from a `construct` vector (the user-side
+#' specification produced by `reflective()`, `composite()`, etc.).
+#'
+#' @param construct A `construct` vector.
+#'
+#' @return A character string with the construct name.
+#' @export
 construct_name <- function(construct) {
   construct[1]
 }
 
 # -- Accessors (object_qualifier: return single value) ---------
 
-# Get measurement mode of a construct (first item)
+#' Get the measurement mode of a construct
+#'
+#' Returns the measurement mode (e.g., `"A"`, `"B"`, or reflective) for a
+#' given construct in the measurement-model matrix.
+#'
+#' @param mmMatrix A measurement model matrix as found on an estimated
+#'   seminr model (`model$mmMatrix`).
+#' @param construct The construct name.
+#'
+#' @return A character string identifying the measurement mode.
+#' @export
 construct_mode <- function(mmMatrix, construct) {
   as.matrix(mmMatrix[mmMatrix[,"construct"]==construct,"type"])[1]
 }
@@ -189,6 +220,18 @@ all_LOC_items <- function(measurement_model) {
   unique(.)
 }
 
+#' Select non-interaction constructs from a measurement model
+#'
+#' Filters out interaction constructs from a measurement model list,
+#' returning only the constructs specified via `composite()`, `reflective()`,
+#' or higher-order construct constructors.
+#'
+#' @param measurement_model A `measurement_model` list (e.g., the output of
+#'   `constructs()`).
+#'
+#' @return A filtered list of construct specifications with all interaction
+#'   constructs removed.
+#' @export
 all_non_interactions <- function(measurement_model) {
   Filter(function(e) {!("interaction" %in% class(e))}, measurement_model)
 }
