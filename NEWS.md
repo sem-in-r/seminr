@@ -1,4 +1,4 @@
-# seminr (development version)
+# seminr 2.5.0
 
 ### Added
 * **Prediction for all interaction methods**: `predict()` and `predict_pls()` now support
@@ -16,6 +16,18 @@
 * **Custom confidence levels in plots**: `plot()` accepts a user-specified confidence
   level for bootstrapped models, allowing displays at any alpha (e.g., 90%, 99%) instead
   of the fixed 95% default (#407).
+* **Public accessor API for constructs and measurement-model elements**: A set of
+  helper functions is now exported and documented for use by downstream packages and
+  user scripts. Container-first argument order (model or measurement-model first):
+  `construct_items(x, construct_name)` (S3 generic),
+  `construct_names(x)` (S3 generic),
+  `construct_name(construct)`,
+  `construct_mode(mmMatrix, construct)`,
+  `construct_type(model, construct)`,
+  `all_factors(model)`, `all_composites(model)`,
+  `all_non_interactions(measurement_model)`. These replace and consolidate a set of
+  non-exported internal helpers; downstream code should migrate off `seminr:::`
+  triple-colon access and use these exported functions instead.
 
 ### Changed
 * `predict.seminr_model()` dispatch refactored: uses `switch()` on detected interaction
