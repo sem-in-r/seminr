@@ -38,42 +38,70 @@ Repo: <https://github.com/sem-in-r/seminrExtras>
 Current CRAN version: 1.0.0
 Target: 1.0.1 (patch release)
 
-Root cause: seminr 2.5.0 refactored the internal helper `items_of_construct(construct, model)` (non-exported) into a public S3 generic `construct_items(model, construct_name)` (note container-first argument order). Three test lines in seminrExtras call the old internal helper via `seminr:::`, breaking R CMD check against seminr 2.5.0.
+**Important constraint — circular dependency**: seminr 2.5.0 is not yet on CRAN, and CRAN won't process this seminr release until seminrExtras is fixed first. Therefore seminrExtras 1.0.1 must keep working with **CRAN's current seminr (2.4.2)** — it CANNOT depend on the new `seminr::construct_items()` public API. The full migration to the new public API can happen later in a 1.0.2 release once seminr 2.5.0 is on CRAN.
+
+Root cause: seminr 2.5.0 refactored the internal helper `items_of_construct(construct, model)` (non-exported) and renamed it. Three test lines in seminrExtras call the old internal via `seminr:::items_of_construct()`, which will not exist in seminr 2.5.0. seminrExtras already has its own local copy of `items_of_construct()` with the same name and signature at `R/helpers.R:77` — the fix is to route the 3 broken test lines to that local copy.
 
 Required changes:
 
-1. **`tests/testthat/test-cipma-comprehensive.R`** — replace the 3 internal calls:
-   - Line 123: `items <- seminr:::items_of_construct("Image", pls_model)` → `items <- seminr::construct_items(pls_model, "Image")`
-   - Line 561: `img_items <- seminr:::items_of_construct("Image", pls_hoc)` → `img_items <- seminr::construct_items(pls_hoc, "Image")`
-   - Line 566: `exp_items <- seminr:::items_of_construct("Expectation", pls_hoc)` → `exp_items <- seminr::construct_items(pls_hoc, "Expectation")`
+1. **`tests/testthat/test-cipma-comprehensive.R`** — drop the `seminr:::` prefix from 3 lines so they use seminrExtras's own local `items_of_construct()`:
+   - Line 123: `items <- seminr:::items_of_construct("Image", pls_model)` → `items <- items_of_construct("Image", pls_model)`
+   - Line 561: `img_items <- seminr:::items_of_construct("Image", pls_hoc)` → `img_items <- items_of_construct("Image", pls_hoc)`
+   - Line 566: `exp_items <- seminr:::items_of_construct("Expectation", pls_hoc)` → `exp_items <- items_of_construct("Expectation", pls_hoc)`
 
-2. **`DESCRIPTION`** — bump seminr dependency floor:
-   - `Imports: seminr` → `Imports: seminr (>= 2.5.0)` (the new `construct_items` is exported only from 2.5.0)
+   This works against BOTH seminr 2.4.2 (current CRAN) and seminr 2.5.0, because seminrExtras's local helper is independent of seminr's internals.
+
+2. **`DESCRIPTION`**:
    - Bump `Version: 1.0.0` → `Version: 1.0.1`
    - Update `Date:` to submission date
+   - **Do NOT** add a seminr version floor — must remain compatible with CRAN's seminr 2.4.2.
 
 3. **`NEWS.md`** — add new patch-version entry:
 
    ```markdown
    # seminrExtras 1.0.1
 
-   ### Changed
-   * Migrated test code off `seminr:::items_of_construct()` (non-exported internal,
-     removed in seminr 2.5.0) to the new public S3 generic
-     `seminr::construct_items(model, construct_name)`. Requires seminr (>= 2.5.0).
+   ### Fixed
+   * Tests in `test-cipma-comprehensive.R` no longer reach into seminr's
+     non-exported internals via `seminr:::items_of_construct()`. They now use
+     seminrExtras's own local helper of the same name. This avoids breakage
+     against forthcoming seminr 2.5.0, which refactored that internal helper.
    ```
 
-4. **Optional cleanup** (recommended but not required for the patch):
-   - Delete the local `items_of_construct()` in `R/helpers.R:77` and replace its callers (`R/helpers.R:116, 126`, `R/feature_cipma.R:37,77,126`, `R/feature_pcm.R:96,153,192`, `R/feature_cta.R:125`) with `seminr::construct_items(model, construct)`. This removes a parallel maintenance surface.
+4. **`cran-comments.md`** (short):
+
+   ```markdown
+   ## R CMD check results
+
+   0 errors | 0 warnings | 0 notes
+
+   ## Reverse dependencies
+
+   This is a patch release fixing test code that previously relied on
+   non-exported internals of seminr. The fix uses seminrExtras's own
+   local helper, so the package remains compatible with the current
+   CRAN seminr (2.4.2) and will also work with the forthcoming seminr 2.5.0.
+   ```
 
 5. **Verification before submission**:
-   - `devtools::check()` — should pass cleanly with seminr 2.5.0 installed.
-   - `urlchecker::url_check()`
-   - Submit to win-builder if there are non-trivial changes; for a 3-line test fix the macOS builder is usually sufficient.
+   - `devtools::check()` against installed seminr 2.4.2 (current CRAN) — should pass cleanly.
+   - Optionally also test against a local install of seminr 2.5.0 to confirm forward compatibility.
+   - `urlchecker::url_check()`.
+   - `devtools::check_win_devel()` (recommended).
 
 6. **CRAN submission**:
-   - `cran-comments.md`: short note explaining this is a compatibility patch for seminr 2.5.0's new public API.
-   - `devtools::submit_cran()`.
+   - `devtools::submit_cran()` from interactive R.
+   - Click the confirmation email link.
+
+### Future follow-up (seminrExtras 1.0.2, optional, after seminr 2.5.0 is on CRAN)
+
+Once seminr 2.5.0 lands on CRAN, you can do a follow-up release that:
+
+- Sets `Imports: seminr (>= 2.5.0)` in DESCRIPTION.
+- Replaces the local `items_of_construct()` and its callers (`R/helpers.R:116, 126`, `R/feature_cipma.R:37,77,126`, `R/feature_pcm.R:96,153,192`, `R/feature_cta.R:125`) with `seminr::construct_items(model, construct)` (note the container-first argument order).
+- Removes the local helper definition at `R/helpers.R:77`.
+
+This removes a parallel maintenance surface and tracks seminr's public API directly. Not required for the immediate fix.
 
 Once seminrExtras 1.0.1 is accepted on CRAN, return to this seminr 2.5.0 plan's "Resume instructions" section above.
 
