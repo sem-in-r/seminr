@@ -23,7 +23,7 @@ When seminrExtras 1.0.1 is on CRAN:
 - [x] 7. Bump version
 - [x] 8. Run local R CMD check
 - [x] 9. Submit win-devel check
-- [ ] 10. Verify win-devel results
+- [x] 10. Verify win-devel results
 - [x] 11. Submit mac check
 - [x] 12. Verify mac check results
 - [x] 13. Reverse dependency check
@@ -126,4 +126,5 @@ Once seminrExtras 1.0.1 is accepted on CRAN, return to this seminr 2.5.0 plan's 
 - Step 13 (revdep): 1 reverse dep (seminrExtras 1.0.0) has 2 test failures (`Error: object 'items_of_construct' not found`) caused by `seminr:::items_of_construct()` calls in `tests/testthat/test-cipma-comprehensive.R` lines 123, 561, 566. Production code in seminrExtras is unaffected (it has its own local copy). 623 tests pass, 0 new failures from our public-API exports.
 - Pre-revdep API addition: exported 8 new public accessors (`construct_items`, `construct_names`, `construct_name`, `construct_mode`, `construct_type`, `all_factors`, `all_composites`, `all_non_interactions`) so that seminrExtras and others can migrate off `seminr:::` internals. NEWS.md updated to document the new public API surface.
 - Step 12 (mac results, pre-export code): Status OK, 0/0/0 on R 4.6.0 / macOS Tahoe 26.2 ARM64. Will need a fresh submission after final check since 8 new exports were added.
+- Step 10 (win-devel results, pre-export code): Status OK, 0/0/0 on Windows Server 2022 / R-devel r90065. Log: <https://win-builder.r-project.org/ht59f4gQ3Qr6/00check.log>. Both remote builders confirm the local "unable to verify current time" NOTE is environmental. Will need a fresh submission after final check (same reason as mac).
 - IMPORTANT: Win-devel (#9/10) and mac (#11/12) were submitted before the public-API export additions. After step 15 (final check), re-submit both before commit/submission to CRAN.
