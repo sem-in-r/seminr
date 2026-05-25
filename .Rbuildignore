@@ -20,7 +20,9 @@
 ^CLAUDE\.md$
 ^CLAUDE\.local\.md$
 ^CLAUDE\..*\.md$
+^PLAN\..*\.md$
 ^\.claude$
+^\.lintr$
 ^CRAN-SUBMISSION$
 ^\.sw*$
 ^\.markdownlint\.json$

@@ -36,7 +36,17 @@ construct_items.seminr_model <- function(x, construct_name, ...) {
 
 # -- Accessors (object_qualifier: return single value) ---------
 
-# Get user-facing measurement type string for a construct in a model
+#' Get the user-facing measurement type of a construct
+#'
+#' Returns the measurement type string (e.g., `"composite"`, `"reflective"`,
+#' `"interaction"`) for a construct in an estimated model.
+#'
+#' @param model An estimated seminr model.
+#' @param construct The construct name (or construct specification, for
+#'   interaction constructs).
+#'
+#' @return A character string identifying the construct type.
+#' @export
 construct_type <- function(model, construct) {
   if (is_interaction(construct)) {
     return("interaction")
@@ -101,10 +111,28 @@ return_only_composite_scores <- function(object){
 
 # -- Selectors (all_noun: return vectors) ----------------------
 
+#' Get all common-factor (reflective) constructs in a model
+#'
+#' Returns the names of constructs estimated as common factors (reflective
+#' measurement) in an estimated seminr model.
+#'
+#' @param seminr_model An estimated seminr model.
+#'
+#' @return A character vector of construct names.
+#' @export
 all_factors <- function(seminr_model) {
   intersect(seminr_model$constructs, all_reflective(seminr_model$mmMatrix))
 }
 
+#' Get all composite constructs in a model
+#'
+#' Returns the names of constructs estimated as composites (i.e., not
+#' reflective common factors) in an estimated seminr model.
+#'
+#' @param seminr_model An estimated seminr model.
+#'
+#' @return A character vector of construct names.
+#' @export
 all_composites <- function(seminr_model) {
   setdiff(seminr_model$constructs, all_factors(seminr_model))
 }

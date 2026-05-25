@@ -90,9 +90,12 @@ SEMinR allows various estimation methods for constructs and SEMs:
   - Automatically *estimates using Consistent PLS (PLSc)* when emulating
     reflective common factors
   - Adjusts for known biases in interaction terms in PLS models
+  - *Out-of-sample prediction* via PLSpredict with k-fold CV and LOOCV,
+    supporting all interaction methods (`two_stage`,
+    `product_indicator`, `orthogonal`)
   - Continuously tested against leading PLS-PM software to ensure parity
     of outcomes: SmartPLS, ADANCO, semPLS, and matrixpls
-  - *High performance, multi-core* bootstrapping function
+  - *High performance, multi-core* bootstrapping and cross-validation
 
 Researchers can now create a SEM and estimate it using different
 techniques (CBSEM, PLS-PM).
