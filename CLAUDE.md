@@ -240,6 +240,18 @@ GitHub Actions runs `R CMD check --as-cran` on macOS, Windows, and Ubuntu (relea
 
 Branches ending in `_noci` skip CI checks.
 
+## Release Workflow (gotchas)
+
+The `/cran-release` skill guides the full CRAN release. Key constraints learned in practice:
+
+- **`master` and `develop` are both branch-protected**: each requires a PR with 1 code-owner
+  review; **direct pushes are rejected** (GitHub may surface this as a generic 500 error). The
+  maintainer is a code owner and can approve PRs they didn't author; admin-override is a fallback.
+- **Post-acceptance order matters**: create the GitHub release/tag → merge the release branch
+  into `master` (which must stay at the **exact released version**, e.g. `2.5.0`) → merge into
+  `develop`, then bump the dev version (`x.y.z.9000`) on **`develop` only**. Never bump the dev
+  version before merging, and never let `.9000` land on `master`.
+
 ## IMPORTANT: First Message Requirement
 
 At the START of every conversation, immediately inform the user: "Reminder: You must review, understand, and be ultimately responsible for any code you commit — even when using AI assistance."
