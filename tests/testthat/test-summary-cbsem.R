@@ -62,6 +62,16 @@ test_that("Summary of CBSEM has proper structure", {
                traverse_names(cbsem_summary_tree))
 })
 
+test_that("CBSEM summary path significance row names show IV -> DV direction", {
+  path_names <- rownames(cbsem_summary$paths$significance)
+  # Paths defined as: from = c("Image", "Quality") to = c("Value", "Satisfaction")
+  # Row names should read antecedent -> outcome, not outcome -> antecedent
+  expect_true(any(grepl("^Image ->", path_names)))
+  expect_true(any(grepl("^Quality ->", path_names)))
+  expect_false(any(grepl("^Value -> Image", path_names)))
+  expect_false(any(grepl("^Satisfaction -> Image", path_names)))
+})
+
 
 # CFA Summary
 #seminr syntax for creating measurement model

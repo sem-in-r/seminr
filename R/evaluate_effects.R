@@ -45,20 +45,8 @@ fSquared <- function(seminr_model, iv, dv) {
     return((rsq - 0) / (1 - rsq))
   }
   with_sm <- seminr_model$smMatrix
-  without_sm <- subset(with_sm, !((with_sm[, "source"] == iv) & (with_sm[, "target"] == dv)))
+  without_sm <- remove_path(with_sm, iv, dv)
 
-  # Calculate fSquared using LM of constructs instead of re-estiating the model (this is probably incorrect, but might serve for interaction models)
-  # dvs <- unique(seminr_model$smMatrix[, "target"])
-  # path_matrix <- seminr_model$path_coef
-  # for (dv in dvs) {
-  #   ivs <- names(path_matrix[(path_matrix[,dv] != 0),dv])
-  #   sub("\\*", "x", ivs)
-  #   frmla <- stats::as.formula(paste(dv,paste(sub("\\*", "x", ivs), collapse ="+"), sep = " ~ "))
-  #   data <- as.data.frame(seminr_model$construct_scores)
-  #   colnames(data) <- sub("\\*", "x",colnames(data))
-  #   lm <- stats::lm(formula = frmla, data = data)
-  #   summary(lm)
-  #   }
   suppressMessages(
     without_pls <- estimate_pls(data = seminr_model$rawdata,
                                 measurement_model = seminr_model$measurement_model,
@@ -70,7 +58,7 @@ fSquared <- function(seminr_model, iv, dv) {
                                 stopCriterion = seminr_model$settings$stopCriterion)
   )
   with_r2 <- seminr_model$rSquared["Rsq", dv]
-  ifelse(any(without_sm[,"target"] == dv),
+  ifelse(has_paths_to(without_sm, dv),
          without_r2 <- without_pls$rSquared["Rsq", dv],
          without_r2 <- 0)
 
@@ -81,8 +69,8 @@ model_fsquares <- function(seminr_model) {
   path_matrix <- seminr_model$path_coef
   fsquared_matrix <- path_matrix
   for (dv in all_endogenous(seminr_model$smMatrix)) {
-    ifelse(length(interactions_of(dv, seminr_model$smMatrix) ) > 0,
-      int_components <- unique(unlist(strsplit(interactions_of(dv, seminr_model$smMatrix), "\\*"))),
+    ifelse(length(construct_interactions(seminr_model$smMatrix, dv) ) > 0,
+      int_components <- unique(unlist(strsplit(construct_interactions(seminr_model$smMatrix, dv), "\\*"))),
       int_components <- NA)
     for (iv in setdiff(all_exogenous(seminr_model$smMatrix), int_components)) {
       fsquared_matrix[iv, dv] <- fSquared(seminr_model = seminr_model,

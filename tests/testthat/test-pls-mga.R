@@ -33,7 +33,7 @@ test_that("Seminr estimates the correct PLS-MGA p-values", {
 
   set.seed(798234)
   rand_cond <- sample(c(TRUE, FALSE), nrow(mobi), replace = TRUE)
-  mobi_mga <- estimate_pls_mga(mobi_pls, rand_cond, nboot=100, cores = 2)
+  mobi_mga <- estimate_pls_mga(mobi_pls, rand_cond, nboot=100, cores = 1)
 
   ## Output originally created using following lines (put in correct fixtures folder)
   # fixture_file <- "tests/fixtures/V_3_6_0/pls-mga-mobi-100.RDS"

@@ -4,8 +4,8 @@ summarize_cb_measurement <- function(object, alpha = 0.05) {
   estimates <- lavaan::standardizedSolution(lavaan_output)
 
   model <- list(
-    item_names       = all_items(object$measurement_model),
-    construct_names  = all_construct_names(object$measurement_model),
+    item_names       = construct_items(object$measurement_model),
+    construct_names  = construct_names(object$measurement_model),
     estimation       = lavaan::lavInspect(lavaan_output, "options")$estimator
   )
 
@@ -81,7 +81,7 @@ summarize_cb_structure <- function(object, alpha=0.05) {
     data.frame(est.std, se, z, pvalue, ci.lower, ci.upper)
   )
 
-  rownames(significance) <- with(path_df, paste(lhs, "->", rhs))
+  rownames(significance) <- with(path_df, paste(rhs, "->", lhs))
   colnames(significance) <- c(
     "Std Estimate", "SE", "z-Value", "p-Value",
     paste(alpha_text, "% CI", sep = ""),

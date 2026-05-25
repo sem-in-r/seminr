@@ -73,10 +73,15 @@
 simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weighting, maxIt=300, stopCriterion=7, measurement_mode_scheme){
 
   #Create list of Measurements Variables
-  mmVariables <- mmMatrix[mmMatrix[,"construct"] %in% construct_names(smMatrix), "measurement"]
+  sm_constructs <- construct_names(smMatrix)
+  mm_ordered_constructs <- intersect(all_constructs(mmMatrix), sm_constructs)
+  mmVariables <- unname(unlist(sapply(mm_ordered_constructs, function(c) construct_items(mmMatrix, c), USE.NAMES = FALSE)))
 
   #Create list of construct Variables
   constructs <- construct_names(smMatrix)
+
+  # Precompute construct-to-items mapping (avoids repeated mmMatrix scans in the PLS loop)
+  construct_item_map <- sapply(constructs, function(c) construct_items(mmMatrix, c), simplify = FALSE)
 
   #Extract and Normalize the measurements for the model
   # normData <- scale(obsData[, mmVariables], TRUE, TRUE)
@@ -97,7 +102,7 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
 
   #Initialize outer_weights matrix with value 1 for each relationship in the measurement model
   for (i in 1:length(constructs))  {
-    outer_weights[mmMatrix[mmMatrix[, "construct"]==constructs[i], "measurement"], constructs[i]] =1
+    outer_weights[construct_item_map[[constructs[i]]], constructs[i]] =1
   }
 
   # create a weights matrix with value 1 for each relationship
@@ -111,7 +116,7 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
 
   #Initialize inner_paths matrix with value 1 for each relationship in the structural model
   for (i in 1:length(constructs))  {
-    paths_matrix[smMatrix[smMatrix[, "target"]==constructs[i], "source"], constructs[i]] =1
+    paths_matrix[construct_antecedents(smMatrix, constructs[i]), constructs[i]] =1
   }
 
   #Iterative Process Starts here
@@ -140,7 +145,7 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
 
     #Update outer_weights
     for(i in constructs) {
-      outer_weights[mmMatrix[mmMatrix[, "construct"]==i, "measurement"], i] <- measurement_mode_scheme[[i]]( mmMatrix, i, normData, construct_scores)
+      outer_weights[construct_item_map[[i]], i] <- measurement_mode_scheme[[i]]( mmMatrix, i, normData, construct_scores)
     }
 
     #Standarize outer_weights

@@ -45,11 +45,6 @@
 estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
   pls_data <- pls_model$rawdata
 
-  # Given a beta report matrix (paths as rows) get estimates form a path_coef matrix
-  path_estimate <- function(path, path_coef) {
-    path_coef[path["source"], path["target"]]
-  }
-
   # Allocate and Estimate Two Alternative Datasets + Models
   group1_data <- pls_data[condition, ]
   group2_data <- pls_data[!condition, ]
@@ -64,16 +59,23 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
 
   message("Computing similarity of groups")
   # Produce beta report matrix on all paths (as rows)
-  beta <- as.data.frame(pls_model$smMatrix[,c("source", "target"), drop = F])
-  path_names <- do.call(paste0, cbind(beta["source"], " -> ", beta["target"]))
-  rownames(beta) <- path_names
-  beta$estimate <- apply(beta, MARGIN = 1, FUN=path_estimate, path_coef = pls_model$path_coef)
+  smMatrix <- pls_model$smMatrix
+  sources <- path_sources(smMatrix)
+  targets <- path_targets(smMatrix)
+  path_names <- to_path_labels(smMatrix)
 
-  beta$group1_beta <- apply(beta, MARGIN = 1, FUN=path_estimate, path_coef = group1_model$path_coef)
-  beta$group2_beta <- apply(beta, MARGIN = 1, FUN=path_estimate, path_coef = group2_model$path_coef)
+  lookup_paths <- function(path_coef) {
+    mapply(\(s, t) path_coef[s, t], sources, targets)
+  }
+
+  beta <- data.frame(source = sources, target = targets, row.names = path_names)
+  beta$estimate <- lookup_paths(pls_model$path_coef)
+
+  beta$group1_beta <- lookup_paths(group1_model$path_coef)
+  beta$group2_beta <- lookup_paths(group2_model$path_coef)
 
   beta_diff <- group1_model$path_coef - group2_model$path_coef
-  beta$diff <- apply(beta, MARGIN = 1, FUN=path_estimate, path_coef = beta_diff)
+  beta$diff <- lookup_paths(beta_diff)
 
   # Get bootstrapped paths for both groups
   boot1_betas <- boot_paths_df(group1_boot)

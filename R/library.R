@@ -1,47 +1,3 @@
-# function to get measurement mode of a construct (first item)
-measure_mode <- function(construct,mmMatrix) {
-  as.matrix(mmMatrix[mmMatrix[,"construct"]==construct,"type"])[1]
-}
-
-# function to get measurement mode of a construct (first item) as a function
-get_measure_mode <- function(construct,mmMatrix) {
-  if((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "A")
-     |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "C")
-     |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "HOCA")) {
-    return(mode_A)
-  } else if((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "B")
-            |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "HOCB")) {
-    return(mode_B)
-  } else if((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "UNIT") ) {
-    return(unit_weights)
-  }
-  # ifelse((mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "A")
-  #        |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "C")
-  #        |(mmMatrix[mmMatrix[,"construct"]==construct,"type"][1] == "HOCA"), return(mode_A), return(mode_B))
-}
-
-# Used in warnings - warning_only_causal_construct()
-# function to get all the items of a given measurement mode for a given construct
-items_per_mode <- function(construct, mode,mmMatrix) {
-  constructmatrix <- mmMatrix[mmMatrix[,"construct"]==construct,c("measurement","type")]
-  # If single item construct
-  if (class(constructmatrix)[1] != "matrix") {
-    constructmatrix = t(as.matrix(constructmatrix))
-  }
-  return(constructmatrix[constructmatrix[,"type"] == mode,"measurement"])
-}
-
-# Used in warnings - warning_only_causal_construct() and warning_single_item_formative()
-# function to subset and return the mmMatrix for a construct
-mmMatrix_per_construct <- function(construct, mmMatrix) {
-  constructmatrix <- mmMatrix[mmMatrix[,"construct"]==construct,c("construct","measurement","type")]
-  # If single item construct
-  if (class(constructmatrix)[1] != "matrix") {
-    constructmatrix = t(as.matrix(constructmatrix))
-  }
-  return(constructmatrix)
-}
-
 #' Inner weighting scheme functions to estimate inner paths matrix
 #'
 #' \code{path_factorial} and \code{path_weighting} specify the inner weighting scheme to be used in the estimation of the
@@ -96,7 +52,7 @@ path_weighting <- function(smMatrix, construct_scores, dependant, paths_matrix) 
   #Iterate and regress the incoming paths
   for (i in 1:length(dependant))  {
     #Indentify the independant variables
-    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
+    independant <- construct_antecedents(smMatrix, dependant[i])
 
     #Solve the system of equations
     inner_paths[independant,dependant[i]] = solve(t(construct_scores[,independant]) %*% construct_scores[,independant], t(construct_scores[,independant]) %*% construct_scores[,dependant[i]])
@@ -116,8 +72,8 @@ adjust_interaction <- function(constructs, mmMatrix, outer_loadings, construct_s
   for(construct in constructs) {
     adjustment <- 0
     denom <- 0
-    if(grepl("\\*", construct)) {
-      list <- mmMatrix[mmMatrix[,"construct"]==construct,"measurement"]
+    if(is_interaction(construct)) {
+      list <- construct_items(mmMatrix, construct)
 
       for (item in list){
         adjustment <- adjustment + stats::sd(obsData[,item])*abs(as.numeric(outer_loadings[item,construct]))
@@ -137,7 +93,7 @@ estimate_path_coef <- function(smMatrix, construct_scores,dependant, paths_matri
   #Iterate and regress the incoming paths
   for (i in 1:length(dependant))  {
     #Indentify the independant variables
-    independant<-smMatrix[smMatrix[,"target"]==dependant[i],"source"]
+    independant <- construct_antecedents(smMatrix, dependant[i])
 
     #Solve the system of equations
     paths_matrix[independant,dependant[i]] = solve(t(construct_scores[,independant]) %*% construct_scores[,independant], t(construct_scores[,independant]) %*% construct_scores[,dependant[i]])
@@ -174,7 +130,7 @@ standardize_outer_weights <- function(normData, mmVariables, outer_weights) {
 #'
 #' @export
 mode_A  <- function(mmMatrix, i, normData, construct_scores) {
-    return(stats::cov(normData[,mmMatrix[mmMatrix[,"construct"]==i,"measurement"]],construct_scores[,i]))
+    return(stats::cov(normData[, construct_items(mmMatrix, i)], construct_scores[,i]))
 }
 #' @export
 correlation_weights <- mode_A
@@ -199,7 +155,7 @@ correlation_weights <- mode_A
 #'
 #' @export
 mode_plsc <- function(mmMatrix, j, normData, construct_scores) {
-  return(stats::cov(normData[,mmMatrix[mmMatrix[,"construct"]==j,"measurement"]],construct_scores[,j]))
+  return(stats::cov(normData[, construct_items(mmMatrix, j)], construct_scores[,j]))
 }
 
 #' Outer weighting scheme functions to estimate construct weighting.
@@ -223,26 +179,13 @@ mode_plsc <- function(mmMatrix, j, normData, construct_scores) {
 #'
 #' @export
 mode_B <- function(mmMatrix, i,normData, construct_scores) {
-    return(solve(stats::cor(normData[,mmMatrix[mmMatrix[,"construct"]==i,"measurement"]])) %*%
-    stats::cor(normData[,mmMatrix[mmMatrix[,"construct"]==i,"measurement"]],
+    items <- construct_items(mmMatrix, i)
+    return(solve(stats::cor(normData[, items])) %*%
+    stats::cor(normData[, items],
                construct_scores[,i]))
 }
 #' @export
 regression_weights <- mode_B
-
-return_only_composite_scores <- function(object){
-  mm_composites <- unique(c(object$mmMatrix[which(object$mmMatrix[,3]=="A"),1],
-                          object$mmMatrix[which(object$mmMatrix[,3]=="B"),1],
-                          object$mmMatrix[which(object$mmMatrix[,3]=="HOCB"),1],
-                          object$mmMatrix[which(object$mmMatrix[,3]=="HOCA"),1],
-                          object$mmMatrix[which(object$mmMatrix[,3]=="UNIT"),1]))
-  used_composites <- intersect(mm_composites, object$constructs)
-  if (length(used_composites) == 0) {
-      return(NULL)
-  } else {
-    return(object$construct_scores[, used_composites])
-  }
-}
 
 # Function to return the total effects of a model
 total_effects <- function(path_coef) {
@@ -280,20 +223,7 @@ error_cov_matrix <- function(seminr_model) {
   return(error_cov)
 }
 
-get_factors <- function(seminr_model) {
-  names(sapply(seminr_model$constructs,measure_mode,seminr_model$mmMatrix)[sapply(seminr_model$constructs,measure_mode,seminr_model$mmMatrix) %in% "C"])
-}
-
-get_composites <- function(seminr_model) {
-  setdiff(seminr_model$constructs, get_factors(seminr_model))
-}
-
 # PURPOSE: functions to extract elements of estimated seminr models (seminr_model)
-
-# Gets item names for a given construct in a model
-items_of_construct <- function(construct, model) {
-  model$mmMatrix[model$mmMatrix[,1] == construct, 2]
-}
 
 # update measurement model with interaction constructs
 measure_interaction <- function(name, data, weights) {
@@ -364,29 +294,6 @@ convert_to_table_output <- function(matrix) {
   return(matrix)
 }
 
-constructs_in_model <- function(model) {
-  construct_names <- c()
-  construct_types <- c()
-  if (is.null(model$hoc)) {
-    for (construct in intersect(construct_names(model$smMatrix),unique(model$mmMatrix[,1 ]))) {
-      construct_names <- c(construct_names, construct)
-      construct_types <- c(construct_types, get_construct_type(model, construct))
-    }
-    construct_scores <- model$construct_scores
-  } else {
-    constructs_in_hoc_model <- intersect(unique(c(model$smMatrix[,1],model$smMatrix[,2], model$first_stage_model$smMatrix)),unique(model$mmMatrix[,1 ]))
-    for (construct in constructs_in_hoc_model) {
-      construct_names <- c(construct_names, construct)
-      construct_types <- c(construct_types, get_construct_type(model, construct))
-
-    }
-    construct_scores <- cbind(model$construct_scores, model$first_stage_model$construct_scores[,setdiff(unique(model$first_stage_model$smMatrix),unique(model$smMatrix))])
-  }
-  return(list(construct_names = construct_names,
-              construct_types = construct_types,
-              construct_scores = construct_scores))
-}
-
 #' Outer weighting scheme functions to estimate construct weighting.
 #'
 #' \code{mode_A}, \code{correlation_weights} and \code{mode_B}, \code{regression_weights} and \code{unit_weights} specify the outer weighting
@@ -406,7 +313,6 @@ constructs_in_model <- function(model) {
 #'
 #' @export
 unit_weights <- function(mmMatrix, i,normData, construct_scores) {
-  # matrix(1,nrow = sum(mmMatrix[,1] == i), ncol = 1)
-  return(matrix(1,nrow = sum(mmMatrix[,1] == i), ncol = 1))
+  return(matrix(1, nrow = length(construct_items(mmMatrix, i)), ncol = 1))
 }
 

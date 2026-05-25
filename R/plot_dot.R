@@ -22,6 +22,7 @@ globalVariables(c("."))
 #' @param x The model description
 #' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
+#' @param alpha The significance level for the confidence interval. Default is 0.05. Only meaningful for bootstrapped models.
 #' @param ... Please check the \code{\link{dot_graph}} for the additional parameters
 #'
 #' @return Returns the plot.
@@ -29,6 +30,7 @@ globalVariables(c("."))
 plot.seminr_model <- function(x,
                        title = "",
                        theme = NULL,
+                       alpha = 0.05,
                        ...) {
 
   query_install("DiagrammeR", "Alternatively use the dot_graph() function to create a dot graph.")
@@ -55,7 +57,7 @@ plot.seminr_model <- function(x,
 
     # actual plotting
     if(requireNamespace("DiagrammeR", quietly = TRUE)){
-      res <- DiagrammeR::grViz(dot_graph(model, title, theme, ...))
+      res <- DiagrammeR::grViz(dot_graph(model, title, theme, alpha = alpha, ...))
       set_last_seminr_plot(res)
       return(res)
     } else {
@@ -235,7 +237,7 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
 #' DiagrammeR::grViz(res)}
 #'
 #' # generate dot-Notation
-#' res <- dot_graph(mobi_boot, title = "Bootstrapped PLS-Model plot")
+#' res <- dot_graph(mobi_boot, title = "Bootstrapped PLS-Model plot", alpha = 0.01)
 #'
 #' \dontrun{
 #' DiagrammeR::grViz(res)}
@@ -257,9 +259,10 @@ dot_graph <- function(model,
 #' @param theme Unused
 #' @param what The metric to use for edges ("path", "est", "std", "eq", "col")
 #' @param whatLabels The metric to use for edge labels
+#' @param alpha Unused
 #' @param ... Parameters passed to the \link[semPlot]{semPaths} function
 #' @export
-dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
+dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", alpha = NULL, ...){
   query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
   if(requireNamespace("semPlot", quietly = TRUE)){
     return(semPlot::semPaths(model$lavaan_output, what = what, whatLabels = whatLabels,...))
@@ -276,9 +279,10 @@ dot_graph.cfa_model <- function(model, title = "", theme = NULL, what = "std", w
 #' @param theme Unused
 #' @param what The metric to use for edges ("path", "est", "std", "eq", "col")
 #' @param whatLabels The metric to use for edge labels
+#' @param alpha Unused
 #' @param ... Parameters passed to the \link[semPlot]{semPaths} function
 #' @export
-dot_graph.cbsem_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", ...){
+dot_graph.cbsem_model <- function(model, title = "", theme = NULL, what = "std", whatLabels = "std", alpha = NULL, ...){
   query_install("semPlot", "Plotting models from lavaan is not implemented yet. semPlot is required as a fallback.")
   if(requireNamespace("semPlot", quietly = TRUE)){
     return(
@@ -300,6 +304,7 @@ dot_graph.default <- function(...){
 #' @param model Model created with \code{seminr}.
 #' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
+#' @param alpha Unused
 #' @param ... Unused
 #'
 # @return The path model as a formatted string in dot language.
@@ -321,7 +326,8 @@ dot_graph.default <- function(...){
 dot_graph.measurement_model <-
   function(model,
            title = "",
-           theme = NULL, ...
+           theme = NULL,
+           alpha = NULL, ...
   ){
 
     unusedParams <- list(...)
@@ -345,7 +351,8 @@ dot_graph.measurement_model <-
                 mmMatrix = mm,
                 smMatrix = matrix(rep(unique(mmodel$construct),2),
                                   ncol = 2,
-                                  nrow = length(unique(mmodel$construct))),
+                                  nrow = length(unique(mmodel$construct)),
+                                  dimnames = list(NULL, c("source", "target"))),
                 outer_weights = matrix(c(1), # add only 1s
                                        ncol = length(unique(mmodel$construct) ),
                                        dimnames = list(unique(mmodel$measurement),
@@ -383,6 +390,7 @@ dot_graph.measurement_model <-
 #' @param model Model created with \code{seminr}.
 #' @param title An optional title for the plot
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
+#' @param alpha Unused
 #' @param ... Unused
 #'
 # @return The path model as a formatted string in dot language.
@@ -407,7 +415,8 @@ dot_graph.measurement_model <-
 dot_graph.structural_model <-
   function(model,
            title = "",
-           theme = NULL, ...
+           theme = NULL,
+           alpha = NULL, ...
   ){
 
 
@@ -424,7 +433,7 @@ dot_graph.structural_model <-
 
     # THIS IS AN ARTIFICAL MODEL THAT LETS ME REUSE THE OLD PLOTTING FUNCTION,
     # THIS is unnecessary complex(?).
-    sm_constructs <- unique( c(model[,1], model[,2]) )
+    sm_constructs <- construct_names(model)
     mm_list <- list()
     for (i in sm_constructs) {
       mm_list[[i]] <- reflective(i, paste0(i,"_dummy"))
@@ -468,6 +477,7 @@ dot_graph.structural_model <-
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
 #' @param measurement_only Plot only measurement part
 #' @param structure_only Plot only structure part
+#' @param alpha Unused
 #'
 # @return The path model as a formatted string in dot language.
 #' @export
@@ -477,7 +487,8 @@ dot_graph.specified_model <-  function(model,
                                         title = "",
                                         theme = NULL,
                                         measurement_only = FALSE,
-                                        structure_only = FALSE, ...
+                                        structure_only = FALSE,
+                                        alpha = NULL, ...
 ) {
   unusedParams <- list(...)
   if (length(unusedParams))
@@ -543,7 +554,7 @@ dot_graph.specified_model <-  function(model,
   thm$mm.edge.width_multiplier <- 1
   thm$mm.edge.label.show <- FALSE
 
-  dot_graph(a_model, title = title, theme = thm, measurement_only = measurement_only, structure_only, structure_only)
+  dot_graph(a_model, title = title, theme = thm, measurement_only = measurement_only, structure_only = structure_only)
 }
 
 
@@ -555,6 +566,7 @@ dot_graph.specified_model <-  function(model,
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
 #' @param measurement_only Plot only measurement part
 #' @param structure_only Plot only structure part
+#' @param alpha The significance level for the confidence interval. Default is 0.05.
 #'
 # @return The path model as a formatted string in dot language.
 #' @export
@@ -564,10 +576,13 @@ dot_graph.boot_seminr_model <- function(model,
                                 title = "",
                                 theme = NULL,
                                 measurement_only = FALSE,
-                                structure_only = FALSE, ...
+                                structure_only = FALSE,
+                                alpha = 0.05, ...
 ) {
   # the origingal pls method is capable of plotting boot strapped models
-  dot_graph.pls_model(model, title, theme, measurement_only, structure_only, ...)
+  dot_graph.pls_model(
+    model, title, theme, measurement_only, structure_only, alpha = alpha, ...
+  )
 }
 
 
@@ -579,6 +594,7 @@ dot_graph.boot_seminr_model <- function(model,
 #' @param theme Theme created with \code{\link{seminr_theme_create}}.
 #' @param measurement_only Plot only measurement part
 #' @param structure_only Plot only structure part
+#' @param alpha The significance level for the confidence interval. Default is 0.05. Only meaningful for bootstrapped models.
 #'
 # @return The path model as a formatted string in dot language.
 #' @export
@@ -587,7 +603,8 @@ dot_graph.pls_model <- function(model,
                                 title = "",
                                 theme = NULL,
                                 measurement_only = FALSE,
-                                structure_only = FALSE, ...
+                                structure_only = FALSE,
+                                alpha = 0.05, ...
 ) {
 
   if (is.null(theme)) {
@@ -622,7 +639,9 @@ dot_graph.pls_model <- function(model,
   if (measurement_only) {
     sm <- dot_component_sm_parts(model = model, theme = thm)
   } else {
-    sm <- dot_component_sm(model = model, theme = thm, structure_only = structure_only)
+    sm <- dot_component_sm(
+      model = model, theme = thm, structure_only = structure_only, alpha = alpha
+    )
   }
   if (structure_only) {
     mm <- ""
@@ -742,30 +761,6 @@ format_edge_label <- function(template, variable, value) {
   glue::glue(template)
 }
 
-#' Returns the type of a construct from a model
-#' @param model the model to get the type from
-#' @param construct the character string name of the construct
-#' @return Returns a character string
-get_construct_type <- function(model, construct) {
-  #if (!(construct %in% model$constructs)) {
-  #  stop(paste("Construct", construct, "does not exist")) # scaled interactions ?
-  #}
-  if (grepl("\\*", construct)) {
-    return("interaction")
-  }
-  for (i in 1:length(model$measurement_model)) {
-    cst <- model$measurement_model[[i]]
-    # warning interaction are functions do not access their indexes
-    if (!inherits(cst, "function")) {
-      if (cst[[1]] == construct) {
-        construct_type <- cst[[3]]
-      }
-    }
-  }
-
-  return(construct_type)
-}
-
 #' extract bootstrapped statistics from an edge using a row_index
 #'
 #' @param ltbl a table of bootstrapped values (weights, loadings, path coefficients)
@@ -776,7 +771,11 @@ extract_bootstrapped_values <- function(ltbl, row_index, model, theme) {
 
   t_value <- ltbl[rownames(ltbl) == row_index, 4]
 
-  pvalue <- stats::pt(abs(t_value), nrow(model$data) - 1, lower.tail = FALSE)
+  # Use the empirical bootstrap p-value (column 7: "Bootstrap P Val") to ensure
+  # consistency between plot stars and summary table. Previously used parametric
+  # pt() which could disagree with the bootstrap p-value in borderline cases.
+  # See: https://github.com/sem-in-r/seminr/issues/412
+  pvalue <- ltbl[rownames(ltbl) == row_index, 7]
 
   list(
     mean = round(ltbl[rownames(ltbl) == row_index, 1], theme$plot.rounding),
@@ -819,10 +818,10 @@ get_sm_element_offset <- function(element) {
 # 1. Structural Model ----------------------
 
 # construct structural model using subgraphs
-dot_component_sm <- function(model, theme, structure_only = FALSE) {
+dot_component_sm <- function(model, theme, structure_only = FALSE, alpha = 0.05) {
   sm_nodes <- extract_sm_nodes(model, theme, structure_only = structure_only)
   sm_node_style <- get_sm_node_style(theme)
-  sm_edges <- extract_sm_edges(model, theme)
+  sm_edges <- extract_sm_edges(model, theme, alpha = alpha)
   sm_edge_style <- get_sm_edge_style(theme)
   glue_dot(paste0("// --------------------\n",
                   "// The structural model\n",
@@ -879,13 +878,11 @@ extract_sm_nodes <- function(model, theme, structure_only = FALSE) {
 
   # Add additional SM nodes for submodel
   for (construct in model$constructs) {
-    construct_type <- get_construct_type(model, construct)
+    c_type <- construct_type(model, construct)
 
-    if (startsWith(construct_type, "HOC") && !structure_only) {
+    if (!structure_only && is_HOC(model$mmMatrix, construct)) {
 
-      # row_index <- grepl(construct, model$mmMatrix[,1])
-      row_index <- model$mmMatrix[,1] == construct
-      result <- model$mmMatrix[row_index, 2]
+      result <- construct_items(model$mmMatrix, construct)
       sm_nodes <- c(sm_nodes, result)
     }
   }
@@ -972,9 +969,9 @@ get_sm_node_style <- function(theme) {
 #'
 #' @return Returns a string that determines the shape of a node
 get_sm_node_shape <- function(model, construct, theme) {
-  construct_type <- get_construct_type(model, construct)
+  c_type <- construct_type(model, construct)
 
-  result <- switch(construct_type,
+  result <- switch(c_type,
                    "interaction" = ", shape = ellipse",
                    "C" = paste0(", shape = ", theme$construct.reflective.shape),
                    "B" = paste0(", shape = ", theme$construct.compositeB.shape),
@@ -1013,7 +1010,7 @@ format_endo_node_label <- function(theme, name, rstring) {
 # 1.2 SM-Edges ----
 
 # extract structural model edges from a seminr model
-extract_sm_edges <- function(model, theme, weights = 1) {
+extract_sm_edges <- function(model, theme, weights = 1, alpha = 0.05) {
 
   # Get information about model
   nr <- nrow(model$smMatrix)
@@ -1039,7 +1036,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     if (theme$sm.edge.label.all_betas) {
         letter <- beta
     } else {
-      if ( !(sm[i,1] %in% colnames(model$rSquared))) {
+      if ( !(sm[i, "source"] %in% colnames(model$rSquared))) {
         letter <- gamma # when it is determined only by exogenous variables use gamma
       } else {
         letter <- beta
@@ -1050,8 +1047,8 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     if ("boot_seminr_model" %in% class(model)) {
       # format bootstrapped ---
       # create a summary for summary stats
-      smry <- summary(model)
-      row_index <- paste0(sm[i, 1], "  ->  ", sm[i,2])
+      smry <- summary(model, alpha = alpha)
+      row_index <- paste0(sm[i, "source"], "  ->  ", sm[i, "target"])
       ltbl <- smry$bootstrapped_paths
 
 
@@ -1082,7 +1079,9 @@ extract_sm_edges <- function(model, theme, weights = 1) {
         stars <- ""
 
       if (theme$sm.edge.boot.show_ci) {
-        civalue <- paste0("95% CI [", boot_values[["lower"]], ", ", boot_values[["upper"]], "]")
+        # Confidence Level
+        cl <- (1 - alpha) * 100
+        civalue <- paste0(cl, "% CI [", boot_values[["lower"]], ", ", boot_values[["upper"]], "]")
       } else
         civalue <- ""
 
@@ -1097,7 +1096,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
       pvalue <- ""
       civalue <- ""
       stars <- ""
-      coef <- round(model$path_coef[sm[i, 1], sm[i,2]], theme$plot.rounding)
+      coef <- round(model$path_coef[sm[i, "source"], sm[i, "target"]], theme$plot.rounding)
       edge_width <- paste0(", penwidth = ", (abs(coef * theme$sm.edge.width_multiplier) + theme$sm.edge.width_offset))
       edge_style <- get_value_dependent_sm_edge_style(coef, theme)
     }
@@ -1116,7 +1115,7 @@ extract_sm_edges <- function(model, theme, weights = 1) {
     # add the weight
     edge_weight <- paste0("weight = ", weights)
     sm_edges <- c(sm_edges,
-                  paste0("\"", sm[i, 1], "\" -> {\"", sm[i, 2], "\"}","[", edge_weight, edge_label, edge_width, edge_style, "]"))
+                  paste0("\"", sm[i, "source"], "\" -> {\"", sm[i, "target"], "\"}","[", edge_weight, edge_label, edge_width, edge_style, "]"))
   }
   sm_edges <- paste0(sm_edges, collapse = "\n")
   return(sm_edges)
@@ -1171,21 +1170,17 @@ get_value_dependent_sm_edge_style <- function(value, theme){
 #'
 #' @return whether the construct is endogenous or not
 #' @export
-is_sink <- function(model, index) {
+is_only_endogenous <- function(model, index) {
   # get the mm_coding
   mm_coding <- extract_mm_coding(model)
 
 
-  # Code explanation
-  # as the lower order constructs are not part of the structural model,
-  # we cannot extract their coding directly
-
-  # where does the indexed construct appear as a measurement?
-  idx <- model$mmMatrix[,2] == mm_coding[index, 1]
-  #get that construct's type
-  index_type <- model$mmMatrix[idx,3]
-  # is it a HOC?
-  is_higher_order_measurement <- startsWith(index_type, "HOC")
+  # As lower order constructs are not part of the structural model,
+  # we cannot extract their coding directly.
+  # Check if this construct appears as a measurement (dimension) of a HOC.
+  item_name <- mm_coding[index, "name"]
+  parent_construct <- construct_of_item(model$mmMatrix, item_name)
+  is_higher_order_measurement <- if (!is.na(parent_construct)) is_HOC(model$mmMatrix, parent_construct) else FALSE
 
   if(any(is_higher_order_measurement)) {
     # cannot be sink
@@ -1193,7 +1188,7 @@ is_sink <- function(model, index) {
   }
 
   # otherwise test if it never appears in source
-  issink <- !any(mm_coding[index, ] %in% model$smMatrix[,1])
+  issink <- !any(mm_coding[index, ] %in% all_exogenous(model$smMatrix))
 
   return(issink)
 }
@@ -1210,9 +1205,9 @@ dot_component_mm <- function(model, theme) {
 
   # we use mmMatrix because model$constructs does not contain HOCs
   if (is.null(model$hoc)) {
-    mm_count <- length(intersect(construct_names(model$smMatrix),unique(model$mmMatrix[,1 ])))
+    mm_count <- length(intersect(construct_names(model$smMatrix), all_constructs(model$mmMatrix)))
   } else {
-    mm_count <- length(intersect(unique(c(model$smMatrix, model$first_stage_model$smMatrix)),unique(model$mmMatrix[,1 ])))
+    mm_count <- length(intersect(unique(c(construct_names(model$smMatrix), construct_names(model$first_stage_model$smMatrix))), all_constructs(model$mmMatrix)))
   }
 
 
@@ -1237,9 +1232,9 @@ dot_subcomponent_mm <- function(index, model, theme) {
   node_style <- get_mm_node_style(theme)
 
   # test-flags for component types
-  is_reflective <- mm_coding[index, 2] == "C"
-  is_interaction <- mm_coding[index, 2] == "interaction"
-  # is_higher_order <- startsWith(mm_coding[index, 2], "HOC") # maybe we need this later?
+  is_reflective <- mm_coding[index, "type"] == "C"
+  is_interaction <- mm_coding[index, "type"] == "interaction"
+  # is_higher_order <- startsWith(mm_coding[index, "type"], "HOC") # maybe we need this later?
 
   # debug:
   # print(mm_coding[index, ])
@@ -1255,9 +1250,9 @@ dot_subcomponent_mm <- function(index, model, theme) {
   #  edge_style <- get_mm_edge_style(theme, forward = TRUE)
   #}
 
-  construct_type <- get_construct_type(model, mm_coding[index, 1])
-  flip <- is_sink(model, index)
-  edge_style <- get_mm_edge_style(theme, construct_type, flip)
+  c_type <- construct_type(model, mm_coding[index, "name"])
+  flip <- is_only_endogenous(model, index)
+  edge_style <- get_mm_edge_style(theme, c_type, flip)
 
   nodes <- extract_mm_nodes(index, model, theme)
   edges <- extract_mm_edges(index, model, theme)
@@ -1322,12 +1317,12 @@ get_mm_node_style <- function(theme) {
 #' @param theme the theme to use
 extract_mm_nodes <- function(index, model, theme) {
   mm_coding <- extract_mm_coding(model)
-  mm_matrix <- model$mmMatrix
-  mm_matrix_subset <- mm_matrix[mm_matrix[, 1] == mm_coding[index, 1], ,drop = FALSE] # Should now always be a matrix
+  construct <- mm_coding[index, "name"]
+  items <- construct_items(model$mmMatrix, construct)
 
-  shape <- get_mm_node_shape(model, mm_matrix_subset[1,1], theme)
+  shape <- get_mm_node_shape(model, construct, theme)
   nodes <- paste0(
-      paste0("\"",mm_matrix_subset[, 2],"\" [label = \"", mm_matrix_subset[, 2], "\"", shape, "]"),
+      paste0("\"", items, "\" [label = \"", items, "\"", shape, "]"),
     collapse = "\n")
 
   return(nodes)
@@ -1343,9 +1338,9 @@ extract_mm_nodes <- function(index, model, theme) {
 #'
 #' @return Returns a string that determines the shape of a node
 get_mm_node_shape <- function(model, construct, theme) {
-  construct_type <- get_construct_type(model, construct)
+  c_type <- construct_type(model, construct)
 
-  result <- switch(construct_type,
+  result <- switch(c_type,
                    "interaction" = ", shape = ellipse",
                    "C" = paste0(", shape = ", theme$manifest.reflective.shape),
                    "B" = paste0(", shape = ", theme$manifest.compositeB.shape),
@@ -1433,7 +1428,7 @@ get_mm_edge_style <- function(theme, construct_type, flip = FALSE){
 extract_mm_edge_value <- function(model, theme, indicator, construct){
 
   use_weights <- use_construct_weights(theme,
-                                       get_construct_type(model, construct))
+                                       construct_type(model, construct))
 # TODO: Redundancy in the next few lines can it be permanently deleted?
   # if ("boot_seminr_model" %in% class(model)) {
   #   boot_construct <- paste0(construct, " Boot Mean")
@@ -1492,11 +1487,8 @@ use_construct_weights <- function(theme, construct_type) {
 extract_mm_edges <- function(index, model, theme, weights = 1000) {
 
   mm_coding <- extract_mm_coding(model)
-  mm_matrix <- model$mmMatrix
-
-  # get row_index of all matching mm_matrix rows
-  matching_rows <- mm_matrix[, 1] == mm_coding[index, 1]
-  mm_matrix_subset <- mm_matrix[matching_rows, ,drop = FALSE]
+  construct <- mm_coding[index, "name"]
+  items <- construct_items(model$mmMatrix, construct)
 
   edges <- ""
 
@@ -1508,21 +1500,20 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     lambda <- "lambda"
   }
 
-  for (i in 1:nrow(mm_matrix_subset)) {
+  for (manifest_variable in items) {
     if (theme$plot.randomizedweights) {
       # Does this help with determinism in the layout?
       weights <- weights + stats::runif(1)
     }
 
-    manifest_variable <- mm_matrix_subset[i, 2]
-    construct_variable = mm_matrix_subset[i, 1]
+    construct_variable <- construct
 
     use_weights <- use_construct_weights(theme,
-                                                  get_construct_type(model, construct_variable))
+                                                  construct_type(model, construct_variable))
 
 
     # If interaction variable, we skip
-    if (grepl("\\*", manifest_variable)) {
+    if (is_interaction(manifest_variable)) {
       next
     }
 
@@ -1541,7 +1532,7 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
       ltbl <- smry$bootstrapped_loadings
 
       use_weights <- use_construct_weights(theme,
-                                           get_construct_type(model, construct_variable))
+                                           construct_type(model, construct_variable))
       if (use_weights) {
         ltbl <- smry$bootstrapped_weights
       }
@@ -1588,13 +1579,13 @@ extract_mm_edges <- function(index, model, theme, weights = 1000) {
     edge_style <-
       get_value_dependent_mm_edge_style(loading, theme)
 
-    if(is_sink(model,index)) {
-      source_node <- mm_matrix_subset[i, 1]
-      target_node <- mm_matrix_subset[i, 2]
+    if(is_only_endogenous(model,index)) {
+      source_node <- construct_variable
+      target_node <- manifest_variable
     } else {
       # TODO flip edges
-      source_node <- mm_matrix_subset[i, 2]
-      target_node <- mm_matrix_subset[i, 1]
+      source_node <- manifest_variable
+      target_node <- construct_variable
     }
 
     # append edge

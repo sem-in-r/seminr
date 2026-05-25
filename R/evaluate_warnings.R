@@ -1,14 +1,17 @@
 warning_single_item_formative <- function(mmMatrix) {
-  constructs <- unique(mmMatrix[, 1])
+  constructs <- all_constructs(mmMatrix)
   for(construct in constructs) {
-    if(nrow(mmMatrix_per_construct(construct, mmMatrix)) == 1 && mmMatrix_per_construct(construct, mmMatrix)[,3] == "B") {
+    if(is_single_item(mmMatrix, construct) && is_LOC_B(mmMatrix, construct)) {
       stop("You cannot define a single item construct as mode B")
     }
   }
 }
 
 warning_missing_data <- function(data, mmMatrix) {
-  mm_items <- mmMatrix[which(!grepl("\\*", mmMatrix[,2]) & !(mmMatrix[,"type"] == "HOCA" | mmMatrix[, "type"] == "HOCB")),2]
+  non_hoc_constructs <- all_LOC(mmMatrix)
+  mm_items <- unlist(sapply(non_hoc_constructs,
+    function(c) construct_items(mmMatrix, c), USE.NAMES = FALSE))
+  mm_items <- mm_items[!is_interaction(mm_items)]
   data <- data[, mm_items]
   N <- nrow(data)
   missing_values <- which(stats::complete.cases(data)==FALSE)
@@ -21,33 +24,8 @@ warning_missing_data <- function(data, mmMatrix) {
             "Total number of complete cases: ", N-length(missing_values))
   }
 }
-
-# warning_struc_meas_model_complete <- function(smMatrix, mmMatrix, data) {
-#   construct <- unique(as.vector(smMatrix))
-#   constructmm <- unique(as.vector(mmMatrix[, 1]))
-#   if(any(construct %in% colnames(data))) {
-#     stop("The construct variables cannot share names with the manifest variables.")
-#   }
-#   manifest <- sort(setdiff(as.vector(mmMatrix[, 1:2]), constructmm))
-#
-#   if(!all(manifest %in% colnames(data))) {
-#     stop("The manifest variables must occur as columns in the data.")
-#   }
-#   if(!all(construct %in% constructmm)) {
-#     stop("The construct variables described in the structural model must occur in the measurement model.")
-#   }
-# }
-
-# Warning for a dot used in columns of data prior to generating interactions
-warning_periods_in_col_names <- function(data) {
-  if(TRUE %in% grepl("\\*", colnames(data))) {
-    stop("The names of columns in the data may not contain stars(*)")
-  }
-}
-
 warnings <- function(mmMatrix,data, smMatrix) {
   warning_single_item_formative(mmMatrix)
   warning_missing_data(data, mmMatrix)
-  #warning_periods_in_col_names(data)
 }
 
