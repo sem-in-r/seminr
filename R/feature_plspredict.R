@@ -43,7 +43,15 @@ return_mod_scores <- function(OOS_composite_scores, testData, x) {
 compute_actual_star <- function(pls_model, testData) {
   no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
   fulldata <- pls_model$data[, no_int_mmvars]
+  original_data <- fulldata
   fulldata[rownames(testData), no_int_mmvars] <- testData[, no_int_mmvars]
+  # In-sample calls swap the model's own training rows back in unchanged;
+  # re-estimating identical data reproduces pls_model exactly, so return its
+  # scores without the refit. Any difference (e.g. NA raw data) falls through
+  # to the full re-estimation below.
+  if (identical(original_data, fulldata)) {
+    return(pls_model$construct_scores)
+  }
   suppressMessages(
     fullmodel <- estimate_pls(
       data = fulldata,
@@ -701,6 +709,7 @@ prediction_matrices <- function(noFolds, ordered_data, model, technique, cores) 
         # Export helper functions defined in this file to the worker environments
         parallel::clusterExport(cl = cl, varlist = c("generate_lm_predictions",
                                                      "predict_lm_matrices",
+                                                     "predict_lm_matrices_mlm",
                                                      "standardize_data",
                                                      "unstandardize_data"), envir = environment())
 
@@ -821,6 +830,14 @@ predict_lm_matrices <- function(x, depTrainData, indepTrainData,indepTestData, e
               lm_prediction_out_sample = lmprediction_out_sample))
 }
 
+# Fit all of a construct's items in one multivariate lm: a single QR shared
+# across items yields bit-identical predictions to the per-item lm() fits
+predict_lm_matrices_mlm <- function(depTrainData, indepTrainData, indepTestData) {
+  trainLM <- stats::lm(depTrainData ~ ., indepTrainData)
+  list(lm_prediction_in_sample = stats::predict(trainLM, newdata = indepTrainData),
+       lm_prediction_out_sample = stats::predict(trainLM, newdata = indepTestData))
+}
+
 generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogenous_items, trainIndexes, technique) {
   # Extract the target and non-target variables for Linear Model
   dependant_items <- construct_items(model$mmMatrix, x)
@@ -856,12 +873,9 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
   depTrainData <- as.matrix(dependant_matrix[-testIndexes, ])
   colnames(depTrainData) <- colnames(depTestData) <- dependant_items
 
-  lm_prediction_list <- sapply(dependant_items, predict_lm_matrices, depTrainData = depTrainData,
-                               indepTrainData = indepTrainData,
-                               indepTestData = indepTestData,
-                               endogenous_items = endogenous_items)
-  in_sample_matrix[trainIndexes,] <- matrix(unlist(lm_prediction_list[(1:length(lm_prediction_list))[1:length(lm_prediction_list)%%2==1]]), ncol = length(dependant_items), nrow = nrow(depTrainData), dimnames = list(rownames(depTrainData),dependant_items))
-  out_sample_matrix[testIndexes,] <- matrix(unlist(lm_prediction_list[(1:length(lm_prediction_list))[1:length(lm_prediction_list)%%2==0]]), ncol = length(dependant_items), nrow = nrow(depTestData), dimnames = list(rownames(depTestData),dependant_items))
+  lm_predictions <- predict_lm_matrices_mlm(depTrainData, indepTrainData, indepTestData)
+  in_sample_matrix[trainIndexes,] <- matrix(lm_predictions$lm_prediction_in_sample, ncol = length(dependant_items), nrow = nrow(depTrainData), dimnames = list(rownames(depTrainData),dependant_items))
+  out_sample_matrix[testIndexes,] <- matrix(lm_predictions$lm_prediction_out_sample, ncol = length(dependant_items), nrow = nrow(depTestData), dimnames = list(rownames(depTestData),dependant_items))
 
   return(list(in_sample_matrix, out_sample_matrix))
 }
