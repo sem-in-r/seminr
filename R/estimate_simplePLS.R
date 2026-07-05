@@ -123,8 +123,8 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
   for (iterations in 0:maxIt)  {
 
     #Estimate construct Scores from Outter Path
-    #? construct_scores <- normData%*%outer_weights
-    construct_scores <- normData[, mmVariables]%*%outer_weights
+    # normData holds exactly the mmVariables columns in order (see above)
+    construct_scores <- normData%*%outer_weights
 
     #Standardize construct Scores
     # construct_scores <- scale(construct_scores,TRUE,TRUE)
@@ -159,13 +159,14 @@ simplePLS <- function(obsData, smMatrix, mmMatrix, inner_weights = path_weightin
   } #Finish Iterative Process
 
   #Estimate construct Scores from Outter Path
-  construct_scores <- normData[, mmVariables]%*%outer_weights
+  construct_scores <- normData%*%outer_weights
 
-  #Calculate Outer Loadings
-  outer_loadings <- calculate_loadings(weights_matrix, construct_scores, normData)
-
-  # interaction adjustment
-  construct_scores <- adjust_interaction(constructs, mmMatrix, outer_loadings, construct_scores, obsData)
+  # interaction adjustment (rescales interaction construct scores, which needs
+  # pre-adjustment loadings; both steps are no-ops without interaction terms)
+  if (any(is_interaction(constructs))) {
+    outer_loadings <- calculate_loadings(weights_matrix, construct_scores, normData)
+    construct_scores <- adjust_interaction(constructs, mmMatrix, outer_loadings, construct_scores, obsData)
+  }
 
   #Calculate Outer Loadings
   outer_loadings <- calculate_loadings(weights_matrix, construct_scores, normData)
