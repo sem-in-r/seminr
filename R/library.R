@@ -55,7 +55,9 @@ path_weighting <- function(smMatrix, construct_scores, dependant, paths_matrix) 
     independant <- construct_antecedents(smMatrix, dependant[i])
 
     #Solve the system of equations
-    inner_paths[independant,dependant[i]] = solve(t(construct_scores[,independant]) %*% construct_scores[,independant], t(construct_scores[,independant]) %*% construct_scores[,dependant[i]])
+    X <- construct_scores[,independant]
+    Xt <- t(X)
+    inner_paths[independant,dependant[i]] = solve(Xt %*% X, Xt %*% construct_scores[,dependant[i]])
   }
   return(inner_paths)
 }
@@ -96,14 +98,19 @@ estimate_path_coef <- function(smMatrix, construct_scores,dependant, paths_matri
     independant <- construct_antecedents(smMatrix, dependant[i])
 
     #Solve the system of equations
-    paths_matrix[independant,dependant[i]] = solve(t(construct_scores[,independant]) %*% construct_scores[,independant], t(construct_scores[,independant]) %*% construct_scores[,dependant[i]])
+    X <- construct_scores[,independant]
+    Xt <- t(X)
+    paths_matrix[independant,dependant[i]] = solve(Xt %*% X, Xt %*% construct_scores[,dependant[i]])
   }
   return(paths_matrix)
 }
 
 standardize_outer_weights <- function(normData, mmVariables, outer_weights) {
-  # Standardize the outer weights
-  std_devs <- attr(scale((normData[,mmVariables]%*%outer_weights), center = FALSE),"scaled:scale")
+  # Standardize the outer weights by the root-mean-square of the resulting
+  # scores (same quantity scale(x, center = FALSE) reports as "scaled:scale",
+  # computed directly to avoid scaling a score matrix that is then discarded)
+  scores <- normData %*% outer_weights
+  std_devs <- sqrt(colSums(scores * scores) / max(1L, nrow(scores) - 1L))
   # divide matrix by std_devs and return
   return(t(t(outer_weights) / std_devs))
 }

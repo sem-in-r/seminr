@@ -19,21 +19,27 @@
 #   --reps N      Number of timing repetitions per operation (default: 5)
 #   --nboot N     Bootstrap iterations (default: 200)
 #   --folds N     Cross-validation folds for predict (default: 10)
+#   --largeN N    Rows for the synthetic large-N dataset (default: 2000)
 #   --tag LABEL   Label for output file (default: git branch name)
 #   --outdir DIR  Output directory for results (default: bench/)
+#   --core-only   Run only the original 5 operations (skip large-N, parallel
+#                 bootstrap, LOOCV, MGA, interaction cases)
 # ==============================================================================
 
 # ── Parse arguments ──────────────────────────────────────────────
 parse_args <- function(args = commandArgs(trailingOnly = TRUE)) {
-  defaults <- list(reps = 5L, nboot = 200L, folds = 10L, tag = NULL, outdir = "bench")
+  defaults <- list(reps = 5L, nboot = 200L, folds = 10L, largeN = 2000L,
+                   tag = NULL, outdir = "bench", core_only = FALSE)
   i <- 1
   while (i <= length(args)) {
     switch(args[i],
-      "--reps"   = { defaults$reps   <- as.integer(args[i + 1]); i <- i + 2 },
-      "--nboot"  = { defaults$nboot  <- as.integer(args[i + 1]); i <- i + 2 },
-      "--folds"  = { defaults$folds  <- as.integer(args[i + 1]); i <- i + 2 },
-      "--tag"    = { defaults$tag    <- args[i + 1];              i <- i + 2 },
-      "--outdir" = { defaults$outdir <- args[i + 1];              i <- i + 2 },
+      "--reps"      = { defaults$reps   <- as.integer(args[i + 1]); i <- i + 2 },
+      "--nboot"     = { defaults$nboot  <- as.integer(args[i + 1]); i <- i + 2 },
+      "--folds"     = { defaults$folds  <- as.integer(args[i + 1]); i <- i + 2 },
+      "--largeN"    = { defaults$largeN <- as.integer(args[i + 1]); i <- i + 2 },
+      "--tag"       = { defaults$tag    <- args[i + 1];              i <- i + 2 },
+      "--outdir"    = { defaults$outdir <- args[i + 1];              i <- i + 2 },
+      "--core-only" = { defaults$core_only <- TRUE;                  i <- i + 1 },
       { message("Unknown argument: ", args[i]); i <- i + 1 }
     )
   }
@@ -64,8 +70,10 @@ cat(sprintf("  Branch:       %s (%s)\n", gi$branch, gi$commit))
 cat(sprintf("  Reps:         %d\n", opts$reps))
 cat(sprintf("  Bootstrap:    %d iterations\n", opts$nboot))
 cat(sprintf("  CV folds:     %d\n", opts$folds))
+cat(sprintf("  Large N:      %d rows\n", opts$largeN))
 cat(sprintf("  R version:    %s\n", R.version.string))
 cat(sprintf("  Platform:     %s\n", R.version$platform))
+cat(sprintf("  BLAS:         %s\n", extSoftVersion()[["BLAS"]]))
 cat(sprintf("  Timestamp:    %s\n", Sys.time()))
 cat(sprintf("  seminr ver:   %s\n", as.character(packageVersion("seminr"))))
 cat(paste(rep("-", 65), collapse = ""), "\n\n")
@@ -171,6 +179,108 @@ results$predict_kfold <- bench_op(
   },
   reps = 3L  # fewer reps — CV has inherent variance
 )
+
+if (!opts$core_only) {
+
+# ── 6. PLS Estimation, large N ──────────────────────────────────
+# Synthetic dataset: resample mobi rows with small deterministic noise so the
+# correlation structure stays realistic and no rows are exact duplicates.
+set.seed(123)
+mobi_num <- as.matrix(mobi)
+mobi_large <- as.data.frame(
+  mobi_num[sample.int(nrow(mobi_num), opts$largeN, replace = TRUE), ] +
+    matrix(rnorm(opts$largeN * ncol(mobi_num), sd = 0.1),
+           nrow = opts$largeN)
+)
+
+cat(sprintf("\n6. PLS Estimation (composite, large N = %d)\n", opts$largeN))
+results$estimate_pls_largeN <- bench_op(
+  sprintf("estimate_pls [composite, N=%d]", opts$largeN),
+  function() {
+    estimate_pls(data = mobi_large,
+                 measurement_model = mobi_mm,
+                 structural_model  = mobi_sm)
+  }
+)
+
+# ── 7. Bootstrap, parallel ──────────────────────────────────────
+cat(sprintf("\n7. Bootstrap parallel (nboot=%d, cores=2)\n", opts$nboot))
+results$bootstrap_parallel <- bench_op(
+  sprintf("bootstrap_model [nboot=%d, cores=2]", opts$nboot),
+  function() {
+    bootstrap_model(seminr_model = mobi_pls,
+                    nboot = opts$nboot, cores = 2, seed = 42)
+  },
+  reps = 3L
+)
+
+# ── 8. PLSpredict LOOCV ─────────────────────────────────────────
+# noFolds = NULL means LOOCV (one fold per row). With cores unset this runs
+# sequentially (parallel only engages when cores is passed explicitly) — this
+# is the user-default and most expensive prediction path. Seeded so fold
+# shuffling is identical across runs.
+cat("\n8. PLSpredict (LOOCV, default sequential)\n")
+results$predict_loocv <- bench_op(
+  "predict_pls [LOOCV]",
+  function() {
+    set.seed(42)
+    predict_pls(model     = mobi_pls,
+                technique = predict_DA,
+                noFolds   = NULL,
+                reps      = 1)
+  },
+  reps = 1L  # long-running; single observation
+)
+
+# ── 9. PLS-MGA ──────────────────────────────────────────────────
+mga_nboot <- min(opts$nboot, 200L)
+cat(sprintf("\n9. PLS-MGA (nboot=%d per group, cores=1)\n", mga_nboot))
+results$mga <- bench_op(
+  sprintf("estimate_pls_mga [nboot=%d]", mga_nboot),
+  function() {
+    suppressMessages(
+      estimate_pls_mga(mobi_pls, mobi$CUEX1 < 8,
+                       nboot = mga_nboot, cores = 1, seed = 42)
+    )
+  },
+  reps = 1L  # dominated by two bootstraps; single observation
+)
+
+# ── 10. Bootstrap of interaction model ──────────────────────────
+mobi_mm_int <- constructs(
+  composite("Image",        multi_items("IMAG", 1:5)),
+  composite("Expectation",  multi_items("CUEX", 1:3)),
+  composite("Quality",      multi_items("PERQ", 1:7)),
+  composite("Value",        multi_items("PERV", 1:2)),
+  composite("Satisfaction", multi_items("CUSA", 1:3)),
+  composite("Complaints",   single_item("CUSCO")),
+  composite("Loyalty",      multi_items("CUSL", 1:3)),
+  interaction_term(iv = "Image", moderator = "Expectation", method = orthogonal)
+)
+mobi_sm_int <- relationships(
+  paths(from = "Image",        to = c("Expectation", "Satisfaction", "Loyalty")),
+  paths(from = "Expectation",  to = c("Quality", "Value", "Satisfaction")),
+  paths(from = "Quality",      to = c("Value", "Satisfaction")),
+  paths(from = "Value",        to = c("Satisfaction")),
+  paths(from = "Satisfaction", to = c("Complaints", "Loyalty")),
+  paths(from = "Complaints",   to = "Loyalty"),
+  paths(from = "Image*Expectation", to = "Satisfaction")
+)
+mobi_pls_int <- estimate_pls(data = mobi,
+                             measurement_model = mobi_mm_int,
+                             structural_model  = mobi_sm_int)
+
+cat(sprintf("\n10. Bootstrap of interaction model (nboot=%d, cores=1)\n", opts$nboot))
+results$bootstrap_interaction <- bench_op(
+  sprintf("bootstrap_model [interaction, nboot=%d]", opts$nboot),
+  function() {
+    bootstrap_model(seminr_model = mobi_pls_int,
+                    nboot = opts$nboot, cores = 1, seed = 42)
+  },
+  reps = 3L
+)
+
+}  # end !core_only
 
 # ── Summary table ────────────────────────────────────────────────
 cat("\n", divider, "\n", sep = "")
