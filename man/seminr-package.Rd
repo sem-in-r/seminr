@@ -17,7 +17,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Nicholas Patrick Danks \email{nicholasdanks@hotmail.com}
+\strong{Maintainer}: Nicholas Patrick Danks \email{seminrgroup@gmail.com}
 
 Authors:
 \itemize{
