@@ -17,6 +17,15 @@ plot_scores <- function(seminr_model, constructs=NULL) {
 #' @param x A \code{reliability_table} object from a SEMinR PLS model. This can be accessed
 #'   as the \code{reliability} element of the PLS model summary object.
 #'
+#' @param threshold The reference line drawn across the plot, defaulting to
+#'   \code{0.70}. This is the conventional minimum for internal consistency
+#'   reliability (Hair et al., 2019). Note that it is not the same as the
+#'   \code{0.708} threshold applied to indicator loadings, which derives from
+#'   the criterion that an indicator explain at least 50\% of its own variance
+#'   (0.708^2 approximately 0.50). The metrics shown here -- Cronbach's alpha,
+#'   rhoA and rhoC -- are construct-level reliabilities, to which the loading
+#'   threshold does not apply.
+#'
 #' @param ... All other arguments inherited from \code{plot}.
 #'
 #' @examples
@@ -41,7 +50,7 @@ plot_scores <- function(seminr_model, constructs=NULL) {
 #'plot(summary(mobi_pls)$reliability)
 #'
 #' @export
-plot.reliability_table <- function(x, ...) {
+plot.reliability_table <- function(x, threshold = 0.70, ...) {
   stopifnot(inherits(x, "reliability_table"))
 
   metrics <- cbind(matrix(1:nrow(x),ncol = 1), x)
@@ -76,8 +85,11 @@ plot.reliability_table <- function(x, ...) {
   graphics::segments(unlist(metrics[,1])+0.1, unlist(metrics[, "rhoA"]), unlist(metrics[,1])+0.1, unlist(metrics[, "rhoC"]))
   graphics::points(unlist(metrics[,1])+0.1, unlist(metrics[, "rhoC"]), pch=17)
 
-  # threshhold line
-  graphics::abline(h = 0.708, lty = 2, col = "blue")
+  # Threshold line. 0.70 is the conventional minimum for internal consistency
+  # reliability. It is deliberately NOT 0.708, which is the indicator loading
+  # threshold (0.708^2 ~ 0.50 explained variance) and does not apply to the
+  # construct-level metrics plotted here.
+  graphics::abline(h = threshold, lty = 2, col = "blue")
 
   # rotated axis labels: https://www.tenderisthebyte.com/blog/2019/04/25/rotating-axis-labels-in-r/
   graphics::axis(side = 1, labels = FALSE)
