@@ -4,11 +4,20 @@
 \alias{plot.reliability_table}
 \title{Function for plotting the measurement model reliability metrics of a PLS model}
 \usage{
-\method{plot}{reliability_table}(x, ...)
+\method{plot}{reliability_table}(x, threshold = 0.7, ...)
 }
 \arguments{
 \item{x}{A \code{reliability_table} object from a SEMinR PLS model. This can be accessed
 as the \code{reliability} element of the PLS model summary object.}
+
+\item{threshold}{The reference line drawn across the plot, defaulting to
+\code{0.70}. This is the conventional minimum for internal consistency
+reliability (Hair et al., 2019). Note that it is not the same as the
+\code{0.708} threshold applied to indicator loadings, which derives from
+the criterion that an indicator explain at least 50\% of its own variance
+(0.708^2 approximately 0.50). The metrics shown here -- Cronbach's alpha,
+rhoA and rhoC -- are construct-level reliabilities, to which the loading
+threshold does not apply.}
 
 \item{...}{All other arguments inherited from \code{plot}.}
 }
