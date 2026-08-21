@@ -1,4 +1,4 @@
-# seminr (development version)
+# seminr 2.6.0
 
 # seminr 2.5.0
 
