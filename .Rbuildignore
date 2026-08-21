@@ -29,3 +29,6 @@
 ^\.git$
 ^revdep$
 ^bench$
+^Assessing measure congruence in nomological networks\.pdf$
+^Congruence\.xlsx$
+^vignettes/SEMinR\.html$

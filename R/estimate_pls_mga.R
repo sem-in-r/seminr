@@ -105,8 +105,11 @@ estimate_pls_mga <- function(pls_model, condition, nboot = 2000, ...) {
   }
 
   beta_comparison <- function(i, beta, beta1_boots, beta2_boots) {
-    for_all <- expand.grid(beta1_boots[,i], beta2_boots[,i])
-    2*beta$group1_beta_mean[i] - for_all[,1] - 2*beta$group2_beta_mean[i] + for_all[,2]
+    # All group1 x group2 draw combinations via outer(), avoiding the J^2-row
+    # data.frame expand.grid built here before; the per-pair expression and
+    # its evaluation order are unchanged
+    outer(2*beta$group1_beta_mean[i] - beta1_boots[,i] - 2*beta$group2_beta_mean[i],
+          beta2_boots[,i], "+")
   }
 
   pls_mga_p <- function(i, beta, beta1_boots, beta2_boots) {

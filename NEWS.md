@@ -1,3 +1,38 @@
+# seminr 2.6.0
+
+### Fixed
+
+* `plot.reliability_table()` drew its reference line at 0.708, which is the
+  indicator **loading** threshold (0.708² ≈ 0.50 explained variance). The metrics
+  that plot shows — Cronbach's alpha, rhoA and rhoC — are construct-level
+  internal consistency reliabilities, judged against **0.70**. The line is now
+  drawn at 0.70, and the value is exposed as a `threshold` argument so it can be
+  overridden and so the intended value is documented rather than buried
+  (#421). Reported by Marko Sarstedt.
+
+### Changed
+
+* The package maintainer address is now `seminrgroup@gmail.com` (#420).
+
+### Performance
+
+Substantial internal speedups across the heavy routines. **These are refactors
+only — no result changes.** Verified against the PLS-SEM R book code: with seeds
+pinned, 2.5.0 and 2.6.0 agree to `max|diff| = 0` on every deterministic quantity
+(path coefficients, loadings, weights, R², reliability, HTMT, AVE, VIF) and every
+bootstrap quantity, for both `cores = 1` and `cores = 2`.
+
+* `simplePLS()` skips redundant matrix work in the estimation loop.
+* `HTMT()` reuses one correlation block per construct instead of recomputing.
+* `predict_pls()` avoids redundant model refits and per-item `lm` fits.
+* Cross-validation reuses the full-model reference scores.
+* PLS-MGA p-values are computed without `expand.grid`.
+* `bootstrap_model(cores = 1)` now runs replicates in-process rather than
+  shipping them to a one-worker PSOCK cluster, and saves and restores the
+  caller's RNG state. Replicates continue to use `set.seed(seed + i)`, so
+  bootstrap results remain identical across core counts and across versions.
+* Added a benchmark harness covering the heavy PLS routines.
+
 # seminr 2.5.0
 
 ### Added

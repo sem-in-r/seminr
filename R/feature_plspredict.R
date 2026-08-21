@@ -43,7 +43,15 @@ return_mod_scores <- function(OOS_composite_scores, testData, x) {
 compute_actual_star <- function(pls_model, testData) {
   no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
   fulldata <- pls_model$data[, no_int_mmvars]
+  original_data <- fulldata
   fulldata[rownames(testData), no_int_mmvars] <- testData[, no_int_mmvars]
+  # In-sample calls swap the model's own training rows back in unchanged;
+  # re-estimating identical data reproduces pls_model exactly, so return its
+  # scores without the refit. Any difference (e.g. NA raw data) falls through
+  # to the full re-estimation below.
+  if (identical(original_data, fulldata)) {
+    return(pls_model$construct_scores)
+  }
   suppressMessages(
     fullmodel <- estimate_pls(
       data = fulldata,
@@ -116,8 +124,8 @@ predict_from_augmented_data <- function(pls_model, testData, augmented_data,
 # ============================================================================
 
 # Prediction for models without interactions ----
-one_stage_predict <- function(pls_model, testData, technique) {
-  actual_star <- compute_actual_star(pls_model, testData)
+one_stage_predict <- function(pls_model, testData, technique, actual_star = NULL) {
+  if (is.null(actual_star)) actual_star <- compute_actual_star(pls_model, testData)
   predict_from_augmented_data(pls_model, testData, testData, actual_star, technique)
 }
 
@@ -127,9 +135,9 @@ one_stage_predict <- function(pls_model, testData, technique) {
 # products. It re-estimates a first-stage model (without interactions) to get
 # OOS composite scores, then multiplies IV * Moderator scores to create the
 # interaction indicator.
-two_stage_predict <- function(pls_model, testData, technique) {
+two_stage_predict <- function(pls_model, testData, technique, actual_star = NULL) {
   no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
-  actual_star <- compute_actual_star(pls_model, testData)
+  if (is.null(actual_star)) actual_star <- compute_actual_star(pls_model, testData)
 
   # Collect all interactions and parse their IV/moderator names
   interactions <- pls_model$constructs[is_interaction(pls_model$constructs)]
@@ -223,9 +231,9 @@ create_pi_items_for_test_data <- function(pls_model, testData, interaction_name)
 # to predict_from_augmented_data for the shared W×B×L^T pipeline.
 #
 # Supports multiple product_indicator interactions and quadratic terms.
-product_indicator_predict <- function(pls_model, testData, technique) {
+product_indicator_predict <- function(pls_model, testData, technique, actual_star = NULL) {
   no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
-  actual_star <- compute_actual_star(pls_model, testData)
+  if (is.null(actual_star)) actual_star <- compute_actual_star(pls_model, testData)
 
   # Recreate product indicator items for each interaction construct,
   # scaled using training-data params (not test-data params).
@@ -251,14 +259,14 @@ product_indicator_predict <- function(pls_model, testData, technique) {
 # IMPORTANT: The X matrix uses ORIGINAL (unscaled) test data items, matching the
 # lm(data = data) call in orthogonal() which uses unscaled training data as
 # predictors while the dependent variable is the product of SCALED items.
-orthogonal_predict <- function(pls_model, testData, technique) {
+orthogonal_predict <- function(pls_model, testData, technique, actual_star = NULL) {
   if (is.null(pls_model$interaction_params)) {
     stop("This model was estimated with an older version of seminr that did not store ",
          "orthogonalization parameters. Please re-estimate the model with the current version.")
   }
 
   no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
-  actual_star <- compute_actual_star(pls_model, testData)
+  if (is.null(actual_star)) actual_star <- compute_actual_star(pls_model, testData)
 
   # Recreate product items, then orthogonalize using stored coefficients
   interactions <- pls_model$constructs[is_interaction(pls_model$constructs)]
@@ -375,6 +383,10 @@ detect_interaction_method <- function(model) {
 predict.seminr_model <- function(object, testData, technique = predict_DA, na.print=".", digits=3, ...){
   stopifnot(inherits(object, "seminr_model"))
 
+  # Internal (via ...): predict_pls passes precomputed reference construct
+  # scores for cross-validation folds, avoiding a per-fold re-estimation
+  actual_star <- list(...)$actual_star
+
   # HOC prediction is an unsolved problem in the literature
   if (!is.null(object$hoc)) {
     message("There is no published solution for applying PLSpredict to higher-order-models")
@@ -383,7 +395,7 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
 
   # No interactions: standard single-stage prediction
   if (is.null(object$interaction)) {
-    return(one_stage_predict(object, testData, technique))
+    return(one_stage_predict(object, testData, technique, actual_star))
   }
 
   # Dispatch based on interaction method
@@ -394,9 +406,9 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
   }
 
   switch(methods,
-    "two_stage"         = two_stage_predict(object, testData, technique),
-    "product_indicator" = product_indicator_predict(object, testData, technique),
-    "orthogonal"        = orthogonal_predict(object, testData, technique),
+    "two_stage"         = two_stage_predict(object, testData, technique, actual_star),
+    "product_indicator" = product_indicator_predict(object, testData, technique, actual_star),
+    "orthogonal"        = orthogonal_predict(object, testData, technique, actual_star),
     stop("Unknown interaction method: ", methods)
   )
 }
@@ -623,9 +635,14 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
       stopCriterion = model$settings$stopCriterion
     )
   )
+  # The per-fold out-of-sample reference refit would estimate on exactly the
+  # rows the full-sample model was estimated on (train + test = all rows), so
+  # reuse the full model's construct scores. Results match the refit to
+  # floating-point rounding (row order differs), not bit-identically.
   test_predictions <- stats::predict(object = train_model,
                                      testData = testingData,
-                                     technique = technique)
+                                     technique = technique,
+                                     actual_star = model$construct_scores)
 
   PLS_predicted_outsample_construct[testIndexes,] <-  test_predictions$predicted_composite_scores
   PLS_predicted_outsample_item[testIndexes,] <- test_predictions$predicted_items
@@ -701,6 +718,7 @@ prediction_matrices <- function(noFolds, ordered_data, model, technique, cores) 
         # Export helper functions defined in this file to the worker environments
         parallel::clusterExport(cl = cl, varlist = c("generate_lm_predictions",
                                                      "predict_lm_matrices",
+                                                     "predict_lm_matrices_mlm",
                                                      "standardize_data",
                                                      "unstandardize_data"), envir = environment())
 
@@ -821,6 +839,14 @@ predict_lm_matrices <- function(x, depTrainData, indepTrainData,indepTestData, e
               lm_prediction_out_sample = lmprediction_out_sample))
 }
 
+# Fit all of a construct's items in one multivariate lm: a single QR shared
+# across items yields bit-identical predictions to the per-item lm() fits
+predict_lm_matrices_mlm <- function(depTrainData, indepTrainData, indepTestData) {
+  trainLM <- stats::lm(depTrainData ~ ., indepTrainData)
+  list(lm_prediction_in_sample = stats::predict(trainLM, newdata = indepTrainData),
+       lm_prediction_out_sample = stats::predict(trainLM, newdata = indepTestData))
+}
+
 generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogenous_items, trainIndexes, technique) {
   # Extract the target and non-target variables for Linear Model
   dependant_items <- construct_items(model$mmMatrix, x)
@@ -856,12 +882,9 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
   depTrainData <- as.matrix(dependant_matrix[-testIndexes, ])
   colnames(depTrainData) <- colnames(depTestData) <- dependant_items
 
-  lm_prediction_list <- sapply(dependant_items, predict_lm_matrices, depTrainData = depTrainData,
-                               indepTrainData = indepTrainData,
-                               indepTestData = indepTestData,
-                               endogenous_items = endogenous_items)
-  in_sample_matrix[trainIndexes,] <- matrix(unlist(lm_prediction_list[(1:length(lm_prediction_list))[1:length(lm_prediction_list)%%2==1]]), ncol = length(dependant_items), nrow = nrow(depTrainData), dimnames = list(rownames(depTrainData),dependant_items))
-  out_sample_matrix[testIndexes,] <- matrix(unlist(lm_prediction_list[(1:length(lm_prediction_list))[1:length(lm_prediction_list)%%2==0]]), ncol = length(dependant_items), nrow = nrow(depTestData), dimnames = list(rownames(depTestData),dependant_items))
+  lm_predictions <- predict_lm_matrices_mlm(depTrainData, indepTrainData, indepTestData)
+  in_sample_matrix[trainIndexes,] <- matrix(lm_predictions$lm_prediction_in_sample, ncol = length(dependant_items), nrow = nrow(depTrainData), dimnames = list(rownames(depTrainData),dependant_items))
+  out_sample_matrix[testIndexes,] <- matrix(lm_predictions$lm_prediction_out_sample, ncol = length(dependant_items), nrow = nrow(depTestData), dimnames = list(rownames(depTestData),dependant_items))
 
   return(list(in_sample_matrix, out_sample_matrix))
 }
