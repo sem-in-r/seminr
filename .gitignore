@@ -23,3 +23,6 @@ bench/*.rds
 # sideways tool for git worktrees (https://github.com/soumyaray/sideways)
 .swcopy
 .swsymlink
+Assessing measure congruence in nomological networks.pdf
+Congruence.xlsx
+vignettes/SEMinR.html
