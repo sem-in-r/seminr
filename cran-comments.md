@@ -41,12 +41,33 @@ seeds pinned:
 ## Test environments
 
 - local: macOS 15.5 (arm64), R 4.6.0
-- GitHub Actions: macOS-latest and ubuntu-latest, R release and R devel
-- win-builder: R-devel
+- GitHub Actions: macOS-latest, ubuntu-latest and windows-latest, R release and
+  R devel
+- win-builder: R-devel (2026-08-17 r90424 ucrt), checked 2026-08-21
 
 ## R CMD check results
 
-0 errors | 0 warnings | 0 notes
+Local and GitHub Actions: 0 errors | 0 warnings | 0 notes
+win-builder (R-devel): 0 errors | 0 warnings | 1 note
+
+The note is the expected maintainer-address change described above:
+
+```
+* checking CRAN incoming feasibility ... NOTE
+Maintainer: 'Nicholas Patrick Danks <seminrgroup@gmail.com>'
+
+New maintainer:
+  Nicholas Patrick Danks <seminrgroup@gmail.com>
+Old maintainer(s):
+  Nicholas Patrick Danks <nicholasdanks@hotmail.com>
+```
+
+The previous address bounced, which CRAN reported. The same change was made for
+seminrExtras, confirmed by CRAN on 2026-08-19 and published the same day; this
+submission brings seminr onto the same address. The `Maintainer` field names an
+individual, not a mailing list, and the address is monitored.
+
+win-builder installation time 7s, check time 251s.
 
 ## Reverse dependencies
 
