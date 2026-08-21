@@ -4,10 +4,14 @@
 # seminr, regardless of the user's library path configuration.
 # Fixes issue #318: "there is no package called 'seminr'" on Windows.
 #
-# @param cores Number of worker cores. NULL uses all detected cores.
+# @param cores Number of worker cores. NULL uses at most two, per CRAN policy.
 # @return A parallel cluster object with seminr loaded on all workers.
 setup_parallel_cluster <- function(cores = NULL) {
-  n_cores <- if (is.null(cores)) parallel::detectCores() else cores
+  # CRAN policy: a package must never use more than two cores simultaneously.
+  # An explicit request from the user is honoured; the IMPLICIT default must
+  # stay inside the cap, because tests, examples and vignettes run on the CRAN
+  # check farm with cores unset.
+  n_cores <- if (is.null(cores)) min(2L, parallel::detectCores()) else cores
   cl <- suppressWarnings(parallel::makeCluster(n_cores))
 
   # Propagate library paths so workers can find installed packages (issue #318)
