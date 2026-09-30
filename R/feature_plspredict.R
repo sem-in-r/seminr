@@ -432,7 +432,8 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
   # PLSc interaction models have no model-implied prediction rule in seminr, and
   # the construct-score chain would mix composite and factor metrics (#425)
   if (uses_plsc(object)) {
-    stop("Prediction is not supported for PLSc models (reflective constructs) with interaction terms.")
+    stop("Prediction is not supported for PLSc models (reflective constructs) with interaction terms ",
+         "(see https://github.com/sem-in-r/seminr/issues/427).")
   }
 
   # Dispatch based on interaction method
