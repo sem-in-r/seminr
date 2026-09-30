@@ -91,7 +91,7 @@ predict_from_augmented_data <- function(pls_model, testData, augmented_data,
     pls_model$sdData[pls_model$mmVariables]
   )
 
-  if (uses_plsc(pls_model)) {
+  if (has_reflective(pls_model)) {
     # PLSc: model-implied conditional expectation (see feature_plscpredict.R)
     implied <- plsc_implied_predictions(pls_model, scaled_data, technique)
     predicted_construct_scores <- implied$construct_scores
@@ -431,7 +431,7 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
 
   # PLSc interaction models have no model-implied prediction rule in seminr, and
   # the construct-score chain would mix composite and factor metrics (#425)
-  if (uses_plsc(object)) {
+  if (has_reflective(object)) {
     stop("Prediction is not supported for PLSc models (reflective constructs) with interaction terms ",
          "(see https://github.com/sem-in-r/seminr/issues/427).")
   }

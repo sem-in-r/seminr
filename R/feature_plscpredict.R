@@ -11,11 +11,6 @@
 # (2023), E[y | x] = Sigma_yx Sigma_xx^-1 x on the standardized scale, where
 # Sigma is the indicator correlation matrix implied by the PLSc estimates.
 
-# Does the model use PLSc (any reflective construct)? ----
-uses_plsc <- function(pls_model) {
-  length(intersect(all_reflective(pls_model$mmMatrix), pls_model$constructs)) > 0
-}
-
 # Model-implied indicator correlation matrix of a PLSc model ----
 #
 # Reflective blocks: lambda lambda' with unit diagonal (Theta = 1 - lambda^2).

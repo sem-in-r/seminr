@@ -1,10 +1,11 @@
-# Purpose: Model-level accessors and selectors;
+# Purpose: Model-level accessors, predicates, and selectors;
 #          S3 methods dispatching on seminr_model
 #
 # Naming conventions used in this file:
 #   Category    | Pattern            | Example
 #   S3 method   | generic.class      | construct_names.seminr_model(x)
 #   Accessor    | object_qualifier   | construct_type(model, name)
+#   Predicate   | is_/has_/are_      | has_reflective(model)
 #   Selector    | all_noun           | all_factors(model), all_composites(model)
 #
 # All functions use container-first argument order: model as the
@@ -107,6 +108,14 @@ return_only_composite_scores <- function(object){
   } else {
     return(object$construct_scores[, used_composites])
   }
+}
+
+# -- Predicates (is_/has_/are_: return logical) ----------------
+
+# Does the model have reflective constructs? estimate_pls() runs PLSc
+# (model_consistent) exactly when this is TRUE, so prediction uses it too
+has_reflective <- function(seminr_model) {
+  length(all_reflective(seminr_model$mmMatrix)) > 0
 }
 
 # -- Selectors (all_noun: return vectors) ----------------------
