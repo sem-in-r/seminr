@@ -50,6 +50,17 @@ prediction method is automatically detected from the measurement model specifica
     coefficients from estimation
 }
 
+For models with \code{reflective()} constructs, which \code{estimate_pls()} estimates as
+consistent PLS (PLSc), items are predicted with the model-implied conditional expectation
+of de Rooij et al. (2023) instead of the PLSpredict construct-score chain: the PLSc path
+coefficients and loadings describe the common factors, not the weighted composites, so
+applying them to composite scores over-disperses the predictions. The indicator correlation
+matrix implied by the PLSc estimates is used to predict each endogenous construct's items
+from the items of its direct antecedents (\code{predict_DA}) or of the exogenous constructs
+(\code{predict_EA}). If the PLSc solution is inadmissible (a rho_A outside (0, 1], a
+standardized loading above one, or a non-positive-definite implied correlation matrix)
+prediction stops with the reason. PLSc models with interaction terms are not supported.
+
 Higher-order construct (HOC) models are not currently supported for prediction.
 Models with mixed interaction methods (e.g., one \code{two_stage} and one
 \code{product_indicator}) will produce an error.
@@ -71,4 +82,8 @@ mobi_sm <- relationships(
 model <- estimate_pls(mobi, mobi_mm, mobi_sm)
 predictions <- predict(model, testData = mobi[1:20, ])
 
+}
+\references{
+de Rooij, M., Karch, J. D., Fokkema, M., Bakk, Z., Pratiwi, B. C., & Kelderman, H.
+  (2023). SEM-based out-of-sample predictions. \emph{Structural Equation Modeling}, 30(1), 132--148.
 }
