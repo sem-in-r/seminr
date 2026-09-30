@@ -109,3 +109,8 @@ test_that("predict_pls() runs cross-validation for PLSc models", {
   expect_false(anyNA(cv$items$PLS_out_of_sample))
 })
 
+test_that("CB-SEM models get an informative error instead of the PLS prediction chain", {
+  cb <- suppressMessages(estimate_cbsem(train, reflective_two_mm, reflective_two_sm))
+  expect_error(predict(cb, test), "CB-SEM.*lavPredictY")
+  expect_error(predict_pls(cb, noFolds = 5), "CB-SEM.*lavPredictY")
+})
