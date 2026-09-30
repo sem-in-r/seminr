@@ -323,11 +323,11 @@ detect_interaction_method <- function(model) {
   })
 }
 
-# CB-SEM models inherit seminr_model but have no weights or loadings to predict with ----
+# CB-SEM models inherit seminr_model but cannot be re-estimated per fold here ----
 stop_if_cbsem <- function(model) {
   if (inherits(model, "cbsem_model")) {
-    stop("Prediction is not available for CB-SEM models estimated with estimate_cbsem(). ",
-         "Use lavaan::lavPredictY() on the fitted lavaan object in model$lavaan_output.",
+    stop("Cross-validated prediction (predict_pls) is not yet available for CB-SEM models. ",
+         "Use predict() on held-out data, which applies the model-implied rule.",
          call. = FALSE)
   }
 }
@@ -412,7 +412,6 @@ stop_if_cbsem <- function(model) {
 #' @export
 predict.seminr_model <- function(object, testData, technique = predict_DA, na.print=".", digits=3, ...){
   stopifnot(inherits(object, "seminr_model"))
-  stop_if_cbsem(object)
 
   # Internal (via ...): predict_pls passes precomputed reference construct
   # scores for cross-validation folds, avoiding a per-fold re-estimation
