@@ -10,7 +10,7 @@ train <- d[1:200, ]; test <- d[201:250, ]
 it <- function(stem, k) paste0(stem, k)
 blocks <- list(Image = it("IMAG", 1:5), Expectation = it("CUEX", 1:3),
                Quality = it("PERQ", 1:7), Value = it("PERV", 1:2),
-               Satisfaction = it("CUSA", 1:3))
+               Satisfaction = it("CUSA", 1:3), Complaints = "CUSCO")
 implied_predict <- function(model_syntax, x_constructs_by_y) {
   fit <- csem(train, model_syntax, .disattenuate = TRUE)
   S <- cSEM::fit(fit)
@@ -20,7 +20,7 @@ implied_predict <- function(model_syntax, x_constructs_by_y) {
   preds <- lapply(names(x_constructs_by_y), function(y) {
     xi <- unlist(blocks[x_constructs_by_y[[y]]]); yi <- blocks[[y]]
     Z <- scale(as.matrix(test[, xi]), mu[xi], s[xi])
-    P <- Z %*% solve(S[xi, xi], S[xi, yi])
+    P <- Z %*% solve(S[xi, xi], S[xi, yi, drop = FALSE])
     sweep(sweep(P, 2, s[yi], "*"), 2, mu[yi], "+")
   })
   list(items = do.call(cbind, preds), paths = paths)
@@ -49,6 +49,13 @@ mixed <- implied_predict("
   Satisfaction =~ CUSA1 + CUSA2 + CUSA3
   Satisfaction ~ Image + Value",
   list(Satisfaction = c("Image", "Value")))
+single_item <- implied_predict("
+  Image =~ IMAG1 + IMAG2 + IMAG3 + IMAG4 + IMAG5
+  Satisfaction =~ CUSA1 + CUSA2 + CUSA3
+  Complaints =~ CUSCO
+  Satisfaction ~ Image
+  Complaints ~ Satisfaction",
+  list(Satisfaction = "Image", Complaints = "Satisfaction"))
 saveRDS(list(reflective_two = reflective_two, chain_DA = chain_DA,
-             chain_EA = chain_EA, mixed = mixed),
+             chain_EA = chain_EA, mixed = mixed, single_item = single_item),
         "tests/testthat/fixtures/plsc_oracle.rds", version = 2)
