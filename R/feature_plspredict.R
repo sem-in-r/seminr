@@ -91,11 +91,18 @@ predict_from_augmented_data <- function(pls_model, testData, augmented_data,
     pls_model$sdData[pls_model$mmVariables]
   )
 
-  # W × B × L^T prediction chain
-  predicted_construct_scores <- scaled_data %*% pls_model$outer_weights[pls_model$mmVariables, ]
-  predicted_construct_scores <- technique(pls_model$smMatrix, pls_model$path_coef,
-                                          predicted_construct_scores)
-  predictedMeasurements <- predicted_construct_scores %*% t(pls_model$outer_loadings)
+  if (has_reflective(pls_model)) {
+    # PLSc: model-implied conditional expectation (see feature_plscpredict.R)
+    implied <- plsc_implied_predictions(pls_model, scaled_data, technique)
+    predicted_construct_scores <- implied$construct_scores
+    predictedMeasurements <- implied$items
+  } else {
+    # W × B × L^T prediction chain
+    predicted_construct_scores <- scaled_data %*% pls_model$outer_weights[pls_model$mmVariables, ]
+    predicted_construct_scores <- technique(pls_model$smMatrix, pls_model$path_coef,
+                                            predicted_construct_scores)
+    predictedMeasurements <- predicted_construct_scores %*% t(pls_model$outer_loadings)
+  }
 
   # Unstandardize non-interaction items only
   predictedMeasurements <- unstandardize_data(
@@ -316,6 +323,15 @@ detect_interaction_method <- function(model) {
   })
 }
 
+# CB-SEM models inherit seminr_model but have no weights or loadings to predict with ----
+stop_if_cbsem <- function(model) {
+  if (inherits(model, "cbsem_model")) {
+    stop("Prediction is not available for CB-SEM models estimated with estimate_cbsem(). ",
+         "Use lavaan::lavPredictY() on the fitted lavaan object in model$lavaan_output.",
+         call. = FALSE)
+  }
+}
+
 # S3 predict method for SEMinR PLS models ----
 #
 # Dispatches to the appropriate prediction function based on model type:
@@ -341,6 +357,17 @@ detect_interaction_method <- function(model) {
 #'     coefficients from estimation
 #' }
 #'
+#' For models with \code{reflective()} constructs, which \code{estimate_pls()} estimates as
+#' consistent PLS (PLSc), items are predicted with the model-implied conditional expectation
+#' of de Rooij et al. (2023) instead of the PLSpredict construct-score chain: the PLSc path
+#' coefficients and loadings describe the common factors, not the weighted composites, so
+#' applying them to composite scores over-disperses the predictions. The indicator correlation
+#' matrix implied by the PLSc estimates is used to predict each endogenous construct's items
+#' from the items of its direct antecedents (\code{predict_DA}) or of the exogenous constructs
+#' (\code{predict_EA}). If the PLSc solution is inadmissible (a rho_A outside (0, 1], a
+#' standardized loading above one, or a non-positive-definite implied correlation matrix)
+#' prediction stops with the reason. PLSc models with interaction terms are not supported.
+#'
 #' Higher-order construct (HOC) models are not currently supported for prediction.
 #' Models with mixed interaction methods (e.g., one \code{two_stage} and one
 #' \code{product_indicator}) will produce an error.
@@ -353,6 +380,9 @@ detect_interaction_method <- function(model) {
 #' @param na.print Character string for printing NA values.
 #' @param digits Number of digits for printing.
 #' @param ... Additional arguments (currently unused).
+#'
+#' @references de Rooij, M., Karch, J. D., Fokkema, M., Bakk, Z., Pratiwi, B. C., & Kelderman, H.
+#'   (2023). SEM-based out-of-sample predictions. \emph{Structural Equation Modeling}, 30(1), 132--148.
 #'
 #' @return A \code{predicted_seminr_model} object containing:
 #'   \item{testData}{The test data (non-interaction items only).}
@@ -382,6 +412,7 @@ detect_interaction_method <- function(model) {
 #' @export
 predict.seminr_model <- function(object, testData, technique = predict_DA, na.print=".", digits=3, ...){
   stopifnot(inherits(object, "seminr_model"))
+  stop_if_cbsem(object)
 
   # Internal (via ...): predict_pls passes precomputed reference construct
   # scores for cross-validation folds, avoiding a per-fold re-estimation
@@ -396,6 +427,13 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
   # No interactions: standard single-stage prediction
   if (is.null(object$interaction)) {
     return(one_stage_predict(object, testData, technique, actual_star))
+  }
+
+  # PLSc interaction models have no model-implied prediction rule in seminr, and
+  # the construct-score chain would mix composite and factor metrics (#425)
+  if (has_reflective(object)) {
+    stop("Prediction is not supported for PLSc models (reflective constructs) with interaction terms ",
+         "(see https://github.com/sem-in-r/seminr/issues/427).")
   }
 
   # Dispatch based on interaction method
@@ -420,6 +458,10 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
 #' This function generates cross-validated in-sample and out-sample predictions for PLS models generated by SEMinR. The
 #' cross validation technique can be k-fold if a number of folds are specified, or leave-one-out-cross-validation (LOOCV) if no folds
 #' arew specified. LOOCV is recommended for small datasets.
+#'
+#' Models with \code{reflective()} constructs (PLSc) are predicted with the model-implied
+#' conditional expectation rather than the construct-score chain; see
+#' \code{\link{predict.seminr_model}}.
 #'
 #' @param model A SEMinR model that has been estimated on the FULL dataset.
 #'
@@ -493,6 +535,7 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
 predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NULL, cores = NULL) {
 
   stopifnot(inherits(model, "seminr_model"))
+  stop_if_cbsem(model)
   # Abort if received a higher-order-model or moderated model
   if (!is.null(model$hoc)) {
     message("There is no published solution for applying PLSpredict to higher-order-models")

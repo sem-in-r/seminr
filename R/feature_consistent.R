@@ -107,14 +107,13 @@ PLSc <- function(seminr_model) {
 
 # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
 model_consistent <- function(seminr_model) {
-  has_reflective <- length(all_constructs_of_mode(seminr_model$mmMatrix, "C")) > 0
-  if(!is.null(seminr_model$interactions) && has_reflective) {
+  if(!is.null(seminr_model$interactions) && has_reflective(seminr_model)) {
     message(
       "Models with interactions can be estimated as PLS consistent, but are subject to some bias as per Becker et al. (2018)\n",
       "'Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment'")
     seminr_model <- PLSc(seminr_model)
   }
-  if(is.null(seminr_model$interactions) && has_reflective) {
+  if(is.null(seminr_model$interactions) && has_reflective(seminr_model)) {
     seminr_model <- PLSc(seminr_model)
   }
   return(seminr_model)

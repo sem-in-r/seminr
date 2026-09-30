@@ -2,6 +2,23 @@
 
 ### Fixed
 
+* `predict()` and `predict_pls()` pushed composite scores, built from the
+  uncorrected outer weights, through the PLSc-corrected path coefficients and
+  loadings whenever a model had `reflective()` constructs. PLSc coefficients
+  describe the common factors, not the composites, so the predictions were
+  over-dispersed (by 1/sqrt(rho_A) with a single antecedent) or reweighted
+  across correlated antecedents. PLSc models are now predicted with the
+  model-implied conditional expectation of de Rooij et al. (2023), using the
+  indicator correlations implied by the PLSc estimates; `predict_DA` and
+  `predict_EA` set the predictor items. Inadmissible PLSc solutions stop with
+  the reason, and PLSc models with interaction terms are no longer predicted.
+  Models without reflective constructs are unchanged (#425).
+
+* `predict()` and `predict_pls()` on a model from `estimate_cbsem()` failed with
+  an unrelated low-level error (the CB-SEM object inherits `seminr_model` but
+  has no weights or loadings). They now stop with a message pointing to
+  `lavaan::lavPredictY()` on `model$lavaan_output`.
+
 * `plot.reliability_table()` drew its reference line at 0.708, which is the
   indicator **loading** threshold (0.708² ≈ 0.50 explained variance). The metrics
   that plot shows — Cronbach's alpha, rhoA and rhoC — are construct-level
