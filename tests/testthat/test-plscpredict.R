@@ -70,6 +70,23 @@ test_that("mixed reflective and Mode B composite models use observed within-bloc
   expect_equal(unname(as.matrix(pred[, colnames(o)])), unname(o), tolerance = 1e-6)
 })
 
+test_that("single-item reflective constructs are predicted (and predict from) correctly", {
+  mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    reflective("Satisfaction", multi_items("CUSA", 1:3)),
+    reflective("Complaints",   single_item("CUSCO"))
+  )
+  sm <- relationships(
+    paths(from = "Image", to = "Satisfaction"),
+    paths(from = "Satisfaction", to = "Complaints")
+  )
+  model <- suppressMessages(estimate_pls(train, mm, sm))
+  expect_same_paths(model, oracle$single_item)
+  pred <- predict(model, test)$predicted_items
+  o <- oracle$single_item$items
+  expect_equal(unname(as.matrix(pred[, colnames(o)])), unname(o), tolerance = 1e-6)
+})
+
 test_that("PLSc construct predictions are expected composite scores, in the metric of actual_star", {
   model <- suppressMessages(estimate_pls(train, reflective_two_mm, reflective_two_sm))
   p <- predict(model, test)

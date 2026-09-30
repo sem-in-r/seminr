@@ -83,7 +83,7 @@ plsc_implied_correlations <- function(pls_model) {
   for (construct in constructs) {
     block <- construct_items(mmMatrix, construct)
     if (construct %in% reflectives) {
-      diag(sigma[block, block]) <- 1
+      sigma[cbind(block, block)] <- 1
     } else {
       sigma[block, block] <- observed[block, block]
     }
