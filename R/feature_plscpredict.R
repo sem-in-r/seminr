@@ -40,7 +40,7 @@ plsc_implied_correlations <- function(pls_model) {
                  paste(sprintf("%s = %.3f", constructs, rho), collapse = ", "), ")")
   }
 
-  reflectives <- intersect(all_reflective(mmMatrix), constructs)
+  reflectives <- all_factors(pls_model)
   reflective_items <- unlist(lapply(reflectives, function(x) construct_items(mmMatrix, x)))
   squared_loadings <- rowSums(loadings[reflective_items, , drop = FALSE]^2)
   if (any(squared_loadings > 1 + 1e-8)) {
@@ -75,13 +75,10 @@ plsc_implied_correlations <- function(pls_model) {
 
   sigma <- loadings %*% implied_phi %*% t(loadings)
   observed <- stats::cor(pls_model$data[, items])
-  for (construct in constructs) {
+  diag(sigma) <- 1
+  for (construct in all_composites(pls_model)) {
     block <- construct_items(mmMatrix, construct)
-    if (construct %in% reflectives) {
-      sigma[cbind(block, block)] <- 1
-    } else {
-      sigma[block, block] <- observed[block, block]
-    }
+    sigma[block, block] <- observed[block, block]
   }
   sigma
 }
