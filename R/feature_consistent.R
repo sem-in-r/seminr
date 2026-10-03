@@ -3,6 +3,9 @@
 #' The \code{PLSc} function calculates the consistent PLS path coefficients and loadings for
 #' a common-factor model. It returns a \code{seminr_model} containing the adjusted and consistent
 #' path coefficients and loadings for common-factor models and composite models.
+#' Only common-factor (\code{reflective()}) constructs are corrected for measurement error;
+#' composites of any mode are treated as fully reliable (rho_A = 1), as in Dijkstra and
+#' Henseler (2015).
 #'
 #' @param seminr_model A \code{seminr_model} containing the estimated seminr model.
 #'
@@ -104,8 +107,9 @@ PLSc <- function(seminr_model) {
 # Construct reliabilities and disattenuated construct correlations for PLSc ----
 #
 # Shared by PLSc() and PLSc prediction (plsc_implied_correlations()), so that
-# estimation and prediction always correct with the same rho. Interaction terms
-# are not corrected (rho = 1).
+# estimation and prediction always correct with the same rho. Only common
+# factors are corrected: composites (any mode) and interaction terms are taken
+# as fully reliable (rho = 1), as in Dijkstra & Henseler (2015).
 #
 # @param seminr_model  An estimated seminr_model
 # @return list(rho = named rho vector, construct_cors = disattenuated construct
@@ -113,7 +117,7 @@ PLSc <- function(seminr_model) {
 plsc_disattenuation <- function(seminr_model) {
   constructs <- constructs_in_model(seminr_model)$construct_names
   rho <- rho_A(seminr_model, constructs)[, 1]
-  rho[is_interaction(constructs)] <- 1
+  rho[is_interaction(constructs) | !(constructs %in% all_factors(seminr_model))] <- 1
   construct_cors <- stats::cor(seminr_model$construct_scores[, constructs]) / sqrt(outer(rho, rho))
   diag(construct_cors) <- 1
   list(rho = rho, construct_cors = construct_cors)

@@ -14,6 +14,16 @@
   the reason, and PLSc models with interaction terms are no longer predicted.
   Models without reflective constructs are unchanged (#425).
 
+* PLSc (`estimate_pls()` with `reflective()` constructs) corrected the paths
+  into and out of Mode A and unit-weighted composites as if they were common
+  factors, by dividing their correlations by sqrt(rho_A). Only Mode B composites
+  were left uncorrected. Consistent PLS corrects only common factors and treats
+  composites as fully reliable (Dijkstra & Henseler, 2015), as cSEM does. All
+  composites now use rho_A = 1 in PLSc. **Path coefficients and R² change for
+  models that mix `reflective()` constructs with Mode A or unit-weighted
+  `composite()` constructs.** Loadings and models without reflective constructs
+  are unchanged. The `rho_A` reported by `summary()` is unchanged.
+
 * `predict()` and `predict_pls()` on a model from `estimate_cbsem()` failed with
   an unrelated low-level error (the CB-SEM object inherits `seminr_model` but
   has no weights or loadings). They now stop with a message pointing to

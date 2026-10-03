@@ -16,6 +16,9 @@ A SEMinR model object which has been adjusted according to PLSc.
 The \code{PLSc} function calculates the consistent PLS path coefficients and loadings for
 a common-factor model. It returns a \code{seminr_model} containing the adjusted and consistent
 path coefficients and loadings for common-factor models and composite models.
+Only common-factor (\code{reflective()}) constructs are corrected for measurement error;
+composites of any mode are treated as fully reliable (rho_A = 1), as in Dijkstra and
+Henseler (2015).
 }
 \examples{
 mobi <- mobi
