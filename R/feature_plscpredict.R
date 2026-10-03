@@ -11,6 +11,21 @@
 # (2023), E[y | x] = Sigma_yx Sigma_xx^-1 x on the standardized scale, where
 # Sigma is the indicator correlation matrix implied by the PLSc estimates.
 
+# Admissibility checks ----
+#
+# Numerical tolerance for the PLSc admissibility checks. Every matrix checked is
+# a correlation matrix (unit diagonal), so one absolute tolerance fits all of them
+plsc_admissibility_tol <- 1e-8
+
+stop_inadmissible_plsc <- function(...) {
+  stop("PLSc solution is inadmissible, so the model-implied prediction is unavailable: ",
+       ..., call. = FALSE)
+}
+
+is_positive_definite <- function(m) {
+  min(eigen(m, symmetric = TRUE, only.values = TRUE)$values) > plsc_admissibility_tol
+}
+
 # Model-implied indicator correlation matrix of a PLSc model ----
 #
 # Reflective blocks: lambda lambda' with unit diagonal (Theta = 1 - lambda^2).
@@ -29,30 +44,27 @@ plsc_implied_correlations <- function(pls_model) {
   constructs <- pls_model$constructs
   items <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
   loadings <- pls_model$outer_loadings[items, constructs, drop = FALSE]
-  inadmissible <- function(...) {
-    stop("PLSc solution is inadmissible, so the model-implied prediction is unavailable: ",
-         ..., call. = FALSE)
-  }
 
   disattenuated <- plsc_disattenuation(pls_model)
   rho <- disattenuated$rho[constructs]
   if (any(!is.finite(rho) | rho <= 0 | rho > 1)) {
-    inadmissible("rho_A outside (0, 1] (",
-                 paste(sprintf("%s = %.3f", constructs, rho), collapse = ", "), ")")
+    stop_inadmissible_plsc("rho_A outside (0, 1] (",
+                           paste(sprintf("%s = %.3f", constructs, rho), collapse = ", "), ")")
   }
 
   reflectives <- all_factors(pls_model)
   reflective_items <- all_items_of_constructs(mmMatrix, reflectives)
   squared_loadings <- rowSums(loadings[reflective_items, , drop = FALSE]^2)
-  if (any(squared_loadings > 1 + 1e-8)) {
-    inadmissible("standardized loading above one (",
-                 paste(reflective_items[squared_loadings > 1 + 1e-8], collapse = ", "), ")")
+  above_one <- squared_loadings > 1 + plsc_admissibility_tol
+  if (any(above_one)) {
+    stop_inadmissible_plsc("standardized loading above one (",
+                           paste(reflective_items[above_one], collapse = ", "), ")")
   }
 
   # Disattenuated construct correlations, the same as in PLSc()
   phi <- disattenuated$construct_cors[constructs, constructs]
   if (max(abs(phi[upper.tri(phi)])) >= 1) {
-    inadmissible("a disattenuated construct correlation is 1 or more in absolute value")
+    stop_inadmissible_plsc("a disattenuated construct correlation is 1 or more in absolute value")
   }
 
   # Structural-model-implied correlations, in causal order. Only the exogenous
@@ -69,8 +81,8 @@ plsc_implied_correlations <- function(pls_model) {
     implied_phi[endogenous, endogenous] <- 1
     earlier <- c(earlier, endogenous)
   }
-  if (min(eigen(implied_phi, symmetric = TRUE, only.values = TRUE)$values) <= 1e-8) {
-    inadmissible("the implied construct correlation matrix is not positive definite")
+  if (!is_positive_definite(implied_phi)) {
+    stop_inadmissible_plsc("the implied construct correlation matrix is not positive definite")
   }
 
   sigma <- loadings %*% implied_phi %*% t(loadings)
@@ -116,11 +128,9 @@ plsc_implied_predictions <- function(pls_model, scaled_data, technique) {
     x <- all_items_of_constructs(mmMatrix, predictors_of(construct))
     y <- construct_items(mmMatrix, construct)
     sigma_xx <- sigma[x, x, drop = FALSE]
-    eigenvalues <- eigen(sigma_xx, symmetric = TRUE, only.values = TRUE)$values
-    if (min(eigenvalues) <= 1e-10 * max(eigenvalues)) {
-      stop("PLSc solution is inadmissible, so the model-implied prediction is unavailable: ",
-           "the implied correlation matrix of the predictors of ", construct,
-           " is not positive definite", call. = FALSE)
+    if (!is_positive_definite(sigma_xx)) {
+      stop_inadmissible_plsc("the implied correlation matrix of the predictors of ", construct,
+                             " is not positive definite")
     }
     predicted_items[, y] <- scaled_data[, x, drop = FALSE] %*% solve(sigma_xx, sigma[x, y, drop = FALSE])
   }
