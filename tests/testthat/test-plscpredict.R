@@ -70,6 +70,24 @@ test_that("mixed reflective and Mode B composite models use observed within-bloc
   expect_equal(unname(as.matrix(pred[, colnames(o)])), unname(o), tolerance = 1e-6)
 })
 
+test_that("Mode A composites in PLSc models are not disattenuated (rho = 1)", {
+  mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    composite("Quality",       multi_items("PERQ", 1:7)),
+    composite("Value",         multi_items("PERV", 1:2), weights = mode_B),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  sm <- relationships(
+    paths(from = "Image", to = "Quality"),
+    paths(from = c("Image", "Quality", "Value"), to = "Satisfaction")
+  )
+  model <- suppressMessages(estimate_pls(train, mm, sm))
+  expect_same_paths(model, oracle$mixed_mode_A)
+  pred <- predict(model, test)$predicted_items
+  o <- oracle$mixed_mode_A$items
+  expect_equal(unname(as.matrix(pred[, colnames(o)])), unname(o), tolerance = 1e-6)
+})
+
 test_that("single-item reflective constructs are predicted (and predict from) correctly", {
   mm <- constructs(
     reflective("Image",        multi_items("IMAG", 1:5)),
