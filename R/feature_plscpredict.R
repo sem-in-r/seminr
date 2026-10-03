@@ -55,19 +55,19 @@ plsc_implied_correlations <- function(pls_model) {
     inadmissible("a disattenuated construct correlation is 1 or more in absolute value")
   }
 
-  # Structural-model-implied correlations, in causal order
-  exogenous <- only_exogenous(smMatrix)
-  ordered <- c(exogenous, construct_order(smMatrix))
+  # Structural-model-implied correlations, in causal order. Only the exogenous
+  # block of phi is used; correlations with endogenous constructs are implied
+  # by the paths
   implied_phi <- matrix(0, length(constructs), length(constructs),
                         dimnames = list(constructs, constructs))
-  implied_phi[exogenous, exogenous] <- phi[exogenous, exogenous]
-  for (i in seq_along(ordered)[-seq_along(exogenous)]) {
-    endogenous <- ordered[i]
-    earlier <- ordered[seq_len(i - 1)]
+  earlier <- only_exogenous(smMatrix)
+  implied_phi[earlier, earlier] <- phi[earlier, earlier]
+  for (endogenous in construct_order(smMatrix)) {
     cov_with_earlier <- implied_phi[earlier, earlier, drop = FALSE] %*%
       pls_model$path_coef[earlier, endogenous]
     implied_phi[earlier, endogenous] <- implied_phi[endogenous, earlier] <- cov_with_earlier
     implied_phi[endogenous, endogenous] <- 1
+    earlier <- c(earlier, endogenous)
   }
   if (min(eigen(implied_phi, symmetric = TRUE, only.values = TRUE)$values) <= 1e-8) {
     inadmissible("the implied construct correlation matrix is not positive definite")
