@@ -34,7 +34,8 @@ plsc_implied_correlations <- function(pls_model) {
          ..., call. = FALSE)
   }
 
-  rho <- rho_A(pls_model, constructs)[, 1]
+  disattenuated <- plsc_disattenuation(pls_model)
+  rho <- disattenuated$rho[constructs]
   if (any(!is.finite(rho) | rho <= 0 | rho > 1)) {
     inadmissible("rho_A outside (0, 1] (",
                  paste(sprintf("%s = %.3f", constructs, rho), collapse = ", "), ")")
@@ -48,9 +49,8 @@ plsc_implied_correlations <- function(pls_model) {
                  paste(reflective_items[squared_loadings > 1 + 1e-8], collapse = ", "), ")")
   }
 
-  # Disattenuated construct correlations, as in PLSc()
-  phi <- stats::cor(pls_model$construct_scores[, constructs]) / sqrt(outer(rho, rho))
-  diag(phi) <- 1
+  # Disattenuated construct correlations, the same as in PLSc()
+  phi <- disattenuated$construct_cors[constructs, constructs]
   if (max(abs(phi[upper.tri(phi)])) >= 1) {
     inadmissible("a disattenuated construct correlation is 1 or more in absolute value")
   }

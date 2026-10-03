@@ -54,14 +54,10 @@ PLSc <- function(seminr_model) {
   loadings <- seminr_model$outer_loadings
   rSquared <- seminr_model$rSquared
   construct_scores <- seminr_model$construct_scores
-  constructs_in_model(seminr_model)$construct_names
   # Calculate rho_A for adjustments and adjust the correlation matrix
-  rho <- rho_A(seminr_model,constructs_in_model(seminr_model)$construct_names)
-  ### Coerce interactions to rhoA of 1
-  rho[is_interaction(rownames(rho)), ] <- 1
-  adjustment <- sqrt(rho %*% t(rho))
-  diag(adjustment) <- 1
-  adj_construct_score_cors <- stats::cor(seminr_model$construct_scores) / adjustment
+  disattenuated <- plsc_disattenuation(seminr_model)
+  rho <- disattenuated$rho
+  adj_construct_score_cors <- disattenuated$construct_cors
 
   # iterate over endogenous constructs and adjust path coefficients and R-squared
   for (i in all_endogenous(smMatrix)) {
@@ -89,7 +85,7 @@ PLSc <- function(seminr_model) {
   adjust_loadings <- function(i) {
     items <- construct_items(mmMatrix, i)
     w <- as.matrix(seminr_model$outer_weights[items, i])
-    loadings[items, i] <- w %*% (sqrt(rho[i, ]) / t(w) %*% w )
+    loadings[items, i] <- w %*% (sqrt(rho[i]) / t(w) %*% w )
     loadings[, i]
   }
 
@@ -103,6 +99,24 @@ PLSc <- function(seminr_model) {
   seminr_model$outer_loadings <- loadings
   seminr_model$rSquared <- rSquared
   return(seminr_model)
+}
+
+# Construct reliabilities and disattenuated construct correlations for PLSc ----
+#
+# Shared by PLSc() and PLSc prediction (plsc_implied_correlations()), so that
+# estimation and prediction always correct with the same rho. Interaction terms
+# are not corrected (rho = 1).
+#
+# @param seminr_model  An estimated seminr_model
+# @return list(rho = named rho vector, construct_cors = disattenuated construct
+#   correlation matrix with unit diagonal)
+plsc_disattenuation <- function(seminr_model) {
+  constructs <- constructs_in_model(seminr_model)$construct_names
+  rho <- rho_A(seminr_model, constructs)[, 1]
+  rho[is_interaction(constructs)] <- 1
+  construct_cors <- stats::cor(seminr_model$construct_scores[, constructs]) / sqrt(outer(rho, rho))
+  diag(construct_cors) <- 1
+  list(rho = rho, construct_cors = construct_cors)
 }
 
 # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
