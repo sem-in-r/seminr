@@ -542,7 +542,7 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
     return()
   }
   # Get endogenous item names
-  endogenous_items <- c(unlist(sapply(all_endogenous(model$smMatrix), function(x) construct_items(model$mmMatrix, x)), use.names = FALSE))
+  endogenous_items <- all_items_of_constructs(model$mmMatrix, all_endogenous(model$smMatrix))
 
   # shuffle data
   order <- sample(nrow(model$data),nrow(model$data), replace = FALSE)
@@ -702,7 +702,7 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
 
   ## Perform prediction on LM models for benchmark
   # Identify endogenous items
-  endogenous_items <- unlist(sapply(all_endogenous(model$smMatrix), function(x) construct_items(model$mmMatrix, x)), use.names = FALSE)
+  endogenous_items <- all_items_of_constructs(model$mmMatrix, all_endogenous(model$smMatrix))
 
   #LM Matrices
   lm_holder <- sapply(all_endogenous(model$smMatrix), generate_lm_predictions, model = model,
@@ -816,7 +816,7 @@ prediction_matrices <- function(noFolds, ordered_data, model, technique, cores) 
                                                          noFolds = noFolds,
                                                          constructs = no_int_mmvars))
       # Collect endogenous items
-      endogenous_items <- unlist(sapply(all_endogenous(model$smMatrix), function(x) construct_items(model$mmMatrix, x)), use.names = FALSE)
+      endogenous_items <- all_items_of_constructs(model$mmMatrix, all_endogenous(model$smMatrix))
 
       # mean the in-sample lm predictions by row
       average_insample_lm <- sapply(1:length(endogenous_items), mean_rows, matrix = in_sample_lm_matrix,
@@ -903,11 +903,11 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
   # for predict_EA this would be the indicators of the earliest antecedents only
   if (identical(technique, predict_DA)) {
     focal_construct_antecedents <- construct_antecedents(model$smMatrix, x)
-    focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_items(model$mmMatrix, focal)))
+    focal_construct_antecedent_items <- all_items_of_constructs(model$mmMatrix, focal_construct_antecedents)
   }
   else {
     focal_construct_antecedents <- only_exogenous(model$smMatrix)
-    focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_items(model$mmMatrix, focal)))
+    focal_construct_antecedent_items <- all_items_of_constructs(model$mmMatrix, focal_construct_antecedents)
   }
   independant_matrix <- ordered_data[ , focal_construct_antecedent_items,drop = F]
   dependant_matrix <- as.matrix(ordered_data[,dependant_items, drop = F])
