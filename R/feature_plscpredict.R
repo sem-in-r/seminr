@@ -42,7 +42,7 @@ plsc_implied_correlations <- function(pls_model) {
   }
 
   reflectives <- all_factors(pls_model)
-  reflective_items <- unlist(lapply(reflectives, function(x) construct_items(mmMatrix, x)))
+  reflective_items <- all_items_of_constructs(mmMatrix, reflectives)
   squared_loadings <- rowSums(loadings[reflective_items, , drop = FALSE]^2)
   if (any(squared_loadings > 1 + 1e-8)) {
     inadmissible("standardized loading above one (",
@@ -113,7 +113,7 @@ plsc_implied_predictions <- function(pls_model, scaled_data, technique) {
 
   predicted_items <- scaled_data[, items, drop = FALSE]
   for (construct in all_endogenous(smMatrix)) {
-    x <- unlist(lapply(predictors_of(construct), function(p) construct_items(mmMatrix, p)))
+    x <- all_items_of_constructs(mmMatrix, predictors_of(construct))
     y <- construct_items(mmMatrix, construct)
     sigma_xx <- sigma[x, x, drop = FALSE]
     eigenvalues <- eigen(sigma_xx, symmetric = TRUE, only.values = TRUE)$values
