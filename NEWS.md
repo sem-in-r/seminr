@@ -39,6 +39,12 @@
   overridden and so the intended value is documented rather than buried
   (#421). Reported by Marko Sarstedt.
 
+### Added
+
+* `all_reflectives(model)` returns the reflective (common-factor) constructs of
+  an estimated model. It is the same function as `all_factors()`, named after
+  `reflective()` in the measurement model.
+
 ### Changed
 
 * The package maintainer address is now `seminrgroup@gmail.com` (#420).

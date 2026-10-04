@@ -132,3 +132,16 @@ test_that("constructs_in_model still works as backward-compatible wrapper", {
   expect_true(is.matrix(bundle$construct_scores))
   expect_equal(length(bundle$construct_types), length(bundle$construct_names))
 })
+
+test_that("all_reflectives is all_factors and selects the reflective constructs", {
+  mixed_mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    composite("Expectation",   multi_items("CUEX", 1:3)),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  mixed_sm <- relationships(paths(from = c("Image", "Expectation"), to = "Satisfaction"))
+  mixed_pls <- suppressMessages(estimate_pls(mobi, mixed_mm, mixed_sm))
+  expect_identical(all_reflectives, all_factors)
+  expect_setequal(all_reflectives(mixed_pls), c("Image", "Satisfaction"))
+  expect_length(all_reflectives(mobi_pls), 0)
+})

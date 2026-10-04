@@ -2,9 +2,12 @@
 % Please edit documentation in R/helpers-model.R
 \name{all_factors}
 \alias{all_factors}
+\alias{all_reflectives}
 \title{Get all common-factor (reflective) constructs in a model}
 \usage{
 all_factors(seminr_model)
+
+all_reflectives(seminr_model)
 }
 \arguments{
 \item{seminr_model}{An estimated seminr model.}
@@ -14,5 +17,6 @@ A character vector of construct names.
 }
 \description{
 Returns the names of constructs estimated as common factors (reflective
-measurement) in an estimated seminr model.
+measurement) in an estimated seminr model. \code{all_reflectives()} is the
+same function, named after \code{reflective()} in the measurement model.
 }
