@@ -114,9 +114,9 @@ plsc_implied_predictions <- function(pls_model, scaled_data, technique) {
   items <- colnames(sigma)
   weights <- pls_model$outer_weights[items, pls_model$constructs, drop = FALSE]
 
-  if (identical(technique, predict_DA)) {
+  if (is_technique(technique, predict_DA)) {
     predictors_of <- function(construct) construct_antecedents(smMatrix, construct)
-  } else if (identical(technique, predict_EA)) {
+  } else if (is_technique(technique, predict_EA)) {
     exogenous <- only_exogenous(smMatrix)
     predictors_of <- function(construct) exogenous
   } else {

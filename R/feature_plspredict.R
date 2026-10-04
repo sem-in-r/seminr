@@ -914,7 +914,7 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
   # Select the correct independent variables to be included in independent matrix
   # for predict_DA this would be the indicators of the direct antecedents only
   # for predict_EA this would be the indicators of the earliest antecedents only
-  if (identical(technique, predict_DA)) {
+  if (is_technique(technique, predict_DA)) {
     focal_construct_antecedents <- construct_antecedents(model$smMatrix, x)
     focal_construct_antecedent_items <- all_items_of_constructs(model$mmMatrix, focal_construct_antecedents)
   }
@@ -994,6 +994,14 @@ predict_DA <- function(smMatrix, path_coef, construct_scores) {
   return_matrix <- construct_scores%*%path_coef
   return_matrix[,only_exo] <- construct_scores[,only_exo]
   return(return_matrix)
+}
+
+# Is technique the predictive scheme reference (predict_DA or predict_EA)? ----
+# Compares without source references: a technique sent from a load_all() session
+# keeps srcrefs inside its body, while the installed copy in a parallel worker has
+# none, and identical() alone then fails.
+is_technique <- function(technique, reference) {
+  identical(utils::removeSource(technique), utils::removeSource(reference))
 }
 
 return_predict_error <- function(object, indicator) {
