@@ -67,18 +67,24 @@ compute_actual_star <- function(pls_model, testData) {
   fullmodel$construct_scores
 }
 
-# Core prediction pipeline: standardize → W×B×L^T → unstandardize → return ----
+# Core prediction pipeline: standardize → predict → unstandardize ----
 #
-# Shared by all interaction predict functions (two_stage, product_indicator,
-# orthogonal). Takes augmented test data (raw items + interaction items already
-# appended), runs the W × B × L^T prediction chain, computes residuals, and
-# returns a predicted_seminr_model object.
+# Shared by one_stage_predict() and the interaction predict functions (two_stage,
+# product_indicator, orthogonal). Takes test data with any interaction items
+# already appended (for one_stage_predict(), the test data itself), predicts the
+# standardized items, computes residuals, and returns a predicted_seminr_model
+# object. Two prediction rules:
+#   - PLSc models (reflective constructs): the model-implied conditional
+#     expectation from plsc_implied_predictions() (feature_plscpredict.R).
+#     Only one_stage_predict() reaches this branch, because
+#     stop_if_not_predictable() refuses PLSc models with interactions (#427).
+#   - Otherwise: the W × B × L^T construct-score chain.
 #
 # @param pls_model    The trained seminr_model
 # @param testData     Original held-out test data (for residual computation)
-# @param augmented_data  Test data with interaction columns appended
+# @param augmented_data  Test data with interaction columns appended (or testData)
 # @param actual_star  Construct scores from compute_actual_star()
-# @param technique    predict_DA or predict_EA
+# @param technique    predict_DA or predict_EA (PLSc accepts only these two)
 # @return A predicted_seminr_model object
 predict_from_augmented_data <- function(pls_model, testData, augmented_data,
                                         actual_star, technique) {
@@ -543,7 +549,7 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
 
   stopifnot(inherits(model, "seminr_model"))
   stop_if_not_predictable(model)
-  # Abort if received a higher-order-model or moderated model
+  # Higher-order models: no published PLSpredict solution
   if (!is.null(model$hoc)) {
     message("There is no published solution for applying PLSpredict to higher-order-models")
     return()
