@@ -323,11 +323,18 @@ detect_interaction_method <- function(model) {
   })
 }
 
-# CB-SEM models inherit seminr_model but have no weights or loadings to predict with ----
-stop_if_cbsem <- function(model) {
+# Models that inherit seminr_model but cannot be predicted with the PLS rules ----
+# CB-SEM models have no weights or loadings to predict with (#426); CFA models
+# have no structural model to predict from.
+stop_if_not_predictable <- function(model) {
   if (inherits(model, "cbsem_model")) {
     stop("Prediction is not available for CB-SEM models estimated with estimate_cbsem(). ",
          "Use lavaan::lavPredictY() on the fitted lavaan object in model$lavaan_output.",
+         call. = FALSE)
+  }
+  if (inherits(model, "cfa_model")) {
+    stop("Prediction is not available for CFA models estimated with estimate_cfa(): ",
+         "a CFA has no structural model to predict from.",
          call. = FALSE)
   }
 }
@@ -412,7 +419,7 @@ stop_if_cbsem <- function(model) {
 #' @export
 predict.seminr_model <- function(object, testData, technique = predict_DA, na.print=".", digits=3, ...){
   stopifnot(inherits(object, "seminr_model"))
-  stop_if_cbsem(object)
+  stop_if_not_predictable(object)
 
   # Internal (via ...): predict_pls passes precomputed reference construct
   # scores for cross-validation folds, avoiding a per-fold re-estimation
@@ -535,7 +542,7 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
 predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NULL, cores = NULL) {
 
   stopifnot(inherits(model, "seminr_model"))
-  stop_if_cbsem(model)
+  stop_if_not_predictable(model)
   # Abort if received a higher-order-model or moderated model
   if (!is.null(model$hoc)) {
     message("There is no published solution for applying PLSpredict to higher-order-models")

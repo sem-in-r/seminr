@@ -149,3 +149,9 @@ test_that("CB-SEM models get an informative error instead of the PLS prediction 
   expect_error(predict(cb, test), "CB-SEM.*lavPredictY")
   expect_error(predict_pls(cb, noFolds = 5), "CB-SEM.*lavPredictY")
 })
+
+test_that("CFA models get an informative error instead of the PLS prediction chain", {
+  cfa <- suppressMessages(estimate_cfa(train, reflective_two_mm))
+  expect_error(predict(cfa, test), "CFA.*no structural model")
+  expect_error(predict_pls(cfa, noFolds = 5), "CFA.*no structural model")
+})

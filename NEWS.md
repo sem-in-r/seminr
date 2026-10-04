@@ -27,7 +27,9 @@
 * `predict()` and `predict_pls()` on a model from `estimate_cbsem()` failed with
   an unrelated low-level error (the CB-SEM object inherits `seminr_model` but
   has no weights or loadings). They now stop with a message pointing to
-  `lavaan::lavPredictY()` on `model$lavaan_output`.
+  `lavaan::lavPredictY()` on `model$lavaan_output`. On a model from
+  `estimate_cfa()` they failed the same way; they now stop and say that a CFA
+  has no structural model to predict from.
 
 * `plot.reliability_table()` drew its reference line at 0.708, which is the
   indicator **loading** threshold (0.708² ≈ 0.50 explained variance). The metrics
