@@ -148,6 +148,34 @@ test_that("predict_pls() runs cross-validation for PLSc models", {
   expect_false(anyNA(cv$items$PLS_out_of_sample))
 })
 
+test_that("predict_pls() uses earliest antecedents for PLSc models with predict_EA", {
+  model <- suppressMessages(estimate_pls(mobi, chain_mm, chain_sm))
+  set.seed(425)
+  cv_ea <- predict_pls(model, technique = predict_EA, noFolds = 5)
+  set.seed(425)
+  cv_da <- predict_pls(model, technique = predict_DA, noFolds = 5)
+  expect_false(anyNA(cv_ea$items$PLS_out_of_sample))
+  # Same folds; Quality and Satisfaction have predictors other than Image under DA
+  expect_false(isTRUE(all.equal(cv_ea$items$PLS_out_of_sample, cv_da$items$PLS_out_of_sample)))
+})
+
+test_that("predict_pls() gives the same PLSc predictions in parallel workers", {
+  # Workers load the installed seminr (run devtools::install() first). Kept small
+  # and off CRAN: 2 cores, 4 folds.
+  skip_on_cran()
+  model <- suppressMessages(estimate_pls(mobi, chain_mm, chain_sm))
+  set.seed(425)
+  sequential <- predict_pls(model, technique = predict_EA, noFolds = 4)
+  set.seed(425)
+  parallel <- predict_pls(model, technique = predict_EA, noFolds = 4, cores = 2)
+  expect_equal(parallel$items$PLS_out_of_sample, sequential$items$PLS_out_of_sample)
+  expect_equal(parallel$items$PLS_in_sample, sequential$items$PLS_in_sample)
+})
+
+# Not tested: the "not positive definite" error for the predictor block in
+# plsc_implied_predictions(). We have no realistic model that reaches it once the
+# loading and implied construct correlation checks pass; it stays as a guard.
+
 test_that("CB-SEM models get an informative error instead of the PLS prediction chain", {
   cb <- suppressMessages(estimate_cbsem(train, reflective_two_mm, reflective_two_sm))
   expect_error(predict(cb, test), "CB-SEM.*lavPredictY")
