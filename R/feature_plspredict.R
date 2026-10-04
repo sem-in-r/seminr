@@ -325,7 +325,9 @@ detect_interaction_method <- function(model) {
 
 # Models that inherit seminr_model but cannot be predicted with the PLS rules ----
 # CB-SEM models have no weights or loadings to predict with (#426); CFA models
-# have no structural model to predict from.
+# have no structural model to predict from. PLSc models with interactions have no
+# model-implied prediction rule in seminr, and the construct-score chain would mix
+# composite and factor metrics (#425, #427).
 stop_if_not_predictable <- function(model) {
   if (inherits(model, "cbsem_model")) {
     stop("Prediction is not available for CB-SEM models estimated with estimate_cbsem(). ",
@@ -335,6 +337,11 @@ stop_if_not_predictable <- function(model) {
   if (inherits(model, "cfa_model")) {
     stop("Prediction is not available for CFA models estimated with estimate_cfa(): ",
          "a CFA has no structural model to predict from.",
+         call. = FALSE)
+  }
+  if (has_reflective(model) && !is.null(model$interaction)) {
+    stop("Prediction is not supported for PLSc models (reflective constructs) with interaction terms ",
+         "(see https://github.com/sem-in-r/seminr/issues/427).",
          call. = FALSE)
   }
 }
@@ -434,13 +441,6 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
   # No interactions: standard single-stage prediction
   if (is.null(object$interaction)) {
     return(one_stage_predict(object, testData, technique, actual_star))
-  }
-
-  # PLSc interaction models have no model-implied prediction rule in seminr, and
-  # the construct-score chain would mix composite and factor metrics (#425)
-  if (has_reflective(object)) {
-    stop("Prediction is not supported for PLSc models (reflective constructs) with interaction terms ",
-         "(see https://github.com/sem-in-r/seminr/issues/427).")
   }
 
   # Dispatch based on interaction method

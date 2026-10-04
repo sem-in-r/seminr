@@ -133,7 +133,11 @@ test_that("PLSc models with interactions are refused rather than predicted in mi
     paths(from = c("Image", "Expectation", "Image*Expectation"), to = "Satisfaction")
   )
   model <- suppressMessages(estimate_pls(train, mm, sm))
-  expect_error(predict(model, test), "interaction")
+  expect_error(predict(model, test), "interaction terms.*issues/427")
+  expect_error(predict_pls(model, noFolds = 5), "interaction terms.*issues/427")
+  # predict_pls() stops before cross-validation, not from inside a fold
+  err <- tryCatch(predict_pls(model, noFolds = 5), error = identity)
+  expect_null(conditionCall(err))
 })
 
 test_that("predict_pls() runs cross-validation for PLSc models", {
