@@ -129,6 +129,14 @@ Two internal character matrices underpin every estimation, evaluation, and plott
 
 Helpers are organized into categories: accessors, selectors, predicates, mutators, converters, decorators. Naming conventions are documented in comments at the top of each helper file.
 
+Common helpers: `all_factors()` / `all_reflectives()`, `all_composites()`, `has_reflective()`, `construct_items()`, `all_items_of_constructs()`, `construct_antecedents()`, `only_exogenous()`, `all_endogenous()`, `construct_order()`.
+
+**Before writing new code that reads models or matrices:**
+
+1. Search the three helper files for a helper that already does it. Code that follows the raw-subsetting rule can still rebuild an existing helper (e.g. `intersect(all_reflective(mm), model$constructs)` is `all_factors(model)`).
+2. If none fits and the logic appears in more than one place, add a helper to the matching file, named by its conventions. Do not repeat the inline idiom.
+3. If two features need the same computation (e.g. PLSc estimation and prediction both need ρ_A and disattenuated correlations), call one shared function. Do not copy it with an "as in X()" comment.
+
 ### Measurement Model Types
 
 - `reflective()` - Common factor constructs (automatically uses PLSc)
@@ -211,7 +219,7 @@ Visual regression tests for plots use `vdiffr`. Run `vdiffr::manage_cases()` to 
 
 ### Parallel Code Testing (Important!)
 
-**Tests using parallel processing (e.g., `predict_pls` with LOOCV) require the package to be installed before running `devtools::test()`.**
+**Tests using parallel processing require the package to be installed before running `devtools::test()`.** Parallel code runs in `bootstrap_model()` unless `cores = 1`, and in `predict_pls()` only when `cores` is set (LOOCV alone is sequential).
 
 ```r
 # For parallel tests to pass:
@@ -224,7 +232,9 @@ devtools::check()
 
 **Why:** `devtools::load_all()` only loads the package in the main R process. Parallel workers created by `parallel::makeCluster()` load the *installed* version via `library(seminr)`. If the installed version differs from development code, tests fail with cryptic errors like "number of items to replace is not a multiple of replacement length".
 
-**Affected tests:** `test-plspredict.R` (uses `parallel::parSapply` for LOOCV)
+**Affected tests:** bootstrap tests without `cores = 1`, and the `cores = 2` test in `test-plscpredict.R`.
+
+**Do not compare functions with `identical()` across workers.** Under `load_all()`, functions keep source references in their bodies, and the installed copies in workers do not. Compare with `utils::removeSource()` first (see `is_technique()`).
 
 **To restore stable version after `devtools::install()`:**
 
