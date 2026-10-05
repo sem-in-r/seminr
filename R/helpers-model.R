@@ -114,9 +114,17 @@ return_only_composite_scores <- function(object){
 # -- Predicates (is_/has_/are_: return logical) ----------------
 
 # Does the model have reflective constructs? estimate_pls() runs PLSc
-# (model_consistent) exactly when this is TRUE, so prediction uses it too
+# (model_consistent) exactly when this is TRUE, so prediction uses it too.
+# Only constructs in the model count; a higher-order composite of common
+# factors counts too, because PLSc corrects it (hoc_composite_reliability())
 has_reflective <- function(seminr_model) {
-  length(all_reflective(seminr_model$mmMatrix)) > 0
+  if (length(all_factors(seminr_model)) > 0) return(TRUE)
+  first_stage <- seminr_model$first_stage_model
+  if (is.null(first_stage)) return(FALSE)
+  hocs <- higher_order_composites(seminr_model, seminr_model$constructs)
+  any(vapply(hocs, function(hoc) {
+    any(construct_items(seminr_model$mmMatrix, hoc) %in% all_factors(first_stage))
+  }, logical(1)))
 }
 
 # -- Selectors (all_noun: return vectors) ----------------------

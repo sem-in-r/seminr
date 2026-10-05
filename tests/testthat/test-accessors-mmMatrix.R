@@ -145,3 +145,15 @@ test_that("all_reflectives is all_factors and selects the reflective constructs"
   expect_setequal(all_reflectives(mixed_pls), c("Image", "Satisfaction"))
   expect_length(all_reflectives(mobi_pls), 0)
 })
+
+test_that("has_reflective() ignores reflective constructs that are not in the structural model", {
+  mm <- constructs(
+    composite("Image",        multi_items("IMAG", 1:5)),
+    composite("Satisfaction", multi_items("CUSA", 1:3)),
+    reflective("Loyalty",     multi_items("CUSL", 1:3))
+  )
+  sm <- relationships(paths(from = "Image", to = "Satisfaction"))
+  model <- suppressMessages(estimate_pls(mobi, mm, sm))
+  expect_false(has_reflective(model))
+  expect_length(all_factors(model), 0)
+})

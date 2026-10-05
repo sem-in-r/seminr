@@ -61,3 +61,18 @@ test_that("a HOC composite of composite LOCs is not corrected (rho = 1)", {
   rho_sat <- rho_A(model, "Satisfaction")[1, 1]
   expect_equal(model$path_coef["IE", "Satisfaction"], r / sqrt(rho_sat), tolerance = 1e-10)
 })
+
+test_that("a HOC of common factors is corrected even when no stage-2 construct is reflective", {
+  mm <- constructs(
+    reflective("Image",       multi_items("IMAG", 1:5)),
+    reflective("Expectation", multi_items("CUEX", 1:3)),
+    higher_composite("IE", c("Image", "Expectation"), weights = mode_B),
+    composite("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  sm <- relationships(paths(from = "IE", to = "Satisfaction"))
+  model <- suppressMessages(estimate_pls(mobi, mm, sm))
+  rho_ie <- hoc_composite_reliability(model, "IE")
+  expect_lt(rho_ie, 1)
+  r <- stats::cor(model$construct_scores[, "IE"], model$construct_scores[, "Satisfaction"])
+  expect_equal(model$path_coef["IE", "Satisfaction"], r / sqrt(rho_ie), tolerance = 1e-10)
+})
