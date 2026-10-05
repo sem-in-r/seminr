@@ -60,7 +60,11 @@ arew specified. LOOCV is recommended for small datasets.
 
 Models with \code{reflective()} constructs (PLSc) are predicted with the model-implied
 conditional expectation rather than the construct-score chain; see
-\code{\link{predict.seminr_model}}.
+\code{\link{predict.seminr_model}}. A PLSc solution can be inadmissible in a training
+fold even when the full-sample solution is admissible, especially with few folds. Such
+folds are skipped with a warning: their test rows are \code{NA} for both PLS and the LM
+benchmark, and the prediction metrics use the remaining rows. If every fold is
+inadmissible, \code{predict_pls()} stops.
 }
 \examples{
 data(mobi)

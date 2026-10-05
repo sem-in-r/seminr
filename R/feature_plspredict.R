@@ -385,9 +385,17 @@ stop_if_not_predictable <- function(model) {
 #' applying them to composite scores over-disperses the predictions. The indicator correlation
 #' matrix implied by the PLSc estimates is used to predict each endogenous construct's items
 #' from the items of its direct antecedents (\code{predict_DA}) or of the exogenous constructs
-#' (\code{predict_EA}). If the PLSc solution is inadmissible (a rho_A outside (0, 1], a
-#' standardized loading above one, or a non-positive-definite implied correlation matrix)
-#' prediction stops with the reason. PLSc models with interaction terms are not supported.
+#' (\code{predict_EA}). Prediction stops with the reason if the PLSc solution is
+#' inadmissible, which is checked as: a rho_A outside (0, 1]; a standardized loading above
+#' one; a disattenuated construct correlation of 1 or more in absolute value; a
+#' non-positive-definite construct correlation matrix implied by the structural model; or
+#' a non-positive-definite implied correlation matrix of the predictor items. The full
+#' matrix of disattenuated construct correlations is not itself required to be positive
+#' definite: only its exogenous block enters the implied matrix (cSEM's \code{verify()}
+#' checks the full matrix, so it can flag a solution that seminr predicts from).
+#' PLSc models with interaction terms are not supported. Models saved by seminr < 2.6.0
+#' that mix reflective constructs with Mode A or unit-weighted composites give a warning
+#' to re-estimate them, because their PLSc estimates changed in 2.6.0.
 #'
 #' Higher-order construct (HOC) models are not currently supported for prediction.
 #' Models with mixed interaction methods (e.g., one \code{two_stage} and one
@@ -475,7 +483,11 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
 #'
 #' Models with \code{reflective()} constructs (PLSc) are predicted with the model-implied
 #' conditional expectation rather than the construct-score chain; see
-#' \code{\link{predict.seminr_model}}.
+#' \code{\link{predict.seminr_model}}. A PLSc solution can be inadmissible in a training
+#' fold even when the full-sample solution is admissible, especially with few folds. Such
+#' folds are skipped with a warning: their test rows are \code{NA} for both PLS and the LM
+#' benchmark, and the prediction metrics use the remaining rows. If every fold is
+#' inadmissible, \code{predict_pls()} stops.
 #'
 #' @param model A SEMinR model that has been estimated on the FULL dataset.
 #'

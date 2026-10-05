@@ -5,7 +5,9 @@
 #' path coefficients and loadings for common-factor models and composite models.
 #' Only common-factor (\code{reflective()}) constructs are corrected for measurement error;
 #' composites of any mode are treated as fully reliable (rho_A = 1), as in Dijkstra and
-#' Henseler (2015).
+#' Henseler (2015). A higher-order composite of common factors is corrected with the
+#' reliability of its stage-2 proxy, a weighted sum of error-laden lower-order construct
+#' scores (van Riel et al., 2017).
 #'
 #' @param seminr_model A \code{seminr_model} containing the estimated seminr model.
 #'
@@ -17,7 +19,11 @@
 #' @seealso \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}
 #'          \code{\link{bootstrap_model}}
 #'
-#' @references Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+#' @references Dijkstra, T. K., & Henseler, J. (2015). Consistent partial least squares path modeling. \emph{MIS Quarterly}, 39(2), 297--316.
+#'
+#' van Riel, A. C. R., Henseler, J., Kemény, I., & Sasovova, Z. (2017). Estimating hierarchical constructs
+#' using consistent partial least squares: The case of second-order composites of common factors.
+#' \emph{Industrial Management & Data Systems}, 117(3), 459--477.
 #'
 #' @examples
 #' mobi <- mobi
@@ -49,7 +55,7 @@
 #' PLSc(seminr_model)
 #' @export
 PLSc <- function(seminr_model) {
-  # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+  # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent partial least squares path modeling. MIS Quarterly, 39(2), 297-316.
   # get relevant parts of the estimated model
   smMatrix <- seminr_model$smMatrix
   mmMatrix <- seminr_model$mmMatrix
@@ -160,7 +166,7 @@ hoc_composite_reliability <- function(seminr_model, hoc) {
   drop(t(w) %*% S_star %*% w / (t(w) %*% S %*% w))
 }
 
-# Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+# Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent partial least squares path modeling. MIS Quarterly, 39(2), 297-316.
 model_consistent <- function(seminr_model) {
   if(!is.null(seminr_model$interactions) && has_reflective(seminr_model)) {
     message(
