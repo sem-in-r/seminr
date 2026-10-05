@@ -17,9 +17,12 @@
 # a correlation matrix (unit diagonal), so one absolute tolerance fits all of them
 plsc_admissibility_tol <- 1e-8
 
+# Signals a classed condition so that cross-validation can skip the fold
+# (see in_and_out_sample_predictions) while predict() still stops
 stop_inadmissible_plsc <- function(...) {
-  stop("PLSc solution is inadmissible, so the model-implied prediction is unavailable: ",
-       ..., call. = FALSE)
+  message <- paste0("PLSc solution is inadmissible, so the model-implied prediction is unavailable: ", ...)
+  stop(structure(class = c("seminr_inadmissible_plsc", "error", "condition"),
+                 list(message = message, call = NULL)))
 }
 
 is_positive_definite <- function(m) {

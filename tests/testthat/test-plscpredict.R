@@ -122,6 +122,35 @@ test_that("an inadmissible PLSc solution stops prediction instead of being repai
   expect_error(predict(model, test), "inadmissible.*CUSA1")
 })
 
+test_that("predict_pls() skips folds whose PLSc solution is inadmissible, with one warning", {
+  # Full-sample chain model is admissible, but with seed 1 and 5 folds some
+  # training folds give PLSc R^2 > 1 (cSEM agrees: inadmissible). Those folds
+  # are skipped: their test rows are NA for PLS and LM alike, and the metrics
+  # use the remaining rows. Never fall back to the PLS chain.
+  model <- suppressMessages(estimate_pls(mobi, chain_mm, chain_sm))
+  set.seed(1)
+  expect_warning(
+    cv <- predict_pls(model, technique = predict_DA, noFolds = 5),
+    "inadmissible in [1-4] of 5 cross-validation folds"
+  )
+  expect_s3_class(cv, "predict_pls_model")
+  oos <- cv$items$PLS_out_of_sample
+  lm_oos <- cv$items$lm_out_of_sample
+  skipped <- !stats::complete.cases(oos)
+  expect_true(any(skipped) && !all(skipped))
+  # PLS and LM are compared on the same rows
+  expect_identical(skipped, !stats::complete.cases(lm_oos))
+  metrics <- summary(cv)$PLS_out_of_sample
+  expect_true(all(is.finite(metrics)))
+})
+
+test_that("an inadmissible fold does not leak a stray error inside an enclosing tryCatch", {
+  model <- suppressMessages(estimate_pls(mobi, chain_mm, chain_sm))
+  set.seed(1)
+  res <- tryCatch(suppressWarnings(predict_pls(model, noFolds = 5)), error = identity)
+  expect_s3_class(res, "predict_pls_model")
+})
+
 test_that("PLSc models with interactions are refused rather than predicted in mixed metrics", {
   mm <- constructs(
     reflective("Image",        multi_items("IMAG", 1:5)),
