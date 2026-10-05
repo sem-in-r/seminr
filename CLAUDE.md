@@ -129,7 +129,7 @@ Two internal character matrices underpin every estimation, evaluation, and plott
 
 Helpers are organized into categories: accessors, selectors, predicates, mutators, converters, decorators. Naming conventions are documented in comments at the top of each helper file.
 
-Common helpers: `all_factors()` / `all_reflectives()`, `all_composites()`, `has_reflective()`, `construct_items()`, `all_items_of_constructs()`, `construct_antecedents()`, `only_exogenous()`, `all_endogenous()`, `construct_order()`.
+Common helpers: `all_factors()`, `all_composites()`, `has_reflective()`, `construct_items()`, `all_items_of_constructs()`, `construct_antecedents()`, `only_exogenous()`, `all_endogenous()`, `construct_order()`.
 
 **Before writing new code that reads models or matrices:**
 

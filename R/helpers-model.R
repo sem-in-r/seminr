@@ -7,7 +7,6 @@
 #   Accessor    | object_qualifier   | construct_type(model, name)
 #   Predicate   | is_/has_/are_      | has_reflective(model)
 #   Selector    | all_noun           | all_factors(model), all_composites(model)
-#                                      (all_reflectives(model) = all_factors(model))
 #
 # All functions use container-first argument order: model as the
 # first argument.
@@ -132,8 +131,7 @@ has_reflective <- function(seminr_model) {
 #' Get all common-factor (reflective) constructs in a model
 #'
 #' Returns the names of constructs estimated as common factors (reflective
-#' measurement) in an estimated seminr model. \code{all_reflectives()} is the
-#' same function, named after \code{reflective()} in the measurement model.
+#' measurement) in an estimated seminr model.
 #'
 #' @param seminr_model An estimated seminr model.
 #'
@@ -142,10 +140,6 @@ has_reflective <- function(seminr_model) {
 all_factors <- function(seminr_model) {
   intersect(seminr_model$constructs, all_reflective(seminr_model$mmMatrix))
 }
-
-#' @rdname all_factors
-#' @export
-all_reflectives <- all_factors
 
 #' Get all composite constructs in a model
 #'

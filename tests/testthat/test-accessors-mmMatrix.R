@@ -133,7 +133,7 @@ test_that("constructs_in_model still works as backward-compatible wrapper", {
   expect_equal(length(bundle$construct_types), length(bundle$construct_names))
 })
 
-test_that("all_reflectives is all_factors and selects the reflective constructs", {
+test_that("all_factors selects the reflective constructs", {
   mixed_mm <- constructs(
     reflective("Image",        multi_items("IMAG", 1:5)),
     composite("Expectation",   multi_items("CUEX", 1:3)),
@@ -141,9 +141,8 @@ test_that("all_reflectives is all_factors and selects the reflective constructs"
   )
   mixed_sm <- relationships(paths(from = c("Image", "Expectation"), to = "Satisfaction"))
   mixed_pls <- suppressMessages(estimate_pls(mobi, mixed_mm, mixed_sm))
-  expect_identical(all_reflectives, all_factors)
-  expect_setequal(all_reflectives(mixed_pls), c("Image", "Satisfaction"))
-  expect_length(all_reflectives(mobi_pls), 0)
+  expect_setequal(all_factors(mixed_pls), c("Image", "Satisfaction"))
+  expect_length(all_factors(mobi_pls), 0)
 })
 
 test_that("has_reflective() ignores reflective constructs that are not in the structural model", {
