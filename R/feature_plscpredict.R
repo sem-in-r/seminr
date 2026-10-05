@@ -123,7 +123,7 @@ plsc_implied_predictions <- function(pls_model, scaled_data, technique) {
     exogenous <- only_exogenous(smMatrix)
     predictors_of <- function(construct) exogenous
   } else {
-    stop("PLSc models can only be predicted with predict_DA or predict_EA")
+    stop("PLSc models can only be predicted with predict_DA or predict_EA", call. = FALSE)
   }
 
   predicted_items <- scaled_data[, items, drop = FALSE]
