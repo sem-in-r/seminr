@@ -4,7 +4,8 @@
 # conditional expectation mu_y + Sigma_yx Sigma_xx^-1 (x - mu_x) (de Rooij et al., 2023).
 # Run from the package root:  Rscript tests/testthat/fixtures/make_plsc_oracle.R
 # Generated with cSEM 0.6.1.9000; mixed_mode_A added with cSEM 0.7.1 (the other
-# designs reproduce exactly under 0.7.1).
+# designs reproduce exactly under 0.7.1); unit_weights and endogenous_mode_B
+# added with cSEM 0.6.1.9000.
 suppressMessages(library(cSEM))
 d <- seminr::mobi
 train <- d[1:200, ]; test <- d[201:250, ]
@@ -68,7 +69,24 @@ single_item <- implied_predict("
   Satisfaction ~ Image
   Complaints ~ Satisfaction",
   list(Satisfaction = "Image", Complaints = "Satisfaction"))
+# Unit-weighted composite (rho = 1) next to reflective constructs
+unit_weights <- implied_predict("
+  Image =~ IMAG1 + IMAG2 + IMAG3 + IMAG4 + IMAG5
+  Value <~ PERV1 + PERV2
+  Satisfaction =~ CUSA1 + CUSA2 + CUSA3
+  Satisfaction ~ Image + Value",
+  list(Satisfaction = c("Image", "Value")),
+  .PLS_modes = list(Value = "unit"))
+# Endogenous Mode B composite between reflective constructs
+endogenous_mode_B <- implied_predict("
+  Image =~ IMAG1 + IMAG2 + IMAG3 + IMAG4 + IMAG5
+  Value <~ PERV1 + PERV2
+  Satisfaction =~ CUSA1 + CUSA2 + CUSA3
+  Value ~ Image
+  Satisfaction ~ Image + Value",
+  list(Value = "Image", Satisfaction = c("Image", "Value")))
 saveRDS(list(reflective_two = reflective_two, chain_DA = chain_DA,
              chain_EA = chain_EA, mixed = mixed, mixed_mode_A = mixed_mode_A,
-             single_item = single_item),
+             single_item = single_item, unit_weights = unit_weights,
+             endogenous_mode_B = endogenous_mode_B),
         "tests/testthat/fixtures/plsc_oracle.rds", version = 2)

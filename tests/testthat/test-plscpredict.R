@@ -35,6 +35,15 @@ mixed_sm <- relationships(
   paths(from = c("Image", "Value"), to = "Satisfaction")
 )
 
+# Does the seminr that parallel workers load (the installed one) have this function?
+installed_seminr_has <- function(fn) {
+  cl <- parallel::makeCluster(1)
+  on.exit(parallel::stopCluster(cl))
+  isTRUE(tryCatch(
+    parallel::clusterCall(cl, function(f) exists(f, envir = asNamespace("seminr"), inherits = FALSE), fn)[[1]],
+    error = function(e) FALSE))
+}
+
 expect_same_paths <- function(model, oracle_fit) {
   P <- oracle_fit$paths
   for (to in rownames(P)) for (from in colnames(P)) if (P[to, from] != 0)
@@ -85,6 +94,52 @@ test_that("Mode A composites in PLSc models are not disattenuated (rho = 1)", {
   expect_same_paths(model, oracle$mixed_mode_A)
   pred <- predict(model, test)$predicted_items
   o <- oracle$mixed_mode_A$items
+  expect_equal(unname(as.matrix(pred[, colnames(o)])), unname(o), tolerance = 1e-6)
+})
+
+test_that("unit-weighted composites in PLSc models are not disattenuated (rho = 1)", {
+  mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    composite("Value",         multi_items("PERV", 1:2), weights = unit_weights),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  sm <- relationships(paths(from = c("Image", "Value"), to = "Satisfaction"))
+  model <- suppressMessages(estimate_pls(train, mm, sm))
+  expect_same_paths(model, oracle$unit_weights)
+  pred <- predict(model, test)$predicted_items
+  o <- oracle$unit_weights$items
+  expect_equal(unname(as.matrix(pred[, colnames(o)])), unname(o), tolerance = 1e-6)
+})
+
+test_that("an endogenous Mode B composite between reflective constructs is predicted correctly", {
+  mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    composite("Value",         multi_items("PERV", 1:2), weights = mode_B),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  sm <- relationships(
+    paths(from = "Image", to = "Value"),
+    paths(from = c("Image", "Value"), to = "Satisfaction")
+  )
+  model <- suppressMessages(estimate_pls(train, mm, sm))
+  expect_same_paths(model, oracle$endogenous_mode_B)
+  pred <- predict(model, test)$predicted_items
+  o <- oracle$endogenous_mode_B$items
+  expect_equal(unname(as.matrix(pred[, colnames(o)])), unname(o), tolerance = 1e-6)
+})
+
+test_that("PLSc predictions do not depend on construct, item or data column order", {
+  # Sigma and the predictor sets are indexed by name, never by position
+  mm <- constructs(
+    reflective("Satisfaction", multi_items("CUSA", 3:1)),
+    reflective("Expectation",  multi_items("CUEX", c(2, 3, 1))),
+    reflective("Image",        multi_items("IMAG", 5:1))
+  )
+  scrambled <- train[, rev(colnames(train))]
+  model <- suppressMessages(estimate_pls(scrambled, mm, reflective_two_sm))
+  expect_same_paths(model, oracle$reflective_two)
+  pred <- predict(model, test[, sample(colnames(test))])$predicted_items
+  o <- oracle$reflective_two$items
   expect_equal(unname(as.matrix(pred[, colnames(o)])), unname(o), tolerance = 1e-6)
 })
 
@@ -189,9 +244,12 @@ test_that("predict_pls() uses earliest antecedents for PLSc models with predict_
 })
 
 test_that("predict_pls() gives the same PLSc predictions in parallel workers", {
-  # Workers load the installed seminr (run devtools::install() first). Kept small
-  # and off CRAN: 2 cores, 4 folds.
+  # Workers load the installed seminr, not devtools::load_all(). Skip when the
+  # installed build predates this code (run devtools::install() first). Kept
+  # small and off CRAN: 2 cores, 4 folds.
   skip_on_cran()
+  skip_if_not(installed_seminr_has("hoc_composite_reliability"),
+              "installed seminr is older than the code under test; run devtools::install()")
   model <- suppressMessages(estimate_pls(mobi, chain_mm, chain_sm))
   set.seed(425)
   sequential <- predict_pls(model, technique = predict_EA, noFolds = 4)
