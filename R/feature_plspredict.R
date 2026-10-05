@@ -99,6 +99,7 @@ predict_from_augmented_data <- function(pls_model, testData, augmented_data,
 
   if (has_reflective(pls_model)) {
     # PLSc: model-implied conditional expectation (see feature_plscpredict.R)
+    warn_if_plsc_estimates_changed(pls_model)
     implied <- plsc_implied_predictions(pls_model, scaled_data, technique)
     predicted_construct_scores <- implied$construct_scores
     predictedMeasurements <- implied$items

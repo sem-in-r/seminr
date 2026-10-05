@@ -216,3 +216,21 @@ test_that("CFA models get an informative error instead of the PLS prediction cha
   expect_error(predict(cfa, test), "CFA.*no structural model")
   expect_error(predict_pls(cfa, noFolds = 5), "CFA.*no structural model")
 })
+
+test_that("predicting a pre-2.6.0 PLSc model whose estimates changed warns to re-estimate", {
+  mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    composite("Expectation",   multi_items("CUEX", 1:3)),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  sm <- relationships(paths(from = c("Image", "Expectation"), to = "Satisfaction"))
+  model <- suppressMessages(estimate_pls(train, mm, sm))
+  expect_silent(predict(model, test))
+  # Objects saved by seminr < 2.6.0 carry no version stamp
+  model$seminr_version <- NULL
+  expect_warning(predict(model, test), "estimated with seminr < 2.6.0.*re-estimate")
+  # Unaffected models (all reflective) do not warn
+  old_reflective <- suppressMessages(estimate_pls(train, reflective_two_mm, reflective_two_sm))
+  old_reflective$seminr_version <- NULL
+  expect_silent(predict(old_reflective, test))
+})

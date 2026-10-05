@@ -29,6 +29,27 @@ is_positive_definite <- function(m) {
   min(eigen(m, symmetric = TRUE, only.values = TRUE)$values) > plsc_admissibility_tol
 }
 
+# Models estimated before 2.6.0 ----
+#
+# PLSc estimates of models that mix reflective constructs with Mode A or
+# unit-weighted composites changed in 2.6.0 (#430). Objects saved by earlier
+# versions carry no version stamp; their stored paths no longer match the
+# reliabilities that prediction recomputes, so they should be re-estimated.
+warn_if_plsc_estimates_changed <- function(pls_model) {
+  if (!is.null(pls_model$seminr_version)) return(invisible(NULL))
+  mmMatrix <- pls_model$mmMatrix
+  changed <- Filter(function(construct) {
+    !is_interaction(construct) && !is_mode_B(mmMatrix, construct) && !is_single_item(mmMatrix, construct)
+  }, all_composites(pls_model))
+  if (length(changed) > 0) {
+    warning("This PLSc model was estimated with seminr < 2.6.0, whose PLSc estimates differ for models ",
+            "with Mode A or unit-weighted composites (", paste(changed, collapse = ", "), "). ",
+            "Its predictions would mix the old estimates with the new reliabilities: ",
+            "re-estimate the model with estimate_pls().", call. = FALSE)
+  }
+  invisible(NULL)
+}
+
 # Model-implied indicator correlation matrix of a PLSc model ----
 #
 # Reflective blocks: lambda lambda' with unit diagonal (Theta = 1 - lambda^2).

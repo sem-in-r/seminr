@@ -207,6 +207,8 @@ estimate_pls <- function(data,
     # feature_plspredict.R. See process_interactions() in specify_interactions.R.
     seminr_model$interaction_params <- processed_measurements$interaction_params
   }
+  # Version stamp: lets prediction detect objects whose estimates changed (#430)
+  seminr_model$seminr_version <- utils::packageVersion("seminr")
   class(seminr_model) <- c("pls_model", "seminr_model")
   return(seminr_model)
 }
