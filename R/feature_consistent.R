@@ -109,7 +109,8 @@ PLSc <- function(seminr_model) {
 # Shared by PLSc() and PLSc prediction (plsc_implied_correlations()), so that
 # estimation and prediction always correct with the same rho. Only common
 # factors are corrected: composites (any mode) and interaction terms are taken
-# as fully reliable (rho = 1), as in Dijkstra & Henseler (2015).
+# as fully reliable (rho = 1), as in Dijkstra & Henseler (2015), except
+# higher-order composites of common factors (see hoc_composite_reliability()).
 #
 # @param seminr_model  An estimated seminr_model
 # @return list(rho = named rho vector, construct_cors = disattenuated construct
@@ -118,9 +119,45 @@ plsc_disattenuation <- function(seminr_model) {
   constructs <- constructs_in_model(seminr_model)$construct_names
   rho <- rho_A(seminr_model, constructs)[, 1]
   rho[is_interaction(constructs) | !(constructs %in% all_factors(seminr_model))] <- 1
+  for (hoc in higher_order_composites(seminr_model, constructs)) {
+    rho[hoc] <- hoc_composite_reliability(seminr_model, hoc)
+  }
   construct_cors <- stats::cor(seminr_model$construct_scores[, constructs]) / sqrt(outer(rho, rho))
   diag(construct_cors) <- 1
   list(rho = rho, construct_cors = construct_cors)
+}
+
+# Reliability of a higher-order composite (two-stage) ----
+#
+# At stage 2 a higher-order composite is a weighted sum of its LOC scores. When
+# LOCs are common factors their scores carry measurement error, so the HOC proxy
+# is not error-free: its reliability is w' S* w / w' S w, where S is the
+# correlation matrix of the LOC scores and S* replaces its diagonal with the
+# LOCs' stage-1 reliabilities (van Riel et al., 2017; as in cSEM's two-stage
+# approach). LOCs that are composites have reliability 1, so a HOC of
+# composites is not corrected.
+#
+# @param seminr_model  The stage-2 seminr_model, with first_stage_model attached
+# @param constructs    Constructs to search
+# @return Names of the constructs whose indicators are LOC scores
+higher_order_composites <- function(seminr_model, constructs) {
+  first_stage <- seminr_model$first_stage_model
+  if (is.null(first_stage)) return(character(0))
+  is_hoc <- vapply(constructs, function(construct) {
+    !(construct %in% all_factors(seminr_model)) && !is_interaction(construct) &&
+      all(construct_items(seminr_model$mmMatrix, construct) %in% first_stage$constructs)
+  }, logical(1))
+  constructs[is_hoc]
+}
+
+hoc_composite_reliability <- function(seminr_model, hoc) {
+  first_stage <- seminr_model$first_stage_model
+  locs <- construct_items(seminr_model$mmMatrix, hoc)
+  w <- seminr_model$outer_weights[locs, hoc]
+  S <- stats::cor(first_stage$construct_scores[, locs])
+  S_star <- S
+  diag(S_star) <- plsc_disattenuation(first_stage)$rho[locs]
+  drop(t(w) %*% S_star %*% w / (t(w) %*% S %*% w))
 }
 
 # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).

@@ -181,12 +181,18 @@ estimate_pls <- function(data,
   seminr_model$settings$stopCriterion <- stopCriterion
   seminr_model$settings$missing <- missing
 
+  # PLSc needs the stage-1 reliabilities of LOCs to correct higher-order
+  # composites. $hoc is set only afterwards, so the stage-2 construct set is
+  # unchanged while PLSc runs
+  if ( length(HOCs)>0 ) {
+    seminr_model$first_stage_model <- first_stage_model
+  }
+
   # Correct for Bias in Reflective models using PLS Consistent
   seminr_model <- model_consistent(seminr_model)
 
   if ( length(HOCs)>0 ) {
     # Append return list with first stage model and
-    seminr_model$first_stage_model <- first_stage_model
     seminr_model$hoc <- TRUE
     # Combine first and second stage measurement model matrices
     new_mm <- combine_first_order_second_order_matrices(model1 = first_stage_model, model2 = seminr_model, mmMatrix)
