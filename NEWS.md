@@ -71,6 +71,23 @@
   overridden and so the intended value is documented rather than buried
   (#421). Reported by Marko Sarstedt.
 
+* `predict_pls(reps = k)` repeated the cross-validation on the same folds, so
+  every repetition gave the same predictions and `reps` had no effect. Each
+  repetition now draws new random folds, and the predictions are averaged over
+  the repetitions. **Results change for any call with `reps` greater than 1**,
+  including `assess_cvpat()`, `assess_cvpat_compare()`, `assess_pcm()` and
+  `assess_coa()` in seminrExtras, which pass `reps` on to `predict_pls()`.
+  `reps = NULL` and `reps = 1` give the same results as before. A fold skipped
+  as inadmissible (PLSc) in one repetition is averaged over the others.
+
+* `predict()` on test data with a missing value returned `NA` for every
+  prediction in that case's row, because the matrix products spread the `NA`
+  through zero weights, loadings and paths (`NA * 0` is `NA`). Only the
+  predictions that use the missing value are `NA` now: a missing item makes its
+  own construct's score `NA` and the predictions that depend on it, and leaves
+  the others. Predictions for complete data are unchanged. PLSc models already
+  behaved this way.
+
 ### Changed
 
 * The package maintainer address is now `seminrgroup@gmail.com` (#420).

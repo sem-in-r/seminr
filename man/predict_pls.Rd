@@ -15,7 +15,9 @@ Direct Antecedents (DA) \code{predict_DA}}
 \item{noFolds}{The required number of folds to use in k-fold cross validation. If NULL, then parallel LOOCV will be executed.
 Default is NULL.}
 
-\item{reps}{The number of times the cross-validation will be repeated. Default is NULL.}
+\item{reps}{The number of times the cross-validation will be repeated, each time
+with new random folds. The predictions are averaged over the repetitions. Default
+is NULL (a single run, the same as \code{reps = 1}).}
 
 \item{cores}{The number of cores to use for parallel processing. If NULL (default),
 cross-validation runs sequentially. Specify an integer to enable parallel execution —
