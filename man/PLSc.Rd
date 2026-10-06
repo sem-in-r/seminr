@@ -18,7 +18,9 @@ a common-factor model. It returns a \code{seminr_model} containing the adjusted 
 path coefficients and loadings for common-factor models and composite models.
 Only common-factor (\code{reflective()}) constructs are corrected for measurement error;
 composites of any mode are treated as fully reliable (rho_A = 1), as in Dijkstra and
-Henseler (2015).
+Henseler (2015). A higher-order composite of common factors is corrected with the
+reliability of its stage-2 proxy, a weighted sum of error-laden lower-order construct
+scores (van Riel et al., 2017).
 }
 \examples{
 mobi <- mobi
@@ -50,7 +52,11 @@ seminr_model <- estimate_pls(data = mobi,
 PLSc(seminr_model)
 }
 \references{
-Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+Dijkstra, T. K., & Henseler, J. (2015). Consistent partial least squares path modeling. \emph{MIS Quarterly}, 39(2), 297--316.
+
+van Riel, A. C. R., Henseler, J., Kemény, I., & Sasovova, Z. (2017). Estimating hierarchical constructs
+using consistent partial least squares: The case of second-order composites of common factors.
+\emph{Industrial Management & Data Systems}, 117(3), 459--477.
 }
 \seealso{
 \code{\link{relationships}} \code{\link{constructs}} \code{\link{paths}} \code{\link{interaction_term}}

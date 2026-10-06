@@ -11,8 +11,24 @@
   model-implied conditional expectation of de Rooij et al. (2023), using the
   indicator correlations implied by the PLSc estimates; `predict_DA` and
   `predict_EA` set the predictor items. Inadmissible PLSc solutions stop with
-  the reason, and PLSc models with interaction terms are no longer predicted.
-  Models without reflective constructs are unchanged (#425).
+  the reason (the checks are listed in `?predict.seminr_model`), and PLSc
+  models with interaction terms are no longer predicted (#427). Models without
+  reflective constructs are unchanged (#425).
+
+* In `predict_pls()`, a PLSc solution can be inadmissible in a training fold
+  even when the full-sample solution is admissible, especially with few folds
+  (for the mobi ECSI model, in about 70% of 5-fold and 30% of 10-fold runs).
+  Such folds are skipped with one warning that names them: their test rows are
+  `NA` for both PLS and the LM benchmark, and the prediction metrics use the
+  remaining rows. If every fold is inadmissible, `predict_pls()` stops. The PLS
+  chain is never used as a fallback. Cross-validation also no longer turns any
+  error or warning inside a fold into a failure with an unrelated message
+  ("row names supplied are of the wrong length"); they now reach the caller.
+
+* Models estimated by seminr < 2.6.0 and saved (e.g. with `saveRDS()`) keep
+  their old PLSc estimates. `predict()` on such a model that mixes `reflective()`
+  constructs with Mode A or unit-weighted composites now warns to re-estimate
+  it. `estimate_pls()` stamps models with `seminr_version` for this purpose.
 
 * PLSc (`estimate_pls()` with `reflective()` constructs) corrected the paths
   into and out of Mode A and unit-weighted composites as if they were common
@@ -21,15 +37,31 @@
   composites as fully reliable (Dijkstra & Henseler, 2015), as cSEM does. All
   composites now use rho_A = 1 in PLSc. **Path coefficients and R² change for
   models that mix `reflective()` constructs with Mode A or unit-weighted
-  `composite()` constructs.** Loadings and models without reflective constructs
-  are unchanged. The `rho_A` reported by `summary()` is unchanged.
+  `composite()` constructs.** Loadings, all-reflective models, models with only
+  Mode B composites next to reflective constructs, and models without
+  reflective constructs are unchanged. The `rho_A` reported by `summary()` is
+  unchanged. Calling `PLSc()` directly on a model without reflective constructs
+  now leaves it unchanged (it used to disattenuate its composites) (#430).
+
+* PLSc corrected a two-stage `higher_composite()` with rho_A computed on its
+  lower-order construct (LOC) scores, as if the HOC were a common factor of
+  them. A HOC of composite LOCs is now treated as fully reliable (rho = 1). A
+  HOC of common-factor LOCs is corrected with the reliability of its stage-2
+  proxy, a weighted sum of error-laden LOC scores: w'S*w, with the LOCs'
+  stage-1 reliabilities on the diagonal of S* (van Riel et al., 2017), as
+  cSEM's two-stage approach does. **Path coefficients and R² change for PLSc
+  models with `higher_composite()` constructs** (on mobi, IE -> Satisfaction
+  0.953 -> 0.920 with reflective LOCs; cSEM 0.918). A HOC of common factors is
+  now corrected even when no stage-2 construct is reflective, and a
+  `reflective()` construct that is declared but not used in the structural model
+  no longer makes `estimate_pls()` run PLSc.
 
 * `predict()` and `predict_pls()` on a model from `estimate_cbsem()` failed with
   an unrelated low-level error (the CB-SEM object inherits `seminr_model` but
   has no weights or loadings). They now stop with a message pointing to
   `lavaan::lavPredictY()` on `model$lavaan_output`. On a model from
   `estimate_cfa()` they failed the same way; they now stop and say that a CFA
-  has no structural model to predict from.
+  has no structural model to predict from (#426).
 
 * `plot.reliability_table()` drew its reference line at 0.708, which is the
   indicator **loading** threshold (0.708² ≈ 0.50 explained variance). The metrics
@@ -38,12 +70,6 @@
   drawn at 0.70, and the value is exposed as a `threshold` argument so it can be
   overridden and so the intended value is documented rather than buried
   (#421). Reported by Marko Sarstedt.
-
-### Added
-
-* `all_reflectives(model)` returns the reflective (common-factor) constructs of
-  an estimated model. It is the same function as `all_factors()`, named after
-  `reflective()` in the measurement model.
 
 ### Changed
 

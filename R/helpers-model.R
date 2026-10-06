@@ -7,7 +7,6 @@
 #   Accessor    | object_qualifier   | construct_type(model, name)
 #   Predicate   | is_/has_/are_      | has_reflective(model)
 #   Selector    | all_noun           | all_factors(model), all_composites(model)
-#                                      (all_reflectives(model) = all_factors(model))
 #
 # All functions use container-first argument order: model as the
 # first argument.
@@ -114,9 +113,17 @@ return_only_composite_scores <- function(object){
 # -- Predicates (is_/has_/are_: return logical) ----------------
 
 # Does the model have reflective constructs? estimate_pls() runs PLSc
-# (model_consistent) exactly when this is TRUE, so prediction uses it too
+# (model_consistent) exactly when this is TRUE, so prediction uses it too.
+# Only constructs in the model count; a higher-order composite of common
+# factors counts too, because PLSc corrects it (hoc_composite_reliability())
 has_reflective <- function(seminr_model) {
-  length(all_reflective(seminr_model$mmMatrix)) > 0
+  if (length(all_factors(seminr_model)) > 0) return(TRUE)
+  first_stage <- seminr_model$first_stage_model
+  if (is.null(first_stage)) return(FALSE)
+  hocs <- higher_order_composites(seminr_model, seminr_model$constructs)
+  any(vapply(hocs, function(hoc) {
+    any(construct_items(seminr_model$mmMatrix, hoc) %in% all_factors(first_stage))
+  }, logical(1)))
 }
 
 # -- Selectors (all_noun: return vectors) ----------------------
@@ -124,8 +131,7 @@ has_reflective <- function(seminr_model) {
 #' Get all common-factor (reflective) constructs in a model
 #'
 #' Returns the names of constructs estimated as common factors (reflective
-#' measurement) in an estimated seminr model. \code{all_reflectives()} is the
-#' same function, named after \code{reflective()} in the measurement model.
+#' measurement) in an estimated seminr model.
 #'
 #' @param seminr_model An estimated seminr model.
 #'
@@ -134,10 +140,6 @@ has_reflective <- function(seminr_model) {
 all_factors <- function(seminr_model) {
   intersect(seminr_model$constructs, all_reflective(seminr_model$mmMatrix))
 }
-
-#' @rdname all_factors
-#' @export
-all_reflectives <- all_factors
 
 #' Get all composite constructs in a model
 #'

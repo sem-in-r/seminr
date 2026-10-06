@@ -17,13 +17,37 @@
 # a correlation matrix (unit diagonal), so one absolute tolerance fits all of them
 plsc_admissibility_tol <- 1e-8
 
+# Signals a classed condition so that cross-validation can skip the fold
+# (see in_and_out_sample_predictions) while predict() still stops
 stop_inadmissible_plsc <- function(...) {
-  stop("PLSc solution is inadmissible, so the model-implied prediction is unavailable: ",
-       ..., call. = FALSE)
+  message <- paste0("PLSc solution is inadmissible, so the model-implied prediction is unavailable: ", ...)
+  stop(structure(class = c("seminr_inadmissible_plsc", "error", "condition"),
+                 list(message = message, call = NULL)))
 }
 
 is_positive_definite <- function(m) {
   min(eigen(m, symmetric = TRUE, only.values = TRUE)$values) > plsc_admissibility_tol
+}
+
+# Models estimated before 2.6.0 ----
+#
+# PLSc estimates of models that mix reflective constructs with Mode A or
+# unit-weighted composites changed in 2.6.0 (#430). Objects saved by earlier
+# versions carry no version stamp; their stored paths no longer match the
+# reliabilities that prediction recomputes, so they should be re-estimated.
+warn_if_plsc_estimates_changed <- function(pls_model) {
+  if (!is.null(pls_model$seminr_version)) return(invisible(NULL))
+  mmMatrix <- pls_model$mmMatrix
+  changed <- Filter(function(construct) {
+    !is_interaction(construct) && !is_mode_B(mmMatrix, construct) && !is_single_item(mmMatrix, construct)
+  }, all_composites(pls_model))
+  if (length(changed) > 0) {
+    warning("This PLSc model was estimated with seminr < 2.6.0, whose PLSc estimates differ for models ",
+            "with Mode A or unit-weighted composites (", paste(changed, collapse = ", "), "). ",
+            "Its predictions would mix the old estimates with the new reliabilities: ",
+            "re-estimate the model with estimate_pls().", call. = FALSE)
+  }
+  invisible(NULL)
 }
 
 # Model-implied indicator correlation matrix of a PLSc model ----
@@ -120,7 +144,7 @@ plsc_implied_predictions <- function(pls_model, scaled_data, technique) {
     exogenous <- only_exogenous(smMatrix)
     predictors_of <- function(construct) exogenous
   } else {
-    stop("PLSc models can only be predicted with predict_DA or predict_EA")
+    stop("PLSc models can only be predicted with predict_DA or predict_EA", call. = FALSE)
   }
 
   predicted_items <- scaled_data[, items, drop = FALSE]

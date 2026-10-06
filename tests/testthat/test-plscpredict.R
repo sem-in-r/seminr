@@ -35,6 +35,15 @@ mixed_sm <- relationships(
   paths(from = c("Image", "Value"), to = "Satisfaction")
 )
 
+# Does the seminr that parallel workers load (the installed one) have this function?
+installed_seminr_has <- function(fn) {
+  cl <- parallel::makeCluster(1)
+  on.exit(parallel::stopCluster(cl))
+  isTRUE(tryCatch(
+    parallel::clusterCall(cl, function(f) exists(f, envir = asNamespace("seminr"), inherits = FALSE), fn)[[1]],
+    error = function(e) FALSE))
+}
+
 expect_same_paths <- function(model, oracle_fit) {
   P <- oracle_fit$paths
   for (to in rownames(P)) for (from in colnames(P)) if (P[to, from] != 0)
@@ -88,6 +97,52 @@ test_that("Mode A composites in PLSc models are not disattenuated (rho = 1)", {
   expect_equal(unname(as.matrix(pred[, colnames(o)])), unname(o), tolerance = 1e-6)
 })
 
+test_that("unit-weighted composites in PLSc models are not disattenuated (rho = 1)", {
+  mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    composite("Value",         multi_items("PERV", 1:2), weights = unit_weights),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  sm <- relationships(paths(from = c("Image", "Value"), to = "Satisfaction"))
+  model <- suppressMessages(estimate_pls(train, mm, sm))
+  expect_same_paths(model, oracle$unit_weights)
+  pred <- predict(model, test)$predicted_items
+  o <- oracle$unit_weights$items
+  expect_equal(unname(as.matrix(pred[, colnames(o)])), unname(o), tolerance = 1e-6)
+})
+
+test_that("an endogenous Mode B composite between reflective constructs is predicted correctly", {
+  mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    composite("Value",         multi_items("PERV", 1:2), weights = mode_B),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  sm <- relationships(
+    paths(from = "Image", to = "Value"),
+    paths(from = c("Image", "Value"), to = "Satisfaction")
+  )
+  model <- suppressMessages(estimate_pls(train, mm, sm))
+  expect_same_paths(model, oracle$endogenous_mode_B)
+  pred <- predict(model, test)$predicted_items
+  o <- oracle$endogenous_mode_B$items
+  expect_equal(unname(as.matrix(pred[, colnames(o)])), unname(o), tolerance = 1e-6)
+})
+
+test_that("PLSc predictions do not depend on construct, item or data column order", {
+  # Sigma and the predictor sets are indexed by name, never by position
+  mm <- constructs(
+    reflective("Satisfaction", multi_items("CUSA", 3:1)),
+    reflective("Expectation",  multi_items("CUEX", c(2, 3, 1))),
+    reflective("Image",        multi_items("IMAG", 5:1))
+  )
+  scrambled <- train[, rev(colnames(train))]
+  model <- suppressMessages(estimate_pls(scrambled, mm, reflective_two_sm))
+  expect_same_paths(model, oracle$reflective_two)
+  pred <- predict(model, test[, sample(colnames(test))])$predicted_items
+  o <- oracle$reflective_two$items
+  expect_equal(unname(as.matrix(pred[, colnames(o)])), unname(o), tolerance = 1e-6)
+})
+
 test_that("single-item reflective constructs are predicted (and predict from) correctly", {
   mm <- constructs(
     reflective("Image",        multi_items("IMAG", 1:5)),
@@ -120,6 +175,35 @@ test_that("an inadmissible PLSc solution stops prediction instead of being repai
   model <- suppressMessages(estimate_pls(train, reflective_two_mm, reflective_two_sm))
   model$outer_loadings["CUSA1", "Satisfaction"] <- 1.05
   expect_error(predict(model, test), "inadmissible.*CUSA1")
+})
+
+test_that("predict_pls() skips folds whose PLSc solution is inadmissible, with one warning", {
+  # Full-sample chain model is admissible, but with seed 1 and 5 folds some
+  # training folds give PLSc R^2 > 1 (cSEM agrees: inadmissible). Those folds
+  # are skipped: their test rows are NA for PLS and LM alike, and the metrics
+  # use the remaining rows. Never fall back to the PLS chain.
+  model <- suppressMessages(estimate_pls(mobi, chain_mm, chain_sm))
+  set.seed(1)
+  expect_warning(
+    cv <- predict_pls(model, technique = predict_DA, noFolds = 5),
+    "inadmissible in [1-4] of 5 cross-validation folds"
+  )
+  expect_s3_class(cv, "predict_pls_model")
+  oos <- cv$items$PLS_out_of_sample
+  lm_oos <- cv$items$lm_out_of_sample
+  skipped <- !stats::complete.cases(oos)
+  expect_true(any(skipped) && !all(skipped))
+  # PLS and LM are compared on the same rows
+  expect_identical(skipped, !stats::complete.cases(lm_oos))
+  metrics <- summary(cv)$PLS_out_of_sample
+  expect_true(all(is.finite(metrics)))
+})
+
+test_that("an inadmissible fold does not leak a stray error inside an enclosing tryCatch", {
+  model <- suppressMessages(estimate_pls(mobi, chain_mm, chain_sm))
+  set.seed(1)
+  res <- tryCatch(suppressWarnings(predict_pls(model, noFolds = 5)), error = identity)
+  expect_s3_class(res, "predict_pls_model")
 })
 
 test_that("PLSc models with interactions are refused rather than predicted in mixed metrics", {
@@ -160,9 +244,12 @@ test_that("predict_pls() uses earliest antecedents for PLSc models with predict_
 })
 
 test_that("predict_pls() gives the same PLSc predictions in parallel workers", {
-  # Workers load the installed seminr (run devtools::install() first). Kept small
-  # and off CRAN: 2 cores, 4 folds.
+  # Workers load the installed seminr, not devtools::load_all(). Skip when the
+  # installed build predates this code (run devtools::install() first). Kept
+  # small and off CRAN: 2 cores, 4 folds.
   skip_on_cran()
+  skip_if_not(installed_seminr_has("hoc_composite_reliability"),
+              "installed seminr is older than the code under test; run devtools::install()")
   model <- suppressMessages(estimate_pls(mobi, chain_mm, chain_sm))
   set.seed(425)
   sequential <- predict_pls(model, technique = predict_EA, noFolds = 4)
@@ -186,4 +273,22 @@ test_that("CFA models get an informative error instead of the PLS prediction cha
   cfa <- suppressMessages(estimate_cfa(train, reflective_two_mm))
   expect_error(predict(cfa, test), "CFA.*no structural model")
   expect_error(predict_pls(cfa, noFolds = 5), "CFA.*no structural model")
+})
+
+test_that("predicting a pre-2.6.0 PLSc model whose estimates changed warns to re-estimate", {
+  mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    composite("Expectation",   multi_items("CUEX", 1:3)),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  sm <- relationships(paths(from = c("Image", "Expectation"), to = "Satisfaction"))
+  model <- suppressMessages(estimate_pls(train, mm, sm))
+  expect_silent(predict(model, test))
+  # Objects saved by seminr < 2.6.0 carry no version stamp
+  model$seminr_version <- NULL
+  expect_warning(predict(model, test), "estimated with seminr < 2.6.0.*re-estimate")
+  # Unaffected models (all reflective) do not warn
+  old_reflective <- suppressMessages(estimate_pls(train, reflective_two_mm, reflective_two_sm))
+  old_reflective$seminr_version <- NULL
+  expect_silent(predict(old_reflective, test))
 })

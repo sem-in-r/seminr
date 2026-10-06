@@ -44,7 +44,7 @@
 #'
 #' rho_A(mobi_pls, mobi_pls$constructs)
 #' @export
-# rho_A as per Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, 39(X).
+# rho_A as per Dijkstra, T. K., & Henseler, J. (2015). Consistent partial least squares path modeling. MIS Quarterly, 39(2), 297-316.
 rho_A <- function(seminr_model, constructs) {
   # get weights for each construct
   weights <- seminr_model$outer_weights
