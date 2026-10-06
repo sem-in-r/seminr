@@ -167,15 +167,16 @@ hoc_composite_reliability <- function(seminr_model, hoc) {
 }
 
 # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent partial least squares path modeling. MIS Quarterly, 39(2), 297-316.
+# Interactions are detected from the construct names: estimate_pls() sets
+# $interaction only after this runs
 model_consistent <- function(seminr_model) {
-  if(!is.null(seminr_model$interactions) && has_reflective(seminr_model)) {
+  if (!has_reflective(seminr_model)) {
+    return(seminr_model)
+  }
+  if (any(is_interaction(seminr_model$constructs))) {
     message(
       "Models with interactions can be estimated as PLS consistent, but are subject to some bias as per Becker et al. (2018)\n",
       "'Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment'")
-    seminr_model <- PLSc(seminr_model)
   }
-  if(is.null(seminr_model$interactions) && has_reflective(seminr_model)) {
-    seminr_model <- PLSc(seminr_model)
-  }
-  return(seminr_model)
+  PLSc(seminr_model)
 }
