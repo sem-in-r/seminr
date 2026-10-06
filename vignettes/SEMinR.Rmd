@@ -626,6 +626,10 @@ The `technique` parameter controls how endogenous construct scores are predicted
 * `predict_DA` (Direct Antecedents): predicts each construct from its direct antecedent constructs only
 * `predict_EA` (Earliest Antecedents): propagates predictions through the full structural model from the exogenous constructs
 
+### PLSc models
+
+When a model has `reflective()` constructs, `estimate_pls()` applies consistent PLS (PLSc), whose path coefficients and loadings describe the common factors rather than the weighted composites. `predict()` and `predict_pls()` therefore predict PLSc models with the model-implied conditional expectation (de Rooij et al., 2023) instead of the construct-score chain: each endogenous construct's items are predicted from the items of its direct antecedents (`predict_DA`) or of the exogenous constructs (`predict_EA`) through the indicator correlations implied by the PLSc estimates. An inadmissible PLSc solution (for example, a standardized loading above one) stops prediction with the reason.
+
 ### Parallelization
 
 Cross-validation runs sequentially by default. To enable parallel execution, specify the `cores` parameter:
@@ -692,7 +696,8 @@ knitr::include_graphics('myfigure.png')
 
 * Becker et al. (2018). Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment
 * Cohen, J. (2013). Statistical power analysis for the behavioral sciences. Routledge.
-* Dijkstra, T. K., & Henseler, J. (2015). Consistent Partial Least Squares Path Modeling, MIS Quarterly Vol. 39(X).
+* de Rooij, M., Karch, J. D., Fokkema, M., Bakk, Z., Pratiwi, B. C., & Kelderman, H. (2023). SEM-based out-of-sample predictions. Structural Equation Modeling, 30(1), 132–148. https://doi.org/10.1080/10705511.2022.2061494
+* Dijkstra, T. K., & Henseler, J. (2015). Consistent partial least squares path modeling. MIS Quarterly, 39(2), 297–316. https://doi.org/10.25300/MISQ/2015/39.2.02
 * Dillon, W. R, and M. Goldstein. 1987. Multivariate Analysis: Methods, and Applications. Biometrical Journal 29 (6): 750–756.
 * Fornell, C. and D. F. Larcker (February 1981). Evaluating structural equation models with unobservable variables and measurement error, Journal of Marketing Research, 18, pp. 39-5)
 * Hair, J. F., Hult, G. T. M., Ringle, C. M., and Sarstedt, M. (2017). A Primer on Partial Least Squares Structural Equation Modeling (PLS-SEM), 2nd Ed., Sage: Thousand Oaks.
@@ -716,5 +721,6 @@ Marsh,
 * Ten Berge, J. M., Krijnen, W. P., Wansbeek, T., & Shapiro, A. (1999). Some new results on correlation-preserving factor scores prediction methods. Linear Algebra and its Applications, 289(1-3), 311-318.
 * Tenenhaus, M., Vinzi, V. E., Chatelin, Y. M., & Lauro, C. (2005). PLS path modeling. Computational Statistics and Data Analysis, 48(1), 159–205. https://doi.org/10.1016/j.csda.2004.03.005
 * Wold, H. (1985). In S. Kotz & NL Johnson (Eds.), Encyclopedia of statistical sciences. Partial least squares (Vol. 6, pp. 581591).
+* van Riel, A. C. R., Henseler, J., Kemény, I., & Sasovova, Z. (2017). Estimating hierarchical constructs using consistent partial least squares: The case of second-order composites of common factors. Industrial Management & Data Systems, 117(3), 459–477. https://doi.org/10.1108/IMDS-07-2016-0286
 * Yuan, K. H., & Bentler, P. M. (2000). Three likelihood-based methods for mean and covariance structure analysis with nonnormal missing data. Sociological methodology, 30(1), 165-200.
 * Zhao, X., Lynch Jr, J. G., & Chen, Q. (2010). Reconsidering Baron and Kenny: Myths and truths about mediation analysis. Journal of consumer research, 37(2), 197-206.
