@@ -697,27 +697,28 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
   PLS_predicted_outsample_item <- matrix(0,nrow = nrow(ordered_data),ncol = length(no_int_mmvars),dimnames = list(rownames(ordered_data),no_int_mmvars))
   PLS_predicted_insample_item <- matrix(0,nrow = nrow(ordered_data),ncol = length(no_int_mmvars),dimnames = list(rownames(ordered_data),no_int_mmvars))
   PLS_predicted_insample_item_residuals <- matrix(0,nrow = nrow(ordered_data),ncol = length(no_int_mmvars),dimnames = list(rownames(ordered_data),no_int_mmvars))
-  #PLS prediction on testset model
-  suppressMessages(
-    train_model <- estimate_pls(
-      data = trainingData,
-      measurement_model = model$measurement_model,
-      structural_model = model$smMatrix,
-      inner_weights = model$inner_weights,
-      missing = model$settings$missing,
-      missing_value = model$settings$missing_value,
-      maxIt = model$settings$maxIt,
-      stopCriterion = model$settings$stopCriterion
-    )
-  )
   # The per-fold out-of-sample reference refit would estimate on exactly the
   # rows the full-sample model was estimated on (train + test = all rows), so
   # reuse the full model's construct scores. Results match the refit to
   # floating-point rounding (row order differs), not bit-identically.
   # A PLSc solution can be inadmissible in a training fold even when the
-  # full-sample solution is admissible. Such a fold is skipped: its predictions
-  # are left NA (PLS and LM alike), never repaired with the PLS chain
-  fold_predictions <- tryCatch(
+  # full-sample solution is admissible: estimation stops (rho_A not positive)
+  # or prediction does. Such a fold is skipped: its predictions are left NA
+  # (PLS and LM alike), never repaired with the PLS chain
+  fold_predictions <- tryCatch({
+    #PLS prediction on testset model
+    suppressMessages(
+      train_model <- estimate_pls(
+        data = trainingData,
+        measurement_model = model$measurement_model,
+        structural_model = model$smMatrix,
+        inner_weights = model$inner_weights,
+        missing = model$settings$missing,
+        missing_value = model$settings$missing_value,
+        maxIt = model$settings$maxIt,
+        stopCriterion = model$settings$stopCriterion
+      )
+    )
     list(
       test = stats::predict(object = train_model,
                             testData = testingData,
@@ -726,7 +727,7 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
       train = stats::predict(object = train_model,
                              testData = trainingData,
                              technique = technique)
-    ),
+    )},
     seminr_inadmissible_plsc = function(cond) cond
   )
   inadmissible <- inherits(fold_predictions, "seminr_inadmissible_plsc")

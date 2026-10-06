@@ -110,6 +110,13 @@ PLSc <- function(seminr_model) {
   return(seminr_model)
 }
 
+# Classed PLSc condition ----
+# Callers can handle these by class: cross-validation skips a training fold
+# whose PLSc solution is inadmissible (see in_and_out_sample_predictions())
+plsc_condition <- function(message, class) {
+  structure(class = c(class, "condition"), list(message = message, call = NULL))
+}
+
 # Construct reliabilities and disattenuated construct correlations for PLSc ----
 #
 # Shared by PLSc() and PLSc prediction (plsc_implied_correlations()), so that
@@ -127,6 +134,16 @@ plsc_disattenuation <- function(seminr_model) {
   rho[is_interaction(constructs) | !(constructs %in% all_factors(seminr_model))] <- 1
   for (hoc in higher_order_composites(seminr_model, constructs)) {
     rho[hoc] <- hoc_composite_reliability(seminr_model, hoc)
+  }
+  not_positive <- !is.finite(rho) | rho <= 0
+  if (any(not_positive)) {
+    stop(plsc_condition(
+      paste0("PLSc cannot correct this model: rho_A is not positive for ",
+             paste(sprintf("%s (%.3f)", constructs[not_positive], rho[not_positive]), collapse = ", "),
+             ". The correction divides by sqrt(rho_A), so the paths, R-squared and loadings ",
+             "would be undefined. Check the signs and correlations of these constructs' items, ",
+             "or estimate them as composites."),
+      c("seminr_inadmissible_plsc", "error")))
   }
   construct_cors <- stats::cor(seminr_model$construct_scores[, constructs]) / sqrt(outer(rho, rho))
   diag(construct_cors) <- 1
