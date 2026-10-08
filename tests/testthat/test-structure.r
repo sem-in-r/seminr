@@ -104,3 +104,48 @@ test_that("Summary method correctly handles construct names containing space wit
 test_that("Summary method correctly handles numeric construct names with and without interaction", {
   expect_equal(round( sum1$vif_antecedents$Satisfaction[[1]], digits = 6), 1.617113)
 })
+
+test_that("construct_order() handles an outcome whose antecedents are ordered early", {
+  # Image -> Loyalty is an outcome reached before Quality's chain is complete;
+  # construct_order() used to loop forever on such models
+  sm <- relationships(
+    paths(from = "Image", to = c("Expectation", "Loyalty")),
+    paths(from = "Expectation", to = "Quality")
+  )
+  expect_equal(construct_order(sm), c("Expectation", "Loyalty", "Quality"))
+
+  sm <- relationships(
+    paths(from = "A", to = "B"),
+    paths(from = "B", to = c("C", "E")),
+    paths(from = c("C", "F"), to = "G")
+  )
+  expect_equal(construct_order(sm), c("B", "C", "E", "G"))
+})
+
+test_that("predict_EA works for a model with an early outcome", {
+  mm <- constructs(
+    composite("A", multi_items("IMAG", 1:3)),
+    composite("B", multi_items("CUEX", 1:3)),
+    composite("C", multi_items("PERQ", 1:3)),
+    composite("E", multi_items("PERV", 1:2)),
+    composite("F", multi_items("CUSA", 1:3)),
+    composite("G", multi_items("CUSL", 1:3))
+  )
+  sm <- relationships(
+    paths(from = "A", to = "B"),
+    paths(from = "B", to = c("C", "E")),
+    paths(from = c("C", "F"), to = "G")
+  )
+  model <- suppressMessages(estimate_pls(mobi, mm, sm))
+  predictions <- predict(model, mobi[1:5, ], technique = predict_EA)
+  expect_false(anyNA(predictions$predicted_items))
+})
+
+test_that("construct_order() stops on a cyclic structural model", {
+  sm <- relationships(
+    paths(from = "A", to = "B"),
+    paths(from = "B", to = "C"),
+    paths(from = "C", to = "B")
+  )
+  expect_error(construct_order(sm), "cannot be put in causal order")
+})
