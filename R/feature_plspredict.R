@@ -105,15 +105,15 @@ predict_from_augmented_data <- function(pls_model, testData, augmented_data,
     predictedMeasurements <- implied$items
   } else {
     # W × B × L^T prediction chain
-    predicted_construct_scores <- scaled_data %*% pls_model$outer_weights[pls_model$mmVariables, ]
+    predicted_construct_scores <- product_over_nonzero(scaled_data, pls_model$outer_weights[pls_model$mmVariables, ])
     predicted_construct_scores <- technique(pls_model$smMatrix, pls_model$path_coef,
                                             predicted_construct_scores)
-    predictedMeasurements <- predicted_construct_scores %*% t(pls_model$outer_loadings)
+    predictedMeasurements <- product_over_nonzero(predicted_construct_scores, t(pls_model$outer_loadings))
   }
 
   # Unstandardize non-interaction items only
   predictedMeasurements <- unstandardize_data(
-    predictedMeasurements[, no_int_mmvars],
+    predictedMeasurements[, no_int_mmvars, drop = FALSE],
     pls_model$meanData[no_int_mmvars],
     pls_model$sdData[no_int_mmvars]
   )
@@ -498,7 +498,9 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
 #' @param noFolds The required number of folds to use in k-fold cross validation. If NULL, then parallel LOOCV will be executed.
 #' Default is NULL.
 #'
-#' @param reps The number of times the cross-validation will be repeated. Default is NULL.
+#' @param reps The number of times the cross-validation will be repeated, each time
+#' with new random folds. The predictions are averaged over the repetitions. Default
+#' is NULL (a single run, the same as \code{reps = 1}).
 #'
 #' @param cores The number of cores to use for parallel processing. If NULL (default),
 #' cross-validation runs sequentially. Specify an integer to enable parallel execution —
@@ -590,16 +592,21 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
     lm_pred_oos_array <- array(,dim = c(nrow(ordered_data), length(endogenous_items), reps))
     lm_pred_is_array <- array(,dim = c(nrow(ordered_data), length(endogenous_items), reps))
     for (i in 1:reps) {
+      # Each repetition draws new folds; the first keeps the initial shuffle,
+      # so reps = 1 gives the same folds as reps = NULL
+      if (i > 1) {
+        ordered_data <- model$data[sample(nrow(model$data), nrow(model$data), replace = FALSE), ]
+      }
       pred_matrices <- prediction_matrices( noFolds, ordered_data, model,technique, cores)
       pls_pred_oos_array[,,i] <- pred_matrices$out_of_sample_item[rownames(model$data),]
       pls_pred_is_array[,,i] <- pred_matrices$in_sample_item[rownames(model$data),]
       lm_pred_oos_array[,,i] <- pred_matrices$out_of_sample_lm_item[rownames(model$data),]
       lm_pred_is_array[,,i] <- pred_matrices$in_sample_lm_item[rownames(model$data),]
     }
-    PLS_predicted_outsample_item <- apply(pls_pred_oos_array,c(1,2),mean)
-    PLS_predicted_insample_item <- apply(pls_pred_is_array,c(1,2),mean)
-    LM_predicted_outsample_item <- apply(lm_pred_oos_array,c(1,2),mean)
-    LM_predicted_insample_item <- apply(lm_pred_is_array,c(1,2),mean)
+    PLS_predicted_outsample_item <- mean_over_reps(pls_pred_oos_array)
+    PLS_predicted_insample_item <- mean_over_reps(pls_pred_is_array)
+    LM_predicted_outsample_item <- mean_over_reps(lm_pred_oos_array)
+    LM_predicted_insample_item <- mean_over_reps(lm_pred_is_array)
     colnames(PLS_predicted_outsample_item) <- no_int_mmvars
     colnames(PLS_predicted_insample_item) <- no_int_mmvars
     colnames(LM_predicted_outsample_item) <- endogenous_items
@@ -661,9 +668,37 @@ standardize_data <- function(data_matrix,means_vector,sd_vector) {
   return(t(t(sweep(data_matrix,2,means_vector)) / sd_vector))
 }
 
-# Function to un-standardize a matrix by sd vector and mean vector
+# Matrix product over the nonzero coefficients only. A zero weight, loading or
+# path means the column does not use that input, but in %*% NA * 0 is NA, so one
+# missing test value would blank every column of its row.
+product_over_nonzero <- function(x, coefs) {
+  x <- as.matrix(x)
+  coefs <- as.matrix(coefs)
+  result <- matrix(0, nrow(x), ncol(coefs), dimnames = list(rownames(x), colnames(coefs)))
+  for (j in seq_len(ncol(coefs))) {
+    used <- coefs[, j] != 0
+    if (any(used)) {
+      result[, j] <- x[, used, drop = FALSE] %*% coefs[used, j]
+    }
+  }
+  result
+}
+
+# Function to un-standardize a matrix by sd vector and mean vector.
+# Column-wise, so an NA stays in its own cell: a matrix product with
+# diag(sd_vector) spread one NA over the whole row (NA * 0 is NA), and diag()
+# of a single sd builds an identity matrix of that size
 unstandardize_data <- function(data_matrix,means_vector,sd_vector) {
-  return(sweep((data_matrix %*% diag(sd_vector)),2,means_vector,"+"))
+  return(sweep(sweep(data_matrix, 2, sd_vector, "*"), 2, means_vector, "+"))
+}
+
+# Mean of each cell over cross-validation repetitions. Folds skipped as
+# inadmissible are NA in their repetition; a cell is NA only when every
+# repetition skipped it
+mean_over_reps <- function(rep_array) {
+  means <- apply(rep_array, c(1, 2), mean, na.rm = TRUE)
+  means[is.nan(means)] <- NA
+  means
 }
 
 #$ Function to sum rows of a matrix
@@ -1010,7 +1045,7 @@ predict_EA <- function(smMatrix, path_coef, construct_scores) {
   return_matrix <- construct_scores
   return_matrix[,order] <- 0
   for (construct in order) {
-    return_matrix[,construct] <- return_matrix %*% path_coef[,construct]
+    return_matrix[,construct] <- product_over_nonzero(return_matrix, path_coef[, construct, drop = FALSE])
 
   }
   return(return_matrix)
@@ -1034,7 +1069,7 @@ predict_EA <- function(smMatrix, path_coef, construct_scores) {
 #' @export
 predict_DA <- function(smMatrix, path_coef, construct_scores) {
   only_exo <- only_exogenous(smMatrix)
-  return_matrix <- construct_scores%*%path_coef
+  return_matrix <- product_over_nonzero(construct_scores, path_coef)
   return_matrix[,only_exo] <- construct_scores[,only_exo]
   return(return_matrix)
 }
