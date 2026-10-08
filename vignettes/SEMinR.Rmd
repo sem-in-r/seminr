@@ -630,6 +630,15 @@ The `technique` parameter controls how endogenous construct scores are predicted
 
 When a model has `reflective()` constructs, `estimate_pls()` applies consistent PLS (PLSc), whose path coefficients and loadings describe the common factors rather than the weighted composites. `predict()` and `predict_pls()` therefore predict PLSc models with the model-implied conditional expectation (de Rooij et al., 2023) instead of the construct-score chain: each endogenous construct's items are predicted from the items of its direct antecedents (`predict_DA`) or of the exogenous constructs (`predict_EA`) through the indicator correlations implied by the PLSc estimates. An inadmissible PLSc solution (for example, a standardized loading above one) stops prediction with the reason.
 
+### CB-SEM models
+
+`predict()` also works for models estimated with `estimate_cbsem()`. It uses the same model-implied rule (the rule of `lavaan::lavPredictY()`), with `predict_DA` and `predict_EA` choosing the predictor items as above, so predictions from PLS, PLSc and CB-SEM models of the same structure answer the same question. Models with interaction terms, higher-order constructs, ordinal indicators or multiple groups, and non-converged or inadmissible fits, are not predicted. Cross-validation with `predict_pls()` is not yet available for CB-SEM models.
+
+```{r, eval=FALSE}
+cbsem_model <- estimate_cbsem(mobi[1:200, ], as.reflective(measurements), structure)
+cbsem_predictions <- predict(cbsem_model, testData = mobi[201:250, ], technique = predict_DA)
+```
+
 ### Parallelization
 
 Cross-validation runs sequentially by default. To enable parallel execution, specify the `cores` parameter:

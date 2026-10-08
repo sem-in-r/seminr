@@ -263,12 +263,6 @@ test_that("predict_pls() gives the same PLSc predictions in parallel workers", {
 # plsc_implied_predictions(). We have no realistic model that reaches it once the
 # loading and implied construct correlation checks pass; it stays as a guard.
 
-test_that("CB-SEM models get an informative error instead of the PLS prediction chain", {
-  cb <- suppressMessages(estimate_cbsem(train, reflective_two_mm, reflective_two_sm))
-  expect_error(predict(cb, test), "CB-SEM.*lavPredictY")
-  expect_error(predict_pls(cb, noFolds = 5), "CB-SEM.*lavPredictY")
-})
-
 test_that("CFA models get an informative error instead of the PLS prediction chain", {
   cfa <- suppressMessages(estimate_cfa(train, reflective_two_mm))
   expect_error(predict(cfa, test), "CFA.*no structural model")

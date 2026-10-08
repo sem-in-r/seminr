@@ -1,5 +1,15 @@
 # seminr 2.6.0
 
+### New features
+
+* `predict()` now works for CB-SEM models from `estimate_cbsem()`, using the
+  model-implied conditional expectation of de Rooij et al. (2023), the rule of
+  `lavaan::lavPredictY()`. `predict_DA` and `predict_EA` choose the predictor
+  items as for PLS and PLSc, so the three estimators' predictions are
+  comparable. Models with interaction terms, higher-order constructs, ordinal
+  indicators or multiple groups, and non-converged or inadmissible fits, stop
+  with the reason (#426).
+
 ### Fixed
 
 * `predict()` and `predict_pls()` pushed composite scores, built from the
@@ -56,12 +66,12 @@
   `reflective()` construct that is declared but not used in the structural model
   no longer makes `estimate_pls()` run PLSc.
 
-* `predict()` and `predict_pls()` on a model from `estimate_cbsem()` failed with
-  an unrelated low-level error (the CB-SEM object inherits `seminr_model` but
-  has no weights or loadings). They now stop with a message pointing to
-  `lavaan::lavPredictY()` on `model$lavaan_output`. On a model from
-  `estimate_cfa()` they failed the same way; they now stop and say that a CFA
-  has no structural model to predict from (#426).
+* `predict_pls()` on a model from `estimate_cbsem()` failed with an unrelated
+  low-level error (the CB-SEM object inherits `seminr_model` but has no weights
+  or loadings). It now stops with a message pointing to `predict()`.
+  `predict()` and `predict_pls()` on a model from `estimate_cfa()` failed the
+  same way; they now stop and say that a CFA has no structural model to predict
+  from (#426).
 
 * `plot.reliability_table()` drew its reference line at 0.708, which is the
   indicator **loading** threshold (0.708² ≈ 0.50 explained variance). The metrics
