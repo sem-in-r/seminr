@@ -74,6 +74,8 @@ summary.boot_seminr_model <- function(object, alpha = 0.05, ...) {
                                   alpha = alpha)
 
   boot_summary <- list(nboot = object$boots,
+                       nboot_requested = object$boots_requested,
+                       nboot_dropped = object$boots_dropped,
                        bootstrapped_paths = paths_summary,
                        bootstrapped_weights = weights_summary,
                        bootstrapped_loadings = loadings_summary,
@@ -96,6 +98,11 @@ print.summary.boot_seminr_model <- function(x, na.print=".", digits=3, ...) {
   cat("\n")
   print_pkginfo("Results from", x$meta$seminr)
   cat("Bootstrap resamples: ", x$nboot)
+  # boots_dropped is absent from models bootstrapped by earlier versions
+  if (isTRUE(x$nboot_dropped > 0)) {
+    cat(" (", x$nboot_dropped, " of ", x$nboot_requested,
+        " dropped: failed or inadmissible PLSc solutions)", sep = "")
+  }
 
   cat("\n\nBootstrapped Structural Paths:\n")
   print_matrix(x$bootstrapped_paths[,c(1,2,3,4,5,6,7)], na.print, digits)

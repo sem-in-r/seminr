@@ -21,8 +21,7 @@ plsc_admissibility_tol <- 1e-8
 # (see in_and_out_sample_predictions) while predict() still stops
 stop_inadmissible_plsc <- function(...) {
   message <- paste0("PLSc solution is inadmissible, so the model-implied prediction is unavailable: ", ...)
-  stop(structure(class = c("seminr_inadmissible_plsc", "error", "condition"),
-                 list(message = message, call = NULL)))
+  stop(plsc_condition(message, c("seminr_inadmissible_plsc", "error")))
 }
 
 is_positive_definite <- function(m) {
@@ -50,45 +49,49 @@ warn_if_plsc_estimates_changed <- function(pls_model) {
   invisible(NULL)
 }
 
-# Model-implied indicator correlation matrix of a PLSc model ----
+# Admissibility of a PLSc solution ----
 #
-# Reflective blocks: lambda lambda' with unit diagonal (Theta = 1 - lambda^2).
-# Composite blocks: the observed within-block correlations. Between blocks:
-# lambda_k phi_kl lambda_l', where for a composite the "loading" is the
-# item-composite correlation (S_kk w_k). Phi is the construct correlation
-# matrix implied by the structural model, starting from the correlations that
-# PLSc disattenuated with the same rho_A. Inadmissible solutions stop: a
-# loading above one is a negative residual variance and is not floored.
+# Shared by estimation, which warns (warn_if_inadmissible_plsc()), and
+# prediction, which stops: a rho_A outside (0, 1], a standardized loading above
+# one (a negative residual variance), a disattenuated construct correlation of
+# 1 or more in absolute value, or a structural-model-implied construct
+# correlation matrix that is not positive definite. The full disattenuated
+# matrix is not checked: only its exogenous block enters the implied matrix.
 #
 # @param pls_model  An estimated seminr_model with reflective constructs
-# @return Named correlation matrix over the model's (non-interaction) items
-plsc_implied_correlations <- function(pls_model) {
+# @return list(problems = character vector, empty when admissible, in the order
+#   checked; implied_phi = the implied construct correlation matrix, or NULL
+#   when an earlier check failed)
+plsc_admissibility <- function(pls_model) {
   mmMatrix <- pls_model$mmMatrix
   smMatrix <- pls_model$smMatrix
   constructs <- pls_model$constructs
   items <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
   loadings <- pls_model$outer_loadings[items, constructs, drop = FALSE]
+  problems <- character()
 
   disattenuated <- plsc_disattenuation(pls_model)
   rho <- disattenuated$rho[constructs]
   if (any(!is.finite(rho) | rho <= 0 | rho > 1)) {
-    stop_inadmissible_plsc("rho_A outside (0, 1] (",
-                           paste(sprintf("%s = %.3f", constructs, rho), collapse = ", "), ")")
+    problems <- c(problems, paste0("rho_A outside (0, 1] (",
+                                   paste(sprintf("%s = %.3f", constructs, rho), collapse = ", "), ")"))
   }
 
-  reflectives <- all_factors(pls_model)
-  reflective_items <- all_items_of_constructs(mmMatrix, reflectives)
+  reflective_items <- all_items_of_constructs(mmMatrix, all_factors(pls_model))
   squared_loadings <- rowSums(loadings[reflective_items, , drop = FALSE]^2)
   above_one <- squared_loadings > 1 + plsc_admissibility_tol
   if (any(above_one)) {
-    stop_inadmissible_plsc("standardized loading above one (",
-                           paste(reflective_items[above_one], collapse = ", "), ")")
+    problems <- c(problems, paste0("standardized loading above one (",
+                                   paste(reflective_items[above_one], collapse = ", "), ")"))
   }
 
   # Disattenuated construct correlations, the same as in PLSc()
   phi <- disattenuated$construct_cors[constructs, constructs]
   if (max(abs(phi[upper.tri(phi)])) >= 1) {
-    stop_inadmissible_plsc("a disattenuated construct correlation is 1 or more in absolute value")
+    problems <- c(problems, "a disattenuated construct correlation is 1 or more in absolute value")
+  }
+  if (length(problems) > 0) {
+    return(list(problems = problems, implied_phi = NULL))
   }
 
   # Structural-model-implied correlations, in causal order. Only the exogenous
@@ -106,8 +109,33 @@ plsc_implied_correlations <- function(pls_model) {
     earlier <- c(earlier, endogenous)
   }
   if (!is_positive_definite(implied_phi)) {
-    stop_inadmissible_plsc("the implied construct correlation matrix is not positive definite")
+    problems <- c(problems, "the implied construct correlation matrix is not positive definite")
   }
+  list(problems = problems, implied_phi = implied_phi)
+}
+
+# Model-implied indicator correlation matrix of a PLSc model ----
+#
+# Reflective blocks: lambda lambda' with unit diagonal (Theta = 1 - lambda^2).
+# Composite blocks: the observed within-block correlations. Between blocks:
+# lambda_k phi_kl lambda_l', where for a composite the "loading" is the
+# item-composite correlation (S_kk w_k). Phi is the construct correlation
+# matrix implied by the structural model, starting from the correlations that
+# PLSc disattenuated with the same rho_A. Inadmissible solutions stop: a
+# loading above one is a negative residual variance and is not floored.
+#
+# @param pls_model  An estimated seminr_model with reflective constructs
+# @return Named correlation matrix over the model's (non-interaction) items
+plsc_implied_correlations <- function(pls_model) {
+  mmMatrix <- pls_model$mmMatrix
+  items <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
+  loadings <- pls_model$outer_loadings[items, pls_model$constructs, drop = FALSE]
+
+  admissibility <- plsc_admissibility(pls_model)
+  if (length(admissibility$problems) > 0) {
+    stop_inadmissible_plsc(admissibility$problems[1])
+  }
+  implied_phi <- admissibility$implied_phi
 
   sigma <- loadings %*% implied_phi %*% t(loadings)
   observed <- stats::cor(pls_model$data[, items])
