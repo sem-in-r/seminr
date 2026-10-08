@@ -21,8 +21,7 @@ plsc_admissibility_tol <- 1e-8
 # (see in_and_out_sample_predictions) while predict() still stops
 stop_inadmissible_plsc <- function(...) {
   message <- paste0("PLSc solution is inadmissible, so the model-implied prediction is unavailable: ", ...)
-  stop(structure(class = c("seminr_inadmissible_plsc", "error", "condition"),
-                 list(message = message, call = NULL)))
+  stop(plsc_condition(message, c("seminr_inadmissible_plsc", "error")))
 }
 
 is_positive_definite <- function(m) {
