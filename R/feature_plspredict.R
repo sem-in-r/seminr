@@ -331,14 +331,15 @@ detect_interaction_method <- function(model) {
 }
 
 # Models that inherit seminr_model but cannot be predicted with the PLS rules ----
-# CB-SEM models have no weights or loadings to predict with (#426); CFA models
-# have no structural model to predict from. PLSc models with interactions have no
-# model-implied prediction rule in seminr, and the construct-score chain would mix
-# composite and factor metrics (#425, #427).
+# CB-SEM models are predicted by predict.cbsem_model() (#426) but cannot yet be
+# re-estimated per fold in predict_pls(); CFA models have no structural model to
+# predict from. PLSc models with interactions have no model-implied prediction
+# rule in seminr, and the construct-score chain would mix composite and factor
+# metrics (#425, #427).
 stop_if_not_predictable <- function(model) {
   if (inherits(model, "cbsem_model")) {
-    stop("Prediction is not available for CB-SEM models estimated with estimate_cbsem(). ",
-         "Use lavaan::lavPredictY() on the fitted lavaan object in model$lavaan_output.",
+    stop("Cross-validated prediction (predict_pls) is not yet available for CB-SEM models. ",
+         "Use predict() on held-out data, which applies the model-implied rule.",
          call. = FALSE)
   }
   if (inherits(model, "cfa_model")) {
