@@ -195,5 +195,37 @@ model_consistent <- function(seminr_model) {
       "Models with interactions can be estimated as PLS consistent, but are subject to some bias as per Becker et al. (2018)\n",
       "'Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment'")
   }
-  PLSc(seminr_model)
+  seminr_model <- PLSc(seminr_model)
+  warn_if_inadmissible_plsc(seminr_model)
+  seminr_model
+}
+
+# Warns, once, with every reason a PLSc solution is inadmissible ----
+# The estimates are returned, as by cSEM's verify() or lavaan. The warning has
+# a class, so that internal re-estimations that use only the construct scores,
+# which PLSc does not change, can muffle it. bootstrap_model() drops resamples
+# that warn, so inadmissible resamples are excluded from bootstrap statistics.
+warn_if_inadmissible_plsc <- function(seminr_model) {
+  problems <- plsc_admissibility(seminr_model)$problems
+  r_squared <- seminr_model$rSquared["Rsq", , drop = FALSE]
+  outside <- r_squared < 0 | r_squared > 1
+  if (any(outside)) {
+    problems <- c(problems, paste0("R-squared outside [0, 1] (",
+                                   paste(sprintf("%s = %.3f", colnames(r_squared)[outside], r_squared[outside]),
+                                         collapse = ", "), ")"))
+  }
+  if (length(problems) > 0) {
+    warning(plsc_condition(
+      paste0("The PLSc solution is inadmissible: ", paste(problems, collapse = "; "),
+             ". Its estimates are not interpretable as consistent estimates of the common-factor model; ",
+             "this is common in small samples."),
+      c("seminr_inadmissible_plsc_warning", "warning")))
+  }
+  invisible(NULL)
+}
+
+# Evaluates expr without the inadmissible-PLSc warning, for internal
+# re-estimations whose PLSc estimates are not used or are judged elsewhere
+muffle_inadmissible_plsc_warning <- function(expr) {
+  withCallingHandlers(expr, seminr_inadmissible_plsc_warning = function(w) invokeRestart("muffleWarning"))
 }

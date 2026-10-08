@@ -162,10 +162,91 @@ test_that("cross-validation skips a training fold whose rho_A is not positive", 
   # 50 rows: the first 25 give rho_A < 0, the full sample is admissible
   rows <- c(negative_rho_rows, 72, 120, 207, 229, 225, 136, 47, 235, 79, 166, 148, 44, 64,
             196, 59, 84, 18, 173, 145, 30, 223, 82, 96, 137, 57)
-  model <- suppressMessages(estimate_pls(mobi[rows, ], ecsi_reflective_mm, ecsi_sm))
+  # Prediction's checks pass on the full sample, but its R-squared is above one
+  expect_warning(model <- suppressMessages(estimate_pls(mobi[rows, ], ecsi_reflective_mm, ecsi_sm)),
+                 "R-squared outside \\[0, 1\\] \\(Satisfaction = 1.042\\)",
+                 class = "seminr_inadmissible_plsc_warning")
   folds <- rep(1:2, each = 25)
   # Fold 2 trains on the first 25 rows
   fold <- in_and_out_sample_predictions(2, folds, model$data, model, predict_DA)
   expect_match(fold$inadmissible, "rho_A is not positive for Value")
   expect_true(all(is.na(fold$PLS_predicted_outsample_item[26:50, ])))
+})
+
+# mobi subsamples whose PLSc solutions are inadmissible in different ways
+inadmissible_rows <- list(
+  several = c(7, 14, 21, 37, 43, 51, 68, 73, 74, 79, 85, 105, 106, 110, 129, 162, 165, 167,
+              182, 187, 210, 213, 215, 217, 225),
+  not_positive_definite = c(12, 15, 21, 22, 31, 40, 59, 67, 90, 103, 118, 132, 134, 136, 139,
+                            144, 148, 150, 159, 168, 175, 179, 187, 194, 207, 211, 216, 218, 220, 242),
+  r_squared = c(2, 14, 16, 21, 29, 30, 31, 32, 38, 45, 50, 51, 58, 60, 72, 77, 81, 85, 88, 91,
+                95, 102, 110, 115, 120, 126, 127, 132, 134, 136, 137, 139, 140, 142, 148, 149,
+                156, 158, 163, 165, 166, 168, 169, 170, 172, 181, 189, 193, 198, 200, 205, 208,
+                214, 217, 226, 231, 244, 245, 246, 250)
+)
+admissible_rows <- c(6, 11, 12, 18, 35, 38, 40, 51, 54, 57, 58, 59, 67, 70, 71, 73, 78, 94, 105,
+                     112, 114, 124, 125, 127, 132, 134, 135, 138, 139, 140, 141, 142, 143, 145,
+                     146, 158, 161, 162, 167, 168, 174, 179, 183, 186, 189, 195, 200, 206, 209,
+                     214, 221, 222, 223, 224, 231, 232, 234, 235, 238, 247)
+
+estimate_ecsi <- function(rows) {
+  suppressMessages(estimate_pls(mobi[rows, ], ecsi_reflective_mm, ecsi_sm))
+}
+
+test_that("estimate_pls() warns once with every reason a PLSc solution is inadmissible", {
+  expect_warning(model <- estimate_ecsi(inadmissible_rows$several),
+                 paste0("inadmissible: rho_A outside \\(0, 1\\] .*Value = 1.016.*; ",
+                        "standardized loading above one \\(PERV2\\); ",
+                        "a disattenuated construct correlation is 1 or more in absolute value; ",
+                        "R-squared outside \\[0, 1\\] \\(Expectation = 1.502\\)"),
+                 class = "seminr_inadmissible_plsc_warning")
+  # The estimates are still returned
+  expect_s3_class(model, "pls_model")
+  expect_warning(estimate_ecsi(inadmissible_rows$not_positive_definite),
+                 "implied construct correlation matrix is not positive definite",
+                 class = "seminr_inadmissible_plsc_warning")
+  expect_warning(estimate_ecsi(inadmissible_rows$r_squared),
+                 "inadmissible: R-squared outside \\[0, 1\\] \\(Satisfaction = 1.033\\)\\.",
+                 class = "seminr_inadmissible_plsc_warning")
+})
+
+test_that("estimate_pls() does not warn for an admissible PLSc solution", {
+  expect_no_warning(estimate_ecsi(admissible_rows))
+})
+
+test_that("cross-validation does not repeat the estimation warning for each fold", {
+  model <- estimate_ecsi(admissible_rows)
+  set.seed(1)
+  warnings <- character()
+  withCallingHandlers(
+    predict_pls(model, technique = predict_DA, noFolds = 5),
+    seminr_inadmissible_plsc_warning = function(w) {
+      warnings <<- c(warnings, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    },
+    warning = function(w) invokeRestart("muffleWarning")
+  )
+  expect_length(warnings, 0)
+})
+
+test_that("bootstrap_model() drops inadmissible PLSc resamples and reports how many at the end", {
+  model <- estimate_ecsi(admissible_rows)
+  messages <- character()
+  boot <- withCallingHandlers(
+    bootstrap_model(model, nboot = 30, cores = 1, seed = 1),
+    message = function(m) {
+      messages <<- c(messages, conditionMessage(m))
+      invokeRestart("muffleMessage")
+    }
+  )
+  expect_gt(boot$boots_dropped, 0)
+  expect_equal(boot$boots_requested, 30)
+  expect_equal(boot$boots + boot$boots_dropped, 30)
+  expect_equal(dim(boot$boot_paths)[3], boot$boots)
+  # The count is the last message, not one in the middle of the run
+  expect_match(utils::tail(messages, 1),
+               paste0(boot$boots, " of 30 resamples used\\. ", boot$boots_dropped, " were dropped"))
+  printed <- utils::capture.output(print(summary(boot)))
+  expect_true(any(grepl(paste0("Bootstrap resamples:  ", boot$boots, " \\(", boot$boots_dropped,
+                               " of 30 dropped"), printed)))
 })

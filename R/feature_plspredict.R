@@ -7,7 +7,8 @@ estimate_actual_star <- function(pls_model, train_data, testData) {
   no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
   actual_star <- estimate_pls(data = rbind(train_data[,no_int_mmvars], testData[,no_int_mmvars]),
                                        measurement_model = pls_model$measurement_model,
-                                       structural_model = pls_model$structural_model)$construct_scores[,all_endogenous(pls_model$smMatrix),drop = F] |> suppressMessages()
+                                       structural_model = pls_model$structural_model)$construct_scores[,all_endogenous(pls_model$smMatrix),drop = F] |>
+    suppressMessages() |> muffle_inadmissible_plsc_warning()
 
   actual_star_out <- actual_star[(nrow(train_data)+1):(nrow(testData) + nrow(train_data)),,drop = F]
   actual_star_in <- actual_star[1:(nrow(train_data)),,drop = F]
@@ -52,7 +53,8 @@ compute_actual_star <- function(pls_model, testData) {
   if (identical(original_data, fulldata)) {
     return(pls_model$construct_scores)
   }
-  suppressMessages(
+  # Only the construct scores are used, and PLSc does not change them
+  muffle_inadmissible_plsc_warning(suppressMessages(
     fullmodel <- estimate_pls(
       data = fulldata,
       measurement_model = pls_model$measurement_model,
@@ -63,7 +65,7 @@ compute_actual_star <- function(pls_model, testData) {
       maxIt = pls_model$settings$maxIt,
       stopCriterion = pls_model$settings$stopCriterion
     )
-  )
+  ))
   fullmodel$construct_scores
 }
 
@@ -162,7 +164,8 @@ two_stage_predict <- function(pls_model, testData, technique, actual_star = NULL
   first_stage_sm <- remove_paths_from(pls_model$structural_model, interactions)
   first_stage_model <- estimate_pls(data = pls_model$rawdata,
                                     measurement_model = first_stage_mm,
-                                    structural_model = first_stage_sm) |> suppressMessages()
+                                    structural_model = first_stage_sm) |> suppressMessages() |>
+    muffle_inadmissible_plsc_warning()
 
   # Compute OOS composite scores using first-stage weights
   scaled_data <- standardize_data(testData[, no_int_mmvars, drop = FALSE],
@@ -742,8 +745,9 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
   # or prediction does. Such a fold is skipped: its predictions are left NA
   # (PLS and LM alike), never repaired with the PLS chain
   fold_predictions <- tryCatch({
+    # The fold's own inadmissibility is reported by the skipped-fold warning
     #PLS prediction on testset model
-    suppressMessages(
+    muffle_inadmissible_plsc_warning(suppressMessages(
       train_model <- estimate_pls(
         data = trainingData,
         measurement_model = model$measurement_model,
@@ -754,7 +758,7 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
         maxIt = model$settings$maxIt,
         stopCriterion = model$settings$stopCriterion
       )
-    )
+    ))
     list(
       test = stats::predict(object = train_model,
                             testData = testingData,

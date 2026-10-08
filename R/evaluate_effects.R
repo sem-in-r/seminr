@@ -47,7 +47,9 @@ fSquared <- function(seminr_model, iv, dv) {
   with_sm <- seminr_model$smMatrix
   without_sm <- remove_path(with_sm, iv, dv)
 
-  suppressMessages(
+  # The reduced model is internal: its inadmissibility would be reported as if
+  # it were the user's model
+  muffle_inadmissible_plsc_warning(suppressMessages(
     without_pls <- estimate_pls(data = seminr_model$rawdata,
                                 measurement_model = seminr_model$measurement_model,
                                 structural_model = without_sm,
@@ -56,7 +58,7 @@ fSquared <- function(seminr_model, iv, dv) {
                                 missing_value = seminr_model$settings$missing_value,
                                 maxIt = seminr_model$settings$maxIt,
                                 stopCriterion = seminr_model$settings$stopCriterion)
-  )
+  ))
   with_r2 <- seminr_model$rSquared["Rsq", dv]
   ifelse(has_paths_to(without_sm, dv),
          without_r2 <- without_pls$rSquared["Rsq", dv],
