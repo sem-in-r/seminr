@@ -56,6 +56,13 @@
 #' @export
 PLSc <- function(seminr_model) {
   # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent partial least squares path modeling. MIS Quarterly, 39(2), 297-316.
+  # A finished higher-order model has its stage-1 and stage-2 matrices
+  # combined, so PLSc cannot be re-applied; estimate_pls() already applied it
+  if (isTRUE(seminr_model$hoc)) {
+    message("PLSc was already applied by estimate_pls() to this higher-order model; ",
+            "it is returned unchanged.")
+    return(seminr_model)
+  }
   # get relevant parts of the estimated model
   smMatrix <- seminr_model$smMatrix
   mmMatrix <- seminr_model$mmMatrix

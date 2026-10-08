@@ -90,3 +90,16 @@ test_that("estimate_pls() stops with a clear message for higher_reflective()", {
   expect_error(estimate_pls(mobi, model = specify_model(mm, sm)),
                "higher_reflective\\(\\)")
 })
+
+test_that("PLSc() on an estimated higher-order model returns it unchanged", {
+  mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    reflective("Expectation",  multi_items("CUEX", 1:3)),
+    higher_composite("IE", c("Image", "Expectation")),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  sm <- relationships(paths(from = "IE", to = "Satisfaction"))
+  model <- suppressMessages(estimate_pls(mobi, mm, sm))
+  expect_message(again <- PLSc(model), "already applied")
+  expect_identical(again, model)
+})
