@@ -4,8 +4,8 @@
 
 Minor release: prediction for consistent PLS (PLSc) and CB-SEM models, bug
 fixes (several of which change results; listed below), the corrected
-reliability-plot threshold, a new maintainer address, a two-core default for
-parallel work, and internal performance refactors. Every change is described
+reliability-plot threshold, a new maintainer address, a two-core limit for
+parallel work under CRAN's checks, and internal performance refactors. Every change is described
 in NEWS.md.
 
 **Maintainer address.** CRAN reported that mail to the previous maintainer
