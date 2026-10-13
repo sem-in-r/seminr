@@ -145,6 +145,11 @@
 
 * The package maintainer address is now `seminrgroup@gmail.com` (#420).
 
+* `bootstrap_model()` with the default `cores = NULL` now uses at most two
+  cores, as CRAN policy requires; it used every core before. Set
+  `cores = parallel::detectCores()` to use them all. Results do not depend on the
+  number of cores.
+
 ### Performance
 
 Substantial internal speedups across the heavy routines. **These are refactors

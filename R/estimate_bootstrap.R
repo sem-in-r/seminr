@@ -11,6 +11,9 @@
 #'        value is 500. If 0 then no bootstrapping is performed.
 #'
 #' @param cores A parameter specifying the maximum number of cores to use in the parallelization.
+#'        The default, \code{NULL}, uses at most two cores, the limit CRAN sets for packages; set
+#'        \code{cores = parallel::detectCores()} to use all of them. Results do not depend on
+#'        the number of cores.
 #'
 #' @param seed A parameter to specify the seed for reproducibility of results. Default is NULL.
 #'
