@@ -13,9 +13,9 @@ bootstrap_model(seminr_model, nboot = 500, cores = NULL, seed = NULL, ...)
 value is 500. If 0 then no bootstrapping is performed.}
 
 \item{cores}{A parameter specifying the maximum number of cores to use in the parallelization.
-The default, \code{NULL}, uses at most two cores, the limit CRAN sets for packages; set
-\code{cores = parallel::detectCores()} to use all of them. Results do not depend on
-the number of cores.}
+The default, \code{NULL}, uses all available cores (\code{parallel::detectCores()}),
+or at most two during R CMD check with CRAN's core limit set. Results do not depend
+on the number of cores.}
 
 \item{seed}{A parameter to specify the seed for reproducibility of results. Default is NULL.
 Resample \code{i} uses \code{set.seed(seed + i)}, so two seeds that differ by less

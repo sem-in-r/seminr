@@ -36,9 +36,10 @@ Models without reflective constructs give the same estimates as in 2.5.0.
 indicator loading threshold; it now draws 0.70, the threshold for the
 construct reliabilities it displays, and exposes a `threshold` argument.
 
-**Core usage.** The implicit default for parallel work is now
-`min(2L, parallel::detectCores())`, so tests and vignettes stay within the
-two-core limit; an explicit `cores` argument is still honoured.
+**Core usage.** When `_R_CHECK_LIMIT_CORES_` is set, as in CRAN's checks, the
+default for parallel work uses at most two cores, so tests and vignettes stay
+within the two-core limit. Otherwise it uses all available cores, as before; an
+explicit `cores` argument is always honoured.
 
 **Performance.** Internal refactors of `simplePLS()`, `HTMT()`,
 `predict_pls()`, cross-validation, PLS-MGA and the single-core bootstrap path.
