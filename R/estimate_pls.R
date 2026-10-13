@@ -112,6 +112,13 @@ estimate_pls <- function(data,
                          assess_syntax = FALSE) {
   # NOTE: update rerun.pls_model() if parameters change!
 
+  # higher_reflective() is implemented for CB-SEM only (#212)
+  specified_mm <- extract_models(model, measurement_model, structural_model)$measurement_model
+  if (any(names(specified_mm) == "higher_order_reflective")) {
+    stop("higher_reflective() constructs are supported by estimate_cbsem(), not estimate_pls(). ",
+         "For PLS, specify the higher-order construct with higher_composite().", call. = FALSE)
+  }
+
   # Check if the user has correct specified the model
   if (assess_syntax) assess_model_specification(measurement_model,
                                                 structural_model,

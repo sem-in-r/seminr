@@ -76,3 +76,30 @@ test_that("a HOC of common factors is corrected even when no stage-2 construct i
   r <- stats::cor(model$construct_scores[, "IE"], model$construct_scores[, "Satisfaction"])
   expect_equal(model$path_coef["IE", "Satisfaction"], r / sqrt(rho_ie), tolerance = 1e-10)
 })
+
+test_that("estimate_pls() stops with a clear message for higher_reflective()", {
+  mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    reflective("Expectation",  multi_items("CUEX", 1:3)),
+    higher_reflective("IE", c("Image", "Expectation")),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  sm <- relationships(paths(from = "IE", to = "Satisfaction"))
+  expect_error(estimate_pls(mobi, mm, sm),
+               "higher_reflective\\(\\) .*estimate_cbsem\\(\\).*higher_composite\\(\\)")
+  expect_error(estimate_pls(mobi, model = specify_model(mm, sm)),
+               "higher_reflective\\(\\)")
+})
+
+test_that("PLSc() on an estimated higher-order model returns it unchanged", {
+  mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    reflective("Expectation",  multi_items("CUEX", 1:3)),
+    higher_composite("IE", c("Image", "Expectation")),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  sm <- relationships(paths(from = "IE", to = "Satisfaction"))
+  model <- suppressMessages(estimate_pls(mobi, mm, sm))
+  expect_message(again <- PLSc(model), "already applied")
+  expect_identical(again, model)
+})

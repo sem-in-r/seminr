@@ -98,6 +98,49 @@
   the others. Predictions for complete data are unchanged. PLSc models already
   behaved this way.
 
+* `estimate_pls()` returned inadmissible PLSc solutions without notice. It now
+  warns, once, with every problem found: a rho_A above one, a standardized
+  loading above one, a disattenuated construct correlation of 1 or more in
+  absolute value, a structural-model-implied construct correlation matrix that
+  is not positive definite, or an R-squared outside [0, 1]. The estimates are
+  still returned. Such solutions are common in small samples.
+
+* `bootstrap_model()` drops resamples whose estimation fails or warns, so
+  inadmissible PLSc resamples are now excluded from the bootstrap statistics.
+  The number dropped is reported in the final message, stored in the model as
+  `boots_dropped` (with `boots_requested`), and printed by `summary()`.
+  **Bootstrap standard errors, t values, p values and confidence intervals
+  change for PLSc models with inadmissible resamples**: for a mobi model with a
+  weak reflective block, 69 of 500 resamples were dropped, and the t value of
+  its weakest discriminant validity estimate rose from 0.95 to 1.52.
+
+* PLSc divides by sqrt(rho_A). A rho_A of zero or below gave `NaN` paths,
+  R-squared and loadings with only R's "NaNs produced" warnings; `estimate_pls()`
+  now stops and names the constructs. A cross-validation fold or bootstrap
+  resample with such a rho_A is skipped.
+
+* `construct_order()` looped forever on structural models in which an outcome
+  construct's antecedents are ordered before the rest of the model (e.g.
+  `Image -> Loyalty` next to `Image -> Expectation -> Quality`), so
+  `predict(technique = predict_EA)` hung on them. A structural model with a
+  cycle now stops with an error.
+
+* The note that PLSc estimates of interaction models are subject to some bias
+  (Becker et al., 2018) never showed, because `estimate_pls()` checked a field
+  that is never set. It now shows for PLSc models with interaction terms.
+
+* `estimate_pls()` with a `higher_reflective()` construct, which is supported by
+  `estimate_cbsem()` only, failed with "undefined columns selected". It now
+  stops and points to `estimate_cbsem()` or `higher_composite()`.
+
+* `PLSc()` on a model with a higher-order construct, already corrected by
+  `estimate_pls()`, failed with "subscript out of bounds". It now returns the
+  model unchanged with a message.
+
+* Parallel processing failed to start ("creation of server socket failed") when
+  its port was in use, e.g. by another R session started at the same time. It
+  now retries on other ports.
+
 ### Changed
 
 * The package maintainer address is now `seminrgroup@gmail.com` (#420).

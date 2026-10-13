@@ -56,6 +56,13 @@
 #' @export
 PLSc <- function(seminr_model) {
   # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent partial least squares path modeling. MIS Quarterly, 39(2), 297-316.
+  # A finished higher-order model has its stage-1 and stage-2 matrices
+  # combined, so PLSc cannot be re-applied; estimate_pls() already applied it
+  if (isTRUE(seminr_model$hoc)) {
+    message("PLSc was already applied by estimate_pls() to this higher-order model; ",
+            "it is returned unchanged.")
+    return(seminr_model)
+  }
   # get relevant parts of the estimated model
   smMatrix <- seminr_model$smMatrix
   mmMatrix <- seminr_model$mmMatrix
@@ -110,6 +117,13 @@ PLSc <- function(seminr_model) {
   return(seminr_model)
 }
 
+# Classed PLSc condition ----
+# Callers can handle these by class: cross-validation skips a training fold
+# whose PLSc solution is inadmissible (see in_and_out_sample_predictions())
+plsc_condition <- function(message, class) {
+  structure(class = c(class, "condition"), list(message = message, call = NULL))
+}
+
 # Construct reliabilities and disattenuated construct correlations for PLSc ----
 #
 # Shared by PLSc() and PLSc prediction (plsc_implied_correlations()), so that
@@ -127,6 +141,16 @@ plsc_disattenuation <- function(seminr_model) {
   rho[is_interaction(constructs) | !(constructs %in% all_factors(seminr_model))] <- 1
   for (hoc in higher_order_composites(seminr_model, constructs)) {
     rho[hoc] <- hoc_composite_reliability(seminr_model, hoc)
+  }
+  not_positive <- !is.finite(rho) | rho <= 0
+  if (any(not_positive)) {
+    stop(plsc_condition(
+      paste0("PLSc cannot correct this model: rho_A is not positive for ",
+             paste(sprintf("%s (%.3f)", constructs[not_positive], rho[not_positive]), collapse = ", "),
+             ". The correction divides by sqrt(rho_A), so the paths, R-squared and loadings ",
+             "would be undefined. Check the signs and correlations of these constructs' items, ",
+             "or estimate them as composites."),
+      c("seminr_inadmissible_plsc", "error")))
   }
   construct_cors <- stats::cor(seminr_model$construct_scores[, constructs]) / sqrt(outer(rho, rho))
   diag(construct_cors) <- 1
@@ -167,15 +191,48 @@ hoc_composite_reliability <- function(seminr_model, hoc) {
 }
 
 # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent partial least squares path modeling. MIS Quarterly, 39(2), 297-316.
+# Interactions are detected from the construct names: estimate_pls() sets
+# $interaction only after this runs
 model_consistent <- function(seminr_model) {
-  if(!is.null(seminr_model$interactions) && has_reflective(seminr_model)) {
+  if (!has_reflective(seminr_model)) {
+    return(seminr_model)
+  }
+  if (any(is_interaction(seminr_model$constructs))) {
     message(
       "Models with interactions can be estimated as PLS consistent, but are subject to some bias as per Becker et al. (2018)\n",
       "'Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment'")
-    seminr_model <- PLSc(seminr_model)
   }
-  if(is.null(seminr_model$interactions) && has_reflective(seminr_model)) {
-    seminr_model <- PLSc(seminr_model)
+  seminr_model <- PLSc(seminr_model)
+  warn_if_inadmissible_plsc(seminr_model)
+  seminr_model
+}
+
+# Warns, once, with every reason a PLSc solution is inadmissible ----
+# The estimates are returned, as by cSEM's verify() or lavaan. The warning has
+# a class, so that internal re-estimations that use only the construct scores,
+# which PLSc does not change, can muffle it. bootstrap_model() drops resamples
+# that warn, so inadmissible resamples are excluded from bootstrap statistics.
+warn_if_inadmissible_plsc <- function(seminr_model) {
+  problems <- plsc_admissibility(seminr_model)$problems
+  r_squared <- seminr_model$rSquared["Rsq", , drop = FALSE]
+  outside <- r_squared < 0 | r_squared > 1
+  if (any(outside)) {
+    problems <- c(problems, paste0("R-squared outside [0, 1] (",
+                                   paste(sprintf("%s = %.3f", colnames(r_squared)[outside], r_squared[outside]),
+                                         collapse = ", "), ")"))
   }
-  return(seminr_model)
+  if (length(problems) > 0) {
+    warning(plsc_condition(
+      paste0("The PLSc solution is inadmissible: ", paste(problems, collapse = "; "),
+             ". Its estimates are not interpretable as consistent estimates of the common-factor model; ",
+             "this is common in small samples."),
+      c("seminr_inadmissible_plsc_warning", "warning")))
+  }
+  invisible(NULL)
+}
+
+# Evaluates expr without the inadmissible-PLSc warning, for internal
+# re-estimations whose PLSc estimates are not used or are judged elsewhere
+muffle_inadmissible_plsc_warning <- function(expr) {
+  withCallingHandlers(expr, seminr_inadmissible_plsc_warning = function(w) invokeRestart("muffleWarning"))
 }
