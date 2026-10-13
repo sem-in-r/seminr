@@ -17,7 +17,10 @@ The default, \code{NULL}, uses at most two cores, the limit CRAN sets for packag
 \code{cores = parallel::detectCores()} to use all of them. Results do not depend on
 the number of cores.}
 
-\item{seed}{A parameter to specify the seed for reproducibility of results. Default is NULL.}
+\item{seed}{A parameter to specify the seed for reproducibility of results. Default is NULL.
+Resample \code{i} uses \code{set.seed(seed + i)}, so two seeds that differ by less
+than \code{nboot} share most of their resamples; to check how much results vary
+between runs, use seeds that differ by more than \code{nboot}.}
 
 \item{...}{A list of parameters passed on to the estimation method.}
 }

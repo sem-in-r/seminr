@@ -16,6 +16,9 @@
 #'        the number of cores.
 #'
 #' @param seed A parameter to specify the seed for reproducibility of results. Default is NULL.
+#'        Resample \code{i} uses \code{set.seed(seed + i)}, so two seeds that differ by less
+#'        than \code{nboot} share most of their resamples; to check how much results vary
+#'        between runs, use seeds that differ by more than \code{nboot}.
 #'
 #' @param ... A list of parameters passed on to the estimation method.
 #'
