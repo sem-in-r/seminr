@@ -2,74 +2,70 @@
 
 ## Release summary
 
-Minor release. Three user-facing changes and a set of internal performance
-refactors.
+Minor release: prediction for consistent PLS (PLSc) and CB-SEM models, bug
+fixes (several of which change results; listed below), the corrected
+reliability-plot threshold, a new maintainer address, a two-core limit for
+parallel work under CRAN's checks, and internal performance refactors. Every change is described
+in NEWS.md.
 
 **Maintainer address.** CRAN reported that mail to the previous maintainer
 address bounced. The address is now `seminrgroup@gmail.com`. The `Maintainer`
 field continues to name an individual; only the address has changed.
 
+**Results that change.** These are corrections, each documented in NEWS.md:
+
+* `predict()` and `predict_pls()` on PLSc models (`reflective()` constructs)
+  applied corrected path coefficients to uncorrected composite scores. They now
+  use the model-implied conditional expectation (de Rooij et al., 2023).
+* PLSc corrected Mode A and unit-weighted composites as if they were common
+  factors. Composites are now treated as fully reliable (Dijkstra & Henseler,
+  2015), as cSEM does; higher-order composites of common factors are corrected
+  with the reliability of their stage-2 proxy. Path coefficients and R-squared
+  change for models that mix reflective constructs with such composites.
+* `predict_pls(reps = k)` repeated the cross-validation on the same folds; it now
+  draws new folds for each repetition.
+* `bootstrap_model()` now excludes inadmissible PLSc resamples from the
+  bootstrap statistics and reports how many were dropped; `estimate_pls()` warns
+  when a PLSc solution is inadmissible.
+
+Models without reflective constructs give the same estimates as in 2.5.0.
+
+**New.** `predict()` works for CB-SEM models from `estimate_cbsem()`.
+
 **Bug fix.** `plot.reliability_table()` drew its reference line at 0.708, the
-indicator *loading* threshold. The metrics that plot displays — Cronbach's
-alpha, rhoA and rhoC — are construct-level reliabilities, judged against 0.70.
-The line is now drawn at 0.70 and the value is exposed as a `threshold`
-argument.
+indicator loading threshold; it now draws 0.70, the threshold for the
+construct reliabilities it displays, and exposes a `threshold` argument.
 
-**Core usage.** The implicit default in `setup_parallel_cluster()` resolved
-`cores = NULL` to `parallel::detectCores()`. Since tests and vignettes call
-`bootstrap_model()` without pinning `cores`, checks could exceed the two-core
-limit in the CRAN policy. The implicit default is now `min(2L, detectCores())`.
-An explicit `cores` argument is still honoured.
+**Core usage.** When `_R_CHECK_LIMIT_CORES_` is set, as in CRAN's checks, the
+default for parallel work uses at most two cores, so tests and vignettes stay
+within the two-core limit. Otherwise it uses all available cores, as before; an
+explicit `cores` argument is always honoured.
 
-**Performance.** Internal refactors to `simplePLS()`, `HTMT()`, `predict_pls()`,
-cross-validation, PLS-MGA and the single-core bootstrap path. These change no
-results — see below.
-
-## Verification that results are unchanged
-
-The refactors were checked against the code accompanying the PLS-SEM R book
-(Hair et al.), comparing 2.5.0 with 2.6.0 on the same models with bootstrap
-seeds pinned:
-
-* deterministic quantities — path coefficients, outer loadings, outer weights,
-  construct score correlations, R-squared, reliability, HTMT, AVE, VIF, and
-  iteration counts — agree to `max|diff| = 0`
-* bootstrap quantities — CIs, SDs and t-statistics — agree to `max|diff| = 0`
-* verified for `cores = 1` and `cores = 2` independently, identical to twelve
-  decimal places
+**Performance.** Internal refactors of `simplePLS()`, `HTMT()`,
+`predict_pls()`, cross-validation, PLS-MGA and the single-core bootstrap path.
+These change no results: on the code accompanying the PLS-SEM R book (Hair et
+al.), 2.5.0 and the refactored code agree to `max|diff| = 0` on all
+deterministic and seeded bootstrap quantities, for `cores = 1` and `cores = 2`.
 
 ## Test environments
 
-- local: macOS 15.5 (arm64), R 4.6.0
-- GitHub Actions: macOS-latest, ubuntu-latest and windows-latest, R release and
-  R devel
-- win-builder: R-devel (2026-08-17 r90424 ucrt), checked 2026-08-21
+- local: macOS (arm64), R 4.5.1
+- GitHub Actions: macOS-latest, windows-latest and ubuntu-latest (R release),
+  ubuntu-latest (R devel)
+- win-builder: R-release and R-devel
 
 ## R CMD check results
 
-Local and GitHub Actions: 0 errors | 0 warnings | 0 notes
-win-builder (R-devel): 0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 1 note
 
-The note is the expected maintainer-address change described above:
-
-```
-* checking CRAN incoming feasibility ... NOTE
-Maintainer: 'Nicholas Patrick Danks <seminrgroup@gmail.com>'
-
-New maintainer:
-  Nicholas Patrick Danks <seminrgroup@gmail.com>
-Old maintainer(s):
-  Nicholas Patrick Danks <nicholasdanks@hotmail.com>
-```
-
-The previous address bounced, which CRAN reported. The same change was made for
-seminrExtras, confirmed by CRAN on 2026-08-19 and published the same day; this
-submission brings seminr onto the same address. The `Maintainer` field names an
-individual, not a mailing list, and the address is monitored.
-
-win-builder installation time 7s, check time 251s.
+* checking CRAN incoming feasibility ... NOTE: maintainer address changed, as
+  explained above.
 
 ## Reverse dependencies
 
-One reverse dependency, seminrExtras (1.0.3, published 2026-08-19). Checked
-against the development version of seminr with 0 new problems.
+We checked the three CRAN packages that depend on seminr against this version:
+
+* seminrExtras 1.0.3: OK (seminrExtras 1.0.4, submitted alongside, also passes)
+* surveyframe 0.4.2: OK
+* semPlot 1.2.0: OK (checked with its suggested package MplusAutomation installed;
+  without it, one Mplus example cannot run, which is unrelated to seminr)
