@@ -413,3 +413,79 @@ test_that("predict_pls with non-standard rownames matches standard rowname resul
   expect_equal(`rownames<-`(reps_char$items$PLS_out_of_sample, NULL),
                `rownames<-`(reps_std$items$PLS_out_of_sample, NULL))
 })
+
+# reps and missing test values ----
+reps_mm <- constructs(
+  composite("Image",        multi_items("IMAG", 1:5)),
+  composite("Expectation",  multi_items("CUEX", 1:3)),
+  composite("Satisfaction", multi_items("CUSA", 1:3))
+)
+reps_sm <- relationships(
+  paths(from = c("Image", "Expectation"), to = "Satisfaction")
+)
+reps_model <- estimate_pls(mobi[1:200, ], reps_mm, reps_sm)
+
+test_that("predict_pls() draws new folds for each repetition and averages them", {
+  endogenous <- all_items_of_constructs(reps_model$mmMatrix, all_endogenous(reps_model$smMatrix))
+  rows <- rownames(reps_model$data)
+  n <- nrow(reps_model$data)
+
+  # Oracle: the same three shuffles, cross-validated one at a time, then averaged
+  set.seed(426)
+  orders <- list(sample(n, n), sample(n, n), sample(n, n))
+  one_rep <- function(order) {
+    prediction_matrices(5, reps_model$data[order, ], reps_model, predict_DA, NULL)$out_of_sample_item[rows, endogenous]
+  }
+  expected <- Reduce(`+`, lapply(orders, one_rep)) / 3
+
+  set.seed(426)
+  repeated <- predict_pls(reps_model, technique = predict_DA, noFolds = 5, reps = 3)
+  expect_equal(unname(as.matrix(repeated$items$PLS_out_of_sample)), unname(expected))
+
+  set.seed(426)
+  single <- predict_pls(reps_model, technique = predict_DA, noFolds = 5)
+  expect_false(isTRUE(all.equal(unname(as.matrix(repeated$items$PLS_out_of_sample)),
+                                unname(as.matrix(single$items$PLS_out_of_sample)))))
+})
+
+test_that("predict_pls() with reps = 1 uses the same folds as reps = NULL", {
+  set.seed(426)
+  single <- predict_pls(reps_model, technique = predict_DA, noFolds = 5)
+  set.seed(426)
+  one <- predict_pls(reps_model, technique = predict_DA, noFolds = 5, reps = 1)
+  expect_equal(unname(as.matrix(one$items$PLS_out_of_sample)),
+               unname(as.matrix(single$items$PLS_out_of_sample)))
+  expect_equal(unname(as.matrix(one$items$lm_out_of_sample)),
+               unname(as.matrix(single$items$lm_out_of_sample)))
+})
+
+test_that("mean_over_reps() ignores repetitions that skipped a cell", {
+  reps_array <- array(c(1, 2, NA, NA,   3, NA, 5, NA), dim = c(2, 2, 2))
+  expect_equal(mean_over_reps(reps_array), matrix(c(2, 2, 5, NA), 2, 2))
+})
+
+test_that("a missing test value leaves predictions that do not use it", {
+  complete <- mobi[201:205, ]
+  missing_one <- complete
+  missing_one$IMAG1[1] <- NA
+
+  expected <- predict(reps_model, complete)$predicted_items
+  predicted <- predict(reps_model, missing_one)$predicted_items
+
+  # Expectation's items do not depend on Image
+  expect_equal(predicted[1, paste0("CUEX", 1:3)], expected[1, paste0("CUEX", 1:3)])
+  # Image cannot be scored without IMAG1, so its items and Satisfaction's are NA
+  expect_true(all(is.na(predicted[1, c(paste0("IMAG", 1:5), paste0("CUSA", 1:3))])))
+  # Other cases are unaffected
+  expect_equal(predicted[-1, ], expected[-1, ])
+
+  expected_ea <- predict(reps_model, complete, technique = predict_EA)$predicted_items
+  predicted_ea <- predict(reps_model, missing_one, technique = predict_EA)$predicted_items
+  expect_equal(predicted_ea[1, paste0("CUEX", 1:3)], expected_ea[1, paste0("CUEX", 1:3)])
+  expect_equal(predicted_ea[-1, ], expected_ea[-1, ])
+})
+
+test_that("unstandardize_data() handles a single column", {
+  x <- matrix(c(-1, 0, 2), ncol = 1)
+  expect_equal(unstandardize_data(x, 5, 2.5), matrix(c(2.5, 5, 10), ncol = 1))
+})

@@ -7,7 +7,8 @@ estimate_actual_star <- function(pls_model, train_data, testData) {
   no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
   actual_star <- estimate_pls(data = rbind(train_data[,no_int_mmvars], testData[,no_int_mmvars]),
                                        measurement_model = pls_model$measurement_model,
-                                       structural_model = pls_model$structural_model)$construct_scores[,all_endogenous(pls_model$smMatrix),drop = F] |> suppressMessages()
+                                       structural_model = pls_model$structural_model)$construct_scores[,all_endogenous(pls_model$smMatrix),drop = F] |>
+    suppressMessages() |> muffle_inadmissible_plsc_warning()
 
   actual_star_out <- actual_star[(nrow(train_data)+1):(nrow(testData) + nrow(train_data)),,drop = F]
   actual_star_in <- actual_star[1:(nrow(train_data)),,drop = F]
@@ -52,7 +53,8 @@ compute_actual_star <- function(pls_model, testData) {
   if (identical(original_data, fulldata)) {
     return(pls_model$construct_scores)
   }
-  suppressMessages(
+  # Only the construct scores are used, and PLSc does not change them
+  muffle_inadmissible_plsc_warning(suppressMessages(
     fullmodel <- estimate_pls(
       data = fulldata,
       measurement_model = pls_model$measurement_model,
@@ -63,22 +65,28 @@ compute_actual_star <- function(pls_model, testData) {
       maxIt = pls_model$settings$maxIt,
       stopCriterion = pls_model$settings$stopCriterion
     )
-  )
+  ))
   fullmodel$construct_scores
 }
 
-# Core prediction pipeline: standardize → W×B×L^T → unstandardize → return ----
+# Core prediction pipeline: standardize → predict → unstandardize ----
 #
-# Shared by all interaction predict functions (two_stage, product_indicator,
-# orthogonal). Takes augmented test data (raw items + interaction items already
-# appended), runs the W × B × L^T prediction chain, computes residuals, and
-# returns a predicted_seminr_model object.
+# Shared by one_stage_predict() and the interaction predict functions (two_stage,
+# product_indicator, orthogonal). Takes test data with any interaction items
+# already appended (for one_stage_predict(), the test data itself), predicts the
+# standardized items, computes residuals, and returns a predicted_seminr_model
+# object. Two prediction rules:
+#   - PLSc models (reflective constructs): the model-implied conditional
+#     expectation from plsc_implied_predictions() (feature_plscpredict.R).
+#     Only one_stage_predict() reaches this branch, because
+#     stop_if_not_predictable() refuses PLSc models with interactions (#427).
+#   - Otherwise: the W × B × L^T construct-score chain.
 #
 # @param pls_model    The trained seminr_model
 # @param testData     Original held-out test data (for residual computation)
-# @param augmented_data  Test data with interaction columns appended
+# @param augmented_data  Test data with interaction columns appended (or testData)
 # @param actual_star  Construct scores from compute_actual_star()
-# @param technique    predict_DA or predict_EA
+# @param technique    predict_DA or predict_EA (PLSc accepts only these two)
 # @return A predicted_seminr_model object
 predict_from_augmented_data <- function(pls_model, testData, augmented_data,
                                         actual_star, technique) {
@@ -91,15 +99,23 @@ predict_from_augmented_data <- function(pls_model, testData, augmented_data,
     pls_model$sdData[pls_model$mmVariables]
   )
 
-  # W × B × L^T prediction chain
-  predicted_construct_scores <- scaled_data %*% pls_model$outer_weights[pls_model$mmVariables, ]
-  predicted_construct_scores <- technique(pls_model$smMatrix, pls_model$path_coef,
-                                          predicted_construct_scores)
-  predictedMeasurements <- predicted_construct_scores %*% t(pls_model$outer_loadings)
+  if (has_reflective(pls_model)) {
+    # PLSc: model-implied conditional expectation (see feature_plscpredict.R)
+    warn_if_plsc_estimates_changed(pls_model)
+    implied <- plsc_implied_predictions(pls_model, scaled_data, technique)
+    predicted_construct_scores <- implied$construct_scores
+    predictedMeasurements <- implied$items
+  } else {
+    # W × B × L^T prediction chain
+    predicted_construct_scores <- product_over_nonzero(scaled_data, pls_model$outer_weights[pls_model$mmVariables, ])
+    predicted_construct_scores <- technique(pls_model$smMatrix, pls_model$path_coef,
+                                            predicted_construct_scores)
+    predictedMeasurements <- product_over_nonzero(predicted_construct_scores, t(pls_model$outer_loadings))
+  }
 
   # Unstandardize non-interaction items only
   predictedMeasurements <- unstandardize_data(
-    predictedMeasurements[, no_int_mmvars],
+    predictedMeasurements[, no_int_mmvars, drop = FALSE],
     pls_model$meanData[no_int_mmvars],
     pls_model$sdData[no_int_mmvars]
   )
@@ -148,7 +164,8 @@ two_stage_predict <- function(pls_model, testData, technique, actual_star = NULL
   first_stage_sm <- remove_paths_from(pls_model$structural_model, interactions)
   first_stage_model <- estimate_pls(data = pls_model$rawdata,
                                     measurement_model = first_stage_mm,
-                                    structural_model = first_stage_sm) |> suppressMessages()
+                                    structural_model = first_stage_sm) |> suppressMessages() |>
+    muffle_inadmissible_plsc_warning()
 
   # Compute OOS composite scores using first-stage weights
   scaled_data <- standardize_data(testData[, no_int_mmvars, drop = FALSE],
@@ -316,6 +333,30 @@ detect_interaction_method <- function(model) {
   })
 }
 
+# Models that inherit seminr_model but cannot be predicted with the PLS rules ----
+# CB-SEM models are predicted by predict.cbsem_model() (#426) but cannot yet be
+# re-estimated per fold in predict_pls(); CFA models have no structural model to
+# predict from. PLSc models with interactions have no model-implied prediction
+# rule in seminr, and the construct-score chain would mix composite and factor
+# metrics (#425, #427).
+stop_if_not_predictable <- function(model) {
+  if (inherits(model, "cbsem_model")) {
+    stop("Cross-validated prediction (predict_pls) is not yet available for CB-SEM models. ",
+         "Use predict() on held-out data, which applies the model-implied rule.",
+         call. = FALSE)
+  }
+  if (inherits(model, "cfa_model")) {
+    stop("Prediction is not available for CFA models estimated with estimate_cfa(): ",
+         "a CFA has no structural model to predict from.",
+         call. = FALSE)
+  }
+  if (has_reflective(model) && !is.null(model$interaction)) {
+    stop("Prediction is not supported for PLSc models (reflective constructs) with interaction terms ",
+         "(see https://github.com/sem-in-r/seminr/issues/427).",
+         call. = FALSE)
+  }
+}
+
 # S3 predict method for SEMinR PLS models ----
 #
 # Dispatches to the appropriate prediction function based on model type:
@@ -341,6 +382,25 @@ detect_interaction_method <- function(model) {
 #'     coefficients from estimation
 #' }
 #'
+#' For models with \code{reflective()} constructs, which \code{estimate_pls()} estimates as
+#' consistent PLS (PLSc), items are predicted with the model-implied conditional expectation
+#' of de Rooij et al. (2023) instead of the PLSpredict construct-score chain: the PLSc path
+#' coefficients and loadings describe the common factors, not the weighted composites, so
+#' applying them to composite scores over-disperses the predictions. The indicator correlation
+#' matrix implied by the PLSc estimates is used to predict each endogenous construct's items
+#' from the items of its direct antecedents (\code{predict_DA}) or of the exogenous constructs
+#' (\code{predict_EA}). Prediction stops with the reason if the PLSc solution is
+#' inadmissible, which is checked as: a rho_A outside (0, 1]; a standardized loading above
+#' one; a disattenuated construct correlation of 1 or more in absolute value; a
+#' non-positive-definite construct correlation matrix implied by the structural model; or
+#' a non-positive-definite implied correlation matrix of the predictor items. The full
+#' matrix of disattenuated construct correlations is not itself required to be positive
+#' definite: only its exogenous block enters the implied matrix (cSEM's \code{verify()}
+#' checks the full matrix, so it can flag a solution that seminr predicts from).
+#' PLSc models with interaction terms are not supported. Models saved by seminr < 2.6.0
+#' that mix reflective constructs with Mode A or unit-weighted composites give a warning
+#' to re-estimate them, because their PLSc estimates changed in 2.6.0.
+#'
 #' Higher-order construct (HOC) models are not currently supported for prediction.
 #' Models with mixed interaction methods (e.g., one \code{two_stage} and one
 #' \code{product_indicator}) will produce an error.
@@ -353,6 +413,9 @@ detect_interaction_method <- function(model) {
 #' @param na.print Character string for printing NA values.
 #' @param digits Number of digits for printing.
 #' @param ... Additional arguments (currently unused).
+#'
+#' @references de Rooij, M., Karch, J. D., Fokkema, M., Bakk, Z., Pratiwi, B. C., & Kelderman, H.
+#'   (2023). SEM-based out-of-sample predictions. \emph{Structural Equation Modeling}, 30(1), 132--148.
 #'
 #' @return A \code{predicted_seminr_model} object containing:
 #'   \item{testData}{The test data (non-interaction items only).}
@@ -382,6 +445,7 @@ detect_interaction_method <- function(model) {
 #' @export
 predict.seminr_model <- function(object, testData, technique = predict_DA, na.print=".", digits=3, ...){
   stopifnot(inherits(object, "seminr_model"))
+  stop_if_not_predictable(object)
 
   # Internal (via ...): predict_pls passes precomputed reference construct
   # scores for cross-validation folds, avoiding a per-fold re-estimation
@@ -421,6 +485,14 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
 #' cross validation technique can be k-fold if a number of folds are specified, or leave-one-out-cross-validation (LOOCV) if no folds
 #' arew specified. LOOCV is recommended for small datasets.
 #'
+#' Models with \code{reflective()} constructs (PLSc) are predicted with the model-implied
+#' conditional expectation rather than the construct-score chain; see
+#' \code{\link{predict.seminr_model}}. A PLSc solution can be inadmissible in a training
+#' fold even when the full-sample solution is admissible, especially with few folds. Such
+#' folds are skipped with a warning: their test rows are \code{NA} for both PLS and the LM
+#' benchmark, and the prediction metrics use the remaining rows. If every fold is
+#' inadmissible, \code{predict_pls()} stops.
+#'
 #' @param model A SEMinR model that has been estimated on the FULL dataset.
 #'
 #' @param technique The predictive technique to be employed, Earliest Antecedents (EA) \code{predict_EA} or
@@ -429,7 +501,9 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
 #' @param noFolds The required number of folds to use in k-fold cross validation. If NULL, then parallel LOOCV will be executed.
 #' Default is NULL.
 #'
-#' @param reps The number of times the cross-validation will be repeated. Default is NULL.
+#' @param reps The number of times the cross-validation will be repeated, each time
+#' with new random folds. The predictions are averaged over the repetitions. Default
+#' is NULL (a single run, the same as \code{reps = 1}).
 #'
 #' @param cores The number of cores to use for parallel processing. If NULL (default),
 #' cross-validation runs sequentially. Specify an integer to enable parallel execution —
@@ -493,13 +567,14 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
 predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NULL, cores = NULL) {
 
   stopifnot(inherits(model, "seminr_model"))
-  # Abort if received a higher-order-model or moderated model
+  stop_if_not_predictable(model)
+  # Higher-order models: no published PLSpredict solution
   if (!is.null(model$hoc)) {
     message("There is no published solution for applying PLSpredict to higher-order-models")
     return()
   }
   # Get endogenous item names
-  endogenous_items <- c(unlist(sapply(all_endogenous(model$smMatrix), function(x) construct_items(model$mmMatrix, x)), use.names = FALSE))
+  endogenous_items <- all_items_of_constructs(model$mmMatrix, all_endogenous(model$smMatrix))
 
   # shuffle data
   order <- sample(nrow(model$data),nrow(model$data), replace = FALSE)
@@ -520,16 +595,21 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
     lm_pred_oos_array <- array(,dim = c(nrow(ordered_data), length(endogenous_items), reps))
     lm_pred_is_array <- array(,dim = c(nrow(ordered_data), length(endogenous_items), reps))
     for (i in 1:reps) {
+      # Each repetition draws new folds; the first keeps the initial shuffle,
+      # so reps = 1 gives the same folds as reps = NULL
+      if (i > 1) {
+        ordered_data <- model$data[sample(nrow(model$data), nrow(model$data), replace = FALSE), ]
+      }
       pred_matrices <- prediction_matrices( noFolds, ordered_data, model,technique, cores)
       pls_pred_oos_array[,,i] <- pred_matrices$out_of_sample_item[rownames(model$data),]
       pls_pred_is_array[,,i] <- pred_matrices$in_sample_item[rownames(model$data),]
       lm_pred_oos_array[,,i] <- pred_matrices$out_of_sample_lm_item[rownames(model$data),]
       lm_pred_is_array[,,i] <- pred_matrices$in_sample_lm_item[rownames(model$data),]
     }
-    PLS_predicted_outsample_item <- apply(pls_pred_oos_array,c(1,2),mean)
-    PLS_predicted_insample_item <- apply(pls_pred_is_array,c(1,2),mean)
-    LM_predicted_outsample_item <- apply(lm_pred_oos_array,c(1,2),mean)
-    LM_predicted_insample_item <- apply(lm_pred_is_array,c(1,2),mean)
+    PLS_predicted_outsample_item <- mean_over_reps(pls_pred_oos_array)
+    PLS_predicted_insample_item <- mean_over_reps(pls_pred_is_array)
+    LM_predicted_outsample_item <- mean_over_reps(lm_pred_oos_array)
+    LM_predicted_insample_item <- mean_over_reps(lm_pred_is_array)
     colnames(PLS_predicted_outsample_item) <- no_int_mmvars
     colnames(PLS_predicted_insample_item) <- no_int_mmvars
     colnames(LM_predicted_outsample_item) <- endogenous_items
@@ -591,9 +671,37 @@ standardize_data <- function(data_matrix,means_vector,sd_vector) {
   return(t(t(sweep(data_matrix,2,means_vector)) / sd_vector))
 }
 
-# Function to un-standardize a matrix by sd vector and mean vector
+# Matrix product over the nonzero coefficients only. A zero weight, loading or
+# path means the column does not use that input, but in %*% NA * 0 is NA, so one
+# missing test value would blank every column of its row.
+product_over_nonzero <- function(x, coefs) {
+  x <- as.matrix(x)
+  coefs <- as.matrix(coefs)
+  result <- matrix(0, nrow(x), ncol(coefs), dimnames = list(rownames(x), colnames(coefs)))
+  for (j in seq_len(ncol(coefs))) {
+    used <- coefs[, j] != 0
+    if (any(used)) {
+      result[, j] <- x[, used, drop = FALSE] %*% coefs[used, j]
+    }
+  }
+  result
+}
+
+# Function to un-standardize a matrix by sd vector and mean vector.
+# Column-wise, so an NA stays in its own cell: a matrix product with
+# diag(sd_vector) spread one NA over the whole row (NA * 0 is NA), and diag()
+# of a single sd builds an identity matrix of that size
 unstandardize_data <- function(data_matrix,means_vector,sd_vector) {
-  return(sweep((data_matrix %*% diag(sd_vector)),2,means_vector,"+"))
+  return(sweep(sweep(data_matrix, 2, sd_vector, "*"), 2, means_vector, "+"))
+}
+
+# Mean of each cell over cross-validation repetitions. Folds skipped as
+# inadmissible are NA in their repetition; a cell is NA only when every
+# repetition skipped it
+mean_over_reps <- function(rep_array) {
+  means <- apply(rep_array, c(1, 2), mean, na.rm = TRUE)
+  means[is.nan(means)] <- NA
+  means
 }
 
 #$ Function to sum rows of a matrix
@@ -602,8 +710,14 @@ sum_rows <- function(x, matrix, noFolds, constructs) {
 }
 
 #$ Function to mean rows of a matrix
+# Each row is in the training set of noFolds - 1 folds; folds skipped as
+# inadmissible are NA and drop out of the mean
 mean_rows <- function(x, matrix, noFolds, constructs) {
-  return(rowSums(matrix[,(0:(noFolds-1)*length(constructs))+x])/(noFolds-1))
+  fold_columns <- matrix[, (0:(noFolds-1)*length(constructs))+x, drop = FALSE]
+  folds_used <- (noFolds - 1) - rowSums(is.na(fold_columns))
+  means <- rowSums(fold_columns, na.rm = TRUE) / folds_used
+  means[folds_used == 0] <- NA_real_
+  return(means)
 }
 
 #### Check ----
@@ -622,44 +736,63 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
   PLS_predicted_outsample_item <- matrix(0,nrow = nrow(ordered_data),ncol = length(no_int_mmvars),dimnames = list(rownames(ordered_data),no_int_mmvars))
   PLS_predicted_insample_item <- matrix(0,nrow = nrow(ordered_data),ncol = length(no_int_mmvars),dimnames = list(rownames(ordered_data),no_int_mmvars))
   PLS_predicted_insample_item_residuals <- matrix(0,nrow = nrow(ordered_data),ncol = length(no_int_mmvars),dimnames = list(rownames(ordered_data),no_int_mmvars))
-  #PLS prediction on testset model
-  suppressMessages(
-    train_model <- estimate_pls(
-      data = trainingData,
-      measurement_model = model$measurement_model,
-      structural_model = model$smMatrix,
-      inner_weights = model$inner_weights,
-      missing = model$settings$missing,
-      missing_value = model$settings$missing_value,
-      maxIt = model$settings$maxIt,
-      stopCriterion = model$settings$stopCriterion
-    )
-  )
   # The per-fold out-of-sample reference refit would estimate on exactly the
   # rows the full-sample model was estimated on (train + test = all rows), so
   # reuse the full model's construct scores. Results match the refit to
   # floating-point rounding (row order differs), not bit-identically.
-  test_predictions <- stats::predict(object = train_model,
-                                     testData = testingData,
-                                     technique = technique,
-                                     actual_star = model$construct_scores)
+  # A PLSc solution can be inadmissible in a training fold even when the
+  # full-sample solution is admissible: estimation stops (rho_A not positive)
+  # or prediction does. Such a fold is skipped: its predictions are left NA
+  # (PLS and LM alike), never repaired with the PLS chain
+  fold_predictions <- tryCatch({
+    # The fold's own inadmissibility is reported by the skipped-fold warning
+    #PLS prediction on testset model
+    muffle_inadmissible_plsc_warning(suppressMessages(
+      train_model <- estimate_pls(
+        data = trainingData,
+        measurement_model = model$measurement_model,
+        structural_model = model$smMatrix,
+        inner_weights = model$inner_weights,
+        missing = model$settings$missing,
+        missing_value = model$settings$missing_value,
+        maxIt = model$settings$maxIt,
+        stopCriterion = model$settings$stopCriterion
+      )
+    ))
+    list(
+      test = stats::predict(object = train_model,
+                            testData = testingData,
+                            technique = technique,
+                            actual_star = model$construct_scores),
+      train = stats::predict(object = train_model,
+                             testData = trainingData,
+                             technique = technique)
+    )},
+    seminr_inadmissible_plsc = function(cond) cond
+  )
+  inadmissible <- inherits(fold_predictions, "seminr_inadmissible_plsc")
 
-  PLS_predicted_outsample_construct[testIndexes,] <-  test_predictions$predicted_composite_scores
-  PLS_predicted_outsample_item[testIndexes,] <- test_predictions$predicted_items
+  if (inadmissible) {
+    PLS_predicted_outsample_construct[testIndexes,] <- NA
+    PLS_predicted_outsample_item[testIndexes,] <- NA
+    PLS_predicted_insample_construct[trainIndexes,] <- NA
+    PLS_predicted_insample_item[trainIndexes,] <- NA
+    PLS_predicted_insample_item_residuals[trainIndexes,] <- NA
+  } else {
+    test_predictions <- fold_predictions$test
+    PLS_predicted_outsample_construct[testIndexes,] <-  test_predictions$predicted_composite_scores
+    PLS_predicted_outsample_item[testIndexes,] <- test_predictions$predicted_items
 
-
-  #PLS prediction on trainset model
-  train_predictions <- stats::predict(object = train_model,
-                                      testData = trainingData,
-                                      technique = technique)
-
-  PLS_predicted_insample_construct[trainIndexes,] <- train_predictions$predicted_composite_scores
-  PLS_predicted_insample_item[trainIndexes,] <- train_predictions$predicted_items
-  PLS_predicted_insample_item_residuals[trainIndexes,] <- as.matrix(train_predictions$item_residuals)
+    #PLS prediction on trainset model
+    train_predictions <- fold_predictions$train
+    PLS_predicted_insample_construct[trainIndexes,] <- train_predictions$predicted_composite_scores
+    PLS_predicted_insample_item[trainIndexes,] <- train_predictions$predicted_items
+    PLS_predicted_insample_item_residuals[trainIndexes,] <- as.matrix(train_predictions$item_residuals)
+  }
 
   ## Perform prediction on LM models for benchmark
   # Identify endogenous items
-  endogenous_items <- unlist(sapply(all_endogenous(model$smMatrix), function(x) construct_items(model$mmMatrix, x)), use.names = FALSE)
+  endogenous_items <- all_items_of_constructs(model$mmMatrix, all_endogenous(model$smMatrix))
 
   #LM Matrices
   lm_holder <- sapply(all_endogenous(model$smMatrix), generate_lm_predictions, model = model,
@@ -679,6 +812,13 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
   lmprediction_out_sample <- do.call(cbind, lm_holder[((1:(n_endogenous*2))[1:(n_endogenous*2)%%2==0])])
   lmprediction_in_sample_residuals[trainIndexes,] <- as.matrix(ordered_data[trainIndexes,as.vector(endogenous_items)]) - lmprediction_in_sample[trainIndexes,as.vector(endogenous_items)]
 
+  # The LM benchmark is compared with PLS on the same rows
+  if (inadmissible) {
+    lmprediction_out_sample[testIndexes,] <- NA
+    lmprediction_in_sample[trainIndexes,] <- NA
+    lmprediction_in_sample_residuals[trainIndexes,] <- NA
+  }
+
   return(list(PLS_predicted_insample = PLS_predicted_insample_construct,
               PLS_predicted_outsample = PLS_predicted_outsample_construct,
               PLS_predicted_insample_item = PLS_predicted_insample_item,
@@ -686,7 +826,8 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
               LM_predicted_insample_item = lmprediction_in_sample,
               LM_predicted_outsample_item = lmprediction_out_sample,
               PLS_predicted_insample_item_residuals = PLS_predicted_insample_item_residuals,
-              LM_predicted_insample_item_residuals = lmprediction_in_sample_residuals))
+              LM_predicted_insample_item_residuals = lmprediction_in_sample_residuals,
+              inadmissible = if (inadmissible) conditionMessage(fold_predictions) else NA_character_))
 }
 
 # Collect and parse prediction matrices across k folds ----
@@ -700,131 +841,129 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
 # a multiple of replacement length" or "could not find function", run
 # devtools::install() first to sync the installed version with development code.
 prediction_matrices <- function(noFolds, ordered_data, model, technique, cores) {
-  out <- tryCatch(
-    {
-      # LOOCV: set noFolds to number of observations
-      is_loocv <- is.null(noFolds)
-      if (is_loocv) {
-        noFolds <- nrow(ordered_data)
-      }
-      folds <- cut(seq(1, nrow(ordered_data)), breaks = noFolds, labels = FALSE)
+  # LOOCV: set noFolds to number of observations
+  is_loocv <- is.null(noFolds)
+  if (is_loocv) {
+    noFolds <- nrow(ordered_data)
+  }
+  folds <- cut(seq(1, nrow(ordered_data)), breaks = noFolds, labels = FALSE)
 
-      # Use parallel execution only when explicitly requested via cores parameter
-      use_parallel <- !is.null(cores)
+  # Use parallel execution only when explicitly requested via cores parameter
+  use_parallel <- !is.null(cores)
 
-      if (use_parallel) {
-        cl <- setup_parallel_cluster(cores)
+  if (use_parallel) {
+    cl <- setup_parallel_cluster(cores)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
 
-        # Export helper functions defined in this file to the worker environments
-        parallel::clusterExport(cl = cl, varlist = c("generate_lm_predictions",
-                                                     "predict_lm_matrices",
-                                                     "predict_lm_matrices_mlm",
-                                                     "standardize_data",
-                                                     "unstandardize_data"), envir = environment())
+    # Export helper functions defined in this file to the worker environments
+    parallel::clusterExport(cl = cl, varlist = c("generate_lm_predictions",
+                                                 "predict_lm_matrices",
+                                                 "predict_lm_matrices_mlm",
+                                                 "standardize_data",
+                                                 "unstandardize_data"), envir = environment())
 
-        utils::capture.output(
-          matrices <- parallel::parSapply(
-            cl, 1:noFolds, in_and_out_sample_predictions, folds = folds,
-            ordered_data = ordered_data,
-            model = model,
-            technique = technique
-          )
-        )
-        parallel::stopCluster(cl)
-      } else {
-        matrices <- sapply(1:noFolds, in_and_out_sample_predictions,
-                           folds = folds, ordered_data = ordered_data,
-                           model = model, technique = technique)
-      }
+    utils::capture.output(
+      matrices <- parallel::parSapply(
+        cl, 1:noFolds, in_and_out_sample_predictions, folds = folds,
+        ordered_data = ordered_data,
+        model = model,
+        technique = technique
+      )
+    )
+  } else {
+    matrices <- sapply(1:noFolds, in_and_out_sample_predictions,
+                       folds = folds, ordered_data = ordered_data,
+                       model = model, technique = technique)
+  }
 
-      # collect the odd and even numbered matrices from the matrices return object
-      no_int_mmvars <- model$mmVariables[!is_interaction(model$mmVariables)]
-      in_sample_construct_matrix <- do.call(cbind, matrices[(1:(noFolds*8))[1:(noFolds*8)%%8==1]])
-      out_sample_construct_matrix <- do.call(cbind, matrices[(1:(noFolds*8))[1:(noFolds*8)%%8==2]])
-      in_sample_item_matrix <- do.call(cbind, matrices[(1:(noFolds*8))[1:(noFolds*8)%%8==3]])
-      out_sample_item_matrix <- do.call(cbind, matrices[(1:(noFolds*8))[1:(noFolds*8)%%8==4]])
-      in_sample_lm_matrix <- do.call(cbind, matrices[(1:(noFolds*8))[1:(noFolds*8)%%8==5]])
-      out_sample_lm_matrix <- do.call(cbind, matrices[(1:(noFolds*8))[1:(noFolds*8)%%8==6]])
-      PLS_in_sample_item_residuals <- do.call(cbind, matrices[(1:(noFolds*8))[1:(noFolds*8)%%8==7]])
-      LM_in_sample_item_residuals <- do.call(cbind, matrices[(1:(noFolds*8))[1:(noFolds*8)%%8==0]])
+  # collect the odd and even numbered matrices from the matrices return object
+  no_int_mmvars <- model$mmVariables[!is_interaction(model$mmVariables)]
+  in_sample_construct_matrix <- do.call(cbind, matrices[(1:(noFolds*9))[1:(noFolds*9)%%9==1]])
+  out_sample_construct_matrix <- do.call(cbind, matrices[(1:(noFolds*9))[1:(noFolds*9)%%9==2]])
+  in_sample_item_matrix <- do.call(cbind, matrices[(1:(noFolds*9))[1:(noFolds*9)%%9==3]])
+  out_sample_item_matrix <- do.call(cbind, matrices[(1:(noFolds*9))[1:(noFolds*9)%%9==4]])
+  in_sample_lm_matrix <- do.call(cbind, matrices[(1:(noFolds*9))[1:(noFolds*9)%%9==5]])
+  out_sample_lm_matrix <- do.call(cbind, matrices[(1:(noFolds*9))[1:(noFolds*9)%%9==6]])
+  PLS_in_sample_item_residuals <- do.call(cbind, matrices[(1:(noFolds*9))[1:(noFolds*9)%%9==7]])
+  LM_in_sample_item_residuals <- do.call(cbind, matrices[(1:(noFolds*9))[1:(noFolds*9)%%9==8]])
 
-      # mean the in-sample construct predictions by row
-      average_insample_construct <- sapply(1:length(model$constructs), mean_rows, matrix = in_sample_construct_matrix,
-                                           noFolds = noFolds,
-                                           constructs = model$constructs)
-
-      # mean the in-sample item predictions by row
-      average_insample_item <- sapply(1:length(no_int_mmvars), mean_rows, matrix = in_sample_item_matrix,
-                                      noFolds = noFolds,
-                                      constructs = no_int_mmvars)
-
-      # sum the out-sample construct predictions by row
-      average_outsample_construct <- sapply(1:length(model$constructs), sum_rows, matrix = out_sample_construct_matrix,
-                                            noFolds = noFolds,
-                                            constructs = model$constructs)
-
-      # sum the out-sample item predictions by row
-      average_outsample_item <- sapply(1:length(no_int_mmvars), sum_rows, matrix = out_sample_item_matrix,
+  # mean the in-sample construct predictions by row
+  average_insample_construct <- sapply(1:length(model$constructs), mean_rows, matrix = in_sample_construct_matrix,
                                        noFolds = noFolds,
-                                       constructs = no_int_mmvars)
+                                       constructs = model$constructs)
 
-      # square the out-sample pls residuals, mean them and take the square root
-      average_insample_pls_item_residuals <- sqrt(sapply(1:length(no_int_mmvars), mean_rows, matrix = PLS_in_sample_item_residuals^2,
-                                                         noFolds = noFolds,
-                                                         constructs = no_int_mmvars))
-      # Collect endogenous items
-      endogenous_items <- unlist(sapply(all_endogenous(model$smMatrix), function(x) construct_items(model$mmMatrix, x)), use.names = FALSE)
+  # mean the in-sample item predictions by row
+  average_insample_item <- sapply(1:length(no_int_mmvars), mean_rows, matrix = in_sample_item_matrix,
+                                  noFolds = noFolds,
+                                  constructs = no_int_mmvars)
 
-      # mean the in-sample lm predictions by row
-      average_insample_lm <- sapply(1:length(endogenous_items), mean_rows, matrix = in_sample_lm_matrix,
-                                    noFolds = noFolds,
-                                    constructs = endogenous_items)
+  # sum the out-sample construct predictions by row
+  average_outsample_construct <- sapply(1:length(model$constructs), sum_rows, matrix = out_sample_construct_matrix,
+                                        noFolds = noFolds,
+                                        constructs = model$constructs)
 
-      # sum the out-sample item predictions by row
-      average_outsample_lm <- sapply(1:length(endogenous_items), sum_rows, matrix = out_sample_lm_matrix,
-                                     noFolds = noFolds,
-                                     constructs = endogenous_items)
+  # sum the out-sample item predictions by row
+  average_outsample_item <- sapply(1:length(no_int_mmvars), sum_rows, matrix = out_sample_item_matrix,
+                                   noFolds = noFolds,
+                                   constructs = no_int_mmvars)
 
-      # square the out-sample lm residuals, mean them, and take square root
-      average_insample_lm_item_residuals <- sqrt(sapply(1:length(endogenous_items), mean_rows, matrix = LM_in_sample_item_residuals^2,
-                                                        noFolds = noFolds,
-                                                        constructs = endogenous_items))
+  # square the out-sample pls residuals, mean them and take the square root
+  average_insample_pls_item_residuals <- sqrt(sapply(1:length(no_int_mmvars), mean_rows, matrix = PLS_in_sample_item_residuals^2,
+                                                     noFolds = noFolds,
+                                                     constructs = no_int_mmvars))
+  # Collect endogenous items
+  endogenous_items <- all_items_of_constructs(model$mmMatrix, all_endogenous(model$smMatrix))
 
-      colnames(average_insample_construct) <- colnames(average_outsample_construct) <- model$constructs
-      colnames(average_insample_item) <- colnames(average_insample_pls_item_residuals) <- colnames(average_outsample_item) <- no_int_mmvars
-      colnames(average_insample_lm) <- colnames(average_outsample_lm) <- colnames(average_insample_lm_item_residuals) <- endogenous_items
+  # mean the in-sample lm predictions by row
+  average_insample_lm <- sapply(1:length(endogenous_items), mean_rows, matrix = in_sample_lm_matrix,
+                                noFolds = noFolds,
+                                constructs = endogenous_items)
 
-      return(list(out_of_sample_construct = average_outsample_construct,
-                  in_sample_construct = average_insample_construct,
-                  out_of_sample_item = average_outsample_item,
-                  in_sample_item = average_insample_item,
-                  out_of_sample_lm_item = average_outsample_lm,
-                  in_sample_lm_item = average_insample_lm,
-                  pls_in_sample_item_residuals = average_insample_pls_item_residuals,
-                  lm_in_sample_item_residuals = average_insample_lm_item_residuals))
-    },
-    error=function(cond) {
-      message("Cross-validation encountered this ERROR: ")
-      message(cond)
-      if (exists("cl")) parallel::stopCluster(cl)
-      return(NULL)
-    },
-    warning=function(cond) {
-      message("Cross-validation encountered this WARNING:")
-      message(cond)
-      if (exists("cl")) parallel::stopCluster(cl)
-      return(NULL)
-    },
-    finally={
-      #
-    }
-  )
+  # sum the out-sample item predictions by row
+  average_outsample_lm <- sapply(1:length(endogenous_items), sum_rows, matrix = out_sample_lm_matrix,
+                                 noFolds = noFolds,
+                                 constructs = endogenous_items)
+
+  # square the out-sample lm residuals, mean them, and take square root
+  average_insample_lm_item_residuals <- sqrt(sapply(1:length(endogenous_items), mean_rows, matrix = LM_in_sample_item_residuals^2,
+                                                    noFolds = noFolds,
+                                                    constructs = endogenous_items))
+
+  colnames(average_insample_construct) <- colnames(average_outsample_construct) <- model$constructs
+  colnames(average_insample_item) <- colnames(average_insample_pls_item_residuals) <- colnames(average_outsample_item) <- no_int_mmvars
+  colnames(average_insample_lm) <- colnames(average_outsample_lm) <- colnames(average_insample_lm_item_residuals) <- endogenous_items
+
+  # Folds skipped because their PLSc solution was inadmissible
+  skipped <- unlist(matrices[(1:(noFolds*9))[1:(noFolds*9)%%9==0]])
+  skipped_folds <- which(!is.na(skipped))
+  if (length(skipped_folds) == noFolds) {
+    stop("PLSc solution is inadmissible in all ", noFolds, " cross-validation folds, ",
+         "so there are no out-of-sample predictions. First fold: ", skipped[1], call. = FALSE)
+  }
+  if (length(skipped_folds) > 0) {
+    warning("PLSc solution is inadmissible in ", length(skipped_folds), " of ", noFolds,
+            " cross-validation folds (fold ", paste(skipped_folds, collapse = ", "), "). ",
+            "Their test rows are NA for both PLS and LM, and prediction metrics use the remaining rows. ",
+            "First reason: ", sub("^PLSc solution is inadmissible, so the model-implied prediction is unavailable: ",
+                                  "", skipped[skipped_folds[1]]),
+            call. = FALSE)
+  }
+
+  return(list(out_of_sample_construct = average_outsample_construct,
+              in_sample_construct = average_insample_construct,
+              out_of_sample_item = average_outsample_item,
+              in_sample_item = average_insample_item,
+              out_of_sample_lm_item = average_outsample_lm,
+              in_sample_lm_item = average_insample_lm,
+              pls_in_sample_item_residuals = average_insample_pls_item_residuals,
+              lm_in_sample_item_residuals = average_insample_lm_item_residuals))
 }
 
 # Function to return the RMSE and MAE of a score
+# Rows of folds skipped as inadmissible are NA for PLS and LM alike
 prediction_metrics <- function(residuals) {
-  RMSE <- sqrt(mean(residuals^2))
-  MAE <- mean(abs(residuals))
+  RMSE <- sqrt(mean(residuals^2, na.rm = TRUE))
+  MAE <- mean(abs(residuals), na.rm = TRUE)
   return(matrix(c(RMSE,MAE), nrow = 2, ncol = 1, byrow = TRUE))
 }
 
@@ -858,13 +997,13 @@ generate_lm_predictions <- function(x, model, ordered_data, testIndexes, endogen
   # Select the correct independent variables to be included in independent matrix
   # for predict_DA this would be the indicators of the direct antecedents only
   # for predict_EA this would be the indicators of the earliest antecedents only
-  if (identical(technique, predict_DA)) {
+  if (is_technique(technique, predict_DA)) {
     focal_construct_antecedents <- construct_antecedents(model$smMatrix, x)
-    focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_items(model$mmMatrix, focal)))
+    focal_construct_antecedent_items <- all_items_of_constructs(model$mmMatrix, focal_construct_antecedents)
   }
   else {
     focal_construct_antecedents <- only_exogenous(model$smMatrix)
-    focal_construct_antecedent_items <- unlist(sapply(focal_construct_antecedents, function (focal) construct_items(model$mmMatrix, focal)))
+    focal_construct_antecedent_items <- all_items_of_constructs(model$mmMatrix, focal_construct_antecedents)
   }
   independant_matrix <- ordered_data[ , focal_construct_antecedent_items,drop = F]
   dependant_matrix <- as.matrix(ordered_data[,dependant_items, drop = F])
@@ -911,7 +1050,7 @@ predict_EA <- function(smMatrix, path_coef, construct_scores) {
   return_matrix <- construct_scores
   return_matrix[,order] <- 0
   for (construct in order) {
-    return_matrix[,construct] <- return_matrix %*% path_coef[,construct]
+    return_matrix[,construct] <- product_over_nonzero(return_matrix, path_coef[, construct, drop = FALSE])
 
   }
   return(return_matrix)
@@ -935,9 +1074,17 @@ predict_EA <- function(smMatrix, path_coef, construct_scores) {
 #' @export
 predict_DA <- function(smMatrix, path_coef, construct_scores) {
   only_exo <- only_exogenous(smMatrix)
-  return_matrix <- construct_scores%*%path_coef
+  return_matrix <- product_over_nonzero(construct_scores, path_coef)
   return_matrix[,only_exo] <- construct_scores[,only_exo]
   return(return_matrix)
+}
+
+# Is technique the predictive scheme reference (predict_DA or predict_EA)? ----
+# Compares without source references: a technique sent from a load_all() session
+# keeps srcrefs inside its body, while the installed copy in a parallel worker has
+# none, and identical() alone then fails.
+is_technique <- function(technique, reference) {
+  identical(utils::removeSource(technique), utils::removeSource(reference))
 }
 
 return_predict_error <- function(object, indicator) {

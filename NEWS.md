@@ -1,6 +1,77 @@
 # seminr 2.6.0
 
+### New features
+
+* `predict()` now works for CB-SEM models from `estimate_cbsem()`, using the
+  model-implied conditional expectation of de Rooij et al. (2023), the rule of
+  `lavaan::lavPredictY()`. `predict_DA` and `predict_EA` choose the predictor
+  items as for PLS and PLSc, so the three estimators' predictions are
+  comparable. Models with interaction terms, higher-order constructs, ordinal
+  indicators or multiple groups, and non-converged or inadmissible fits, stop
+  with the reason (#426).
+
 ### Fixed
+
+* `predict()` and `predict_pls()` pushed composite scores, built from the
+  uncorrected outer weights, through the PLSc-corrected path coefficients and
+  loadings whenever a model had `reflective()` constructs. PLSc coefficients
+  describe the common factors, not the composites, so the predictions were
+  over-dispersed (by 1/sqrt(rho_A) with a single antecedent) or reweighted
+  across correlated antecedents. PLSc models are now predicted with the
+  model-implied conditional expectation of de Rooij et al. (2023), using the
+  indicator correlations implied by the PLSc estimates; `predict_DA` and
+  `predict_EA` set the predictor items. Inadmissible PLSc solutions stop with
+  the reason (the checks are listed in `?predict.seminr_model`), and PLSc
+  models with interaction terms are no longer predicted (#427). Models without
+  reflective constructs are unchanged (#425).
+
+* In `predict_pls()`, a PLSc solution can be inadmissible in a training fold
+  even when the full-sample solution is admissible, especially with few folds
+  (for the mobi ECSI model, in about 70% of 5-fold and 30% of 10-fold runs).
+  Such folds are skipped with one warning that names them: their test rows are
+  `NA` for both PLS and the LM benchmark, and the prediction metrics use the
+  remaining rows. If every fold is inadmissible, `predict_pls()` stops. The PLS
+  chain is never used as a fallback. Cross-validation also no longer turns any
+  error or warning inside a fold into a failure with an unrelated message
+  ("row names supplied are of the wrong length"); they now reach the caller.
+
+* Models estimated by seminr < 2.6.0 and saved (e.g. with `saveRDS()`) keep
+  their old PLSc estimates. `predict()` on such a model that mixes `reflective()`
+  constructs with Mode A or unit-weighted composites now warns to re-estimate
+  it. `estimate_pls()` stamps models with `seminr_version` for this purpose.
+
+* PLSc (`estimate_pls()` with `reflective()` constructs) corrected the paths
+  into and out of Mode A and unit-weighted composites as if they were common
+  factors, by dividing their correlations by sqrt(rho_A). Only Mode B composites
+  were left uncorrected. Consistent PLS corrects only common factors and treats
+  composites as fully reliable (Dijkstra & Henseler, 2015), as cSEM does. All
+  composites now use rho_A = 1 in PLSc. **Path coefficients and R² change for
+  models that mix `reflective()` constructs with Mode A or unit-weighted
+  `composite()` constructs.** Loadings, all-reflective models, models with only
+  Mode B composites next to reflective constructs, and models without
+  reflective constructs are unchanged. The `rho_A` reported by `summary()` is
+  unchanged. Calling `PLSc()` directly on a model without reflective constructs
+  now leaves it unchanged (it used to disattenuate its composites) (#430).
+
+* PLSc corrected a two-stage `higher_composite()` with rho_A computed on its
+  lower-order construct (LOC) scores, as if the HOC were a common factor of
+  them. A HOC of composite LOCs is now treated as fully reliable (rho = 1). A
+  HOC of common-factor LOCs is corrected with the reliability of its stage-2
+  proxy, a weighted sum of error-laden LOC scores: w'S*w, with the LOCs'
+  stage-1 reliabilities on the diagonal of S* (van Riel et al., 2017), as
+  cSEM's two-stage approach does. **Path coefficients and R² change for PLSc
+  models with `higher_composite()` constructs** (on mobi, IE -> Satisfaction
+  0.953 -> 0.920 with reflective LOCs; cSEM 0.918). A HOC of common factors is
+  now corrected even when no stage-2 construct is reflective, and a
+  `reflective()` construct that is declared but not used in the structural model
+  no longer makes `estimate_pls()` run PLSc.
+
+* `predict_pls()` on a model from `estimate_cbsem()` failed with an unrelated
+  low-level error (the CB-SEM object inherits `seminr_model` but has no weights
+  or loadings). It now stops with a message pointing to `predict()`.
+  `predict()` and `predict_pls()` on a model from `estimate_cfa()` failed the
+  same way; they now stop and say that a CFA has no structural model to predict
+  from (#426).
 
 * `plot.reliability_table()` drew its reference line at 0.708, which is the
   indicator **loading** threshold (0.708² ≈ 0.50 explained variance). The metrics
@@ -10,9 +81,74 @@
   overridden and so the intended value is documented rather than buried
   (#421). Reported by Marko Sarstedt.
 
+* `predict_pls(reps = k)` repeated the cross-validation on the same folds, so
+  every repetition gave the same predictions and `reps` had no effect. Each
+  repetition now draws new random folds, and the predictions are averaged over
+  the repetitions. **Results change for any call with `reps` greater than 1**,
+  including `assess_cvpat()`, `assess_cvpat_compare()`, `assess_pcm()` and
+  `assess_coa()` in seminrExtras, which pass `reps` on to `predict_pls()`.
+  `reps = NULL` and `reps = 1` give the same results as before. A fold skipped
+  as inadmissible (PLSc) in one repetition is averaged over the others.
+
+* `predict()` on test data with a missing value returned `NA` for every
+  prediction in that case's row, because the matrix products spread the `NA`
+  through zero weights, loadings and paths (`NA * 0` is `NA`). Only the
+  predictions that use the missing value are `NA` now: a missing item makes its
+  own construct's score `NA` and the predictions that depend on it, and leaves
+  the others. Predictions for complete data are unchanged. PLSc models already
+  behaved this way.
+
+* `estimate_pls()` returned inadmissible PLSc solutions without notice. It now
+  warns, once, with every problem found: a rho_A above one, a standardized
+  loading above one, a disattenuated construct correlation of 1 or more in
+  absolute value, a structural-model-implied construct correlation matrix that
+  is not positive definite, or an R-squared outside [0, 1]. The estimates are
+  still returned. Such solutions are common in small samples.
+
+* `bootstrap_model()` drops resamples whose estimation fails or warns, so
+  inadmissible PLSc resamples are now excluded from the bootstrap statistics.
+  The number dropped is reported in the final message, stored in the model as
+  `boots_dropped` (with `boots_requested`), and printed by `summary()`.
+  **Bootstrap standard errors, t values, p values and confidence intervals
+  change for PLSc models with inadmissible resamples**: for a mobi model with a
+  weak reflective block, 69 of 500 resamples were dropped, and the t value of
+  its weakest discriminant validity estimate rose from 0.95 to 1.52.
+
+* PLSc divides by sqrt(rho_A). A rho_A of zero or below gave `NaN` paths,
+  R-squared and loadings with only R's "NaNs produced" warnings; `estimate_pls()`
+  now stops and names the constructs. A cross-validation fold or bootstrap
+  resample with such a rho_A is skipped.
+
+* `construct_order()` looped forever on structural models in which an outcome
+  construct's antecedents are ordered before the rest of the model (e.g.
+  `Image -> Loyalty` next to `Image -> Expectation -> Quality`), so
+  `predict(technique = predict_EA)` hung on them. A structural model with a
+  cycle now stops with an error.
+
+* The note that PLSc estimates of interaction models are subject to some bias
+  (Becker et al., 2018) never showed, because `estimate_pls()` checked a field
+  that is never set. It now shows for PLSc models with interaction terms.
+
+* `estimate_pls()` with a `higher_reflective()` construct, which is supported by
+  `estimate_cbsem()` only, failed with "undefined columns selected". It now
+  stops and points to `estimate_cbsem()` or `higher_composite()`.
+
+* `PLSc()` on a model with a higher-order construct, already corrected by
+  `estimate_pls()`, failed with "subscript out of bounds". It now returns the
+  model unchanged with a message.
+
+* Parallel processing failed to start ("creation of server socket failed") when
+  its port was in use, e.g. by another R session started at the same time. It
+  now retries on other ports.
+
 ### Changed
 
 * The package maintainer address is now `seminrgroup@gmail.com` (#420).
+
+* `bootstrap_model()` with the default `cores = NULL` still uses every core.
+  During R CMD check with CRAN's core limit set (`_R_CHECK_LIMIT_CORES_`, as with
+  `--as-cran` and on CRAN), it uses at most two, so the package's tests and
+  vignettes stay within CRAN policy. Results do not depend on the number of cores.
 
 ### Performance
 

@@ -30,6 +30,16 @@ test_that("all_constructs_of_mode returns empty vector for non-existent mode", {
   expect_length(all_constructs_of_mode(mm, "UNIT"), 0)
 })
 
+# --- all_items_of_constructs ---
+test_that("all_items_of_constructs returns unnamed items in the given construct order", {
+  expect_identical(all_items_of_constructs(mm, c("Satisfaction", "Value")),
+                   c("CUSA1", "CUSA2", "CUSA3", "PERV1", "PERV2"))
+})
+
+test_that("all_items_of_constructs returns an empty vector for no constructs", {
+  expect_length(all_items_of_constructs(mm, character(0)), 0)
+})
+
 # --- construct_of_item ---
 test_that("construct_of_item returns the construct containing an item", {
   expect_equal(construct_of_item(mm, "IMAG1"), "Image")
@@ -121,4 +131,28 @@ test_that("constructs_in_model still works as backward-compatible wrapper", {
   expect_setequal(bundle$construct_names, construct_names(mobi_pls))
   expect_true(is.matrix(bundle$construct_scores))
   expect_equal(length(bundle$construct_types), length(bundle$construct_names))
+})
+
+test_that("all_factors selects the reflective constructs", {
+  mixed_mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    composite("Expectation",   multi_items("CUEX", 1:3)),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  mixed_sm <- relationships(paths(from = c("Image", "Expectation"), to = "Satisfaction"))
+  mixed_pls <- suppressMessages(estimate_pls(mobi, mixed_mm, mixed_sm))
+  expect_setequal(all_factors(mixed_pls), c("Image", "Satisfaction"))
+  expect_length(all_factors(mobi_pls), 0)
+})
+
+test_that("has_reflective() ignores reflective constructs that are not in the structural model", {
+  mm <- constructs(
+    composite("Image",        multi_items("IMAG", 1:5)),
+    composite("Satisfaction", multi_items("CUSA", 1:3)),
+    reflective("Loyalty",     multi_items("CUSL", 1:3))
+  )
+  sm <- relationships(paths(from = "Image", to = "Satisfaction"))
+  model <- suppressMessages(estimate_pls(mobi, mm, sm))
+  expect_false(has_reflective(model))
+  expect_length(all_factors(model), 0)
 })

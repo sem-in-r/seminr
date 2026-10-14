@@ -11,8 +11,14 @@
 #'        value is 500. If 0 then no bootstrapping is performed.
 #'
 #' @param cores A parameter specifying the maximum number of cores to use in the parallelization.
+#'        The default, \code{NULL}, uses all available cores (\code{parallel::detectCores()}),
+#'        or at most two during R CMD check with CRAN's core limit set. Results do not depend
+#'        on the number of cores.
 #'
 #' @param seed A parameter to specify the seed for reproducibility of results. Default is NULL.
+#'        Resample \code{i} uses \code{set.seed(seed + i)}, so two seeds that differ by less
+#'        than \code{nboot} share most of their resamples; to check how much results vary
+#'        between runs, use seeds that differ by more than \code{nboot}.
 #'
 #' @param ... A list of parameters passed on to the estimation method.
 #'
@@ -174,12 +180,16 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
         utils::capture.output(bootmatrix <- parallel::parSapply(cl, 1:nboot, getEstimateResults, d, boot_vec_len))
       }
 
-      # Clean the NAs and report the NAs
-      bootmatrix <- bootmatrix[,!is.na(bootmatrix[1,])]
+      # Drop resamples that failed or gave an inadmissible PLSc solution (their
+      # estimation errored or warned, so they are NA); reported at the end
+      nboot_requested <- nboot
+      bootmatrix <- bootmatrix[, !is.na(bootmatrix[1, ]), drop = FALSE]
       fails <- nboot - ncol(bootmatrix)
       nboot <- nboot - fails
-      if (fails > 0) {
-        message(paste("Bootstrapping encountered a WARNING: ", fails, "bootstrap iterations failed to converge (possibly due to PLSc). \nThese failed iterations are excluded from the reported bootstrap statistics."))
+      if (nboot < 2) {
+        stop("Only ", nboot, " of ", nboot_requested, " bootstrap resamples could be estimated; ",
+             "the others failed or gave an inadmissible PLSc solution, so there is too little ",
+             "to compute bootstrap statistics from.", call. = FALSE)
       }
 
 
@@ -347,9 +357,17 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
       seminr_model$HTMT_descriptives <- HTMT_descriptives
       seminr_model$total_paths_descriptives <- total_paths_descriptives
       seminr_model$boots <- nboot
+      seminr_model$boots_requested <- nboot_requested
+      seminr_model$boots_dropped <- fails
       seminr_model$seed <- seed
       class(seminr_model) <- c("boot_seminr_model", "seminr_model")
-      message("SEMinR Model successfully bootstrapped")
+      if (fails > 0) {
+        message("SEMinR Model bootstrapped: ", nboot, " of ", nboot_requested, " resamples used. ",
+                fails, " were dropped because they failed to estimate or gave an inadmissible ",
+                "PLSc solution, and are excluded from the bootstrap statistics.")
+      } else {
+        message("SEMinR Model successfully bootstrapped")
+      }
       return(seminr_model)
     },
     error = function(cond) {

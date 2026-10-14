@@ -181,6 +181,11 @@ all_constructs_of_mode <- function(mmMatrix, mode) {
   unique(mmMatrix[mmMatrix[, "type"] == mode, "construct"])
 }
 
+# Get the items of the given constructs, in construct order
+all_items_of_constructs <- function(mmMatrix, constructs) {
+  unlist(lapply(constructs, function(c) construct_items(mmMatrix, c)), use.names = FALSE)
+}
+
 # Check if all indicator names in a measurement model exist in the data columns
 are_indicators_in_data <- function(measurement_model,
                                         data) {

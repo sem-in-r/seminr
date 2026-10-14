@@ -33,3 +33,18 @@ test_that("bootstrap_model completes with cores=1", {
   expect_false(is.null(boot$paths_descriptives))
   expect_false(is.null(boot$boot_paths))
 })
+
+test_that("setup_parallel_cluster() retries on another port when the default port is taken", {
+  skip_on_cran()
+  # Hold the port the cluster would open first, as another session might
+  port <- utils::getFromNamespace("defaultClusterOptions", "parallel")$port
+  blocker <- serverSocket(port)
+  on.exit(close(blocker), add = TRUE)
+  set.seed(1)
+  seed_before <- .Random.seed
+  cl <- setup_parallel_cluster(1)
+  on.exit(parallel::stopCluster(cl), add = TRUE)
+  expect_s3_class(cl, "cluster")
+  # The retry does not draw from the caller's random number stream
+  expect_identical(.Random.seed, seed_before)
+})
