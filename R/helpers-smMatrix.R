@@ -231,9 +231,18 @@ construct_order <- function(smMatrix) {
   # initialize construct order with first purely exogenous construct
   construct_order <- only_exo
 
-  # Iterate over constructs to generate construct_order
+  # Iterate over constructs to generate construct_order. Purely endogenous
+  # constructs are appended last, so they are never added here: one whose
+  # antecedents were all ordered early (e.g. B -> E with E an outcome only)
+  # would otherwise keep the loop from ever ending
   while (!setequal(all_exogenous_constructs, construct_order)) {
-    construct_order <- c(construct_order, setdiff(construct_antecedents_all(construct_order, smMatrix)[have_antecedents_in(construct_antecedents_all(construct_order, smMatrix), construct_order, smMatrix)], construct_order))
+    next_constructs <- construct_antecedents_all(construct_order, smMatrix)
+    next_constructs <- next_constructs[have_antecedents_in(next_constructs, construct_order, smMatrix)]
+    next_constructs <- setdiff(next_constructs, c(construct_order, only_endo))
+    if (length(next_constructs) == 0) {
+      stop("The structural model cannot be put in causal order; it may contain a cycle.", call. = FALSE)
+    }
+    construct_order <- c(construct_order, next_constructs)
   }
 
   # return the order of endogenous constructs to be predicted

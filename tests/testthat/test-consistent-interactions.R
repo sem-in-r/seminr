@@ -47,3 +47,15 @@ test_that("Seminr estimates rhoA, AVE, rhoC (reliability) correctly\n", {
   expect_equal(as.numeric(sum$reliability), as.numeric(reliability_control[,c(1,4,2,3)]), tolerance = 0.00001)
 })
 
+
+test_that("PLSc models with interactions show the Becker et al. (2018) note", {
+  expect_message(estimate_pls(data = mobi, measurement_model = mobi_mm, structural_model = mobi_sm),
+                 "Becker et al. \\(2018\\)")
+})
+
+test_that("PLSc models without interactions do not show the Becker et al. note", {
+  no_int_mm <- mobi_mm[!grepl("interaction", names(mobi_mm))]
+  no_int_sm <- relationships(paths(to = "Satisfaction", from = c("Image", "Expectation", "Value")))
+  expect_no_message(estimate_pls(data = mobi, measurement_model = no_int_mm, structural_model = no_int_sm),
+                    message = "Becker")
+})
