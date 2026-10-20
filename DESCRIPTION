@@ -1,7 +1,7 @@
 Package: seminr
 Type: Package
 Title: Building and Estimating Structural Equation Models
-Version: 2.6.0
+Version: 2.6.0.9000
 Date: 2026-10-13
 Authors@R: c(person("Soumya", "Ray", email = "soumya.ray@gmail.com", role = c("aut", "ths")),
              person("Nicholas Patrick", "Danks", email = "seminrgroup@gmail.com", role = c("aut","cre")),
