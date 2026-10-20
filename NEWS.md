@@ -145,6 +145,11 @@
 
 * The package maintainer address is now `seminrgroup@gmail.com` (#420).
 
+* `bootstrap_model()` with the default `cores = NULL` still uses every core.
+  During R CMD check with CRAN's core limit set (`_R_CHECK_LIMIT_CORES_`, as with
+  `--as-cran` and on CRAN), it uses at most two, so the package's tests and
+  vignettes stay within CRAN policy. Results do not depend on the number of cores.
+
 ### Performance
 
 Substantial internal speedups across the heavy routines. **These are refactors
