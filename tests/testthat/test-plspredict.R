@@ -102,6 +102,33 @@ test_that("Seminr estimates the construct scores correctly", {
   expect_equal(as.vector(unlist(Results$item_residuals)), as.vector(two_stage_control), tolerance = 0.00001)
 })
 
+test_that("two-stage predictions do not depend on where interaction_term() sits in constructs()", {
+  # The first-stage model must drop the interaction term wherever it is declared;
+  # the reference is the fixture-checked model above, which declares it last
+  interaction_first <- constructs(
+    interaction_term("QUAL", "PERF", method = two_stage),
+    composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
+    composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
+    composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
+    composite("COMP", multi_items("comp_", 1:3))
+  )
+  interaction_middle <- constructs(
+    composite("QUAL", multi_items("qual_", 1:8), weights = mode_B),
+    composite("PERF", multi_items("perf_", 1:5), weights = mode_B),
+    interaction_term("QUAL", "PERF", method = two_stage),
+    composite("CSOR", multi_items("csor_", 1:5), weights = mode_B),
+    composite("COMP", multi_items("comp_", 1:3))
+  )
+  for (mm in list(interaction_first, interaction_middle)) {
+    model <- estimate_pls(data = corp_rep_data, measurement_model = mm,
+                          structural_model = corp_rep_sm_mod,
+                          missing = mean_replacement, missing_value = "-99")
+    reordered <- predict(object = model, testData = corp_rep_data2, technique = predict_EA)
+    expect_equal(as.matrix(reordered$item_residuals), as.matrix(Results$item_residuals),
+                 tolerance = 1e-10)
+  }
+})
+
 context("predict.seminr_model generates predictions for product_indicator moderated models\n")
 
 corp_rep_mm_prod <- constructs(

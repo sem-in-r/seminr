@@ -160,7 +160,9 @@ two_stage_predict <- function(pls_model, testData, technique, actual_star = NULL
   int_list <- lapply(interactions, parse_interactions)
 
   # Re-estimate first-stage model (without interactions) on training data
-  first_stage_mm <- pls_model$measurement_model[!(all_constructs(pls_model$mmMatrix) %in% interactions)]
+  # Select by class, not position: the measurement model keeps the user's order
+  # from constructs(), which need not match the construct order of mmMatrix
+  first_stage_mm <- all_non_interactions(pls_model$measurement_model)
   first_stage_sm <- remove_paths_from(pls_model$structural_model, interactions)
   first_stage_model <- estimate_pls(data = pls_model$rawdata,
                                     measurement_model = first_stage_mm,
