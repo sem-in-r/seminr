@@ -66,7 +66,7 @@ plsc_admissibility <- function(pls_model) {
   mmMatrix <- pls_model$mmMatrix
   smMatrix <- pls_model$smMatrix
   constructs <- pls_model$constructs
-  items <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
+  items <- all_non_interaction_items(pls_model)
   loadings <- pls_model$outer_loadings[items, constructs, drop = FALSE]
   problems <- character()
 
@@ -128,7 +128,7 @@ plsc_admissibility <- function(pls_model) {
 # @return Named correlation matrix over the model's (non-interaction) items
 plsc_implied_correlations <- function(pls_model) {
   mmMatrix <- pls_model$mmMatrix
-  items <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
+  items <- all_non_interaction_items(pls_model)
   loadings <- pls_model$outer_loadings[items, pls_model$constructs, drop = FALSE]
 
   admissibility <- plsc_admissibility(pls_model)

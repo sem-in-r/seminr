@@ -126,6 +126,18 @@ has_reflective <- function(seminr_model) {
   }, logical(1)))
 }
 
+# Does the model contain interaction terms? True when the measurement model
+# specifies an interaction_term(): the test estimate_pls() uses to set
+# $interaction, a field that is set only after PLSc has run and that CB-SEM
+# models never have. Reads the class of each measurement model element, not its
+# name, because an interaction appended to a measurement model can be unnamed,
+# and not the structural model, because a CB-SEM one spells "A*B" as "A_x_B".
+# A plain function, not an S3 method: model_consistent() calls it on the list
+# simplePLS() returns, which does not have the "seminr_model" class yet
+has_interaction_terms <- function(seminr_model) {
+  length(all_interaction_fns(seminr_model$measurement_model)) > 0
+}
+
 # -- Selectors (all_noun: return vectors) ----------------------
 
 #' Get all common-factor (reflective) constructs in a model
@@ -141,6 +153,23 @@ all_factors <- function(seminr_model) {
   intersect(seminr_model$constructs, all_reflective(seminr_model$mmMatrix))
 }
 
+# Get the higher-order composites among the given constructs of a stage-2 model:
+# those that are not common factors or interactions and whose indicators are all
+# construct scores of the first-stage model (two-stage approach)
+#
+# @param seminr_model  The stage-2 seminr_model, with first_stage_model attached
+# @param constructs    Constructs to search
+# @return Names of the constructs whose indicators are LOC scores
+higher_order_composites <- function(seminr_model, constructs) {
+  first_stage <- seminr_model$first_stage_model
+  if (is.null(first_stage)) return(character(0))
+  is_hoc <- vapply(constructs, function(construct) {
+    !(construct %in% all_factors(seminr_model)) && !is_interaction(construct) &&
+      all(construct_items(seminr_model$mmMatrix, construct) %in% first_stage$constructs)
+  }, logical(1))
+  constructs[is_hoc]
+}
+
 #' Get all composite constructs in a model
 #'
 #' Returns the names of constructs estimated as composites (i.e., not
@@ -152,4 +181,11 @@ all_factors <- function(seminr_model) {
 #' @export
 all_composites <- function(seminr_model) {
   setdiff(seminr_model$constructs, all_factors(seminr_model))
+}
+
+# Get the model's indicator names without the interaction items (those with a
+# "*"), in mmVariables order. Reads $mmVariables directly, so it also works on
+# the list simplePLS() returns while estimate_pls() is still running
+all_non_interaction_items <- function(seminr_model) {
+  seminr_model$mmVariables[!is_interaction(seminr_model$mmVariables)]
 }

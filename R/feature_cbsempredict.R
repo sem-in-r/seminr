@@ -9,12 +9,6 @@
 # seminr prediction technique so that CB-SEM, PLS and PLSc predictions answer
 # the same question.
 
-# Does a CB-SEM model contain interaction terms? ----
-cbsem_has_interaction <- function(model) {
-  any(grepl("interaction", names(model$measurement_model))) ||
-    any(grepl("_x_", model$smMatrix[, "source"], fixed = TRUE))
-}
-
 #' Predict method for SEMinR CB-SEM models
 #'
 #' Generates out-of-sample predictions for a model estimated by
@@ -81,7 +75,7 @@ predict.cbsem_model <- function(object, testData, technique = predict_DA, na.pri
   unavailable <- function(...) {
     stop("Prediction is not available for this CB-SEM model: ", ..., call. = FALSE)
   }
-  if (cbsem_has_interaction(object)) {
+  if (has_interaction_terms(object)) {
     unavailable("it contains interaction terms, and a latent product is not normally distributed ",
                 "(see https://github.com/sem-in-r/seminr/issues/427).")
   }
