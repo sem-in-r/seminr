@@ -1,3 +1,5 @@
+# seminr (development version)
+
 # seminr 2.6.0
 
 ### New features
