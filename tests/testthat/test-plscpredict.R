@@ -248,7 +248,7 @@ test_that("predict_pls() gives the same PLSc predictions in parallel workers", {
   # installed build predates this code (run devtools::install() first). Kept
   # small and off CRAN: 2 cores, 4 folds.
   skip_on_cran()
-  skip_if_not(installed_seminr_has("hoc_composite_reliability"),
+  skip_if_not(installed_seminr_has("all_non_interaction_items"),
               "installed seminr is older than the code under test; run devtools::install()")
   model <- suppressMessages(estimate_pls(mobi, chain_mm, chain_sm))
   set.seed(425)

@@ -86,6 +86,23 @@ test_that("has_interactions with outcome filters to specific DV", {
   expect_false(has_interactions(sm_multi, outcome = "Loyalty"))
 })
 
+# --- has_interaction_terms (on a model) ---
+test_that("has_interaction_terms detects interaction terms by class, whatever their name", {
+  base_mm <- constructs(
+    composite("Image",       multi_items("IMAG", 1:3)),
+    composite("Expectation", multi_items("CUEX", 1:3))
+  )
+  for (method in list(two_stage, product_indicator, orthogonal)) {
+    term <- interaction_term(iv = "Image", moderator = "Expectation", method = method)
+    # unnamed (as in demo/seminr-cbsem-cfa-ecsi.R) and named, on a plain list
+    # like the one simplePLS() returns while estimate_pls() is still running
+    for (mm in list(append(base_mm, term), append(base_mm, c(moderation = term)))) {
+      expect_true(has_interaction_terms(list(measurement_model = mm)))
+    }
+  }
+  expect_false(has_interaction_terms(list(measurement_model = base_mm)))
+})
+
 # --- construct_names S3 generic ---
 test_that("construct_names dispatches on structural_model", {
   sm <- relationships(
@@ -143,6 +160,23 @@ test_that("all_factors selects the reflective constructs", {
   mixed_pls <- suppressMessages(estimate_pls(mobi, mixed_mm, mixed_sm))
   expect_setequal(all_factors(mixed_pls), c("Image", "Satisfaction"))
   expect_length(all_factors(mobi_pls), 0)
+})
+
+test_that("all_non_interaction_items drops interaction items and keeps mmVariables order", {
+  mm <- constructs(
+    composite("Image",        multi_items("IMAG", 1:3)),
+    composite("Expectation",  multi_items("CUEX", 1:3)),
+    composite("Satisfaction", multi_items("CUSA", 1:3)),
+    interaction_term(iv = "Image", moderator = "Expectation", method = product_indicator)
+  )
+  sm <- relationships(
+    paths(from = c("Image", "Expectation", "Image*Expectation"), to = "Satisfaction")
+  )
+  model <- suppressMessages(estimate_pls(mobi, mm, sm))
+  expected <- c(paste0("IMAG", 1:3), paste0("CUEX", 1:3), paste0("CUSA", 1:3))
+  expect_true(any(grepl("*", model$mmVariables, fixed = TRUE)))
+  expect_identical(all_non_interaction_items(model), expected)
+  expect_identical(all_non_interaction_items(unclass(model)), expected)
 })
 
 test_that("has_reflective() ignores reflective constructs that are not in the structural model", {

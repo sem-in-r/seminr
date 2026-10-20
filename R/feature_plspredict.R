@@ -4,7 +4,7 @@
 
 # Legacy helper used by predict_pls for construct-level actuals ----
 estimate_actual_star <- function(pls_model, train_data, testData) {
-  no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
+  no_int_mmvars <- all_non_interaction_items(pls_model)
   actual_star <- estimate_pls(data = rbind(train_data[,no_int_mmvars], testData[,no_int_mmvars]),
                                        measurement_model = pls_model$measurement_model,
                                        structural_model = pls_model$structural_model)$construct_scores[,all_endogenous(pls_model$smMatrix),drop = F] |>
@@ -42,7 +42,7 @@ return_mod_scores <- function(OOS_composite_scores, testData, x) {
 # @param testData   Held-out test data (data.frame)
 # @return construct_scores matrix from the re-estimated model
 compute_actual_star <- function(pls_model, testData) {
-  no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
+  no_int_mmvars <- all_non_interaction_items(pls_model)
   fulldata <- pls_model$data[, no_int_mmvars]
   original_data <- fulldata
   fulldata[rownames(testData), no_int_mmvars] <- testData[, no_int_mmvars]
@@ -90,7 +90,7 @@ compute_actual_star <- function(pls_model, testData) {
 # @return A predicted_seminr_model object
 predict_from_augmented_data <- function(pls_model, testData, augmented_data,
                                         actual_star, technique) {
-  no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
+  no_int_mmvars <- all_non_interaction_items(pls_model)
 
   # Standardize all items (raw + interaction) using model's stored params
   scaled_data <- standardize_data(
@@ -152,7 +152,7 @@ one_stage_predict <- function(pls_model, testData, technique, actual_star = NULL
 # OOS composite scores, then multiplies IV * Moderator scores to create the
 # interaction indicator.
 two_stage_predict <- function(pls_model, testData, technique, actual_star = NULL) {
-  no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
+  no_int_mmvars <- all_non_interaction_items(pls_model)
   if (is.null(actual_star)) actual_star <- compute_actual_star(pls_model, testData)
 
   # Collect all interactions and parse their IV/moderator names
@@ -249,7 +249,7 @@ create_pi_items_for_test_data <- function(pls_model, testData, interaction_name)
 #
 # Supports multiple product_indicator interactions and quadratic terms.
 product_indicator_predict <- function(pls_model, testData, technique, actual_star = NULL) {
-  no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
+  no_int_mmvars <- all_non_interaction_items(pls_model)
   if (is.null(actual_star)) actual_star <- compute_actual_star(pls_model, testData)
 
   # Recreate product indicator items for each interaction construct,
@@ -282,7 +282,7 @@ orthogonal_predict <- function(pls_model, testData, technique, actual_star = NUL
          "orthogonalization parameters. Please re-estimate the model with the current version.")
   }
 
-  no_int_mmvars <- pls_model$mmVariables[!is_interaction(pls_model$mmVariables)]
+  no_int_mmvars <- all_non_interaction_items(pls_model)
   if (is.null(actual_star)) actual_star <- compute_actual_star(pls_model, testData)
 
   # Recreate product items, then orthogonalize using stored coefficients
@@ -350,7 +350,7 @@ stop_if_not_predictable <- function(model) {
          "a CFA has no structural model to predict from.",
          call. = FALSE)
   }
-  if (has_reflective(model) && !is.null(model$interaction)) {
+  if (has_reflective(model) && has_interaction_terms(model)) {
     stop("Prediction is not supported for PLSc models (reflective constructs) with interaction terms ",
          "(see https://github.com/sem-in-r/seminr/issues/427).",
          call. = FALSE)
@@ -458,7 +458,7 @@ predict.seminr_model <- function(object, testData, technique = predict_DA, na.pr
   }
 
   # No interactions: standard single-stage prediction
-  if (is.null(object$interaction)) {
+  if (!has_interaction_terms(object)) {
     return(one_stage_predict(object, testData, technique, actual_star))
   }
 
@@ -589,7 +589,7 @@ predict_pls <- function(model, technique = predict_DA, noFolds = NULL, reps = NU
     LM_predicted_outsample_item <- pred_matrices$out_of_sample_lm_item[rownames(model$data),]
     LM_predicted_insample_item <- pred_matrices$in_sample_lm_item[rownames(model$data),]
   } else {
-    no_int_mmvars <- model$mmVariables[!is_interaction(model$mmVariables)]
+    no_int_mmvars <- all_non_interaction_items(model)
     pls_pred_oos_array <- array(,dim = c(nrow(ordered_data), length(no_int_mmvars), reps))
     pls_pred_is_array <- array(,dim = c(nrow(ordered_data), length(no_int_mmvars), reps))
     lm_pred_oos_array <- array(,dim = c(nrow(ordered_data), length(endogenous_items), reps))
@@ -728,7 +728,7 @@ in_and_out_sample_predictions <- function(x, folds, ordered_data, model,techniqu
   trainIndexes <- which(folds!=x,arr.ind=TRUE)
   testingData <- ordered_data[testIndexes, ]
   trainingData <- ordered_data[-testIndexes, ]
-  no_int_mmvars <- model$mmVariables[!is_interaction(model$mmVariables)]
+  no_int_mmvars <- all_non_interaction_items(model)
 
   # Create matrices for return data
   PLS_predicted_outsample_construct <- matrix(0,nrow = nrow(ordered_data),ncol = length(model$constructs),dimnames = list(rownames(ordered_data),model$constructs))
@@ -877,7 +877,7 @@ prediction_matrices <- function(noFolds, ordered_data, model, technique, cores) 
   }
 
   # collect the odd and even numbered matrices from the matrices return object
-  no_int_mmvars <- model$mmVariables[!is_interaction(model$mmVariables)]
+  no_int_mmvars <- all_non_interaction_items(model)
   in_sample_construct_matrix <- do.call(cbind, matrices[(1:(noFolds*9))[1:(noFolds*9)%%9==1]])
   out_sample_construct_matrix <- do.call(cbind, matrices[(1:(noFolds*9))[1:(noFolds*9)%%9==2]])
   in_sample_item_matrix <- do.call(cbind, matrices[(1:(noFolds*9))[1:(noFolds*9)%%9==3]])

@@ -130,9 +130,9 @@ report_missing <- function(seminr_model) {
 
   # extract variables for analysis based on whether there is a higher-order model
   if (is.null(seminr_model$first_stage_model)) {
-    no_int_mmvars <- seminr_model$mmVariables[!is_interaction(seminr_model$mmVariables)]
+    no_int_mmvars <- all_non_interaction_items(seminr_model)
   } else {
-    no_int_mmvars <- seminr_model$first_stage_model$mmVariables[!is_interaction(seminr_model$first_stage_model$mmVariables)]
+    no_int_mmvars <- all_non_interaction_items(seminr_model$first_stage_model)
   }
 
   # only subset raw data for available variables

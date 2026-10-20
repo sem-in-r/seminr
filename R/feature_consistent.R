@@ -168,18 +168,8 @@ plsc_disattenuation <- function(seminr_model) {
 # composites is not corrected.
 #
 # @param seminr_model  The stage-2 seminr_model, with first_stage_model attached
-# @param constructs    Constructs to search
-# @return Names of the constructs whose indicators are LOC scores
-higher_order_composites <- function(seminr_model, constructs) {
-  first_stage <- seminr_model$first_stage_model
-  if (is.null(first_stage)) return(character(0))
-  is_hoc <- vapply(constructs, function(construct) {
-    !(construct %in% all_factors(seminr_model)) && !is_interaction(construct) &&
-      all(construct_items(seminr_model$mmMatrix, construct) %in% first_stage$constructs)
-  }, logical(1))
-  constructs[is_hoc]
-}
-
+# @param hoc           A higher-order composite of seminr_model (see higher_order_composites())
+# @return The reliability of hoc
 hoc_composite_reliability <- function(seminr_model, hoc) {
   first_stage <- seminr_model$first_stage_model
   locs <- construct_items(seminr_model$mmMatrix, hoc)
@@ -191,13 +181,13 @@ hoc_composite_reliability <- function(seminr_model, hoc) {
 }
 
 # Function to implement PLSc as per Dijkstra, T. K., & Henseler, J. (2015). Consistent partial least squares path modeling. MIS Quarterly, 39(2), 297-316.
-# Interactions are detected from the construct names: estimate_pls() sets
-# $interaction only after this runs
+# Interactions are detected from the measurement model, because estimate_pls()
+# sets $interaction only after this runs
 model_consistent <- function(seminr_model) {
   if (!has_reflective(seminr_model)) {
     return(seminr_model)
   }
-  if (any(is_interaction(seminr_model$constructs))) {
+  if (has_interaction_terms(seminr_model)) {
     message(
       "Models with interactions can be estimated as PLS consistent, but are subject to some bias as per Becker et al. (2018)\n",
       "'Estimating Moderating Effects in PLS-SEM and PLSc-SEM: Interaction Term Generation*Data Treatment'")

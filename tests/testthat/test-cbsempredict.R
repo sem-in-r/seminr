@@ -94,6 +94,24 @@ test_that("CB-SEM models with interaction terms are refused", {
   expect_error(predict(model, test), "interaction.*427")
 })
 
+test_that("CB-SEM interaction terms are refused whether or not the measurement model names them", {
+  # demo/seminr-cbsem-cfa-ecsi.R appends the term without a name, so the only
+  # trace of it is "Image_x_Expectation" in the structural model
+  base_mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    reflective("Expectation",  multi_items("CUEX", 1:3)),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  sm <- relationships(
+    paths(from = c("Image", "Expectation", "Image*Expectation"), to = "Satisfaction")
+  )
+  term <- interaction_term(iv = "Image", moderator = "Expectation", method = product_indicator)
+  for (mm in list(append(base_mm, term), append(base_mm, c(moderation = term)))) {
+    model <- suppressMessages(estimate_cbsem(train, mm, sm))
+    expect_error(predict(model, test), "interaction.*427")
+  }
+})
+
 test_that("predict_pls() still refuses CB-SEM models and points to predict()", {
   model <- suppressMessages(estimate_cbsem(train, chain_mm, chain_sm))
   expect_error(predict_pls(model, noFolds = 5), "CB-SEM.*predict\\(\\)")
