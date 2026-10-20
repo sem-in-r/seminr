@@ -111,13 +111,20 @@ predict.cbsem_model <- function(object, testData, technique = predict_DA, na.pri
     stop("CB-SEM models can only be predicted with predict_DA or predict_EA")
   }
 
-  # Implied covariances of items and latent variables; training means of the
-  # items lavaan used (the model is fitted without a mean structure, so the
-  # implied means are the sample means)
+  # Implied covariances of items and latent variables, and their means. With a
+  # mean structure (e.g. FIML, missing = "ml") the training data keep their NAs,
+  # so the means are the model-implied ones; without one, the implied item means
+  # are the sample means of the rows lavaan used and the latent means are 0 (#436)
   sigma <- lavaan::lavInspect(fit, "cov.all")
   items <- lavaan::lavNames(fit, "ov")
-  mu <- colMeans(lavaan::lavInspect(fit, "data"))
-  names(mu) <- items
+  latents <- lavaan::lavNames(fit, "lv")
+  if (isTRUE(lavaan::lavInspect(fit, "meanstructure"))) {
+    mu <- c(unclass(lavaan::lavInspect(fit, "mean.ov"))[items],
+            unclass(lavaan::lavInspect(fit, "mean.lv"))[latents])
+  } else {
+    mu <- c(colMeans(lavaan::lavInspect(fit, "data")), rep(0, length(latents)))
+  }
+  names(mu) <- c(items, latents)
   centered <- sweep(as.matrix(testData[, items, drop = FALSE]), 2, mu[items])
 
   conditional_expectation <- function(x, y) {
@@ -141,7 +148,7 @@ predict.cbsem_model <- function(object, testData, technique = predict_DA, na.pri
     } else {
       x <- construct_items(mmMatrix, construct)
     }
-    construct_scores[, construct] <- conditional_expectation(x, construct)
+    construct_scores[, construct] <- conditional_expectation(x, construct) + mu[construct]
   }
 
   predictResults <- list(

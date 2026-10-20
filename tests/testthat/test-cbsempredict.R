@@ -98,3 +98,41 @@ test_that("predict_pls() still refuses CB-SEM models and points to predict()", {
   model <- suppressMessages(estimate_cbsem(train, chain_mm, chain_sm))
   expect_error(predict_pls(model, noFolds = 5), "CB-SEM.*predict\\(\\)")
 })
+
+# Regression for #436: under FIML (missing = "ml") the training data keep their
+# NAs, so predictions must use the model-implied means, not column means.
+fiml_train <- local({
+  set.seed(436)
+  d <- train
+  for (item in c("IMAG2", "CUEX1", "CUSA3")) d[sample(nrow(d), 10), item] <- NA
+  d
+})
+
+test_that("CB-SEM DA predictions under FIML equal lavPredictY and contain no NA (#436)", {
+  model <- suppressMessages(estimate_cbsem(fiml_train, chain_mm, chain_sm, missing = "ml"))
+  pred <- predict(model, test, technique = predict_DA)
+  expect_false(anyNA(pred$predicted_items))
+  for (y in c("Expectation", "Quality", "Satisfaction")) {
+    o <- oracle_predict(model, construct_antecedents(model$smMatrix, y), y)
+    expect_equal(unname(as.matrix(pred$predicted_items[, colnames(o)])), unname(unclass(o)),
+                 tolerance = 1e-8, info = y)
+  }
+})
+
+test_that("CB-SEM EA predictions under FIML equal lavPredictY and contain no NA (#436)", {
+  model <- suppressMessages(estimate_cbsem(fiml_train, chain_mm, chain_sm, missing = "ml"))
+  pred <- predict(model, test, technique = predict_EA)
+  expect_false(anyNA(pred$predicted_items))
+  expect_false(anyNA(pred$predicted_construct_scores))
+  o <- oracle_predict(model, "Image", c("Expectation", "Quality", "Satisfaction"))
+  expect_equal(unname(as.matrix(pred$predicted_items[, colnames(o)])), unname(unclass(o)),
+               tolerance = 1e-8)
+})
+
+test_that("CB-SEM predictions under listwise deletion are unchanged by the #436 fix", {
+  model <- suppressMessages(estimate_cbsem(fiml_train, chain_mm, chain_sm))
+  pred <- predict(model, test, technique = predict_DA)
+  o <- oracle_predict(model, "Image", "Expectation")
+  expect_equal(unname(as.matrix(pred$predicted_items[, colnames(o)])), unname(unclass(o)),
+               tolerance = 1e-8)
+})
