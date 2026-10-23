@@ -42,3 +42,54 @@ test_that("Saving a plot works", {
     }
   }
 })
+
+test_that("save_plot() saves CB-SEM and CFA plots (#213)", {
+  skip_if_not(semPlot_present)
+  mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    reflective("Expectation",  multi_items("CUEX", 1:3)),
+    reflective("Value",        multi_items("PERV", 1:2)),
+    reflective("Satisfaction", multi_items("CUSA", 1:3)),
+    interaction_term(iv = "Image", moderator = "Expectation", method = two_stage)
+  )
+  sm <- relationships(
+    paths(from = c("Image", "Expectation", "Image*Expectation"), to = "Value"),
+    paths(from = "Value", to = "Satisfaction")
+  )
+  model_cb <- suppressMessages(estimate_cbsem(mobi, mm, sm))
+  model_cfa <- suppressMessages(estimate_cfa(mobi, mm[1:4]))
+
+  extensions <- c("pdf", "png", "ps")
+  if (capabilities("cairo")) extensions <- c(extensions, "svg")
+  for (model in list(model_cb, model_cfa)) {
+    p <- suppressMessages(plot(model))
+    expect_s3_class(p, "qgraph")
+    for (ext in extensions) {
+      fname <- tempfile(fileext = paste0(".", ext))
+      save_plot(fname, p)
+      expect_true(file.exists(fname))
+      expect_gt(file.info(fname)$size, 0)
+      unlink(fname)
+    }
+  }
+  unlink("Rplots.pdf")
+})
+
+test_that("save_plot() defaults to the last plot, including a CB-SEM plot (#213)", {
+  skip_if_not(semPlot_present)
+  mm <- constructs(
+    reflective("Image",        multi_items("IMAG", 1:5)),
+    reflective("Satisfaction", multi_items("CUSA", 1:3))
+  )
+  sm <- relationships(paths(from = "Image", to = "Satisfaction"))
+  model_pls <- suppressMessages(estimate_pls(mobi, mm, sm))
+  model_cb <- suppressMessages(estimate_cbsem(mobi, mm, sm))
+  if (rsvg_present) suppressMessages(plot(model_pls))
+  p_cb <- suppressMessages(plot(model_cb))
+  # previously the earlier PLS plot was still the last plot, and was saved instead
+  expect_identical(last_seminr_plot(), p_cb)
+  fname <- tempfile(fileext = ".pdf")
+  save_plot(fname)
+  expect_gt(file.info(fname)$size, 0)
+  unlink(c(fname, "Rplots.pdf"))
+})

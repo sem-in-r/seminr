@@ -37,15 +37,12 @@ plot.seminr_model <- function(x,
 
   model <- x
     # lavaan models
-    if (inherits(model, "cfa_model")) {
+    # semPlot draws these directly; the plot is kept so save_plot() can redraw it (#213)
+    if (inherits(model, "cfa_model") || inherits(model, "cbsem_model")) {
       message("Plotting of lavaan models using semPlot.")
-      dot_graph.cfa_model(model, ...)
-      return()
-    }
-    if (inherits(model, "cbsem_model")) {
-      message("Plotting of lavaan models using semPlot.")
-      dot_graph.cbsem_model(model, ...)
-      return()
+      res <- dot_graph(model, ...)
+      if (inherits(res, "qgraph")) set_last_seminr_plot(res)
+      return(invisible(res))
     }
 
     if (inherits(title, "seminr_theme")) {
@@ -139,6 +136,10 @@ query_install <- function(pkg_name = "DiagrammeR", failure_msg=""){
 #' }
 #'
 save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width = NULL, height = NULL){
+  if (inherits(plot, "qgraph")) {
+    return(save_qgraph_plot(filename, plot, width, height))
+  }
+
   query_install("DiagrammeRsvg")
   query_install("rsvg")
 
@@ -177,6 +178,29 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
   )
 
 
+}
+
+
+# Saves a CB-SEM or CFA plot, drawn by semPlot, by redrawing it on a file
+# device. width and height are in pixels, as for DiagrammeR plots: vector
+# formats take them as points (1/72 inch)
+save_qgraph_plot <- function(filename, plot, width = NULL, height = NULL) {
+  file_extension <- tolower(tools::file_ext(filename))
+  # R's device defaults: 480 x 480 pixels for png, 7 x 7 inches otherwise
+  pixels <- c(not_null(width, 480), not_null(height, 480))
+  inches <- c(not_null(width, 504), not_null(height, 504)) / 72
+  switch(
+    file_extension,
+    "pdf" = grDevices::pdf(filename, width = inches[1], height = inches[2]),
+    "png" = grDevices::png(filename, width = pixels[1], height = pixels[2]),
+    "ps" = grDevices::postscript(filename, width = inches[1], height = inches[2]),
+    "svg" = grDevices::svg(filename, width = inches[1], height = inches[2]),
+    stop("Unsupported file type for CB-SEM and CFA plots: '", file_extension,
+         "'. Please use png, pdf, ps, or svg.", call. = FALSE)
+  )
+  on.exit(grDevices::dev.off())
+  graphics::plot(plot)
+  invisible(NULL)
 }
 
 
