@@ -86,7 +86,8 @@ HTMT <- function(seminr_model) {
       } else {
         sqrt(MTHM * within_j$factor * within_j$sum)
       }
-      HTMT[constructi, constructj] <- HTHM / MTHM
+      # HTMT is undefined when a construct's items are uncorrelated (#341)
+      HTMT[constructi, constructj] <- if (is.finite(MTHM) && MTHM > 0) HTHM / MTHM else NA
     }
   }
   convert_to_table_output(HTMT)

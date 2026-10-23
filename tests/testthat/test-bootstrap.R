@@ -333,3 +333,47 @@ test_that("Seminr calculates descriptives correctly with missing values", {
   expect_equal(descriptives[, 8], boot_item_control[, 8], tolerance = 0.00001)
   expect_equal(descriptives[, 9], boot_item_control[, 9], tolerance = 0.00001)
 })
+
+test_that("HTMT is NA, not Inf, when a construct's items are uncorrelated (#341)", {
+  set.seed(1)
+  n <- 40
+  z <- rnorm(n)
+  # a1 and a2 are exactly uncorrelated, so A's mean within-construct correlation is 0
+  d <- data.frame(a1 = rep(c(1, 1, -1, -1), n / 4), a2 = rep(c(1, -1, 1, -1), n / 4),
+                  b1 = z + rnorm(n), b2 = z + rnorm(n), c1 = z + rnorm(n), c2 = z + rnorm(n))
+  mm <- constructs(composite("A", c("a1", "a2")), composite("B", c("b1", "b2")),
+                   composite("C", c("c1", "c2")))
+  sm <- relationships(paths(from = c("A", "B"), to = "C"))
+  model <- suppressMessages(estimate_pls(d, mm, sm))
+  htmt <- HTMT(model)
+  expect_true(is.na(htmt["A", "B"]))
+  expect_true(is.na(htmt["A", "C"]))
+  expect_true(is.finite(htmt["B", "C"]))
+})
+
+test_that("bootstrap HTMT statistics skip resamples where HTMT is undefined (#341)", {
+  # Binary items in a small sample: some resamples leave A's two items exactly
+  # uncorrelated, which made summary() fail with "missing value where TRUE/FALSE needed"
+  set.seed(42)
+  n <- 22
+  z <- rnorm(n)
+  d <- data.frame(a1 = as.numeric(z + rnorm(n) > 0), a2 = as.numeric(z + rnorm(n, 0, 2) > 0),
+                  b1 = z + rnorm(n), b2 = z + rnorm(n), c1 = z + rnorm(n), c2 = z + rnorm(n))
+  mm <- constructs(composite("A", c("a1", "a2")), composite("B", c("b1", "b2")),
+                   composite("C", c("c1", "c2")))
+  sm <- relationships(paths(from = c("A", "B"), to = "C"))
+  model <- suppressMessages(estimate_pls(d, mm, sm))
+  boot <- suppressMessages(bootstrap_model(model, nboot = 50, cores = 1, seed = 123))
+  ab <- boot$boot_HTMT["A", "B", ]
+  expect_gt(sum(is.na(ab)), 0)
+  expect_false(any(is.infinite(boot$boot_HTMT)))
+
+  boot_htmt <- summary(boot)$bootstrapped_HTMT
+  defined <- ab[!is.na(ab)]
+  expect_equal(boot_htmt["A  ->  B", "Bootstrap Mean"], mean(defined))
+  expect_equal(boot_htmt["A  ->  B", "Bootstrap SD"], sd(defined))
+  expect_equal(unname(boot_htmt["A  ->  B", c("2.5% CI", "97.5% CI")]),
+               unname(quantile(defined, c(0.025, 0.975))))
+  expect_true(all(is.finite(boot_htmt[, c("Bootstrap Mean", "Bootstrap SD", "2.5% CI", "97.5% CI")])))
+  expect_equal(unname(boot$HTMT_descriptives["A", "B Boot Mean"]), mean(defined))
+})
