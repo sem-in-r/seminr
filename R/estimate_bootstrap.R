@@ -299,10 +299,9 @@ bootstrap_model <- function(seminr_model, nboot = 500, cores = NULL, seed = NULL
 
         # Collect the matrices of means and sds for HTMT, over the resamples
         # where HTMT is defined (it is NA where a construct's items are uncorrelated)
-        htmt_means <- matrix(apply(bootmatrix[start:end, , drop = FALSE], 1, mean, na.rm = TRUE),
-                             nrow = nrow(HTMT_matrix), ncol = ncol(HTMT_matrix))
-        htmt_sds <- matrix(apply(bootmatrix[start:end, , drop = FALSE], 1, stats::sd, na.rm = TRUE),
-                           nrow = nrow(HTMT_matrix), ncol = ncol(HTMT_matrix))
+        boot_htmt_rows <- bootmatrix[start:end, , drop = FALSE]
+        htmt_means <- matrix(apply(boot_htmt_rows, 1, mean, na.rm = TRUE), nrow = nrow(HTMT_matrix), ncol = ncol(HTMT_matrix))
+        htmt_sds <- matrix(apply(boot_htmt_rows, 1, stats::sd, na.rm = TRUE), nrow = nrow(HTMT_matrix), ncol = ncol(HTMT_matrix))
 
       # create HTMT matrix (take care to not be stranded with a single column/row vector)
       HTMT_descriptives <- cbind(HTMT_matrix, htmt_means, htmt_sds)

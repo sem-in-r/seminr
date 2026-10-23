@@ -269,47 +269,32 @@ total_indirect_ci <- function(boot_seminr_model, from, to, alpha = 0.05) {
 }
 
 parse_boot_array <- function(original_matrix, boot_array, alpha = 0.05) {
-  Path <- c()
-  original <- c()
-  boot_mean <- c()
-  boot_SD <- c()
-  t_stat <- c()
-  p_value <- c()
-  lower <- c()
-  upper <- c()
-  alpha_text <- alpha/2*100
-  original_matrix[is.na(original_matrix)] <- 0
-  for (i in 1:nrow(original_matrix)) {
-    for (j in 1:ncol(original_matrix)) {
-      if (original_matrix[i,j]!=0 ) {
-        Path <- append(Path, paste(rownames(original_matrix)[i], " -> ", colnames(original_matrix)[j]))
-        original <- append(original, original_matrix[i,j])
-        boot_mean <- append(boot_mean, mean(boot_array[i,j,]))
-        boot_SD <- append(boot_SD, stats::sd(boot_array[i,j,]))
-        if (original_matrix[i,j]/ stats::sd(boot_array[i,j,]) > 999999999) {
-          t_stat <- append(t_stat, NA)
-        } else {
-          t_stat <- append(t_stat,  original_matrix[i,j]/ stats::sd(boot_array[i,j,]))
-        }
-        lower <- append(lower, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[1]])
-        upper <- append(upper, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[2]])
-        p_value <- append(p_value, 2*min(c(mean(boot_array[i,j,] <= 0),mean(boot_array[i,j,] > 0))))
-      }
-    }
-  }
-  return_matrix <- cbind(original, boot_mean, boot_SD, t_stat, lower, upper, p_value)
-  colnames(return_matrix) <- c( "Original Est.", "Bootstrap Mean", "Bootstrap SD", "T Stat.",paste(alpha_text, "% CI", sep = ""),paste((100-alpha_text), "% CI", sep = ""), "Bootstrap P Val")
-  rownames(return_matrix) <- Path
-  convert_to_table_output(return_matrix)
+  parse_boot_array_against(original_matrix, boot_array, alpha,
+                           t_numerator = function(estimate) estimate,
+                           p_value = function(boot_values) 2*min(c(mean(boot_values <= 0), mean(boot_values > 0))))
 }
 
+# HTMT is tested against 1, not 0
 parse_boot_array_htmt <- function(original_matrix, boot_array, alpha = 0.05) {
+  parse_boot_array_against(original_matrix, boot_array, alpha,
+                           t_numerator = function(estimate) 1 - estimate,
+                           p_value = function(boot_values) 2*min(c(mean(boot_values < 1), mean(boot_values >= 1))))
+}
+
+# Bootstrap summary table of every non-zero estimate in original_matrix ----
+# Statistics use the resamples where the estimate is defined: bootstrap HTMT is
+# NA where a construct's items are uncorrelated (#341); other estimates are
+# never NA, so they use every resample.
+#
+# @param t_numerator  Function of the original estimate giving the t-value numerator
+# @param p_value      Function of the defined resample values giving the p-value
+parse_boot_array_against <- function(original_matrix, boot_array, alpha, t_numerator, p_value) {
   Path <- c()
   original <- c()
   boot_mean <- c()
   boot_SD <- c()
   t_stat <- c()
-  p_value <- c()
+  p_values <- c()
   lower <- c()
   upper <- c()
   alpha_text <- alpha/2*100
@@ -319,23 +304,20 @@ parse_boot_array_htmt <- function(original_matrix, boot_array, alpha = 0.05) {
       if (original_matrix[i,j]!=0 ) {
         Path <- append(Path, paste(rownames(original_matrix)[i], " -> ", colnames(original_matrix)[j]))
         original <- append(original, original_matrix[i,j])
-        # Only resamples where HTMT is defined count (#341)
         boot_values <- boot_array[i,j,]
         boot_values <- boot_values[!is.na(boot_values)]
         boot_mean <- append(boot_mean, mean(boot_values))
         boot_SD <- append(boot_SD, stats::sd(boot_values))
-        if (isTRUE((1-original_matrix[i,j])/ stats::sd(boot_values) > 999999999)) {
-          t_stat <- append(t_stat, NA)
-        } else {
-          t_stat <- append(t_stat,  (1-original_matrix[i,j])/ stats::sd(boot_values))
-        }
-        lower <- append(lower, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[1]])
-        upper <- append(upper, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[2]])
-        p_value <- append(p_value, 2*min(c(mean(boot_values < 1),mean(boot_values >= 1))))
+        t_value <- t_numerator(original_matrix[i,j]) / stats::sd(boot_values)
+        t_stat <- append(t_stat, if (isTRUE(t_value > 999999999)) NA else t_value)
+        interval <- conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha)
+        lower <- append(lower, interval[[1]])
+        upper <- append(upper, interval[[2]])
+        p_values <- append(p_values, p_value(boot_values))
       }
     }
   }
-  return_matrix <- cbind(original, boot_mean, boot_SD, t_stat, lower, upper, p_value)
+  return_matrix <- cbind(original, boot_mean, boot_SD, t_stat, lower, upper, p_values)
   colnames(return_matrix) <- c( "Original Est.", "Bootstrap Mean", "Bootstrap SD", "T Stat.",paste(alpha_text, "% CI", sep = ""),paste((100-alpha_text), "% CI", sep = ""), "Bootstrap P Val")
   rownames(return_matrix) <- Path
   convert_to_table_output(return_matrix)
