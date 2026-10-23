@@ -186,13 +186,15 @@ save_plot <- function(filename = "RPlot.pdf", plot = last_seminr_plot(), width =
 # formats take them as points (1/72 inch)
 save_qgraph_plot <- function(filename, plot, width = NULL, height = NULL) {
   file_extension <- tolower(tools::file_ext(filename))
-  size <- function(pixels, default) if (is.null(pixels)) default else pixels
+  # R's device defaults: 480 x 480 pixels for png, 7 x 7 inches otherwise
+  pixels <- c(not_null(width, 480), not_null(height, 480))
+  inches <- c(not_null(width, 504), not_null(height, 504)) / 72
   switch(
     file_extension,
-    "pdf" = grDevices::pdf(filename, width = size(width, 504) / 72, height = size(height, 504) / 72),
-    "png" = grDevices::png(filename, width = size(width, 480), height = size(height, 480)),
-    "ps" = grDevices::postscript(filename, width = size(width, 504) / 72, height = size(height, 504) / 72),
-    "svg" = grDevices::svg(filename, width = size(width, 504) / 72, height = size(height, 504) / 72),
+    "pdf" = grDevices::pdf(filename, width = inches[1], height = inches[2]),
+    "png" = grDevices::png(filename, width = pixels[1], height = pixels[2]),
+    "ps" = grDevices::postscript(filename, width = inches[1], height = inches[2]),
+    "svg" = grDevices::svg(filename, width = inches[1], height = inches[2]),
     stop("Unsupported file type for CB-SEM and CFA plots: '", file_extension,
          "'. Please use png, pdf, ps, or svg.", call. = FALSE)
   )
