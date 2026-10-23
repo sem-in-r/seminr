@@ -81,3 +81,29 @@ test_that("construct relations are accurately estimated", {
   expect_equal(seminr_model$outer_weights,weight_control)
   expect_equal(seminr_model$outer_loadings,loadings_control)
 })
+
+test_that("constructs() rejects a construct name declared more than once (#348)", {
+  expect_error(
+    constructs(
+      composite("Image",       multi_items("IMAG", 1:5)),
+      composite("Expectation", multi_items("CUEX", 1:3)),
+      composite("Image",       multi_items("IMAG", 1:5))
+    ),
+    "declared more than once: Image"
+  )
+  # A higher-order construct may not reuse a first-order construct's name either
+  expect_error(
+    constructs(
+      composite("Image",       multi_items("IMAG", 1:5)),
+      composite("Expectation", multi_items("CUEX", 1:3)),
+      higher_composite("Image", c("Image", "Expectation"))
+    ),
+    "declared more than once: Image"
+  )
+  # Unique names, including interaction terms, are accepted
+  expect_silent(constructs(
+    composite("Image",       multi_items("IMAG", 1:5)),
+    composite("Expectation", multi_items("CUEX", 1:3)),
+    interaction_term(iv = "Image", moderator = "Expectation")
+  ))
+})

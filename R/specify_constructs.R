@@ -30,6 +30,15 @@
 #' @export
 constructs <- function(...) {
   return_list <- list(...)
+  # A name declared twice duplicates its rows in the measurement matrix, which
+  # silently corrupts results (e.g. rho_A above one, #348). Interaction terms
+  # are named by their components and are not checked here
+  construct_names <- vapply(all_non_interactions(return_list), construct_name, character(1))
+  duplicated_names <- unique(construct_names[duplicated(construct_names)])
+  if (length(duplicated_names) > 0) {
+    stop("Each construct must have a unique name; declared more than once: ",
+         paste(duplicated_names, collapse = ", "), call. = FALSE)
+  }
   names(return_list) <- lapply(return_list, function(x) class(x)[[3]])
   class(return_list) <- c(class(return_list), "measurement_model", "seminr_model")
   return(return_list)
