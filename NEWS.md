@@ -1,5 +1,15 @@
 # seminr (development version)
 
+### Fixed
+
+* `save_plot()` now saves plots of CB-SEM and CFA models, including models
+  with interaction terms and higher-order constructs (#213). These are drawn
+  by semPlot rather than DiagrammeR, so `plot()` returned nothing and
+  `save_plot()` failed with "No compatible plot was created", or silently saved
+  an earlier PLS plot. `plot()` now returns the semPlot plot invisibly and
+  records it as the last plot, and `save_plot()` writes it as png, pdf, ps or
+  svg.
+
 # seminr 2.6.0
 
 ### New features
