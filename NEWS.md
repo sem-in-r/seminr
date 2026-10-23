@@ -1,5 +1,13 @@
 # seminr (development version)
 
+### Fixed
+
+* `constructs()` accepted the same construct name twice, which duplicated its
+  rows in the measurement model: the plot drew each indicator twice and the
+  reliability of that construct was wrong without any warning (e.g. rho_A of
+  3.76 instead of 0.87). It now stops and names the duplicated constructs
+  (#348).
+
 # seminr 2.6.0
 
 ### New features
