@@ -1,5 +1,16 @@
 # seminr (development version)
 
+### Fixed
+
+* `summary()` of a bootstrapped model no longer fails with "missing value where
+  TRUE/FALSE needed" when HTMT is undefined in some resamples (#341). HTMT
+  divides by a construct's average within-construct item correlation, so it is
+  undefined when that correlation is zero, which can happen in resamples of
+  small samples with binary items. `HTMT()` now returns `NA` instead of `Inf`
+  for such pairs, and the bootstrap HTMT mean, SD, t-value, percentile interval
+  and p-value are computed over the resamples where HTMT is defined. Paths,
+  loadings and weights still use every resample.
+
 # seminr 2.6.0
 
 ### New features

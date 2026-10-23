@@ -319,16 +319,19 @@ parse_boot_array_htmt <- function(original_matrix, boot_array, alpha = 0.05) {
       if (original_matrix[i,j]!=0 ) {
         Path <- append(Path, paste(rownames(original_matrix)[i], " -> ", colnames(original_matrix)[j]))
         original <- append(original, original_matrix[i,j])
-        boot_mean <- append(boot_mean, mean(boot_array[i,j,]))
-        boot_SD <- append(boot_SD, stats::sd(boot_array[i,j,]))
-        if ((1-original_matrix[i,j])/ stats::sd(boot_array[i,j,]) > 999999999) {
+        # Only resamples where HTMT is defined count (#341)
+        boot_values <- boot_array[i,j,]
+        boot_values <- boot_values[!is.na(boot_values)]
+        boot_mean <- append(boot_mean, mean(boot_values))
+        boot_SD <- append(boot_SD, stats::sd(boot_values))
+        if (isTRUE((1-original_matrix[i,j])/ stats::sd(boot_values) > 999999999)) {
           t_stat <- append(t_stat, NA)
         } else {
-          t_stat <- append(t_stat,  (1-original_matrix[i,j])/ stats::sd(boot_array[i,j,]))
+          t_stat <- append(t_stat,  (1-original_matrix[i,j])/ stats::sd(boot_values))
         }
         lower <- append(lower, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[1]])
         upper <- append(upper, (conf_int(boot_array, from = rownames(original_matrix)[i], to = colnames(original_matrix)[j], alpha = alpha))[[2]])
-        p_value <- append(p_value, 2*min(c(mean(boot_array[i,j,] < 1),mean(boot_array[i,j,] >= 1))))
+        p_value <- append(p_value, 2*min(c(mean(boot_values < 1),mean(boot_values >= 1))))
       }
     }
   }

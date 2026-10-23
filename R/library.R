@@ -247,7 +247,8 @@ conf_int <- function(boot_array, from, to, through = NULL, alpha = 0.05) {
   } else {
     coefficient <- boot_array[from, through,] * boot_array[through, to,]
   }
-  quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)))
+  # na.rm: bootstrap HTMT is NA in resamples where it is undefined (#341)
+  quantiles <- stats::quantile(coefficient, probs = c(alpha/2,1-(alpha/2)), na.rm = TRUE)
   return(quantiles)
 }
 
